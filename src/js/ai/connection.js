@@ -2,7 +2,7 @@
 // Client sends observations/chat only. Server replies never dispatch controls.
 export class ReadOnlyConnection {
     constructor({WebSocketImpl=globalThis.WebSocket,uuid=()=>crypto.randomUUID(),now=()=>Date.now(),
-        schedule=setTimeout,cancel=clearTimeout,onMessage=()=>{},onStatus=()=>{}}={}) {
+        schedule=(fn,ms)=>setTimeout(fn,ms),cancel=id=>clearTimeout(id),onMessage=()=>{},onStatus=()=>{}}={}) {
         Object.assign(this,{WebSocketImpl,uuid,now,schedule,cancel,onMessage,onStatus});
         this.browserId=uuid();this.enabled=false;this.socket=null;this.epoch=null;this.latest=null;
         this.pendingEvents=new Map();this.lastSent=-Infinity;this.sequence=0;this.retry=0;this.timer=null;this.flushTimer=null;

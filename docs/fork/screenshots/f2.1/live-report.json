@@ -1,0 +1,97 @@
+{
+  "passed": true,
+  "hardware": "No hardware; native requests denied; device HTTP blocked",
+  "steps": [
+    "Dashboard loads",
+    "Authenticated pairing and live Mira selection",
+    "Idle observation stays fresh beyond the five-second lease",
+    "Real Ollama response streamed into conversation"
+  ],
+  "frames": [
+    {
+      "type": "observation",
+      "sequence": 0,
+      "status": "IDLE"
+    },
+    {
+      "type": "list_models"
+    },
+    {
+      "type": "select_model"
+    },
+    {
+      "type": "observation",
+      "sequence": 1,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 2,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 3,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 4,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 5,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 6,
+      "status": "IDLE"
+    },
+    {
+      "type": "chat"
+    },
+    {
+      "type": "observation",
+      "sequence": 7,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 8,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 9,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 10,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 11,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 12,
+      "status": "IDLE"
+    },
+    {
+      "type": "observation",
+      "sequence": 13,
+      "status": "IDLE"
+    }
+  ],
+  "reply": "The reported BPM is 98, simulated via the simulated HR system. The session is currently IDLE.",
+  "telemetry": "Authoritative telemetry connected · sequence 13",
+  "state": {
+    "status": "IDLE",
+    "hr": 98
+  }
+}

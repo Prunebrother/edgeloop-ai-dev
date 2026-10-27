@@ -3,7 +3,7 @@ import {Capture} from './snapshot.js';
 import {ReadOnlyConnection} from './connection.js';
 import {CharacterPresentation} from './character.js';
 import {mountLayout} from './layout.js';
-export function mountCompanion() {
+export function mountCompanion({refreshObservation=()=>{}}={}) {
     const capture=new Capture();
     const panel=document.createElement('section');panel.id='ai-companion';panel.dataset.paired='false';panel.setAttribute('aria-label','AI conversation');
     // Static markup only. Server and model text is always assigned with textContent.
@@ -72,6 +72,8 @@ export function mountCompanion() {
     el('chat').onsubmit=e=>{e.preventDefault();if(!selected||pending)return;
         const text=el('text').value.trim();if(text&&connection.send({version:1,type:'chat',model:selected,text})){follow=true;line('user',text);el('text').value='';error('');busy(true,'Waiting for companion…');}};
     el('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el('chat').requestSubmit();}};
-    window.addEventListener('pagehide',()=>connection.disconnect());
+    // Original idle/paused sessions need no engine ticks. Refresh only the read-only projection.
+    const observationTimer=setInterval(()=>{if(connection.epoch){try{refreshObservation();}catch{ /* Optional AI stays isolated. */ }}},1000);
+    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);connection.disconnect();});
     return (state,devices)=>connection.observe(capture.project(state,devices));
 }

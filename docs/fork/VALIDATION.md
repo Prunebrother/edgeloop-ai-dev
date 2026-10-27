@@ -1,3 +1,7 @@
+## Live acceptance follow-up
+
+The first real-model acceptance exposed stale idle observations and native timer receiver errors. The corrected read-only heartbeat and timer wrappers pass nine JavaScript bridge/presentation tests, 16 observer tests, and the full browser fixture including a pause beyond the telemetry lease without clock advancement. Live Mira correctly streamed 98 simulated BPM, IDLE and zero elapsed seconds after a 6.5-second idle freshness check. See [live evidence](screenshots/f2.1/live-report.json) and `tests/fork/live-browser.mjs`. Broader model quality and real hardware remain unverified.
+
 # F2.1 validation — 2026-10-27
 
 The three-column interface passes the original 1057 tests, 16 observer tests, eight JavaScript bridge/presentation tests 221 preserved AI regression tests, the original AI dashboard harness 221 preserved AI regression tests, the original AI dashboard harness and the expanded Playwright suite. Desktop/tablet/mobile screenshots were visually inspected. See [F2.1 implementation and commands](F2_1_INTERFACE.md) and [browser evidence](screenshots/f2.1/report.json). The previous browser sandbox block was resolved by elevated execution for Chromium and temporary loopback fixtures. Live Ollama quality and physical hardware remain unverified; F3 has not begun.

@@ -124,6 +124,11 @@ try {
     assert((await page.locator('[data-history]').textContent()).includes('98 BPM'),'Conversation memory not restored');
     await page.locator('#sessionPlayPauseBtn').click();
     await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='PAUSED';});
+    const pausedSeconds=await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.sessionSeconds;});
+    await page.waitForTimeout(5500);
+    const pausedObservation=await(await fetch('http://127.0.0.1:8768/fixture/state')).json();
+    assert(pausedObservation.state.status==='PAUSED'&&pausedObservation.state.seconds===pausedSeconds,'Observation heartbeat advanced paused session');
+    assert((await(await fetch('http://127.0.0.1:8768/health')).json()).observation_fresh,'Paused observation expired');
     await page.locator('#sessionPlayPauseBtn').click();
     await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';});
     report.steps.push('Responsive views, model memory, pause and resume');

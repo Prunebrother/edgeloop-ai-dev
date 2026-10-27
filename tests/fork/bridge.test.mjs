@@ -95,3 +95,18 @@ test('only localhost URLs, no credential queries; original controls have no mode
     assert.ok(!panel.includes('eval('));assert.ok(!panel.includes('localStorage'));
     const sw=readFileSync(new URL('../../sw.js',import.meta.url),'utf8');assert.ok(sw.includes("port === '8768'"));
 });
+
+
+test('default browser timers are called without the connection as receiver',t=>{
+    const queued=[];let now=0;
+    t.mock.method(globalThis,'setTimeout',function(fn){assert.equal(this,undefined);queued.push(fn);return 77;});
+    const cleared=[];
+    t.mock.method(globalThis,'clearTimeout',function(id){assert.equal(this,undefined);cleared.push(id);});
+    const c=new ReadOnlyConnection({WebSocketImpl:Socket,now:()=>now});
+    const capture=new Capture(),s=raw();c.observe(capture.project(s,devices));
+    c.connect('ws://localhost:8768/observe','x'.repeat(32));const ws=c.socket;
+    ws.onopen();ws.receive({type:'ready',version:1,epoch:uuid(),read_only:true});
+    now=2000;c.observe(capture.project(s,devices));queued.shift()();
+    assert.equal(ws.messages.filter(m=>m.type==='observation').length,2);
+    c.observe(capture.project(s,devices));c.disconnect();assert.deepEqual(cleared,[77]);
+});
