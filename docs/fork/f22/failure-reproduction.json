@@ -1,0 +1,15 @@
+{
+  "discoveryError": "Local model discovery unavailable",
+  "placeholder": "No models loaded",
+  "switchEnabled": true,
+  "rejectedFrame": {
+    "version": 1,
+    "type": "select_model",
+    "selection": {
+      "model": "No models loaded"
+    }
+  },
+  "protocolError": "Invalid read-only message",
+  "envHonored": true,
+  "reproduced": true
+}

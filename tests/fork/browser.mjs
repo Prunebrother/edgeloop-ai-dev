@@ -28,7 +28,7 @@ try {
         Object.defineProperty(navigator,'serial',{value:{requestPort:denied,getPorts:async()=>[]},configurable:true});
         if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia=denied;
     });
-    page=await ctx.newPage();const errors=[];
+    page=await ctx.newPage();const errors=[],selections=[];page.on('websocket',ws=>ws.on('framesent',event=>{try{const m=JSON.parse(event.payload);if(m.type==='select_model')selections.push(m);}catch{}}));
     page.on('pageerror',e=>errors.push(e.message));
     const handy=[];
     await page.route('**/api/handy/v2/**',async route=>{
@@ -148,6 +148,14 @@ try {
     await page.locator('#sessionPlayPauseBtn').click();
     await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';});
     report.steps.push('Responsive views, model memory, pause and resume');
+    await fetch(observerUrl+'/fixture/ollama-down',{method:'POST'});
+    await page.locator('[data-refresh]').click();
+    await page.waitForFunction(()=>document.querySelector('[data-error]').textContent.includes('discovery unavailable'));
+    assert(await page.locator('[data-select]').isDisabled(),'Discovery failure leaves invalid model selectable');
+    assert(await page.locator('[data-model]').inputValue()==='','Discovery placeholder is a model value');
+    const before=selections.length;await page.locator('[data-select]').evaluate(el=>el.dispatchEvent(new Event('click')));
+    await page.waitForTimeout(100);assert(selections.length===before,'Invalid placeholder model request escaped guard');
+    report.steps.push('Disconnected Ollama cannot produce a placeholder model request');
     await page.locator('[data-disconnect]').click();children[1].kill();
     const seconds=await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.sessionSeconds;});
     await page.waitForTimeout(1500);

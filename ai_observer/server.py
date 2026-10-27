@@ -4,6 +4,7 @@ Run through tools/serve-ai.sh; import has no application/controller side effects
 import asyncio
 from contextlib import asynccontextmanager, suppress
 import json
+import logging
 import os
 from pathlib import Path
 import secrets
@@ -18,16 +19,18 @@ from edgeloop_ai.conversation import ModelManager, ConversationService
 from edgeloop_ai.director import ConversationDirector, DirectorConfig
 from edgeloop_ai.models import AIConfig, SpeechPolicy
 from edgeloop_ai.storage import SettingsStore
+from .config import RuntimeConfig, validate_ollama_url
 from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
 
-def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transport=None, clock=time.monotonic):
+def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transport=None, clock=time.monotonic, ollama_url=None):
     if not 32<=len(token)<=128: raise ValueError('A 32–128 character pairing token is required')
     state=BrowserObservation(clock)
     store=SettingsStore(data_dir)
-    manager=ModelManager(os.getenv('EDGELOOP_OLLAMA_URL','http://127.0.0.1:11434'),store=store,transport=transport)
+    endpoint=validate_ollama_url(ollama_url) if ollama_url is not None else RuntimeConfig.load().ollama_url
+    manager=ModelManager(endpoint,store=store,transport=transport)
     director=ObserverDirector(DirectorConfig.model_validate(store.read('director.json',{})),clock=clock)
     queues=set();owner=None;expires=clock()+3600;model_lock=asyncio.Lock()
     def publish(message):
@@ -74,7 +77,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
             return JSONResponse({'detail':'Origin refused'},status_code=403)
         response=await call_next(request);response.headers['Cache-Control']='no-store';return response
     @app.get('/health')
-    async def health():return {'ok':True,'read_only':True,'engine':'original_browser','observation_fresh':state.fresh()}
+    async def health():return {'ok':True,'read_only':True,'engine':'original_browser','observation_fresh':state.fresh(),'ollama_url':endpoint}
 
     @app.websocket('/observe')
     async def observe(ws:WebSocket):
@@ -110,8 +113,11 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                     if owner is not identity or clock()>expires:await ws.close(code=1008);return
                     if len(raw.encode())>16384:await ws.close(code=1009);return
                     try:message=Messages.validate_json(raw)
-                    except ValidationError:
-                        publish({'type':'protocol_error','detail':'Invalid read-only message'});continue
+                    except ValidationError as exc:
+                        # Field paths/codes are diagnostic; never log raw input, chat or tokens.
+                        errors=[{'path':list(e['loc']),'code':e['type']} for e in exc.errors(include_input=False,include_url=False,include_context=False)[:8]]
+                        logging.getLogger(__name__).warning('Rejected read-only message fields=%s',errors)
+                        publish({'type':'protocol_error','detail':'Invalid read-only message','errors':errors});continue
                     if isinstance(message,Observation):
                         if message.epoch!=identity['epoch']:
                             publish({'type':'observation_ack','accepted':False,'reason':'epoch'});continue
@@ -159,8 +165,8 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         try:
                             provider=manager.provider()
                             available=await asyncio.wait_for(provider.discover(),timeout=10)
-                            publish({'type':'models','models':[{'name':m['name']} for m in available[:128]],'selected':manager.config.model})
-                        except (ValueError,httpx.HTTPError,TimeoutError):publish({'type':'ai_error','detail':'Local model discovery unavailable'})
+                            publish({'type':'models','models':[{'name':m['name']} for m in available[:128]],'selected':manager.config.model,'ollama_url':endpoint})
+                        except (ValueError,httpx.HTTPError,TimeoutError):publish({'type':'ai_error','code':'discovery_unavailable','detail':'Ollama model discovery unavailable at '+endpoint,'ollama_url':endpoint})
                     elif isinstance(message,Select):
                         try:
                             async with model_lock:
@@ -200,11 +206,31 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
 
 
 def main():
+    import argparse
+    import socket
     import uvicorn
+    parser=argparse.ArgumentParser(description='Read-only EdgeLoop observer; uses an existing local Ollama server.')
+    parser.add_argument('--check',action='store_true',help='Print configuration and verify Ollama discovery; do not start any server')
+    args=parser.parse_args()
+    try:config=RuntimeConfig.load()
+    except (ValueError,OSError) as exc:parser.error(str(exc))
+    print('Ollama endpoint: '+config.ollama_url,flush=True)
+    if args.check:
+        try:
+            with httpx.Client(base_url=config.ollama_url,timeout=5,trust_env=False) as client:
+                response=client.get('/api/tags');response.raise_for_status()
+                names=[m['name'] for m in response.json().get('models',[])]
+            print('Installed models ('+str(len(names))+'): '+', '.join(names))
+        except (httpx.HTTPError,ValueError,KeyError) as exc:
+            parser.exit(1,'Ollama is unavailable at '+config.ollama_url+'. Start that existing server manually or set EDGELOOP_OLLAMA_URL. No process was started.\n')
+        return
+    try:
+        with socket.socket() as probe:probe.bind(('127.0.0.1',config.port))
+    except OSError:
+        parser.exit(1,f'Observer port {config.port} is occupied. Inspect it with ss -ltnp or choose EDGELOOP_OBSERVER_PORT. No process was stopped.\n')
     token=secrets.token_urlsafe(32)
-    data=Path(os.getenv('EDGELOOP_FORK_AI_DATA',Path(__file__).resolve().parents[1]/'.ai-data'))
     print('Read-only observer. Pairing token (valid for this process, 1 hour): '+token,flush=True)
-    app=create_app(token,data)
-    uvicorn.run(app,host='127.0.0.1',port=8768,workers=1,ws_max_size=16384,access_log=False)
+    app=create_app(token,config.data_dir,ollama_url=config.ollama_url)
+    uvicorn.run(app,host='127.0.0.1',port=config.port,workers=1,ws_max_size=16384,access_log=False)
 
 if __name__=='__main__':main()

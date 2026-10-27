@@ -11,6 +11,7 @@ from ai_observer.server import create_app
 UI_PORT=int(os.getenv('EDGELOOP_FIXTURE_UI_PORT','8770'))
 OBSERVER_PORT=int(os.getenv('EDGELOOP_FIXTURE_OBSERVER_PORT','8768'))
 last_thinking=None
+ollama_down=False
 TOKEN='browser-fixture-token-'+('x'*32)
 class Stream(httpx.AsyncByteStream):
     async def __aiter__(self):
@@ -22,6 +23,7 @@ class Stream(httpx.AsyncByteStream):
 
 async def runtime(request):
     global last_thinking
+    if request.url.path=='/api/tags' and ollama_down:raise httpx.ConnectError('fixture unavailable')
     if request.url.path=='/api/tags':return httpx.Response(200,json={'models':[{'name':'mira:latest'},{'name':'evelyn:latest'}]})
     if request.url.path=='/api/show':return httpx.Response(200,json={'capabilities':['completion','thinking'],'model_info':{'qwen.context_length':8192}})
     if request.url.path=='/api/ps':return httpx.Response(200,json={'models':[]})
@@ -33,6 +35,12 @@ async def runtime(request):
     hr=match[1] if match else 'unknown'
     return httpx.Response(200,text=json.dumps({'message':{'content':body['model']+' reports '+hr+' BPM.'},'done':True})+'\n')
 app=create_app(TOKEN,tempfile.mkdtemp(prefix='fork-browser-fixture-'),transport=httpx.MockTransport(runtime),origins={f'http://127.0.0.1:{UI_PORT}'})
+@app.post('/fixture/ollama-down')
+async def disconnect_ollama():
+    global ollama_down
+    ollama_down=True
+    return {'ok':True}
+
 @app.get('/fixture/state')
 async def observed():
     return {'state':app.state.observation.report,'director':dict(app.state.director.counts),'read_only':app.state.models.tool_executor is None,'thinking':app.state.models.config.thinking,'last_thinking':last_thinking}

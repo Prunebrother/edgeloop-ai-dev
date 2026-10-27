@@ -357,3 +357,45 @@ def test_non_thinking_model_selects_without_reasoning_and_rejects_enable(tmp_pat
             error=ws.receive_json()
             assert error['type']=='ai_error' and error['active'] is True
             assert app.state.models.config.thinking is False
+
+
+def test_ollama_endpoint_override_is_honored_and_discovery_is_explicit(tmp_path,monkeypatch):
+    seen=[]
+    def discover(request):
+        seen.append(str(request.url))
+        return httpx.Response(200,json={'models':[{'name':'evelyn-qwen35:latest'},{'name':'evelyn-lite-v1:latest'}]})
+    monkeypatch.setenv('EDGELOOP_OLLAMA_URL','http://127.0.0.1:11435')
+    app=create_app(TOKEN,tmp_path,transport=httpx.MockTransport(discover))
+    assert app.state.models.base_url=='http://127.0.0.1:11435'
+    with TestClient(app) as client:
+        assert client.get('/health').json()['ollama_url']=='http://127.0.0.1:11435'
+        with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+            auth(ws);ws.send_json({'version':1,'type':'list_models'})
+            models=until(ws,'models')
+            assert models['ollama_url']=='http://127.0.0.1:11435'
+            assert models['models'][0]['name']=='evelyn-qwen35:latest'
+    assert seen==['http://127.0.0.1:11435/api/tags']
+
+
+def test_exact_placeholder_rejection_has_safe_field_diagnostics(tmp_path,caplog):
+    app=create_app(TOKEN,tmp_path)
+    with TestClient(app) as client:
+        with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+            auth(ws)
+            ws.send_json({'version':1,'type':'select_model','selection':{'model':'No models loaded'}})
+            error=until(ws,'protocol_error')
+            assert error['errors']==[{'path':['select_model','selection','model'],'code':'string_pattern_mismatch'}]
+            ws.send_json({'version':1,'type':'chat','model':'mira:latest','text':'PRIVATE_CHAT','token':'PRIVATE_TOKEN'})
+            error=until(ws,'protocol_error')
+            assert error['errors'][0]['code']=='extra_forbidden'
+    assert 'PRIVATE_CHAT' not in caplog.text and 'PRIVATE_TOKEN' not in caplog.text
+
+
+def test_configuration_is_loopback_only_with_environment_precedence(tmp_path):
+    from ai_observer.config import RuntimeConfig
+    path=tmp_path/'ai.toml';path.write_text('[ollama]\nurl="http://127.0.0.1:11435"\n')
+    config=RuntimeConfig.load({'EDGELOOP_AI_CONFIG':str(path)})
+    assert config.ollama_url.endswith(':11435')
+    assert RuntimeConfig.load({'EDGELOOP_AI_CONFIG':str(path),'EDGELOOP_OLLAMA_URL':'http://localhost:11434/'}).ollama_url=='http://localhost:11434'
+    for url in ['https://evil.example','http://127.0.0.1:11435/api','http://u:p@localhost:11435','http://127.0.0.1:0','ws://127.0.0.1:11435']:
+        with pytest.raises(ValueError):RuntimeConfig.load({'EDGELOOP_AI_CONFIG':str(path),'EDGELOOP_OLLAMA_URL':url})
