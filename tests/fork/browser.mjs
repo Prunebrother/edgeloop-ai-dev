@@ -85,6 +85,22 @@ try {
     await page.waitForFunction(()=>document.querySelector('[data-thinking]').getAttribute('aria-pressed')==='true');
     assert((await page.locator('[data-history]').textContent()).includes('98 BPM'),'Thinking switch cleared chat');
     report.steps.push('Confirmed thinking toggle reaches inference and preserves chat history');
+    // A bad dual field must not make a separately valid single maximum stale.
+    await page.locator('#maxHr').fill('150');await page.locator('#maxHr').dispatchEvent('input');
+    await page.locator('#dualMaxHr').fill('');await page.locator('#dualMaxHr').dispatchEvent('input');
+    // Wait for both projection and bounded transport timers, rather than racing a fixed sleep.
+    let configured;const settingsDeadline=Date.now()+6000;
+    do {
+        configured=await(await fetch(observerUrl+'/fixture/state')).json();
+        if(configured.state?.details?.single_max_bpm===150 && configured.state?.details?.dual_max_bpm===null)break;
+        await sleep(100);
+    } while(Date.now()<settingsDeadline);
+    assert(configured.state.details.single_max_bpm===150,'Valid setting was replaced by stale last-good limits');
+    assert(configured.state.details.dual_max_bpm===null,'Invalid setting was represented as a validated value');
+    await page.locator('#maxHr').fill('140');await page.locator('#maxHr').dispatchEvent('input');
+    await page.locator('#dualMaxHr').fill('125');await page.locator('#dualMaxHr').dispatchEvent('input');
+    report.steps.push('Current validated settings stay distinct from invalid inputs and engine fallbacks');
+
     assert(!JSON.stringify(observed).includes('F2-MOCK-KEY'),'Credential leak');
     assert(!JSON.stringify(observed).includes('chosenTargetSeconds'),'Hidden target leak');
     assert(observed.read_only,'Tool executor attached');report.steps.push('Contextual user response and redacted authoritative state');
@@ -93,6 +109,12 @@ try {
     assert(!(await page.locator('[data-history]').textContent()).includes('UNFINISHED_DRAFT'),'Budget retry retained partial draft');
     assert(await page.locator('.message-assistant').count()===2,'Budget retry duplicated assistant bubbles');
     report.steps.push('Thinking budget retry replaces incomplete draft with one finished reply');
+    await page.locator('[data-text]').fill('grounding conflict test');await page.locator('[data-text]').press('Enter');
+    await page.waitForFunction(()=>document.querySelector('[data-error]').textContent.includes('conflicted'));
+    assert(!(await page.locator('[data-history]').textContent()).includes('210 BPM'),'Conflicting draft remained visible');
+    assert(await page.locator('.message-assistant').count()===2,'Rejected reply was committed as a bubble');
+    assert(await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';}),'Factual guard changed session');
+    report.steps.push('Factual guard retries once and removes conflicting draft without changing session');
     // Exercise real streamed chunks and scroll anchoring using the local fixture transport.
     await page.locator('[data-text]').fill('long streaming response');
     await page.locator('[data-text]').press('Enter');

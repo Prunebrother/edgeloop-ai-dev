@@ -1,12 +1,12 @@
 {
   "src/js/app.js": {
     "base_sha256": "8338a6cfe0bfb29a966a7ffcc69ea1507cd92cfea43e7e515c64bd26a716d88d",
-    "sha256": "7564773e9c10718a5dc35bf8ad16534f7341ca0c39a731b39790b96666b26e1f",
-    "reason": "Fail-isolated read-only observation hook with independent idle/paused projection refresh; original engine/control functions unchanged"
+    "sha256": "ffc1c08459011dcdd0cdf8a4e69102768e00b4acfb8ba2f9ba3c6eb5f6f2928b",
+    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged"
   },
   "sw.js": {
     "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
-    "sha256": "b9e6c22d9d33e734e06cd2b1edc80b8761f4421701b26a9799958d24d619bc97",
+    "sha256": "34b9686bfadba52d558154c529ae54978daf14e3cd062bd4b15c1d70cf751f60",
     "reason": "Public companion precache and AI/auth exclusion including configurable loopback observer ports"
   },
   ".gitignore": {

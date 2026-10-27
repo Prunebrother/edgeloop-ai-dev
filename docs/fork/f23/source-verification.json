@@ -1,0 +1,1 @@
+{"version": "1.1.3", "commit": "d351e011249079b368ebdc8d46f83b260be7d2a5", "repository": "https://github.com/marshallmims/edgeloop", "license": "AGPL-3.0-only", "unchanged_files": 81, "reviewed_changes": ["src/js/app.js", "sw.js", ".gitignore", "index.html"]}

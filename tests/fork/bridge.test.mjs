@@ -34,7 +34,7 @@ test('session ID survives model/connection changes; significant events emitted o
 
 test('trend is presentation only, expires and never writes measured/effective HR',()=>{
     let now=0;const c=new Capture({now:()=>now});const s=raw();
-    for(const bpm of [90,94,98]){s.sensorHr=bpm;s.lastHrTimestamp=now+1;c.project(s,devices);now+=1000;}
+    for(const bpm of [90,93,96,98]){s.sensorHr=bpm;s.lastHrTimestamp=now;c.project(s,devices);now+=1000;}
     assert.equal(c.project(s,devices).snapshot.trend,'rising');assert.equal(s.sensorHr,98);assert.equal(s.effectiveMaxHr,140);
     now=20000;assert.equal(c.project(s,devices).snapshot.trend,'unknown');
     assert.equal(c.project(s,{...devices,hr_ready:false}).snapshot.hr,null);
@@ -109,4 +109,31 @@ test('default browser timers are called without the connection as receiver',t=>{
     now=2000;c.observe(capture.project(s,devices));queued.shift()();
     assert.equal(ws.messages.filter(m=>m.type==='observation').length,2);
     c.observe(capture.project(s,devices));c.disconnect();assert.deepEqual(cleared,[77]);
+});
+
+test('settings, phase and capture metadata are allowlisted; missing pullback remains unknown',()=>{
+ let now=1000;const c=new Capture({now:()=>now}),s=raw();s.lastHrTimestamp=now;s.edgeTriggerHr=null;s.pauses=2;s.warmupOriginSeconds=0;s.sessionSeconds=10;s.sessionStatus='RUNNING';s.calibrationPass='primary';
+ const result=c.project(s,devices,{resting_bpm:70,single_max_bpm:140,dual_max_bpm:125,warmup_minutes:5,token:'PRIVATE'});
+ assert.equal(result.snapshot.pullback,null);assert.equal(result.snapshot.details.resting_bpm,70);
+ assert.equal(result.snapshot.details.pauses,2);assert.equal(result.snapshot.details.warmup_remaining_seconds,290);
+ assert.equal(result.snapshot.details.calibration_pass,'primary');assert.equal(result.snapshot.details.captured_at_ms,1000);
+ assert.ok(!JSON.stringify(result).includes('PRIVATE'));
+});
+
+test('BLE connection is not a measurement; source changes and unique timestamps segment trend evidence',()=>{
+ let now=1000;const c=new Capture({now:()=>now}),s=raw();s.simEngaged=false;s.lastHrTimestamp=900;
+ const ble={...devices,simulated_hr:false,ble:true};assert.equal(c.project(s,ble).snapshot.hr,null);
+ now+=1000;s.lastHrTimestamp=now;assert.equal(c.project(s,ble).snapshot.hr,90);
+ for(let i=0;i<8;i++){now+=100;c.project(s,ble);}
+ assert.equal(c.samples.length,1);assert.equal(c.project(s,ble).snapshot.trend,'unknown');
+ s.simEngaged=true;assert.equal(c.project(s,devices).snapshot.trend,'unknown');
+});
+
+test('configuration changes are not HR changes and paused state is not a resume event',()=>{
+ let now=1000;const c=new Capture({now:()=>now}),s=raw();s.lastHrTimestamp=now;s.sessionStatus='RUNNING';
+ c.project(s,devices,{single_max_bpm:140});now+=1000;
+ const changed=c.project(s,devices,{single_max_bpm:150});assert.equal(changed.snapshot.hr,90);
+ assert.ok(changed.events.some(e=>e.kind==='threshold_changed'));assert.equal(changed.snapshot.trend,'unknown');
+ s.sessionStatus='RAMPDOWN';const phase=c.project(s,devices);assert.ok(!phase.events.some(e=>e.kind==='session_resumed'));
+ s.sessionStatus='PAUSED';assert.ok(c.project(s,devices).events.some(e=>e.kind==='pause'));
 });

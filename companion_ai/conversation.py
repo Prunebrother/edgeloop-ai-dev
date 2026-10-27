@@ -10,6 +10,7 @@ from .models import SpeechPolicy, AIConfig, MemoryConfig
 from .diagnostics import Metrics
 from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
 from .context import compose_messages, ContextBudgetError
+from .fidelity import violations, GroundingError
 from .director import ConversationDirector, DirectorConfig, silent_response
 
 
@@ -162,6 +163,7 @@ class ModelManager:
             try:
                 if isinstance(self.adapter,OllamaProvider) and self.model_metadata is None:
                     self.model_metadata = await self.adapter.capabilities(self.config.model)
+                if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                 embedded_size = len((self.model_metadata or {}).get('system',''))
                 messages,warnings = compose_messages(summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size)
                 self.context_warnings = warnings
@@ -172,10 +174,29 @@ class ModelManager:
                         if not exc.budget_exhausted or self.config.max_tokens>=4096:raise
                         if isinstance(exc,OutputBudgetExceededError) and on_chunk and not on_reset:raise
                         retry_config=self.config.model_copy(update={'max_tokens':min(4096,self.config.max_tokens*2)})
+                        if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                         retry_messages,retry_warnings=compose_messages(summary,prompt,history,retry_config,self.memory,reserve_characters=embedded_size)
+                        self.stream_reset_reason='output_budget_retry'
                         if on_reset:on_reset()
                         self.context_warnings=retry_warnings+[f'Retrying once with {retry_config.max_tokens} output tokens after the first budget was exhausted; thinking remains enabled.']
                         result=await collect_reply(self.adapter,LLMRequest(retry_config,tuple(ChatMessage(**m) for m in retry_messages)),chunk)
+                    # A slow generation must not turn an expired/request-time fact into a live claim.
+                    if getattr(self,'current_summary',None):summary=summary | self.current_summary()
+                    problems=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}])
+                    self.grounding_attempts=1;self.grounding_corrections=problems
+                    if problems:
+                        if on_chunk and not on_reset:raise GroundingError(problems)
+                        if getattr(self,'current_summary',None):summary=summary | self.current_summary()
+                        repaired_summary=summary | {'grounding_corrections':problems}
+                        repair_messages,repair_warnings=compose_messages(repaired_summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size)
+                        self.stream_reset_reason='grounding_retry'
+                        if on_reset:on_reset()
+                        self.grounding_attempts=2
+                        self.context_warnings+=['One factual correction requested: '+', '.join(problems)]+repair_warnings
+                        result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in repair_messages)),chunk)
+                        if getattr(self,'current_summary',None):summary=summary | self.current_summary()
+                        remaining=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}])
+                        if remaining:raise GroundingError(remaining)
                 self.load_state='ready';self.metrics.last_error=None
                 return result
             except asyncio.CancelledError:
@@ -413,7 +434,7 @@ class ConversationService:
                 nonlocal buffered
                 buffered = ''
                 if generation == self.generation:
-                    self.publish({'type':'response_start','id':request_id,'source':source,'generation':generation,'reason':'output_budget_retry'})
+                    self.publish({'type':'response_start','id':request_id,'source':source,'generation':generation,'reason':getattr(self.adapter,'stream_reset_reason','output_budget_retry')})
             stream_options = {'on_reset':reset_stream} if getattr(self.adapter,'stream_reset',False) else {}
             if getattr(self.adapter, "streaming", False):
                 text = await self.adapter.reply(summary, prompt, history, on_chunk=on_chunk, **stream_options)
@@ -474,7 +495,8 @@ class ConversationService:
             if generation == self.generation:
                 self.publish({"type": "response_cancel", "id": request_id, "generation": generation})
                 self.publish({"type": "conversation_error", "request_id": request_id,
-                              "detail": str(exc) if isinstance(exc, (ContextBudgetError, NoVisibleResponseError, OutputBudgetExceededError)) else "Local AI response unavailable or invalid. Start Ollama manually if needed; check the configured endpoint and model settings."})
+                              "code": "grounding_violation" if isinstance(exc,GroundingError) else "generation_error",
+                              "detail": str(exc) if isinstance(exc, (ContextBudgetError, NoVisibleResponseError, OutputBudgetExceededError, GroundingError)) else "Local AI response unavailable or invalid. Start Ollama manually if needed; check the configured endpoint and model settings."})
 
     async def close(self):
         self.closed = True

@@ -155,3 +155,32 @@ monitors global/runner VRAM, verifies per-model memory and interrupts only a tes
 inference socket. Session devices are mocked. No Ollama daemon or normal user
 observer is started/stopped. Use a new report directory each time. See
 [F2.2 live results and limitations](F22_LIVE_VALIDATION.md).
+
+## F2.3 telemetry grounding validation
+
+The [canonical contract](SESSION_DATA_CONTRACT.md) defines source/freshness rules.
+The reusable twenty-case corpus is `tests/fork/grounding_cases.py`. Tests instantiate
+no hardware or second session engine. Run from the fork:
+
+```bash
+.venv/bin/python -m pytest -q
+node --test --test-isolation=none tests/fork/bridge.test.mjs tests/fork/presentation.test.mjs
+FORK_BROWSER_PORT=8780 FORK_OBSERVER_PORT=8788 \
+  FORK_BROWSER_REPORT=/tmp/f23-browser node tests/fork/browser.mjs
+.venv/bin/python -m tests.fork.evaluate_grounding --live \
+  --output /tmp/f23-eval-new-directory
+```
+
+The live evaluation requires the already-running 11435 server, one loaded model/
+parallel request, nvidia-smi and the existing fork environment. It never starts or
+restarts Ollama, invokes a device API, changes a Modelfile or copies weights.
+Requests run sequentially with matched input snapshots/questions/history and the
+same model's embedded SYSTEM. The comparator loads only the pinned F2.2 context
+composer from Git, never the old application's runtime. Every completed response
+is journalled; use a new output directory to retain evidence. Keyword checks are
+partial diagnostics; apply the documented manual rubric before making quality claims.
+
+The runtime protocol extension is backwards-readable. An already running observer
+must be restarted to load new source; this resets its ephemeral AI conversation
+and pairing token, but not the original EdgeLoop browser session or Ollama. Never
+restart either Ollama service as part of an interface/backend source update.

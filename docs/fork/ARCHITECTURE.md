@@ -1,3 +1,28 @@
+# Current architecture — F2.3
+
+The original browser engine remains the only controller. F2.3 adds validated,
+read-only facts and bounded evidence between its observation bridge and the
+existing conversation runtime. See the [telemetry audit](F23_TELEMETRY_AUDIT.md),
+[canonical contract](SESSION_DATA_CONTRACT.md) and [F2.3 results](F23_GROUNDING.md).
+Character Modelfiles remain authoritative for personality; no model definitions,
+weights, physiology/session calculations or drivers were changed.
+
+```mermaid
+flowchart LR
+  Engine[Original EdgeLoop state] --> Projection[Allowlisted read-only projection]
+  Projection --> Protocol[Authenticated closed v1 protocol]
+  Protocol --> Facts[Canonical facts / freshness / bounded evidence]
+  Facts --> Director[Existing Director and model-specific history]
+  Director --> Context[One current runtime block beside the question]
+  Context --> Ollama[Exact embedded SYSTEM plus factual policy]
+  Ollama --> Check[Bounded explicit-fact check]
+  Check --> Chat[Streaming chat / one correction or clear error]
+```
+
+The following architecture notes describe earlier milestones.
+
+---
+
 # Current architecture — F2.2
 
 The fork now owns its installed AI package, configuration, character sources and tests.

@@ -5196,9 +5196,16 @@ function syncAiObservation(readiness = hardwareReadiness()) {
     if (isRemotePage) return;
     // Optional observation only; failure never changes the original control path.
     try {
+        const limits = sanitizeHrLimits(document.getElementById('minHr')?.value,
+            document.getElementById('maxHr')?.value, state.lastGoodHrLimits || {});
+        const dual = parseInt(document.getElementById('dualMaxHr')?.value, 10);
         aiObservation?.(state, { simulated_hr: state.simEngaged, hr_ready: readiness.hrReady,
             toy_ready: readiness.toyReady, ble: isBleConnected(), handy: handyConnected,
-            intiface: isIntifaceConnected(), tcode: isTCodeConnected(), vacuglide: isVacuglideConnected() });
+            intiface: isIntifaceConnected(), tcode: isTCodeConnected(), vacuglide: isVacuglideConnected() }, {
+            resting_bpm: limits.invalid.includes('min') ? null : limits.minHr,
+            single_max_bpm: limits.invalid.includes('max') ? null : limits.maxHr,
+            dual_max_bpm: Number.isFinite(dual) && dual > limits.minHr && dual <= 250 ? dual : null,
+            warmup_minutes: advancedSettings.warmupMinutes, hr_live: pulseIsLive() });
     } catch { /* AI is optional; the original session continues independently. */ }
 }
 

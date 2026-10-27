@@ -1,0 +1,21 @@
+✔ projection is read-only, redacts targets/keys/history and uses original values (3.894677ms)
+✔ session ID survives model/connection changes; significant events emitted once (0.660416ms)
+✔ trend is presentation only, expires and never writes measured/effective HR (0.284406ms)
+✔ disabled/unavailable AI never affects observed source, and commands are ignored (0.75812ms)
+✔ reconnect sends newest snapshot with fresh epoch and drops offline events (0.389553ms)
+✔ bounded latest-state/events, urgent stop and backpressure never replay stale batches (1.773489ms)
+✔ only localhost URLs, no credential queries; original controls have no model callback (1.10132ms)
+✔ default browser timers are called without the connection as receiver (0.725926ms)
+✔ settings, phase and capture metadata are allowlisted; missing pullback remains unknown (0.239ms)
+✔ BLE connection is not a measurement; source changes and unique timestamps segment trend evidence (0.259175ms)
+✔ configuration changes are not HR changes and paused state is not a resume event (0.228412ms)
+✔ model artwork resolves expression, neutral, default and missing model independently (1.123025ms)
+✔ new Ollama model identifiers map to presentation assets without inferred identity (0.135482ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 69.634284

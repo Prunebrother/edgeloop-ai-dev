@@ -1,0 +1,240 @@
+{
+  "description": "Partial keyword-regression indicators, not general factual accuracy. Missing/blocked generations listed separately. See manual rubric and raw replies.",
+  "models": [
+    {
+      "model": "evelyn-lite-v1:latest",
+      "baseline": {
+        "responses": 20,
+        "errors": 0,
+        "keyword_checks": 35,
+        "total_keyword_checks": 43,
+        "median_completion_seconds": 1.315,
+        "median_final_attempt_first_token_seconds": 0.303,
+        "mean_prompt_tokens_total_including_retries": 1028.7,
+        "mean_runtime_context_characters": 1722.6,
+        "correction_cases": 0,
+        "candidate_flags": 3
+      },
+      "grounded": {
+        "responses": 20,
+        "errors": 0,
+        "keyword_checks": 37,
+        "total_keyword_checks": 43,
+        "median_completion_seconds": 1.347,
+        "median_final_attempt_first_token_seconds": 0.168,
+        "mean_prompt_tokens_total_including_retries": 1226.1,
+        "mean_runtime_context_characters": 3776.3,
+        "correction_cases": 0,
+        "candidate_flags": 7
+      }
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "baseline": {
+        "responses": 20,
+        "errors": 0,
+        "keyword_checks": 34,
+        "total_keyword_checks": 43,
+        "median_completion_seconds": 2.152,
+        "median_final_attempt_first_token_seconds": 0.299,
+        "mean_prompt_tokens_total_including_retries": 2176.9,
+        "mean_runtime_context_characters": 1722.6,
+        "correction_cases": 0,
+        "candidate_flags": 7
+      },
+      "grounded": {
+        "responses": 20,
+        "errors": 0,
+        "keyword_checks": 40,
+        "total_keyword_checks": 43,
+        "median_completion_seconds": 2.813,
+        "median_final_attempt_first_token_seconds": 0.419,
+        "mean_prompt_tokens_total_including_retries": 2443.1,
+        "mean_runtime_context_characters": 3776.3,
+        "correction_cases": 0,
+        "candidate_flags": 3
+      }
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "baseline": {
+        "responses": 20,
+        "errors": 0,
+        "keyword_checks": 32,
+        "total_keyword_checks": 43,
+        "median_completion_seconds": 1.427,
+        "median_final_attempt_first_token_seconds": 0.311,
+        "mean_prompt_tokens_total_including_retries": 2257.9,
+        "mean_runtime_context_characters": 1722.6,
+        "correction_cases": 0,
+        "candidate_flags": 6
+      },
+      "grounded": {
+        "responses": 20,
+        "errors": 0,
+        "keyword_checks": 38,
+        "total_keyword_checks": 43,
+        "median_completion_seconds": 1.478,
+        "median_final_attempt_first_token_seconds": 0.424,
+        "mean_prompt_tokens_total_including_retries": 2524.1,
+        "mean_runtime_context_characters": 3776.3,
+        "correction_cases": 0,
+        "candidate_flags": 1
+      }
+    }
+  ],
+  "categories": {
+    "unknown_hr": {
+      "baseline": {
+        "pass": 1,
+        "total": 9
+      },
+      "grounded": {
+        "pass": 8,
+        "total": 9
+      }
+    },
+    "session_state": {
+      "baseline": {
+        "pass": 12,
+        "total": 12
+      },
+      "grounded": {
+        "pass": 12,
+        "total": 12
+      }
+    },
+    "numeric_presence": {
+      "baseline": {
+        "pass": 57,
+        "total": 57
+      },
+      "grounded": {
+        "pass": 57,
+        "total": 57
+      }
+    },
+    "hr_source": {
+      "baseline": {
+        "pass": 6,
+        "total": 6
+      },
+      "grounded": {
+        "pass": 6,
+        "total": 6
+      }
+    },
+    "trend_uncertainty": {
+      "baseline": {
+        "pass": 6,
+        "total": 12
+      },
+      "grounded": {
+        "pass": 3,
+        "total": 12
+      }
+    },
+    "device_disconnected": {
+      "baseline": {
+        "pass": 4,
+        "total": 6
+      },
+      "grounded": {
+        "pass": 6,
+        "total": 6
+      }
+    },
+    "motion_uncertainty": {
+      "baseline": {
+        "pass": 1,
+        "total": 6
+      },
+      "grounded": {
+        "pass": 2,
+        "total": 6
+      }
+    },
+    "stop_observed": {
+      "baseline": {
+        "pass": 3,
+        "total": 3
+      },
+      "grounded": {
+        "pass": 3,
+        "total": 3
+      }
+    },
+    "trend": {
+      "baseline": {
+        "pass": 3,
+        "total": 3
+      },
+      "grounded": {
+        "pass": 3,
+        "total": 3
+      }
+    },
+    "unknown_connection": {
+      "baseline": {
+        "pass": 0,
+        "total": 3
+      },
+      "grounded": {
+        "pass": 3,
+        "total": 3
+      }
+    },
+    "selected_experience": {
+      "baseline": {
+        "pass": 3,
+        "total": 3
+      },
+      "grounded": {
+        "pass": 3,
+        "total": 3
+      }
+    },
+    "selected_goal": {
+      "baseline": {
+        "pass": 3,
+        "total": 3
+      },
+      "grounded": {
+        "pass": 3,
+        "total": 3
+      }
+    },
+    "edge_increment": {
+      "baseline": {
+        "pass": 2,
+        "total": 3
+      },
+      "grounded": {
+        "pass": 3,
+        "total": 3
+      }
+    },
+    "unknown_resting": {
+      "baseline": {
+        "pass": 0,
+        "total": 3
+      },
+      "grounded": {
+        "pass": 3,
+        "total": 3
+      }
+    }
+  },
+  "gpu": {
+    "peak_used_mib": 8701,
+    "peak_runner_mib": 6650,
+    "max_resident_models": 1
+  },
+  "errors": 0,
+  "installed_model_count": 17,
+  "thinking_disabled": true,
+  "context_tokens": 8192,
+  "output_token_budget": 512,
+  "temperature": 0,
+  "source_sha256_verified": true
+}

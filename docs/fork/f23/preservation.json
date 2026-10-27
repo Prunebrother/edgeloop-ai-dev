@@ -1,0 +1,28 @@
+{
+  "character_source_files_checked": 20,
+  "character_sources_unchanged": true,
+  "model_stores": {
+    "/home/sean/.ollama/models": {
+      "manifest_count": 17,
+      "blob_count": 28,
+      "manifest_hashes_and_blob_inventory_unchanged": true
+    },
+    "/home/sean/projects/edgeloop-ai/.ollama/models": {
+      "manifest_count": 3,
+      "blob_count": 10,
+      "manifest_hashes_and_blob_inventory_unchanged": true
+    }
+  },
+  "ollama_servers": {
+    "506214": {
+      "cmdline": "ollama serve",
+      "same_pid_still_running": true
+    },
+    "647240": {
+      "cmdline": "/usr/bin/ollama serve",
+      "same_pid_still_running": true
+    }
+  },
+  "model_weights_content_rehashed": false,
+  "scope": "All model manifests hashed; blob names and sizes compared. No create, pull, delete or model mutation invoked. Concurrent Character_Art user edits excluded."
+}

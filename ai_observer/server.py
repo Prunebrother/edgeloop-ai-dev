@@ -32,6 +32,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
     store=SettingsStore(data_dir)
     endpoint=validate_ollama_url(ollama_url) if ollama_url is not None else RuntimeConfig.load().ollama_url
     manager=ModelManager(endpoint,store=store,transport=transport)
+    manager.current_summary=state.summary
     director=ObserverDirector(DirectorConfig.model_validate(store.read('director.json',{})),clock=clock)
     queues=set();owner=None;expires=clock()+3600;model_lock=asyncio.Lock()
     def publish(message):
@@ -99,7 +100,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                 await owner['ws'].close(code=1000)
             identity.update(browser_id=auth.browser_id,epoch=str(uuid4()))
             speech.pending.clear();speech.interrupt()
-            owner=identity;queues.add(q);state.sequence=-1;state.connected=False
+            owner=identity;queues.add(q);state.begin_epoch()
             seen={};last_observation=float('-inf');chat_times=[]
             await ws.send_json({'type':'ready','version':1,'epoch':identity['epoch'],'read_only':True})
 
@@ -138,6 +139,8 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         for key in seen_keys:
                             if now-seen[key]>300:seen.pop(key)
                         for event in message.events:
+                            # Only proven source transitions can reach dialogue/event pacing.
+                            if event.id not in state.accepted_event_ids:continue
                             if event.id in seen:continue
                             seen[event.id]=now
                             if len(seen)>256:seen.pop(next(iter(seen)))

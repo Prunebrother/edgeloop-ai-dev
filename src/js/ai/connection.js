@@ -51,7 +51,7 @@ export class ReadOnlyConnection {
         if(!this.latest||!this.epoch||!this.socket||this.socket.readyState!==1)return;
         if(this.socket.bufferedAmount>32768){this.pendingEvents.clear();this.socket.close();return;}
         if(!urgent&&this.now()-this.lastSent<1000)return;
-        const message={version:1,type:'observation',epoch:this.epoch,sequence:this.sequence++,snapshot:this.latest,events:[...this.pendingEvents.values()]};
+        const message={version:1,type:'observation',epoch:this.epoch,sequence:this.sequence++,snapshot:this.latest,events:[...this.pendingEvents.values()].sort((a,b)=>(a.at_ms??0)-(b.at_ms??0))};
         this.pendingEvents.clear();this.lastSent=this.now();this.send(message);
     }
     send(message) {

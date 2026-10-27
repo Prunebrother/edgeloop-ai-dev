@@ -1,0 +1,33 @@
+CURRENT SESSION — original EdgeLoop, read-only; snapshot age 0.0 seconds; CURRENT.
+- Heart rate [hr]: 98 BPM (derived).
+- Heart-rate source [hr_source]: simulator (status).
+- Resting BPM setting [resting_bpm]: 70 BPM (setting).
+- Single maximum setting [single_max_bpm]: 140 BPM (setting).
+- Dual maximum setting [dual_max_bpm]: 125 BPM (setting).
+- Engine working ceiling (not a measurement) [effective_max]: 140 BPM (derived).
+- Engine pullback threshold (not a measurement) [pullback]: 133 BPM (derived).
+- Session status [status]: RUNNING (status).
+- Session elapsed (engine counter) [seconds]: 42 seconds (status).
+- Selected experience [experience]: Classic Tease [classic] (setting).
+- Engine active mode [active_mode]: Classic Tease [classic] (status).
+- Selected goal [goal]: Tease (no game selected) [tease] (setting).
+- Intensity setting [intensity]: 100 percent (setting).
+- Engine edge counter [edges]: 2 count (status).
+- Engine pause counter [pauses]: 1 count (status).
+- HR trend (bounded sample evidence) [trend]: unavailable (insufficient timestamped sample evidence); evidence: 1 distinct timestamped samples spanning 0 seconds (separate from session elapsed time).
+- Primary computed channel value (not motion feedback) [primary]: 20 percent (engine_value).
+- Secondary computed channel value (not motion feedback) [secondary]: 18 percent (engine_value).
+- Actual physical movement feedback [physical_motion]: unavailable (unavailable).
+- Stimulation readiness [toy_ready]: no (status).
+- BLE heart-rate sensor connection [ble]: disconnected (status).
+- Handy stimulation-device connection (not an HR sensor) [handy]: disconnected (status).
+- Intiface stimulation transport connection [intiface]: disconnected (status).
+- TCode stimulation transport connection [tcode]: disconnected (status).
+- VacuGlide stimulation-device connection [vacuglide]: disconnected (status).
+- Calibration pass selection [calibration_pass]: none (status).
+- Warm-up badge active [warmup_active]: yes (derived).
+- Warm-up remaining [warmup_remaining_seconds]: 258 seconds (derived).
+- Engine ease-down remaining [ease_down_seconds]: 0 seconds (status).
+- Engine rampdown remaining [rampdown_seconds]: unavailable (unavailable).
+Past dialogue is not session evidence. Channel values are engine calculations; physical motion is not measured here.
+RECENT OBSERVED EVENTS: none established in the current observation segment.

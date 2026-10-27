@@ -31,13 +31,15 @@ async def runtime(request):
     body=json.loads(request.content)
     last_thinking=body.get('think')
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
-    if any(m.get('content')=='long streaming response' for m in body['messages']):return httpx.Response(200,stream=Stream())
-    if body['messages'][-1].get('content')=='thinking cutoff test':
+    prompt=body['messages'][-1].get('content','').split('USER MESSAGE (request, not session data):\n')[-1]
+    if prompt=='long streaming response':return httpx.Response(200,stream=Stream())
+    if prompt=='grounding conflict test':return httpx.Response(200,text=json.dumps({'message':{'content':'Your current heart rate is 210 BPM.'},'done':True,'done_reason':'stop'})+'\n')
+    if prompt=='thinking cutoff test':
         retry=body['options']['num_predict']>2048
         return httpx.Response(200,text=json.dumps({'message':{'content':'Finished after reasoning.' if retry else 'UNFINISHED_DRAFT'},'done':True,'done_reason':'stop' if retry else 'length'})+'\n')
-    context=body['messages'][0]['content'];match=re.search(r'"hr":(\d+)',context)
+    context='\n'.join(m['content'] for m in body['messages']);match=re.search(r'(?:\"hr\":|Heart rate \[hr\]: )(\d+)',context)
     hr=match[1] if match else 'unknown'
-    return httpx.Response(200,text=json.dumps({'message':{'content':body['model']+' reports '+hr+' BPM.'},'done':True})+'\n')
+    return httpx.Response(200,text=json.dumps({'message':{'content':body['model']+' reports '+hr+' BPM (simulated).'},'done':True})+'\n')
 app=create_app(TOKEN,tempfile.mkdtemp(prefix='fork-browser-fixture-'),transport=httpx.MockTransport(runtime),origins={f'http://127.0.0.1:{UI_PORT}'})
 @app.post('/fixture/ollama-down')
 async def disconnect_ollama():

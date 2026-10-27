@@ -79,6 +79,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
         else if(m.type==='telemetry_status')el('telemetry').textContent='Telemetry stale · session state unavailable to AI';
         else if(['ai_error','conversation_error','protocol_error'].includes(m.type)){changing=false;if(m.ollama_url)el('endpoint').textContent='Ollama: '+m.ollama_url;
             if(m.code==='discovery_unavailable'){discovered.clear();const o=document.createElement('option');o.value='';o.disabled=true;o.textContent='Ollama unavailable';el('model').replaceChildren(o);}
+            if(m.code==='grounding_violation'&&current){current.node.remove();current=null;}
             if(m.selection_failed&&!m.active){selected=null;thinking=null;supportsThinking=false;}finish();error((m.detail||'AI unavailable')+(m.errors?.length?' · '+m.errors.map(e=>e.path.join('.')+': '+e.code).join(', '):''));activity('error',selected?'Ready · last request failed':'AI unavailable');if(m.type==='ai_error')el('ollama').textContent='Ollama request unavailable';}
     }});
     el('setup').onsubmit=e=>{e.preventDefault();error('');try{connection.connect(el('url').value,el('token').value);}catch(e){error(e.message);}finally{el('token').value='';}};
@@ -95,10 +96,11 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     el('thinking').onclick=()=>{if(selected&&supportsThinking)selectModel(selected,!thinking);};
     el('cancel').onclick=()=>{if(connection.send({version:1,type:'cancel_generation'})){finish();el('progress').textContent='Generation cancelled.';}};
     el('chat').onsubmit=e=>{e.preventDefault();if(!selected||pending||changing)return;
-        const text=el('text').value.trim();if(text&&connection.send({version:1,type:'chat',model:selected,text})){follow=true;line('user',text);el('text').value='';error('');busy(true,'Waiting for companion…');}};
+        const text=el('text').value.trim();if(text){try{refreshObservation();connection.flush(true);}catch{}}
+        if(text&&connection.send({version:1,type:'chat',model:selected,text})){follow=true;line('user',text);el('text').value='';error('');busy(true,'Waiting for companion…');}};
     el('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el('chat').requestSubmit();}};
     // Original idle/paused sessions need no engine ticks. Refresh only the read-only projection.
     const observationTimer=setInterval(()=>{if(connection.epoch){try{refreshObservation();}catch{ /* Optional AI stays isolated. */ }}},1000);
     window.addEventListener('pagehide',()=>{clearInterval(observationTimer);connection.disconnect();});
-    return (state,devices)=>connection.observe(capture.project(state,devices));
+    return (state,devices,settings)=>connection.observe(capture.project(state,devices,settings));
 }

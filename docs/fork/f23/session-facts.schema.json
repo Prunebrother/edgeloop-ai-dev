@@ -1,0 +1,249 @@
+{
+  "$defs": {
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "enum": [
+                "BPM",
+                "seconds",
+                "percent",
+                "count"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "kind": {
+          "enum": [
+            "measurement",
+            "setting",
+            "status",
+            "derived",
+            "engine_value"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 140,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "known": {
+          "title": "Known",
+          "type": "boolean"
+        },
+        "current": {
+          "title": "Current",
+          "type": "boolean"
+        },
+        "observed_at_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At Ms"
+        },
+        "reason": {
+          "maxLength": 60,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "kind",
+        "source",
+        "known",
+        "current",
+        "reason"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "HistoricalEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "maxLength": 40,
+          "title": "Kind",
+          "type": "string"
+        },
+        "evidence": {
+          "maxLength": 180,
+          "title": "Evidence",
+          "type": "string"
+        },
+        "session_id": {
+          "maxLength": 36,
+          "title": "Session Id",
+          "type": "string"
+        },
+        "sequence": {
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "at_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At Ms"
+        },
+        "age_seconds": {
+          "maximum": 120,
+          "minimum": 0,
+          "title": "Age Seconds",
+          "type": "number"
+        },
+        "source": {
+          "const": "original_edgeloop_observed_change",
+          "default": "original_edgeloop_observed_change",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "evidence",
+        "session_id",
+        "sequence",
+        "age_seconds"
+      ],
+      "title": "HistoricalEvent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "edgeloop.session-facts.v1",
+      "default": "edgeloop.session-facts.v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "session_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Session Id"
+    },
+    "sequence": {
+      "title": "Sequence",
+      "type": "integer"
+    },
+    "captured_at_ms": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Captured At Ms"
+    },
+    "age_seconds": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Age Seconds"
+    },
+    "current": {
+      "title": "Current",
+      "type": "boolean"
+    },
+    "facts": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Fact"
+      },
+      "maxProperties": 40,
+      "title": "Facts",
+      "type": "object"
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/HistoricalEvent"
+      },
+      "maxItems": 6,
+      "title": "Events",
+      "type": "array"
+    },
+    "trend_samples": {
+      "maximum": 12,
+      "minimum": 0,
+      "title": "Trend Samples",
+      "type": "integer"
+    },
+    "trend_span_seconds": {
+      "minimum": 0,
+      "title": "Trend Span Seconds",
+      "type": "number"
+    }
+  },
+  "required": [
+    "session_id",
+    "sequence",
+    "captured_at_ms",
+    "age_seconds",
+    "current",
+    "facts",
+    "events",
+    "trend_samples",
+    "trend_span_seconds"
+  ],
+  "title": "SessionFacts",
+  "type": "object"
+}

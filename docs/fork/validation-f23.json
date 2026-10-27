@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-27",
+  "milestone": "F2.3",
+  "status": "software_validation_passed_model_quality_partial",
+  "baseline_live_validation": "9c75b0d",
+  "starting_tip": "370fe0b",
+  "backup_ref": "backup/f23-pre-grounding-20261027",
+  "upstream": {
+    "tests": 1057,
+    "passed": 1057,
+    "files": 32,
+    "source_pin": "d351e011249079b368ebdc8d46f83b260be7d2a5",
+    "unchanged_files": 81,
+    "reviewed_integration_files": 4
+  },
+  "consolidated_python": {
+    "tests": 183,
+    "passed": 183,
+    "warnings": [
+      "Existing Starlette/httpx TestClient deprecation"
+    ]
+  },
+  "bridge_presentation": {
+    "tests": 13,
+    "passed": 13
+  },
+  "legacy_dashboard_harness": "passed, read-only harness invocation; no legacy files changed",
+  "mock_browser": "passed; responsive, streaming, correction/rejection, settings, history, AI unavailable and original controls; device APIs denied/Handy mocked",
+  "real_browser": {
+    "passed": true,
+    "thinking": false,
+    "models": [
+      "evelyn-lite-v1:latest",
+      "evelyn-qwen35-stable:latest",
+      "daisy-qwen35:latest"
+    ],
+    "history_restoration": true,
+    "transport_interruption": "One test inference socket closed and isolated transport made unavailable; no Ollama daemon interruption",
+    "gpu": {
+      "baseline_used_mib": 8552,
+      "peak_used_mib": 8552,
+      "total_mib": 10240,
+      "max_resident_models": 1,
+      "peak_runner_mib": 6650
+    }
+  },
+  "screenshots_visually_reviewed": [
+    "f23/browser/desktop-1920.png",
+    "f23/browser/chat-375.png",
+    "f23/live-browser/complete-desktop.png",
+    "f23/live-browser/complete-mobile.png"
+  ],
+  "live_evaluation": {
+    "paired_responses": 120,
+    "scenarios": 20,
+    "models": 3,
+    "installed_models": 17,
+    "errors": 0,
+    "source_hashes_verified": true,
+    "gpu": {
+      "peak_used_mib": 8701,
+      "peak_runner_mib": 6650,
+      "max_resident_models": 1
+    },
+    "all_current_native_system_hashes_preserved": true,
+    "thinking": false,
+    "context_tokens": 8192,
+    "max_output_tokens": 512,
+    "temperature": 0,
+    "keyword_checks_are_accuracy_measure": false,
+    "manual_review": "f23/manual-review.md",
+    "model_quality_success_criterion_met": false
+  },
+  "runtime": {
+    "dashboard": "http://127.0.0.1:8770",
+    "observer": "ws://127.0.0.1:8768/observe",
+    "observer_pid": 812027,
+    "observer_restarted_only": true,
+    "pairing_credentials_committed": false,
+    "ollama_11434_pid": 506214,
+    "ollama_11435_pid": 647240,
+    "ollama_servers_restarted": false
+  },
+  "preservation": "f23/preservation.json",
+  "boundaries": [
+    "Original engine remains authoritative",
+    "AI read-only; no tools or device commands",
+    "No hardware connections initiated or tested",
+    "Character definitions and both model stores preserved",
+    "Concurrent Character_Art edits left untouched"
+  ],
+  "remaining_limitations": [
+    "Unsupported qualitative, causal, trend and simulator interpretations remain in accepted model replies; broad quality criterion not fully met",
+    "Narrow explicit-claim checker is not a semantic verifier; provisional streamed drafts can contain false statements",
+    "Live comparison limited to one sequential thinking-disabled sample per model/scenario; not a load test or hallucination guarantee",
+    "Clock freshness assumes local shared host time"
+  ]
+}

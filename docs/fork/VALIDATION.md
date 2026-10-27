@@ -1,3 +1,12 @@
+# Current validation — F2.3
+
+See [grounding results and limitations](F23_GROUNDING.md),
+[machine report](validation-f23.json) and [telemetry contract](SESSION_DATA_CONTRACT.md).
+The original engine, safety and device drivers remain authoritative and unchanged.
+All new session scenarios use synthetic telemetry or mocked devices.
+
+The F2.2 records below retain their original context.
+
 # Current validation — F2.2
 
 Subsequent live validation on the existing 11435 server is complete; see [F2.2 live acceptance](F22_LIVE_VALIDATION.md). Earlier availability records below describe their original test time.

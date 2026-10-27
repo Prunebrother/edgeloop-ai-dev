@@ -1,0 +1,313 @@
+{
+  "contract": "edgeloop.session-facts.v1",
+  "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+  "sequence": 0,
+  "captured_at_ms": 1793130000000,
+  "age_seconds": 0.0,
+  "current": true,
+  "facts": {
+    "hr": {
+      "value": 98,
+      "unit": "BPM",
+      "kind": "derived",
+      "source": "state.sensorHr; simulator",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "hr_source": {
+      "value": "simulator",
+      "unit": null,
+      "kind": "status",
+      "source": "devices.simulated_hr / devices.ble",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "resting_bpm": {
+      "value": 70,
+      "unit": "BPM",
+      "kind": "setting",
+      "source": "validated minHr DOM input via original sanitizeHrLimits / dual bounds",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "single_max_bpm": {
+      "value": 140,
+      "unit": "BPM",
+      "kind": "setting",
+      "source": "validated maxHr DOM input via original sanitizeHrLimits / dual bounds",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "dual_max_bpm": {
+      "value": 125,
+      "unit": "BPM",
+      "kind": "setting",
+      "source": "validated dualMaxHr DOM input via original sanitizeHrLimits / dual bounds",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "effective_max": {
+      "value": 140,
+      "unit": "BPM",
+      "kind": "derived",
+      "source": "state.effectiveMaxHr",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "pullback": {
+      "value": 133,
+      "unit": "BPM",
+      "kind": "derived",
+      "source": "state.edgeTriggerHr",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "status": {
+      "value": "RUNNING",
+      "unit": null,
+      "kind": "status",
+      "source": "state.sessionStatus",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "seconds": {
+      "value": 42,
+      "unit": "seconds",
+      "kind": "status",
+      "source": "state.sessionSeconds",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "experience": {
+      "value": "classic",
+      "unit": null,
+      "kind": "setting",
+      "source": "state.teaseMode",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "active_mode": {
+      "value": "classic",
+      "unit": null,
+      "kind": "status",
+      "source": "state.activeMode",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "goal": {
+      "value": "tease",
+      "unit": null,
+      "kind": "setting",
+      "source": "state.gameMode or tease",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "intensity": {
+      "value": 100,
+      "unit": "percent",
+      "kind": "setting",
+      "source": "50 + state.intensityValue",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "edges": {
+      "value": 2,
+      "unit": "count",
+      "kind": "status",
+      "source": "state.edges",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "pauses": {
+      "value": 1,
+      "unit": "count",
+      "kind": "status",
+      "source": "state.pauses",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "trend": {
+      "value": null,
+      "unit": null,
+      "kind": "derived",
+      "source": "4+ distinct HR samples, span >=3 seconds, monotonic direction; 15-second window",
+      "known": false,
+      "current": false,
+      "observed_at_ms": 1793130000000,
+      "reason": "insufficient timestamped sample evidence"
+    },
+    "primary": {
+      "value": 20,
+      "unit": "percent",
+      "kind": "engine_value",
+      "source": "state.strokerSpeed; NOT hardware readback",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "secondary": {
+      "value": 18,
+      "unit": "percent",
+      "kind": "engine_value",
+      "source": "state.prostateSpeed; NOT hardware readback",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "physical_motion": {
+      "value": null,
+      "unit": null,
+      "kind": "measurement",
+      "source": "not collected; no hardware feedback available",
+      "known": false,
+      "current": false,
+      "observed_at_ms": 1793130000000,
+      "reason": "unavailable"
+    },
+    "toy_ready": {
+      "value": false,
+      "unit": null,
+      "kind": "status",
+      "source": "hardwareReadiness().toyReady (assigned stimulation availability)",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "ble": {
+      "value": false,
+      "unit": null,
+      "kind": "status",
+      "source": "isBleConnected()",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "handy": {
+      "value": false,
+      "unit": null,
+      "kind": "status",
+      "source": "handyConnected",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "intiface": {
+      "value": false,
+      "unit": null,
+      "kind": "status",
+      "source": "isIntifaceConnected() (transport only)",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "tcode": {
+      "value": false,
+      "unit": null,
+      "kind": "status",
+      "source": "isTCodeConnected() (transport only)",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "vacuglide": {
+      "value": false,
+      "unit": null,
+      "kind": "status",
+      "source": "isVacuglideConnected()",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "calibration_pass": {
+      "value": "none",
+      "unit": null,
+      "kind": "status",
+      "source": "original EdgeLoop phase fields / warm-up badge projection",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "warmup_active": {
+      "value": true,
+      "unit": null,
+      "kind": "derived",
+      "source": "original EdgeLoop phase fields / warm-up badge projection",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "warmup_remaining_seconds": {
+      "value": 258,
+      "unit": "seconds",
+      "kind": "derived",
+      "source": "original EdgeLoop phase fields / warm-up badge projection",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "ease_down_seconds": {
+      "value": 0,
+      "unit": "seconds",
+      "kind": "status",
+      "source": "original EdgeLoop phase fields / warm-up badge projection",
+      "known": true,
+      "current": true,
+      "observed_at_ms": 1793130000000,
+      "reason": "current"
+    },
+    "rampdown_seconds": {
+      "value": null,
+      "unit": "seconds",
+      "kind": "status",
+      "source": "original EdgeLoop phase fields / warm-up badge projection",
+      "known": false,
+      "current": false,
+      "observed_at_ms": 1793130000000,
+      "reason": "unavailable"
+    }
+  },
+  "events": [],
+  "trend_samples": 1,
+  "trend_span_seconds": 0.0
+}

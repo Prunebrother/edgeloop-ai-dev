@@ -72,7 +72,8 @@ def test_observer_has_no_clock_or_motor_progression_and_marks_disconnection_stal
     state=BrowserObservation(lambda:now[0]);message=Observation.model_validate(frame(str(uuid4())))
     assert state.accept(message)
     now[0]+=100
-    assert state.snapshot()['seconds']==42 and state.snapshot()['device']['velocity']==20
+    assert state.snapshot()['seconds']==42 and state.snapshot()['device']['velocity'] is None
+    assert state.snapshot()['reported_state']['movement']['primary']==20
     assert not state.fresh() and state.summary()['state'] is None
     assert not hasattr(state.device,'drive') and not hasattr(state,'control')
     assert not state.accept(message)
@@ -103,6 +104,12 @@ def test_accurate_data_director_events_user_chat_and_no_unsolicited_repetition(t
             assert adapter.summary['read_only'] and adapter.summary['observation_fresh']
             time.sleep(.11)
             ws.send_json(frame(ready['epoch'],seq=1,state=state,events=[evt]));until(ws,'observation_ack')
+            assert not any(e['kind']=='edge' for e in app.state.speech.recent_events)
+            time.sleep(.11);state['edges']+=1;verified={'id':str(uuid4()),'kind':'edge'}
+            ws.send_json(frame(ready['epoch'],seq=2,state=state,events=[verified]));until(ws,'observation_ack')
+            assert sum(e['kind']=='edge' for e in app.state.speech.recent_events)==1
+            time.sleep(.11)
+            ws.send_json(frame(ready['epoch'],seq=3,state=state,events=[verified]));until(ws,'observation_ack')
             assert sum(e['kind']=='edge' for e in app.state.speech.recent_events)==1
             assert not app.state.speech.policy.event_responses
             assert any(o['kind']=='snapshot' for o in app.state.director.recent_observations)
@@ -263,7 +270,9 @@ def test_native_tool_calls_are_rejected_and_context_is_model_neutral_data(tmp_pa
             assert app.state.observation.report==state
             assert captured and 'tools' not in captured[0]
             system=captured[0]['messages'][0]['content']
-            assert 'Untrusted session data' in system and '"read_only":true' in system
+            assert 'CURRENT SESSION' in system and 'read-only' in system
+            assert sum(m['content'].count('CURRENT SESSION —') for m in captured[0]['messages'])==1
+            assert 'CURRENT SESSION —' in captured[0]['messages'][-1]['content']
             assert system.startswith('Embedded identity\n') and system.count('Embedded identity')==1
             assert 'character_profile' not in system
 
