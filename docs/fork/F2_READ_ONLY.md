@@ -1,3 +1,5 @@
+> **F2.1 update:** The original optional panel is now the integrated companion dashboard. See [F2.1 interface, cancellation and browser evidence](F2_1_INTERFACE.md). Earlier browser-block notes below are historical. The read-only trust boundary remains in force.
+
 # F2 read-only companion integration
 
 The F2 implementation reuses the AI code at `/home/sean/projects/edgeloop-ai/` (baseline `9e89fa1`). It never imports that project's `app`, `session`, `session_bridge`, `core` or `demo` modules. No Node coordinator, motor sink, browser-controller callback or AI tool executor is created. Source/model data from the existing project is preserved. F1 is backed up locally by tag `backup/f1-e651754`.

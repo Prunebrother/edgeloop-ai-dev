@@ -85,4 +85,8 @@ class Models(StrictModel):
     version: Literal[1]
     type: Literal['list_models']
 
-Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models,Field(discriminator='type')])
+class Cancel(StrictModel):
+    version: Literal[1]
+    type: Literal['cancel_generation']
+
+Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel,Field(discriminator='type')])

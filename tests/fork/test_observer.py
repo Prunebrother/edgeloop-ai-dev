@@ -289,3 +289,30 @@ def test_retired_session_identity_cannot_replace_the_current_session():
     assert not state.accept(Observation.model_validate(first))
     assert state.session_id==second['snapshot']['session_id']
     assert state.report['seconds']==42
+
+
+def test_cancel_generation_only_interrupts_output_and_preserves_observation(tmp_path):
+    class Slow:
+        async def reply(self,*args):
+            await asyncio.sleep(30)
+            return 'obsolete'
+    app=create_app(TOKEN,tmp_path,adapter=Slow())
+    with TestClient(app) as client:
+        with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+            epoch=auth(ws)['epoch'];state=snapshot()
+            ws.send_json(frame(epoch,state=state));until(ws,'observation_ack')
+            ws.send_json({'version':1,'type':'chat','model':'mira:latest','text':'Hello'})
+            until(ws,'response_start')
+            task=app.state.speech.task
+            ws.send_json({'version':1,'type':'cancel_generation'})
+            until(ws,'speech_cancel')
+            time.sleep(.03)
+            assert task.done()
+            assert not any(item.get('content')=='obsolete' for item in app.state.speech.history)
+            assert app.state.observation.report==state
+            assert app.state.models.tool_executor is None
+            state['status']='PAUSED'
+            state['movement']['primary']=state['movement']['secondary']=0
+            ws.send_json(frame(epoch,1,state))
+            assert until(ws,'observation_ack')['accepted']
+            assert app.state.observation.report==state

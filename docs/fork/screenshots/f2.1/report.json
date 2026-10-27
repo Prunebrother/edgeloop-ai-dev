@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "steps": [
+    "Original simulated session starts before AI",
+    "Contextual user response and redacted authoritative state",
+    "Streaming, manual scroll preservation, jump-to-latest, cancel and multiline editing",
+    "Responsive views, model memory, pause and resume",
+    "Model switch, backend disconnect and original Stop remain independent",
+    "Mobile pairing and independent portrait asset fallback"
+  ],
+  "fixture": "mocked Ollama and Handy; no real hardware"
+}

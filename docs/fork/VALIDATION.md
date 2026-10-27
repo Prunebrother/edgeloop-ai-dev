@@ -1,3 +1,11 @@
+# F2.1 validation — 2026-10-27
+
+The three-column interface passes the original 1057 tests, 16 observer tests, eight JavaScript bridge/presentation tests 221 preserved AI regression tests, the original AI dashboard harness 221 preserved AI regression tests, the original AI dashboard harness and the expanded Playwright suite. Desktop/tablet/mobile screenshots were visually inspected. See [F2.1 implementation and commands](F2_1_INTERFACE.md) and [browser evidence](screenshots/f2.1/report.json). The previous browser sandbox block was resolved by elevated execution for Chromium and temporary loopback fixtures. Live Ollama quality and physical hardware remain unverified; F3 has not begun.
+
+The records below describe earlier checkpoints and their limitations at that time.
+
+---
+
 # F2 validation — read-only implementation checkpoint
 
 F1 backup tag: `backup/f1-e651754`. F2 is implemented and automated protocol/adapter validation passes. **Host browser and live Ollama acceptance remain outstanding; F3 has not begun.** See [implementation/security/launch](F2_READ_ONLY.md).

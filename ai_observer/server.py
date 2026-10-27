@@ -18,7 +18,7 @@ from edgeloop_ai.conversation import ModelManager, ConversationService
 from edgeloop_ai.director import ConversationDirector, DirectorConfig
 from edgeloop_ai.models import AIConfig, SpeechPolicy
 from edgeloop_ai.storage import SettingsStore
-from .protocol import Auth, Messages, Observation, Chat, Select, Models
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
@@ -139,6 +139,15 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             elif event.kind=='signal_lost' and state.status=='PAUSED' and previous and previous['safety']['signal']!='stale':speech.safety('signal_lost')
                             else:speech.enqueue(event.kind,30 if event.kind=='edge' else 10,{'edge_count':message.snapshot.edges})
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id})
+                    elif isinstance(message,Cancel):
+                        # Interrupt output immediately, independently of telemetry/model discovery.
+                        speech.pending.clear();speech.interrupt()
+                        # Drop chats still waiting on discovery/selection, retaining non-chat work.
+                        retained=[]
+                        while not ai_queue.empty():
+                            queued=ai_queue.get_nowait()
+                            if not isinstance(queued,Chat):retained.append(queued)
+                        for queued in retained:ai_queue.put_nowait(queued)
                     else:
                         if ai_queue.full():publish({'type':'ai_error','detail':'AI request queue is full'})
                         else:ai_queue.put_nowait(message)

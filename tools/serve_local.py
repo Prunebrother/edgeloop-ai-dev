@@ -12,7 +12,7 @@ def public_file(raw, root=ROOT):
     path=unquote(urlsplit(raw).path).lstrip('/') or 'index.html'
     parts=PurePosixPath(path).parts
     if any(p.startswith('.') for p in parts): return None
-    allowed=path in PUBLIC or (len(parts)==1 and parts[0].startswith('icon') and Path(path).suffix in {'.svg','.png'}) or (path.startswith('src/js/') and path.endswith('.js'))
+    allowed=path in PUBLIC or (len(parts)==1 and parts[0].startswith('icon') and Path(path).suffix in {'.svg','.png'}) or (path.startswith('src/js/') and path.endswith('.js')) or (path.startswith('src/css/') and path.endswith('.css')) or (path.startswith('src/assets/characters/') and Path(path).suffix in {'.png','.webp','.jpg','.jpeg','.svg'})
     target=root/path
     if target.absolute()!=target.resolve():return None
     if not allowed or target.is_symlink() or not target.resolve().is_relative_to(root.resolve()): return None

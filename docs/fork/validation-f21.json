@@ -1,0 +1,84 @@
+{
+  "milestone": "F2.1",
+  "baseline": "e99ae3f",
+  "date": "2026-10-27",
+  "upstream": {
+    "passed": 1057,
+    "files": 32,
+    "failed": 0
+  },
+  "observer": {
+    "passed": 16,
+    "failed": 0
+  },
+  "javascript_bridge_and_presentation": {
+    "passed": 8,
+    "failed": 0
+  },
+  "preserved_ai": {
+    "passed": 221,
+    "failed": 0
+  },
+  "preserved_dashboard_harness": "passed",
+  "playwright": {
+    "passed": true,
+    "steps": [
+      "Original simulated session starts before AI",
+      "Contextual user response and redacted authoritative state",
+      "Streaming, manual scroll preservation, jump-to-latest, cancel and multiline editing",
+      "Responsive views, model memory, pause and resume",
+      "Model switch, backend disconnect and original Stop remain independent",
+      "Mobile pairing and independent portrait asset fallback"
+    ],
+    "fixture": "mocked Ollama and Handy; no real hardware"
+  },
+  "viewports": [
+    [
+      1920,
+      1080
+    ],
+    [
+      2560,
+      1440
+    ],
+    [
+      1366,
+      768
+    ],
+    [
+      768,
+      1024
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      360,
+      800
+    ],
+    [
+      375,
+      667
+    ]
+  ],
+  "visually_inspected": true,
+  "screenshots": [
+    "docs/fork/screenshots/f2.1/desktop-1920.png",
+    "docs/fork/screenshots/f2.1/chat-2560.png",
+    "docs/fork/screenshots/f2.1/chat-1366.png",
+    "docs/fork/screenshots/f2.1/chat-768.png",
+    "docs/fork/screenshots/f2.1/chat-390.png",
+    "docs/fork/screenshots/f2.1/chat-360.png",
+    "docs/fork/screenshots/f2.1/session-390.png",
+    "docs/fork/screenshots/f2.1/character-390.png",
+    "docs/fork/screenshots/f2.1/pairing-375.png",
+    "docs/fork/screenshots/f2.1/safety-banner-390.png"
+  ],
+  "limitations": [
+    "Mocked Ollama transport; no live-model quality verification",
+    "Fake Handy, denied native device permissions; no real hardware",
+    "Existing Starlette/httpx deprecation warning"
+  ],
+  "source_boundary": "81 untouched upstream pinned files; four reviewed integration changes; app.js identical to F2; core engine/drivers/calculations unchanged"
+}

@@ -1,4 +1,10 @@
-# Architecture pivot and provisional comparison
+# Companion architecture
+
+## Current milestone: F2.1
+
+The responsive companion dashboard now provides Session / Chat / Character panels with model-configurable artwork placeholders. See [F2.1 layout, presentation boundary, protocol and validation](F2_1_INTERFACE.md). Playwright browser acceptance now passes with mocked Ollama and Handy; the prior sandbox browser block below is historical. Live model/hardware validation remains outstanding. No F3 control path exists.
+
+## F2 architecture record
 
 ## Decision and current status
 

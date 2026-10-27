@@ -6,12 +6,17 @@
   },
   "sw.js": {
     "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
-    "sha256": "8fa9905e8b2e4d81894022159cfd5a1c71992f33769c2b72547afd25de0a6bde",
-    "reason": "Bypass local AI service/private AI endpoint caching"
+    "sha256": "aef08d85875bce6229e0cccac8e2d7a282f4b3f128acab564aa4a82d0e15f8e9",
+    "reason": "F2.1 public UI precache; preserve private AI/auth cache exclusions"
   },
   ".gitignore": {
     "base_sha256": "f5dace1690dab0464685a792bf7005b1e43b16c580cd5dfd8f552f362704c81a",
     "sha256": "ac1831240cc423225d3c3481e9a1fdf72ac207c31c2578b112c480e3ca42b693",
     "reason": "Exclude new observer private data and Python caches"
+  },
+  "index.html": {
+    "base_sha256": "7da05d6d914484f64aa897de686fa19eb636ddc9a79d873a75f23471eddf54b1",
+    "sha256": "40a5ad9788e5388a2fcc277ac0c2b3f74c0696c162eca74933a5e214000ffc82",
+    "reason": "F2.1 stylesheet link and accessible viewport zoom; original controls preserved"
   }
 }

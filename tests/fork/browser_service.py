@@ -1,4 +1,5 @@
 """Isolated browser fixture: real observer classes, mocked local model transport."""
+import asyncio
 import json
 import re
 import tempfile
@@ -7,12 +8,20 @@ import uvicorn
 from ai_observer.server import create_app
 
 TOKEN='browser-fixture-token-'+('x'*32)
-def runtime(request):
+class Stream(httpx.AsyncByteStream):
+    async def __aiter__(self):
+        for i in range(120):
+            yield (json.dumps({'message':{'content':'A streamed companion message, with room to read and reflect. '*3},'done':False})+'\n').encode()
+            await asyncio.sleep(.04)
+        yield b'{"message":{"content":""},"done":true}\n'
+
+async def runtime(request):
     if request.url.path=='/api/tags':return httpx.Response(200,json={'models':[{'name':'mira:latest'},{'name':'evelyn:latest'}]})
     if request.url.path=='/api/show':return httpx.Response(200,json={'capabilities':['completion','thinking'],'model_info':{'qwen.context_length':8192}})
     if request.url.path=='/api/ps':return httpx.Response(200,json={'models':[]})
     body=json.loads(request.content)
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
+    if any(m.get('content')=='long streaming response' for m in body['messages']):return httpx.Response(200,stream=Stream())
     context=body['messages'][0]['content'];match=re.search(r'"hr":(\d+)',context)
     hr=match[1] if match else 'unknown'
     return httpx.Response(200,text=json.dumps({'message':{'content':body['model']+' reports '+hr+' BPM.'},'done':True})+'\n')
