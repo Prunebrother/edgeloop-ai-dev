@@ -3,7 +3,7 @@ from collections import deque
 from copy import deepcopy
 from dataclasses import dataclass
 import time
-from edgeloop_ai.director import ConversationDirector
+from companion_ai.director import ConversationDirector
 
 @dataclass(frozen=True)
 class ObservedDevice:

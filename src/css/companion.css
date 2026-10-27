@@ -70,3 +70,10 @@ body.companion-app {margin:0;padding:0;display:block;height:100dvh;min-height:0;
 @keyframes model-pulse {50%{opacity:.35;box-shadow:0 0 10px currentColor}}
 @media(max-width:760px){.model-controls {padding:0 16px 10px}.companion-heading {flex-wrap:wrap}.model-activity {margin-left:auto}#ai-companion[data-paired=false] .model-controls {display:none}}
 @media(prefers-reduced-motion:reduce){.model-activity .activity-light {animation:none!important}}
+
+@media(max-width:760px){.composer-actions>span {display:none}.chat-composer textarea {height:58px}}
+@media(max-width:760px) and (max-height:740px){
+ .companion-heading {padding:12px}.companion-heading h2 {font-size:18px}
+ .conversation-scroll {min-height:48px}.chat-composer textarea {height:42px}
+ .ai-health>[data-selected] {display:none}
+}

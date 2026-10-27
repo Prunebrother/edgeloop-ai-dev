@@ -1,7 +1,7 @@
 """AGPL-3.0-only. Closed, bounded v1 observation/chat protocol; no commands."""
 from typing import Annotated, Literal
 from pydantic import Field, TypeAdapter, model_validator
-from edgeloop_ai.models import StrictModel, ModelSelection
+from companion_ai.models import StrictModel, ModelSelection
 
 Identifier = Annotated[str, Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')]
 Mode = Literal['classic','finisher','milker','shortener','headplay','ultimate','ruin']
@@ -91,3 +91,21 @@ class Cancel(StrictModel):
     type: Literal['cancel_generation']
 
 Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel,Field(discriminator='type')])
+
+
+def _schema_paths(node):
+    known=set()
+    if isinstance(node,dict):
+        known.update(node.get('properties',{}))
+        if isinstance(node.get('const'),str):known.add(node['const'])
+        for child in node.values():known.update(_schema_paths(child))
+    elif isinstance(node,list):
+        for child in node:known.update(_schema_paths(child))
+    return known
+
+_SCHEMA_PATHS=_schema_paths(Messages.json_schema())
+
+def safe_validation_errors(error):
+    # Extra field names can themselves contain secrets. Retain only schema names.
+    return [{'path':[part if isinstance(part,int) or part in _SCHEMA_PATHS else '<extra-field>' for part in item['loc']],
+             'code':item['type']} for item in error.errors(include_input=False,include_url=False,include_context=False)[:8]]

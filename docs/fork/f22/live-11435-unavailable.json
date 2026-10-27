@@ -1,0 +1,9 @@
+{
+  "ollama_url": "http://127.0.0.1:11435",
+  "thinking": false,
+  "hardware": "none; synthetic IDLE observation only",
+  "models": [],
+  "passed": false,
+  "error": "[Errno 111] Connection refused",
+  "available": false
+}

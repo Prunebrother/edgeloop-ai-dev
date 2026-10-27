@@ -6,7 +6,7 @@
 // offline once it has been visited. Bump CACHE_VERSION when the precache list
 // changes; old caches are removed on activate.
 
-const CACHE_VERSION = 'edgeloop-f21-v3';
+const CACHE_VERSION = 'edgeloop-f22-v1';
 const PRECACHE = [
     './',
     './index.html',
@@ -78,6 +78,8 @@ self.addEventListener('fetch', (event) => {
     // AI/auth replies must never enter offline caches (including cross-port GETs).
     if (new URL(request.url).port === '8768' || new URL(request.url).pathname.startsWith('/ai/')) return;
     const url = new URL(request.url);
+    // Configurable observer ports must never enter the public UI cache.
+    if (url.origin !== self.location.origin && ['127.0.0.1','localhost','[::1]'].includes(url.hostname)) return;
     // Never intercept device APIs or signalling: the Handy cloud API, Intiface
     // websockets and PeerJS must always go to the network.
     if (url.protocol !== 'http:' && url.protocol !== 'https:') return;

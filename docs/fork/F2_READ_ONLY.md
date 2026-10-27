@@ -1,3 +1,5 @@
+> **F2.2 update:** The fork now includes its own companion package and venv. References below to legacy runtime imports are historical. See [current architecture](F22_CONSOLIDATION.md) and [development](DEVELOPMENT.md).
+
 > **F2.1 update:** The original optional panel is now the integrated companion dashboard. See [F2.1 interface, cancellation and browser evidence](F2_1_INTERFACE.md). Earlier browser-block notes below are historical. The read-only trust boundary remains in force.
 
 # F2 read-only companion integration

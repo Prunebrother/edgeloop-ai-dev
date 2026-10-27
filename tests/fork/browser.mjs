@@ -6,7 +6,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 const root=path.resolve(new URL('../..',import.meta.url).pathname);
 const output=process.env.FORK_BROWSER_REPORT||'/tmp/edgeloop-f21-browser';
-const aiSource=process.env.EDGELOOP_AI_SOURCE||'/home/sean/projects/edgeloop-ai';
+const python=process.env.EDGELOOP_TEST_PYTHON||path.join(root,'.venv/bin/python');
 const uiPort=process.env.FORK_BROWSER_PORT||'8770',observerPort=process.env.FORK_OBSERVER_PORT||'8768';
 const uiUrl='http://127.0.0.1:'+uiPort,observerUrl='http://127.0.0.1:'+observerPort;
 const token='browser-fixture-token-'+'x'.repeat(32);
@@ -19,7 +19,7 @@ try {
     await mkdir(output,{recursive:true});
     browser=await chromium.launch();
     children.push(spawn('python3',['tools/serve_local.py',uiPort],{cwd:root,stdio:'ignore'}));
-    children.push(spawn(aiSource+'/.venv/bin/python',['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...process.env,PYTHONPATH:root+':'+aiSource,EDGELOOP_FIXTURE_UI_PORT:uiPort,EDGELOOP_FIXTURE_OBSERVER_PORT:observerPort}}));
+    children.push(spawn(python,['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...process.env,EDGELOOP_FIXTURE_UI_PORT:uiPort,EDGELOOP_FIXTURE_OBSERVER_PORT:observerPort}}));
     await waitServer(uiUrl+'/');await waitServer(observerUrl+'/health');
     const ctx=await browser.newContext({viewport:{width:1920,height:1080}});
     await ctx.addInitScript(()=>{
@@ -66,9 +66,9 @@ try {
     await page.locator('[data-url]').fill('ws://127.0.0.1:'+observerPort+'/observe');
     await page.locator('[data-token]').fill(token);await page.locator('[data-connect]').click();
     await page.waitForFunction(()=>document.querySelector('[data-telemetry]').textContent.includes('Authoritative telemetry connected'));
-    await page.locator('[data-model] option[value="mira:latest"]').waitFor({state:'attached'});
-    await page.locator('[data-model]').selectOption('mira:latest');await page.locator('[data-select]').click();
-    await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('Active: mira:latest'));
+    await page.locator('[data-model] option[value="evelyn-lite-v1:latest"]').waitFor({state:'attached'});
+    await page.locator('[data-model]').selectOption('evelyn-lite-v1:latest');await page.locator('[data-select]').click();
+    await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('Active: evelyn-lite-v1:latest'));
     assert(await page.locator('[data-activity-label]').textContent()==='Ready','Model readiness missing');
     assert(await page.locator('[data-thinking]').getAttribute('aria-pressed')==='true','Thinking mode not confirmed');
     await page.locator('[data-thinking]').click();
@@ -110,7 +110,7 @@ try {
     assert((await page.locator('[data-text]').inputValue()).includes('\n'),'Shift+Enter did not insert newline');
     await page.locator('[data-text]').fill('');
     report.steps.push('Streaming, manual scroll preservation, jump-to-latest, cancel and multiline editing');
-    for(const [width,height] of [[2560,1440],[1366,768],[768,1024],[390,844],[360,800]]) {
+    for(const [width,height] of [[2560,1440],[1366,768],[768,1024],[390,844],[360,800],[375,667]]) {
         await page.setViewportSize({width,height});
         await page.waitForTimeout(100);
         assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow at '+width);
@@ -135,8 +135,8 @@ try {
     await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('Active: evelyn:latest'));
     assert(await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';}),'Model selection changed original session');
     assert(await page.locator('[data-history] .message').count()===0,'Model history leaked across models');
-    await page.locator('[data-model]').selectOption('mira:latest');await page.locator('[data-select]').click();
-    await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('Active: mira:latest'));
+    await page.locator('[data-model]').selectOption('evelyn-lite-v1:latest');await page.locator('[data-select]').click();
+    await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('Active: evelyn-lite-v1:latest'));
     assert((await page.locator('[data-history]').textContent()).includes('98 BPM'),'Conversation memory not restored');
     await page.locator('#sessionPlayPauseBtn').click();
     await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='PAUSED';});

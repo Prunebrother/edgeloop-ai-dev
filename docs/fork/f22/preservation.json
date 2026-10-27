@@ -1,0 +1,10 @@
+{
+  "legacy_source_files_checked": 406,
+  "legacy_changed_files": [],
+  "legacy_git_status_unchanged": true,
+  "model_stores_unchanged": true,
+  "model_manifest_counts": {
+    "/home/sean/.ollama/models": 17,
+    "/home/sean/projects/edgeloop-ai/.ollama/models": 3
+  }
+}

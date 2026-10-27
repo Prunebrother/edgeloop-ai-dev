@@ -14,3 +14,10 @@ test('model artwork resolves expression, neutral, default and missing model inde
     assert.equal(resolveArtwork('one:tag','untrusted state',manifest).expression,'neutral');
     assert.equal(EXPRESSIONS.length,12);
 });
+
+
+test('new Ollama model identifiers map to presentation assets without inferred identity',()=>{
+    assert.equal(resolveArtwork('evelyn-lite-v1:latest').name,'Evelyn Lite v1');
+    assert.equal(resolveArtwork('daisy-qwen35:latest').name,'Daisy · Qwen 3.5');
+    assert.equal(resolveArtwork('evelyn-qwen35-stable:latest','happy').src,null);
+});

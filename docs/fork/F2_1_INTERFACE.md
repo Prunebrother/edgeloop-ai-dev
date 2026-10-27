@@ -1,3 +1,5 @@
+> **F2.2 update:** The fork now includes its own companion package and venv. References below to legacy runtime imports are historical. See [current architecture](F22_CONSOLIDATION.md) and [development](DEVELOPMENT.md).
+
 # F2.1 companion interface
 
 F2 baseline: `e99ae3f`. F2.1 makes the companion the primary desktop experience while retaining original EdgeLoop control ownership. No F3 device commands, emotion classifier, new voice system, or generated character artwork are implemented.

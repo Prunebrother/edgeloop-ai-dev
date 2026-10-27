@@ -1,0 +1,16 @@
+{
+  "registry.ollama.ai/huihui_ai/qwen3.5-abliterated/9b": "92a443adb124f5e805bbdee23fdb38fcd22a7bf00a1016b53f764e741369c600",
+  "registry.ollama.ai/library/qwen3/8b": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+  "registry.ollama.ai/library/daisy/latest": "e8f7a037cd1139e112df508fbac2d1f0e0260ce7e116e50010a3ff33b2d906f6",
+  "registry.ollama.ai/library/evelyn/latest": "e70968d1c3ca64ebedab00e1d20123bb17de409eb1648bbd665f8913e0d5e1a5",
+  "registry.ollama.ai/library/evelyn-world/latest": "1e987d532cfb3f076e88ae12162787de897dbff73834c9a18daa61f8882b9846",
+  "registry.ollama.ai/library/daisy-world/latest": "5ddb4007015bcec7dbb91c550fd85fb8825fe801c785a094b0f2cf0eaf670b07",
+  "registry.ollama.ai/library/evelyn-v11/latest": "dd2ff8abd4c49bcb3c0f91009e7480be758b2733ac554ed63c86328607bd4e5a",
+  "registry.ollama.ai/library/daisy-v11/latest": "d6d4502660e256597108ef3e7af64bd151ed836730c797bb3c0b3b1efd4b3c37",
+  "registry.ollama.ai/library/evelyn-v12/latest": "039b4f4c0bfc2883dde81d8cefa6f1fcd57e0f17a2a4fb86ce6339100dc984d2",
+  "registry.ollama.ai/library/evelyn-v12r1/latest": "de72ba5354c9817861864036584c45dad2e06a7248cd15aabd515b52326ebd5c",
+  "registry.ollama.ai/library/evelyn-reptest/latest": "c35e1aa927f3054621923bffc86e3043086f9caea43e3721dbe5df99f7d74467",
+  "registry.ollama.ai/library/evelyn-qwen35/latest": "355a4cef6b350777a136d49335478816742fad47453be1cfbf28213501f32ecb",
+  "registry.ollama.ai/library/evelyn-qwen35-stable/latest": "355a4cef6b350777a136d49335478816742fad47453be1cfbf28213501f32ecb",
+  "registry.ollama.ai/library/daisy-qwen35/latest": "7b0359ea42aaeb80003725823eb62e53248665c5d87354aac39dfa5e4a932521"
+}

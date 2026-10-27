@@ -6,3 +6,8 @@ tools/smoke-out/
 # Optional AI observer: personal data and Python caches never enter source backups.
 .ai-data/
 __pycache__/
+
+# Fork-owned Python development environment and generated metadata
+.venv/
+.pytest_cache/
+*.egg-info/

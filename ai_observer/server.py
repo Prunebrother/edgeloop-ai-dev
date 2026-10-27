@@ -15,12 +15,13 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import ValidationError
-from edgeloop_ai.conversation import ModelManager, ConversationService
-from edgeloop_ai.director import ConversationDirector, DirectorConfig
-from edgeloop_ai.models import AIConfig, SpeechPolicy
-from edgeloop_ai.storage import SettingsStore
+from companion_ai.conversation import ModelManager, ConversationService
+from companion_ai.director import ConversationDirector, DirectorConfig
+from companion_ai.llm import thinking_support
+from companion_ai.models import AIConfig, SpeechPolicy
+from companion_ai.storage import SettingsStore
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
@@ -115,7 +116,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                     try:message=Messages.validate_json(raw)
                     except ValidationError as exc:
                         # Field paths/codes are diagnostic; never log raw input, chat or tokens.
-                        errors=[{'path':list(e['loc']),'code':e['type']} for e in exc.errors(include_input=False,include_url=False,include_context=False)[:8]]
+                        errors=safe_validation_errors(exc)
                         logging.getLogger(__name__).warning('Rejected read-only message fields=%s',errors)
                         publish({'type':'protocol_error','detail':'Invalid read-only message','errors':errors});continue
                     if isinstance(message,Observation):
@@ -170,16 +171,20 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                     elif isinstance(message,Select):
                         try:
                             async with model_lock:
-                                values=manager.config.model_dump() | store.read('model-presets.json',{}).get(manager.config.provider+':'+message.selection.model,{}) | {'model':message.selection.model}
+                                presets=store.read('model-presets.json',{})
+                                values=manager.config.model_dump() | presets.get(manager.preset_key(message.selection.model),presets.get(manager.config.provider+':'+message.selection.model,{})) | {'model':message.selection.model}
                                 if message.thinking is not None:values['thinking']=message.thinking
                                 # Models without reasoning support remain usable with thinking off.
                                 metadata=await manager.provider(AIConfig.model_validate(values)).capabilities(message.selection.model)
-                                supports_thinking='thinking' in metadata.get('capabilities',[]) or True in (metadata.get('thinking') or {}).get('values',[])
-                                if not supports_thinking and message.thinking is None:values['thinking']=False
+                                controls=thinking_support(metadata)
+                                supports_thinking=controls['can_enable']
+                                if message.thinking is None:
+                                    if not controls['can_enable']:values['thinking']=False
+                                    elif not controls['can_disable']:values['thinking']=True
                                 if message.selection.context_length is not None:values['context_length']=message.selection.context_length
                                 await manager.select(AIConfig.model_validate(values),message.selection.context_policy,interrupt)
                                 speech.activate_model()
-                                publish({'type':'model_selected','model':manager.config.model,'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'history':[{k:str(m[k])[:4000] for k in ('role','content')} for m in list(speech.history)[-8:]]})
+                                publish({'type':'model_selected','model':manager.config.model,'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'can_disable_thinking':controls['can_disable'],'history':[{k:str(m[k])[:4000] for k in ('role','content')} for m in list(speech.history)[-8:]]})
                         except (ValueError,httpx.HTTPError,OSError):publish({'type':'ai_error','detail':'Model settings could not be applied; check model availability and thinking support.', 'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
                     elif isinstance(message,Chat):
                         chat_times[:]=[t for t in chat_times if clock()-t<60]
@@ -208,6 +213,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
 def main():
     import argparse
     import socket
+    import errno
     import uvicorn
     parser=argparse.ArgumentParser(description='Read-only EdgeLoop observer; uses an existing local Ollama server.')
     parser.add_argument('--check',action='store_true',help='Print configuration and verify Ollama discovery; do not start any server')
@@ -226,8 +232,9 @@ def main():
         return
     try:
         with socket.socket() as probe:probe.bind(('127.0.0.1',config.port))
-    except OSError:
-        parser.exit(1,f'Observer port {config.port} is occupied. Inspect it with ss -ltnp or choose EDGELOOP_OBSERVER_PORT. No process was stopped.\n')
+    except OSError as exc:
+        detail=f'Observer port {config.port} is occupied.' if exc.errno==errno.EADDRINUSE else f'Cannot bind observer port {config.port}: {exc.strerror}.'
+        parser.exit(1,detail+' Inspect ss -ltnp or choose EDGELOOP_OBSERVER_PORT. No process was stopped.\n')
     token=secrets.token_urlsafe(32)
     print('Read-only observer. Pairing token (valid for this process, 1 hour): '+token,flush=True)
     app=create_app(token,config.data_dir,ollama_url=config.ollama_url)

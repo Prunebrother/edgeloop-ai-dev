@@ -27,7 +27,15 @@ class Handler(SimpleHTTPRequestHandler):
     def list_directory(self,path):self.send_error(404);return None
 
 if __name__=='__main__':
-    port=int(sys.argv[1]) if len(sys.argv)>1 else 8770
-    with ThreadingHTTPServer(('127.0.0.1',port),partial(Handler,directory=str(ROOT))) as server:
+    try:
+        port=int(sys.argv[1]) if len(sys.argv)>1 else 8770
+        if not 1<=port<=65535:raise ValueError()
+    except ValueError:
+        raise SystemExit('UI port must be an integer between 1 and 65535')
+    try:
+        server=ThreadingHTTPServer(('127.0.0.1',port),partial(Handler,directory=str(ROOT)))
+    except OSError as exc:
+        raise SystemExit(f'Cannot start EdgeLoop on 127.0.0.1:{port}: {exc.strerror}. Inspect ss -ltnp or choose another port. No process was stopped.')
+    with server:
         print(f'Original EdgeLoop: http://127.0.0.1:{port}/ (AI optional)',flush=True)
         server.serve_forever()

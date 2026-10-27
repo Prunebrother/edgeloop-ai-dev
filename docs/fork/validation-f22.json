@@ -1,0 +1,144 @@
+{
+  "milestone": "F2.2",
+  "date": "2026-10-27",
+  "fork_baseline": "965727f",
+  "connectivity_checkpoint": "39dcbc6",
+  "upstream": {
+    "tests": 1057,
+    "files": 32,
+    "failures": 0
+  },
+  "python": {
+    "tests": 91,
+    "observer": 23,
+    "consolidated_ai": 68,
+    "failures": 0,
+    "errors": 0
+  },
+  "javascript_bridge_presentation": {
+    "tests": 10,
+    "failures": 0
+  },
+  "legacy_backend_regression": {
+    "tests": 221,
+    "failures": 0,
+    "source_unchanged": true
+  },
+  "legacy_dashboard_harness": "passed read-only; not a runtime dependency",
+  "browser": {
+    "passed": true,
+    "steps": [
+      "Original simulated session starts before AI",
+      "Confirmed thinking toggle reaches inference and preserves chat history",
+      "Contextual user response and redacted authoritative state",
+      "Streaming, manual scroll preservation, jump-to-latest, cancel and multiline editing",
+      "Responsive views, model memory, pause and resume",
+      "Disconnected Ollama cannot produce a placeholder model request",
+      "Model switch, backend disconnect and original Stop remain independent",
+      "Mobile pairing and independent portrait asset fallback"
+    ],
+    "fixture": "mocked Ollama and Handy; no real hardware"
+  },
+  "screenshots_visually_reviewed": true,
+  "real_ollama_11434": {
+    "ollama_url": "http://127.0.0.1:11434",
+    "thinking": false,
+    "hardware": "none; synthetic IDLE observation only",
+    "models": [
+      {
+        "model": "mira:latest",
+        "embedded_system_sha256": "a60e0b038ec20f49d26440d4abf2f7e578bd99a4d57f1057bdef2ed09d249c7c",
+        "embedded_system_characters": 760,
+        "reply": "The reported BPM is 98, and it's simulated. The session is currently idle.",
+        "streamed_chunks": 5,
+        "seconds": 2.53,
+        "metrics": {
+          "response_latency_seconds": 2.528,
+          "time_to_first_token_seconds": 2.341,
+          "tokens_per_second": 106.9,
+          "output_tokens": 20,
+          "load_seconds": 2.145753447,
+          "recorded_at": 1793125868.6081572,
+          "provider": "ollama",
+          "model": "mira:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 160,
+          "visible_characters": 74,
+          "prompt_tokens": 582,
+          "done_reason": "stop"
+        },
+        "reported_telemetry_facts": true
+      },
+      {
+        "model": "evelyn:latest",
+        "embedded_system_sha256": "50ecfddd595416144332e5f14ea52608131d604ba8fb30c8d0f56b33a7099690",
+        "embedded_system_characters": 5347,
+        "reply": "The reported BPM is 98, and it is simulated. The session is currently idle.",
+        "streamed_chunks": 5,
+        "seconds": 0.55,
+        "metrics": {
+          "response_latency_seconds": 0.548,
+          "time_to_first_token_seconds": 0.365,
+          "tokens_per_second": 109.1,
+          "output_tokens": 20,
+          "load_seconds": 0.000819421,
+          "recorded_at": 1793125869.181807,
+          "provider": "ollama",
+          "model": "evelyn:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 160,
+          "visible_characters": 75,
+          "prompt_tokens": 1371,
+          "done_reason": "stop"
+        },
+        "reported_telemetry_facts": true
+      }
+    ],
+    "passed": true,
+    "installed_models": [
+      "evelyn:latest",
+      "mira:latest",
+      "qwen3:8b"
+    ],
+    "available": true,
+    "model_memory_restored": true,
+    "heartbeat_messages": 4
+  },
+  "real_ollama_11435": {
+    "ollama_url": "http://127.0.0.1:11435",
+    "thinking": false,
+    "hardware": "none; synthetic IDLE observation only",
+    "models": [],
+    "passed": false,
+    "error": "[Errno 111] Connection refused",
+    "available": false
+  },
+  "preservation": {
+    "legacy_source_files_checked": 406,
+    "legacy_changed_files": [],
+    "legacy_git_status_unchanged": true,
+    "model_stores_unchanged": true,
+    "model_manifest_counts": {
+      "/home/sean/.ollama/models": 17,
+      "/home/sean/projects/edgeloop-ai/.ollama/models": 3
+    }
+  },
+  "migration_source_files": 42,
+  "self_contained_imports": "verified from unrelated cwd under isolated Python; no legacy package imports",
+  "dependency_check": "pip check: no broken requirements",
+  "warnings": [
+    "Existing Starlette/httpx TestClient deprecation warning"
+  ],
+  "limitations": [
+    "Requested real 11435 smoke unavailable: connection refused; no listener present. No Ollama server was started or stopped.",
+    "17 installed character names exercised with mocked transport; new-model live quality not claimed.",
+    "No physical stimulation hardware tested."
+  ],
+  "backup_directory": "/home/sean/Work/backups/edgeloop-f22-20261027"
+}

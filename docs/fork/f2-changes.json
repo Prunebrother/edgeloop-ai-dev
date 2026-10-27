@@ -6,13 +6,13 @@
   },
   "sw.js": {
     "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
-    "sha256": "9000e5ec2f314e010c19a3e688e36b8b52d1c9d7e6028d01c9760374cde995c1",
-    "reason": "F2.1 public UI precache; preserve private AI/auth cache exclusions"
+    "sha256": "b9e6c22d9d33e734e06cd2b1edc80b8761f4421701b26a9799958d24d619bc97",
+    "reason": "Public companion precache and AI/auth exclusion including configurable loopback observer ports"
   },
   ".gitignore": {
     "base_sha256": "f5dace1690dab0464685a792bf7005b1e43b16c580cd5dfd8f552f362704c81a",
-    "sha256": "ac1831240cc423225d3c3481e9a1fdf72ac207c31c2578b112c480e3ca42b693",
-    "reason": "Exclude new observer private data and Python caches"
+    "sha256": "0665bd92662cf099a27cd42a40f8b879faca45812d011e811547fb74ebc362f3",
+    "reason": "Exclude fork-owned Python environment/metadata and private AI data"
   },
   "index.html": {
     "base_sha256": "7da05d6d914484f64aa897de686fa19eb636ddc9a79d873a75f23471eddf54b1",

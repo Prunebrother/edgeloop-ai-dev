@@ -1,3 +1,15 @@
+# Current validation — F2.2
+
+See [F2.2 machine report](validation-f22.json) and [architecture/migration](F22_CONSOLIDATION.md).
+Original upstream, observer, consolidated AI, bridge/presentation and browser suites pass.
+Real streaming passed through the self-contained observer against the existing 11434
+runtime; the requested 11435 attempt was unavailable because no listener was present.
+No Ollama daemon was started/stopped and no model weights or definitions were changed.
+
+The records below are historical checkpoint evidence, not current runtime dependencies.
+
+---
+
 ## Thinking controls and activity feedback
 
 18 observer tests, nine bridge/presentation tests and the expanded Playwright suite pass. Native Ollama `think` flags, persistence, history preservation, unsupported models, Ready/Responding indicators and responsive layout are covered. Updated screenshots were visually reviewed. See [control architecture and usage](THINKING_CONTROLS.md) and [validation report](validation-thinking-controls.json). The running observer was updated while keeping the current temporary pairing token.

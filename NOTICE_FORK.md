@@ -1,23 +1,26 @@
-# Attribution and source
+# Attribution and corresponding source
 
-This experimental fork contains EdgeLoop by marshallmims, version 1.1.3,
-commit d351e011249079b368ebdc8d46f83b260be7d2a5:
+This fork contains EdgeLoop by marshallmims, version 1.1.3, commit
+`d351e011249079b368ebdc8d46f83b260be7d2a5`:
 https://github.com/marshallmims/edgeloop
 
-The original application and these fork additions are distributed under
-AGPL-3.0-only. The original LICENSE and upstream notices remain intact.
-All 85 original pinned files are unchanged at the F1 source checkpoint.
-F2 adds optional read-only AI UI/telemetry, an observer-only service, tests and
-private-data isolation. The engine, session handlers, calculations and drivers
-remain unchanged; the reviewed original-file changes are recorded separately.
+The original LICENSE and upstream notices remain intact. The original engine,
+physiological calculations, session rules, calibration and hardware drivers
+remain authoritative. The immutable upstream pin and reviewed integration
+changes are recorded in `docs/fork/upstream-pin.json` and `f2-changes.json`.
 
-Retain source access and this attribution if the fork is distributed or made
-available over a network. The Git repository and provenance manifest identify
-the exact corresponding source. User data, device keys, model weights and
-conversation records are not part of this source checkout.
+F2.2 includes adapted AGPL-3.0-only AI conversation/provider/Director/storage
+source from the local EdgeLoop AI project, committed baseline `9e89fa1`, plus
+selected character-development working files. Corresponding migrated source
+is included in this repository under `companion_ai/`, `characters/` and
+`tools/characters/`. Exact source paths/hashes and adaptations are recorded in
+`docs/fork/f22/migration-sources.json`. The legacy repository is preserved and
+is no longer required at runtime. No legacy session coordinator, hardware
+controller, control executor, voice service or redundant dashboard is included.
 
-The pre-existing EdgeLoop AI application remains a separate project. Its AI
-provider, model manager, conversation service, Director and memory implementation
-are imported here from checkpoint 9e89fa1 without copying or replacing them.
-The corresponding AI source remains at /home/sean/projects/edgeloop-ai/ under
-AGPL-3.0-only; provide both source repositories when distributing this extension.
+Distribute this corresponding source, the LICENSE and attribution with fork
+changes as required by AGPL-3.0-only, including when made available over a
+network. User conversations, credentials, model weights, private data and
+virtual environments are not part of this source checkout. Character source
+Modelfile bytes are preserved; existing installed models/weights were not
+copied, recreated or deleted by consolidation.

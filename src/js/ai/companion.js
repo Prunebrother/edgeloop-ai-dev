@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import {Capture} from './snapshot.js';
 import {ReadOnlyConnection} from './connection.js';
+import {resolveArtwork} from './artwork-manifest.js';
 import {CharacterPresentation} from './character.js';
 import {mountLayout} from './layout.js';
 export function mountCompanion({refreshObservation=()=>{}}={}) {
@@ -24,7 +25,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     const artwork=document.createElement('aside');artwork.id='character-panel';artwork.setAttribute('aria-label','Character artwork');
     const character=new CharacterPresentation(artwork);mountLayout(panel,artwork);
     const el=key=>panel.querySelector(`[data-${key}]`);
-    let selected=null,current=null,pending=false,follow=true,paired=false,changing=false,thinking=null,supportsThinking=false;
+    let selected=null,current=null,pending=false,follow=true,paired=false,changing=false,thinking=null,supportsThinking=false,canDisableThinking=true;
     let discovered=new Set();
     const scroll=()=>{if(follow)el('history').scrollTop=el('history').scrollHeight;};
     el('history').onscroll=()=>{follow=el('history').scrollHeight-el('history').clientHeight-el('history').scrollTop<60;el('latest').hidden=follow;};
@@ -35,10 +36,10 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     const controls=()=>{
         el('send').disabled=!selected||pending||changing;el('text').disabled=!selected||changing;
         el('select').disabled=!paired||pending||changing||!discovered.has(el('model').value);el('model').disabled=!paired||pending||changing;
-        el('thinking').disabled=!discovered.has(selected)||!selected||!supportsThinking||thinking===null||pending||changing;
+        el('thinking').disabled=!discovered.has(selected)||!selected||!supportsThinking||thinking===true&&!canDisableThinking||thinking===null||pending||changing;
         el('thinking').setAttribute('aria-pressed',String(thinking===true));
         el('thinking').textContent=thinking===null?'Thinking: unknown':supportsThinking?'Thinking: '+(thinking?'On':'Off'):'Thinking unavailable';
-        el('thinking-hint').textContent=!selected?'Choose a model to see its thinking setting.':!supportsThinking?'This model does not advertise thinking support.':thinking?'Reasoning enabled before the reply.':'Direct reply mode.';
+        el('thinking-hint').textContent=!selected?'Choose a model to see its thinking setting.':!supportsThinking?'This model does not advertise thinking support.':!canDisableThinking?'This model requires thinking.':thinking?'Reasoning enabled before the reply.':'Direct reply mode.';
     };
     const resting=()=>activity(changing?'loading':selected?'ready':paired?'connected':'offline',changing?'Applying model…':selected?'Ready':paired?'Select a model':'Offline');
     const busy=(value,label='Generating…')=>{pending=value;el('cancel').hidden=!value;el('progress').textContent=value?label:'';el('history').setAttribute('aria-busy',String(value));controls();if(value)activity('working',thinking?'Working · thinking on':'Working · thinking off');else resting();};
@@ -62,7 +63,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             el('ollama').textContent=names.length?'Ollama connected · '+names.length+' models':'Ollama connected · no installed models';
             controls();
         } else if(m.type==='model_selected'){
-            const sameModel=selected===m.model;changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;el('selected').textContent='Active: '+m.model;el('name').textContent=m.model;el('model').value=m.model;
+            const sameModel=selected===m.model;changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;canDisableThinking=m.can_disable_thinking!==false;el('selected').textContent='Active: '+m.model;el('name').textContent=resolveArtwork(m.model).name==='Your companion'?m.model:resolveArtwork(m.model).name;el('name').title=m.model;el('model').value=m.model;
             if(!sameModel){character.setModel(m.model);el('history').replaceChildren();follow=true;
                 for(const item of m.history||[])line(item.role==='user'?'user':'assistant',item.content);}
             el('text').disabled=false;busy(false);error('');

@@ -1,3 +1,5 @@
+> **F2.2 update:** The fork now includes its own companion package and venv. References below to legacy runtime imports are historical. See [current architecture](F22_CONSOLIDATION.md) and [development](DEVELOPMENT.md).
+
 # Existing AI infrastructure reuse audit
 
 Source reviewed: `/home/sean/projects/edgeloop-ai/`, checkpoint `9e89fa1`. F2 implements the read-only bridge described in [F2_READ_ONLY.md](F2_READ_ONLY.md); command/tool adaptation remains deferred to F3. Reuse these modules through the existing project/package; do not copy user data or fork the provider implementation.

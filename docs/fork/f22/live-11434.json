@@ -1,0 +1,70 @@
+{
+  "ollama_url": "http://127.0.0.1:11434",
+  "thinking": false,
+  "hardware": "none; synthetic IDLE observation only",
+  "models": [
+    {
+      "model": "mira:latest",
+      "embedded_system_sha256": "a60e0b038ec20f49d26440d4abf2f7e578bd99a4d57f1057bdef2ed09d249c7c",
+      "embedded_system_characters": 760,
+      "reply": "The reported BPM is 98, and it's simulated. The session is currently idle.",
+      "streamed_chunks": 5,
+      "seconds": 2.53,
+      "metrics": {
+        "response_latency_seconds": 2.528,
+        "time_to_first_token_seconds": 2.341,
+        "tokens_per_second": 106.9,
+        "output_tokens": 20,
+        "load_seconds": 2.145753447,
+        "recorded_at": 1793125868.6081572,
+        "provider": "ollama",
+        "model": "mira:latest",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 160,
+        "visible_characters": 74,
+        "prompt_tokens": 582,
+        "done_reason": "stop"
+      },
+      "reported_telemetry_facts": true
+    },
+    {
+      "model": "evelyn:latest",
+      "embedded_system_sha256": "50ecfddd595416144332e5f14ea52608131d604ba8fb30c8d0f56b33a7099690",
+      "embedded_system_characters": 5347,
+      "reply": "The reported BPM is 98, and it is simulated. The session is currently idle.",
+      "streamed_chunks": 5,
+      "seconds": 0.55,
+      "metrics": {
+        "response_latency_seconds": 0.548,
+        "time_to_first_token_seconds": 0.365,
+        "tokens_per_second": 109.1,
+        "output_tokens": 20,
+        "load_seconds": 0.000819421,
+        "recorded_at": 1793125869.181807,
+        "provider": "ollama",
+        "model": "evelyn:latest",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 160,
+        "visible_characters": 75,
+        "prompt_tokens": 1371,
+        "done_reason": "stop"
+      },
+      "reported_telemetry_facts": true
+    }
+  ],
+  "passed": true,
+  "installed_models": [
+    "evelyn:latest",
+    "mira:latest",
+    "qwen3:8b"
+  ],
+  "available": true,
+  "model_memory_restored": true,
+  "heartbeat_messages": 4
+}

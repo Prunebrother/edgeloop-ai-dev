@@ -13,6 +13,8 @@ def validate_ollama_url(value):
         port=url.port
     except (ValueError,TypeError) as exc:
         raise ValueError('Ollama URL must be a loopback HTTP origin with a valid port') from exc
+    if not isinstance(value,str):raise ValueError('Ollama URL must be a string')
+    if url.netloc.endswith(':'):raise ValueError('Ollama URL must have a valid port')
     if url.scheme!='http' or url.hostname not in {'127.0.0.1','localhost','::1'} or url.username is not None or url.password is not None or url.path not in {'','/'} or url.query or url.fragment or port is not None and not 1<=port<=65535:
         raise ValueError('Ollama URL must be a loopback HTTP origin without credentials, paths or query parameters')
     return value.rstrip('/')
@@ -30,6 +32,7 @@ class RuntimeConfig:
         path=Path(env.get('EDGELOOP_AI_CONFIG',ROOT/'config/ai.toml'))
         if not path.is_file():raise ValueError(f'AI configuration file not found: {path}')
         values=tomllib.loads(path.read_text())
+        if not isinstance(values.get('ollama',{}),dict):raise ValueError('The ollama configuration must be a TOML table')
         if set(values)-{'ollama'} or set(values.get('ollama',{}))-{'url'}:raise ValueError('Unsupported AI configuration key')
         url=validate_ollama_url(env.get('EDGELOOP_OLLAMA_URL',values.get('ollama',{}).get('url','http://127.0.0.1:11435')))
         try:port=int(env.get('EDGELOOP_OBSERVER_PORT','8768'))

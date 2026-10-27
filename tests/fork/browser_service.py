@@ -1,4 +1,5 @@
 """Isolated browser fixture: real observer classes, mocked local model transport."""
+from pathlib import Path
 import os
 import asyncio
 import json
@@ -24,8 +25,8 @@ class Stream(httpx.AsyncByteStream):
 async def runtime(request):
     global last_thinking
     if request.url.path=='/api/tags' and ollama_down:raise httpx.ConnectError('fixture unavailable')
-    if request.url.path=='/api/tags':return httpx.Response(200,json={'models':[{'name':'mira:latest'},{'name':'evelyn:latest'}]})
-    if request.url.path=='/api/show':return httpx.Response(200,json={'capabilities':['completion','thinking'],'model_info':{'qwen.context_length':8192}})
+    if request.url.path=='/api/tags':return httpx.Response(200,json={'models':[{'name':name} for name in json.loads((Path(__file__).resolve().parents[1]/'fixtures/character-models.json').read_text())]})
+    if request.url.path=='/api/show':return httpx.Response(200,json={'system':'Exact fixture Modelfile identity','capabilities':['completion','thinking'],'thinking':{'values':[True,False]},'model_info':{'qwen35.context_length':8192}})
     if request.url.path=='/api/ps':return httpx.Response(200,json={'models':[]})
     body=json.loads(request.content)
     last_thinking=body.get('think')

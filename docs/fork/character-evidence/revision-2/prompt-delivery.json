@@ -1,0 +1,30 @@
+{
+  "rows": [
+    {
+      "mode": "automatic",
+      "prompt_eval_count": 372,
+      "message": {
+        "role": "assistant",
+        "content": "I"
+      }
+    },
+    {
+      "mode": "explicit",
+      "prompt_eval_count": 372,
+      "message": {
+        "role": "assistant",
+        "content": "I"
+      }
+    },
+    {
+      "mode": "override",
+      "prompt_eval_count": 32,
+      "message": {
+        "role": "assistant",
+        "content": "READY"
+      }
+    }
+  ],
+  "automatic_matches_explicit": true,
+  "override_changes_prompt_length": true
+}

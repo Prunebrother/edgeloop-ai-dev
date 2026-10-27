@@ -1,3 +1,14 @@
+# Current architecture — F2.2
+
+The fork now owns its installed AI package, configuration, character sources and tests.
+It no longer imports the legacy project. See [F2.2 architecture and migration](F22_CONSOLIDATION.md),
+[developer workflow](DEVELOPMENT.md) and [connectivity diagnosis](F22_CONNECTIVITY.md).
+Original EdgeLoop remains the sole session/hardware controller; AI is read-only.
+
+The records below describe earlier checkpoints and are retained as history.
+
+---
+
 # Companion architecture
 
 ## Current milestone: F2.1

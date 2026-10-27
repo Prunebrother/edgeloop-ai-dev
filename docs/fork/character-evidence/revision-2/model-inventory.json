@@ -1,0 +1,138 @@
+[
+  {
+    "tag": "huihui_ai/qwen3.5-abliterated:9b",
+    "weight_digests": [
+      "sha256:afb54ad43a39f947407f5cabc59856348d70e072baa5c62d436332157c151bcd"
+    ],
+    "weight_bytes": 6594462816,
+    "manifest_bytes": 856
+  },
+  {
+    "tag": "library/daisy:latest",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 1061
+  },
+  {
+    "tag": "library/daisy-qwen35:latest",
+    "weight_digests": [
+      "sha256:afb54ad43a39f947407f5cabc59856348d70e072baa5c62d436332157c151bcd"
+    ],
+    "weight_bytes": 6594462816,
+    "manifest_bytes": 1130
+  },
+  {
+    "tag": "library/daisy-v11:latest",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 1061
+  },
+  {
+    "tag": "library/daisy-world:latest",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 1062
+  },
+  {
+    "tag": "library/evelyn:latest",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 1061
+  },
+  {
+    "tag": "library/evelyn-lite:latest",
+    "weight_digests": [
+      "sha256:afb54ad43a39f947407f5cabc59856348d70e072baa5c62d436332157c151bcd"
+    ],
+    "weight_bytes": 6594462816,
+    "manifest_bytes": 1130
+  },
+  {
+    "tag": "library/evelyn-lite-candidate:latest",
+    "weight_digests": [
+      "sha256:afb54ad43a39f947407f5cabc59856348d70e072baa5c62d436332157c151bcd"
+    ],
+    "weight_bytes": 6594462816,
+    "manifest_bytes": 1130
+  },
+  {
+    "tag": "library/evelyn-lite-v1:latest",
+    "weight_digests": [
+      "sha256:afb54ad43a39f947407f5cabc59856348d70e072baa5c62d436332157c151bcd"
+    ],
+    "weight_bytes": 6594462816,
+    "manifest_bytes": 1130
+  },
+  {
+    "tag": "library/evelyn-qwen35:latest",
+    "weight_digests": [
+      "sha256:afb54ad43a39f947407f5cabc59856348d70e072baa5c62d436332157c151bcd"
+    ],
+    "weight_bytes": 6594462816,
+    "manifest_bytes": 1130
+  },
+  {
+    "tag": "library/evelyn-qwen35-stable:latest",
+    "weight_digests": [
+      "sha256:afb54ad43a39f947407f5cabc59856348d70e072baa5c62d436332157c151bcd"
+    ],
+    "weight_bytes": 6594462816,
+    "manifest_bytes": 1130
+  },
+  {
+    "tag": "library/evelyn-reptest:latest",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 1061
+  },
+  {
+    "tag": "library/evelyn-v11:latest",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 1061
+  },
+  {
+    "tag": "library/evelyn-v12:latest",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 1061
+  },
+  {
+    "tag": "library/evelyn-v12r1:latest",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 1061
+  },
+  {
+    "tag": "library/evelyn-world:latest",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 1062
+  },
+  {
+    "tag": "library/qwen3:8b",
+    "weight_digests": [
+      "sha256:a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f"
+    ],
+    "weight_bytes": 5225374496,
+    "manifest_bytes": 859
+  }
+]

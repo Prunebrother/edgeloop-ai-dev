@@ -1,0 +1,10 @@
+{
+  "system_matches_source": true,
+  "base_weights_match": true,
+  "base_weights_digest": "sha256:afb54ad43a39f947407f5cabc59856348d70e072baa5c62d436332157c151bcd",
+  "baseline_system_and_parameters_unchanged": true,
+  "existing_manifests_checked": 14,
+  "runtime": "Ollama 0.33.3; CPU only; loopback 11435",
+  "existing_manifests_unchanged_after_tests": true,
+  "baseline_modelfile_unchanged_from_before_build": true
+}

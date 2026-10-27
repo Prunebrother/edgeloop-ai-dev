@@ -1,0 +1,8 @@
+{
+  "previous_manifests_unchanged": 15,
+  "candidate_system_matches_source": true,
+  "candidate_system_characters": 2665,
+  "application_identity_delivery_tests": "10 passed",
+  "promotion": "rejected",
+  "runtime": "Ollama 0.33.3, CPU only, temporary loopback runtime 11435"
+}

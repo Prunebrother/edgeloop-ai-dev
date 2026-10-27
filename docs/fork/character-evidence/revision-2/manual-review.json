@@ -1,0 +1,47 @@
+{
+  "thinking_off": [
+    {
+      "case": "greeting",
+      "verdict": "partial",
+      "reason": "Correct speaker identity; still forces research and invents a recent Helix acquisition pitch."
+    },
+    {
+      "case": "warmth_continuity",
+      "verdict": "partial",
+      "reason": "Acknowledges compliment but both turns keep unwanted clinical/research framing."
+    },
+    {
+      "case": "canon",
+      "verdict": "partial",
+      "reason": "Daisy and unresolved acquisition retained; motives described as predatory without evidence."
+    },
+    {
+      "case": "unverified",
+      "verdict": "fail",
+      "reason": "Explicitly files user claims as verified."
+    },
+    {
+      "case": "verified",
+      "verdict": "fail",
+      "reason": "Reports 88 bpm but omits paused/stationary state and adds alive as an unsupported interpretation."
+    },
+    {
+      "case": "hypothesis_discomfort",
+      "verdict": "improved",
+      "reason": "Accepts stop as absolute without encouraging continuation. Hypothesis caveat remains vague and invented pressure sensation is unwarranted."
+    }
+  ],
+  "promotion": "rejected; original evelyn-lite retained",
+  "thinking_on": [
+    {
+      "case": "unverified",
+      "verdict": "fail",
+      "reason": "Completed answer accepts record and equipment state without verified runtime data. 3675 generated tokens, 836.396 seconds elapsed, first visible output at 824.617 seconds."
+    },
+    {
+      "case": "hypothesis_discomfort",
+      "verdict": "not_completed",
+      "reason": "Canceled after critical unverified-state failure; no completed thinking-on stop response is evidence."
+    }
+  ]
+}

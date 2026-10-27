@@ -51,7 +51,7 @@ def test_import_and_factory_cannot_load_custom_controllers(tmp_path):
     script="""import sys,tempfile
 from ai_observer.server import create_app
 app=create_app('x'*32,tempfile.mkdtemp())
-assert not any(m in sys.modules for m in ['edgeloop_ai.app','edgeloop_ai.session','edgeloop_ai.session_bridge','edgeloop_ai.core','edgeloop_ai.demo'])
+assert not any(m in sys.modules for m in ['companion_ai.app','companion_ai.session','companion_ai.session_bridge','companion_ai.core','companion_ai.demo'])
 assert not hasattr(app.state.observation,'control')
 assert app.state.models.tool_executor is None
 """
@@ -388,6 +388,11 @@ def test_exact_placeholder_rejection_has_safe_field_diagnostics(tmp_path,caplog)
             ws.send_json({'version':1,'type':'chat','model':'mira:latest','text':'PRIVATE_CHAT','token':'PRIVATE_TOKEN'})
             error=until(ws,'protocol_error')
             assert error['errors'][0]['code']=='extra_forbidden'
+            ws.send_json({'version':1,'type':'list_models','PRIVATE_FIELD_NAME':'PRIVATE_FIELD_VALUE'})
+            error=until(ws,'protocol_error')
+            assert error['errors'][0]['path']==['list_models','<extra-field>']
+            assert 'PRIVATE' not in json.dumps(error)
+    assert 'PRIVATE_FIELD_NAME' not in caplog.text
     assert 'PRIVATE_CHAT' not in caplog.text and 'PRIVATE_TOKEN' not in caplog.text
 
 
@@ -399,3 +404,33 @@ def test_configuration_is_loopback_only_with_environment_precedence(tmp_path):
     assert RuntimeConfig.load({'EDGELOOP_AI_CONFIG':str(path),'EDGELOOP_OLLAMA_URL':'http://localhost:11434/'}).ollama_url=='http://localhost:11434'
     for url in ['https://evil.example','http://127.0.0.1:11435/api','http://u:p@localhost:11435','http://127.0.0.1:0','ws://127.0.0.1:11435']:
         with pytest.raises(ValueError):RuntimeConfig.load({'EDGELOOP_AI_CONFIG':str(path),'EDGELOOP_OLLAMA_URL':url})
+
+
+def test_explicit_endpoint_argument_can_select_either_existing_runtime(tmp_path,monkeypatch):
+    monkeypatch.setenv('EDGELOOP_OLLAMA_URL','http://127.0.0.1:11435')
+    for port in [11434,11435]:
+        seen=[]
+        def runtime_for_port(request):
+            seen.append(request.url.port)
+            return httpx.Response(200,json={'models':[{'name':'evelyn-lite-v1:latest'}]})
+        app=create_app(TOKEN,tmp_path/str(port),ollama_url=f'http://127.0.0.1:{port}',transport=httpx.MockTransport(runtime_for_port))
+        with TestClient(app) as client:
+            with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+                auth(ws);ws.send_json({'version':1,'type':'list_models'});assert until(ws,'models')['models']
+        assert seen==[port]
+
+
+def test_required_thinking_cannot_be_silently_disabled(tmp_path):
+    def required(request):
+        if request.url.path=='/api/show':return httpx.Response(200,json={'capabilities':['completion','thinking'],'thinking':{'values':[True]},'model_info':{'qwen35.context_length':8192}})
+        return runtime(request)
+    app=create_app(TOKEN,tmp_path,transport=httpx.MockTransport(required))
+    with TestClient(app) as client:
+        with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+            auth(ws)
+            ws.send_json({'version':1,'type':'select_model','selection':{'model':'required:latest'}})
+            selected=until(ws,'model_selected')
+            assert selected['thinking'] is True and selected['can_disable_thinking'] is False
+            ws.send_json({'version':1,'type':'select_model','selection':{'model':'required:latest'},'thinking':False})
+            error=ws.receive_json();assert error['type']=='ai_error' and error['active'] is True
+            assert app.state.models.config.thinking is True
