@@ -1,3 +1,7 @@
+## Thinking controls and activity feedback
+
+18 observer tests, nine bridge/presentation tests and the expanded Playwright suite pass. Native Ollama `think` flags, persistence, history preservation, unsupported models, Ready/Responding indicators and responsive layout are covered. Updated screenshots were visually reviewed. See [control architecture and usage](THINKING_CONTROLS.md) and [validation report](validation-thinking-controls.json). The running observer was updated while keeping the current temporary pairing token.
+
 ## Live acceptance follow-up
 
 The first real-model acceptance exposed stale idle observations and native timer receiver errors. The corrected read-only heartbeat and timer wrappers pass nine JavaScript bridge/presentation tests, 16 observer tests, and the full browser fixture including a pause beyond the telemetry lease without clock advancement. Live Mira correctly streamed 98 simulated BPM, IDLE and zero elapsed seconds after a 6.5-second idle freshness check. See [live evidence](screenshots/f2.1/live-report.json) and `tests/fork/live-browser.mjs`. Broader model quality and real hardware remain unverified.

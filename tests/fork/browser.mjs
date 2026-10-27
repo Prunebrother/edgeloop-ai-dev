@@ -7,6 +7,8 @@ import path from 'node:path';
 const root=path.resolve(new URL('../..',import.meta.url).pathname);
 const output=process.env.FORK_BROWSER_REPORT||'/tmp/edgeloop-f21-browser';
 const aiSource=process.env.EDGELOOP_AI_SOURCE||'/home/sean/projects/edgeloop-ai';
+const uiPort=process.env.FORK_BROWSER_PORT||'8770',observerPort=process.env.FORK_OBSERVER_PORT||'8768';
+const uiUrl='http://127.0.0.1:'+uiPort,observerUrl='http://127.0.0.1:'+observerPort;
 const token='browser-fixture-token-'+'x'.repeat(32);
 const report={passed:false,steps:[],fixture:'mocked Ollama and Handy; no real hardware'};
 const children=[];let browser,page;
@@ -16,9 +18,9 @@ async function waitServer(url){for(let i=0;i<50;i++){try{if((await fetch(url)).o
 try {
     await mkdir(output,{recursive:true});
     browser=await chromium.launch();
-    children.push(spawn('python3',['tools/serve_local.py','8770'],{cwd:root,stdio:'ignore'}));
-    children.push(spawn(aiSource+'/.venv/bin/python',['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...process.env,PYTHONPATH:root+':'+aiSource}}));
-    await waitServer('http://127.0.0.1:8770/');await waitServer('http://127.0.0.1:8768/health');
+    children.push(spawn('python3',['tools/serve_local.py',uiPort],{cwd:root,stdio:'ignore'}));
+    children.push(spawn(aiSource+'/.venv/bin/python',['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...process.env,PYTHONPATH:root+':'+aiSource,EDGELOOP_FIXTURE_UI_PORT:uiPort,EDGELOOP_FIXTURE_OBSERVER_PORT:observerPort}}));
+    await waitServer(uiUrl+'/');await waitServer(observerUrl+'/health');
     const ctx=await browser.newContext({viewport:{width:1920,height:1080}});
     await ctx.addInitScript(()=>{
         const denied=()=>Promise.reject(new DOMException('Fake-only test: permission denied','NotFoundError'));
@@ -33,7 +35,7 @@ try {
         const p=new URL(route.request().url()).pathname;handy.push(p);
         await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(p.endsWith('/connected')?{connected:true}:p.endsWith('/info')?{fwVersion:'3.2.3',model:'Handy 1.1'}:{result:0})});
     });
-    await page.goto('http://127.0.0.1:8770/',{waitUntil:'load'});
+    await page.goto(uiUrl+'/',{waitUntil:'load'});
     await page.locator('#ageConfirmBtn').click();
     await page.locator('#wizardOverlay').waitFor({state:'visible'});await page.locator('#wizardSkipBtn').click();
     await page.locator('#companion-dashboard').waitFor();
@@ -61,18 +63,28 @@ try {
     await page.locator('#sessionPlayPauseBtn').click();
     await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';});
     report.steps.push('Original simulated session starts before AI');
+    await page.locator('[data-url]').fill('ws://127.0.0.1:'+observerPort+'/observe');
     await page.locator('[data-token]').fill(token);await page.locator('[data-connect]').click();
     await page.waitForFunction(()=>document.querySelector('[data-telemetry]').textContent.includes('Authoritative telemetry connected'));
     await page.locator('[data-model] option[value="mira:latest"]').waitFor({state:'attached'});
     await page.locator('[data-model]').selectOption('mira:latest');await page.locator('[data-select]').click();
     await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('Active: mira:latest'));
+    assert(await page.locator('[data-activity-label]').textContent()==='Ready','Model readiness missing');
+    assert(await page.locator('[data-thinking]').getAttribute('aria-pressed')==='true','Thinking mode not confirmed');
+    await page.locator('[data-thinking]').click();
+    await page.waitForFunction(()=>document.querySelector('[data-thinking]').getAttribute('aria-pressed')==='false');
     await page.locator('[data-text]').fill('What is the current BPM?');await page.locator('[data-chat]').evaluate(el=>el.requestSubmit());
     await page.waitForFunction(()=>document.querySelector('[data-history]').textContent.includes('98 BPM'));
     assert(await page.locator('[data-setup]').isHidden(),'Pairing form remained visible');
     assert(await page.locator('[data-token]').inputValue()==='','Pairing credential retained in DOM');
     await page.screenshot({path:path.join(output,'desktop-1920.png')});
-    let observed=await(await fetch('http://127.0.0.1:8768/fixture/state')).json();
+    let observed=await(await fetch(observerUrl+'/fixture/state')).json();
     assert(observed.state.hr===98&&observed.state.status==='RUNNING','Incorrect observed original state');
+    assert(observed.thinking===false&&observed.last_thinking===false,'Thinking off was not applied to inference');
+    await page.locator('[data-thinking]').click();
+    await page.waitForFunction(()=>document.querySelector('[data-thinking]').getAttribute('aria-pressed')==='true');
+    assert((await page.locator('[data-history]').textContent()).includes('98 BPM'),'Thinking switch cleared chat');
+    report.steps.push('Confirmed thinking toggle reaches inference and preserves chat history');
     assert(!JSON.stringify(observed).includes('F2-MOCK-KEY'),'Credential leak');
     assert(!JSON.stringify(observed).includes('chosenTargetSeconds'),'Hidden target leak');
     assert(observed.read_only,'Tool executor attached');report.steps.push('Contextual user response and redacted authoritative state');
@@ -80,6 +92,9 @@ try {
     await page.locator('[data-text]').fill('long streaming response');
     await page.locator('[data-text]').press('Enter');
     await page.waitForFunction(()=>document.querySelector('[data-history]').scrollHeight>document.querySelector('[data-history]').clientHeight+200);
+    assert(await page.locator('[data-activity-label]').textContent()==='Responding','Streaming activity not visible');
+    assert(await page.locator('[data-thinking]').isDisabled(),'Thinking changed during generation');
+    await page.screenshot({path:path.join(output,'responding-1920.png')});
     await page.locator('[data-history]').evaluate(el=>{el.scrollTop=0;el.dispatchEvent(new Event('scroll'));});
     await page.waitForTimeout(250);
     assert(await page.locator('[data-history]').evaluate(el=>el.scrollTop<10),'Streaming stole manual scroll position');
@@ -87,6 +102,7 @@ try {
     await page.locator('[data-cancel]').click();
     await page.waitForTimeout(100);
     assert(await page.locator('[data-cancel]').isHidden(),'Cancel did not complete');
+    assert(await page.locator('[data-activity-label]').textContent()==='Ready','Cancel did not restore readiness');
     assert(await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';}),'Cancel changed session');
     // Multiline editing and model memory are kept per model.
     await page.locator('[data-text]').fill('First line');await page.locator('[data-text]').press('Shift+Enter');
@@ -126,9 +142,9 @@ try {
     await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='PAUSED';});
     const pausedSeconds=await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.sessionSeconds;});
     await page.waitForTimeout(5500);
-    const pausedObservation=await(await fetch('http://127.0.0.1:8768/fixture/state')).json();
+    const pausedObservation=await(await fetch(observerUrl+'/fixture/state')).json();
     assert(pausedObservation.state.status==='PAUSED'&&pausedObservation.state.seconds===pausedSeconds,'Observation heartbeat advanced paused session');
-    assert((await(await fetch('http://127.0.0.1:8768/health')).json()).observation_fresh,'Paused observation expired');
+    assert((await(await fetch(observerUrl+'/health')).json()).observation_fresh,'Paused observation expired');
     await page.locator('#sessionPlayPauseBtn').click();
     await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';});
     report.steps.push('Responsive views, model memory, pause and resume');

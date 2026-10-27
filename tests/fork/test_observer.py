@@ -316,3 +316,44 @@ def test_cancel_generation_only_interrupts_output_and_preserves_observation(tmp_
             ws.send_json(frame(epoch,1,state))
             assert until(ws,'observation_ack')['accepted']
             assert app.state.observation.report==state
+
+
+def test_thinking_switch_is_confirmed_persisted_and_keeps_memory_and_observation(tmp_path):
+    requests=[]
+    def capture(request):
+        if request.url.path=='/api/chat':requests.append(json.loads(request.content))
+        return runtime(request)
+    app=create_app(TOKEN,tmp_path,transport=httpx.MockTransport(capture))
+    with TestClient(app) as client:
+        with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+            epoch=auth(ws)['epoch'];state=snapshot();ws.send_json(frame(epoch,state=state));until(ws,'observation_ack')
+            for thinking in [False,True]:
+                ws.send_json({'version':1,'type':'select_model','selection':{'model':'mira:latest'},'thinking':thinking})
+                selected=until(ws,'model_selected')
+                assert selected['thinking'] is thinking and selected['supports_thinking'] is True
+                if thinking:assert any('Hello' in item['content'] for item in selected['history'])
+                ws.send_json({'version':1,'type':'chat','model':'mira:latest','text':'Hello'})
+                until(ws,'speech')
+                assert requests[-1]['think'] is thinking
+                assert app.state.observation.report==state
+                assert json.loads((tmp_path/'selection.json').read_text())['config']['thinking'] is thinking
+            ws.send_json({'version':1,'type':'select_model','selection':{'model':'mira:latest'},'thinking':'false'})
+            assert until(ws,'protocol_error')
+            assert app.state.models.config.thinking is True
+
+
+def test_non_thinking_model_selects_without_reasoning_and_rejects_enable(tmp_path):
+    def simple(request):
+        if request.url.path=='/api/show':return httpx.Response(200,json={'capabilities':['completion'],'model_info':{'qwen.context_length':8192}})
+        return runtime(request)
+    app=create_app(TOKEN,tmp_path,transport=httpx.MockTransport(simple))
+    with TestClient(app) as client:
+        with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+            auth(ws)
+            ws.send_json({'version':1,'type':'select_model','selection':{'model':'simple:latest'}})
+            selected=until(ws,'model_selected')
+            assert selected['thinking'] is False and selected['supports_thinking'] is False
+            ws.send_json({'version':1,'type':'select_model','selection':{'model':'simple:latest'},'thinking':True})
+            error=ws.receive_json()
+            assert error['type']=='ai_error' and error['active'] is True
+            assert app.state.models.config.thinking is False

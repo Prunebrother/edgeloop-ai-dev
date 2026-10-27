@@ -2,6 +2,8 @@
 
 ## Current milestone: F2.1
 
+[Thinking control and activity feedback](THINKING_CONTROLS.md) extend authenticated model selection with a native thinking flag and backend-confirmed readiness. They preserve per-model memory and the read-only device boundary.
+
 The responsive companion dashboard now provides Session / Chat / Character panels with model-configurable artwork placeholders. See [F2.1 layout, presentation boundary, protocol and validation](F2_1_INTERFACE.md). Playwright browser acceptance now passes with mocked Ollama and Handy; the prior sandbox browser block below is historical. Live model/hardware validation remains outstanding. No F3 control path exists.
 
 ## F2 architecture record

@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-27",
+  "base_checkpoint": "a6af0d5",
+  "observer_tests": 18,
+  "javascript_bridge_presentation_tests": 9,
+  "browser": {
+    "passed": true,
+    "steps": [
+      "Original simulated session starts before AI",
+      "Confirmed thinking toggle reaches inference and preserves chat history",
+      "Contextual user response and redacted authoritative state",
+      "Streaming, manual scroll preservation, jump-to-latest, cancel and multiline editing",
+      "Responsive views, model memory, pause and resume",
+      "Model switch, backend disconnect and original Stop remain independent",
+      "Mobile pairing and independent portrait asset fallback"
+    ],
+    "fixture": "mocked Ollama and Handy; no real hardware"
+  },
+  "screenshots_visually_inspected": true,
+  "verified": [
+    "Native Ollama think true/false request flags",
+    "Strict boolean input, unsupported-model rejection and rollback",
+    "Per-model preference persistence and retained chat history",
+    "Ready/Responding indicators, disabled mode changes during generation",
+    "Original session/telemetry/responsive fixture remains passing"
+  ],
+  "limitations": [
+    "Thinking switch inference verified with mocked Ollama; existing live Mira acceptance predates this control",
+    "Ready means selected and available, not GPU residency",
+    "No real hardware connected"
+  ],
+  "unchanged": [
+    "Original engine/calculations/session controls",
+    "Shared AI provider/Director/Modelfiles",
+    "Pairing origin/token restrictions"
+  ]
+}

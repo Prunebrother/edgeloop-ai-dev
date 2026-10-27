@@ -165,11 +165,16 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         try:
                             async with model_lock:
                                 values=manager.config.model_dump() | store.read('model-presets.json',{}).get(manager.config.provider+':'+message.selection.model,{}) | {'model':message.selection.model}
+                                if message.thinking is not None:values['thinking']=message.thinking
+                                # Models without reasoning support remain usable with thinking off.
+                                metadata=await manager.provider(AIConfig.model_validate(values)).capabilities(message.selection.model)
+                                supports_thinking='thinking' in metadata.get('capabilities',[]) or True in (metadata.get('thinking') or {}).get('values',[])
+                                if not supports_thinking and message.thinking is None:values['thinking']=False
                                 if message.selection.context_length is not None:values['context_length']=message.selection.context_length
                                 await manager.select(AIConfig.model_validate(values),message.selection.context_policy,interrupt)
                                 speech.activate_model()
-                                publish({'type':'model_selected','model':manager.config.model,'history':[{k:str(m[k])[:4000] for k in ('role','content')} for m in list(speech.history)[-8:]]})
-                        except (ValueError,httpx.HTTPError,OSError):publish({'type':'ai_error','detail':'Model selection failed; existing selection retained'})
+                                publish({'type':'model_selected','model':manager.config.model,'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'history':[{k:str(m[k])[:4000] for k in ('role','content')} for m in list(speech.history)[-8:]]})
+                        except (ValueError,httpx.HTTPError,OSError):publish({'type':'ai_error','detail':'Model settings could not be applied; check model availability and thinking support.', 'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
                     elif isinstance(message,Chat):
                         chat_times[:]=[t for t in chat_times if clock()-t<60]
                         if len(chat_times)>=12:publish({'type':'ai_error','detail':'Chat rate limit'});continue

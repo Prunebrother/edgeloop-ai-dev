@@ -74,6 +74,7 @@ class Select(StrictModel):
     version: Literal[1]
     type: Literal['select_model']
     selection: ModelSelection
+    thinking: bool | None = None
 
 class Chat(StrictModel):
     version: Literal[1]

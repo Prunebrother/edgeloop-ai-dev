@@ -6,7 +6,7 @@
   },
   "sw.js": {
     "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
-    "sha256": "99fd2c6782b24648c6b6c95f9bb617187832cc164530f88e11df343a0d37e07f",
+    "sha256": "9000e5ec2f314e010c19a3e688e36b8b52d1c9d7e6028d01c9760374cde995c1",
     "reason": "F2.1 public UI precache; preserve private AI/auth cache exclusions"
   },
   ".gitignore": {
