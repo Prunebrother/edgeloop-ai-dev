@@ -1,0 +1,26 @@
+{
+  "model_store_manifest_hashes_and_blob_inventories_unchanged": {
+    "/home/sean/.ollama/models": true,
+    "/home/sean/projects/edgeloop-ai/.ollama/models": true
+  },
+  "character_source_bytes_unchanged": true,
+  "legacy_working_tree_unchanged": true,
+  "legacy_server_same_pid": true,
+  "character_server_same_pid": true,
+  "environment": {
+    "OLLAMA_HOST": "127.0.0.1:11435",
+    "OLLAMA_MODELS": "/home/sean/.ollama/models",
+    "OLLAMA_MAX_LOADED_MODELS": "1",
+    "OLLAMA_NUM_PARALLEL": "1"
+  },
+  "baseline_commit": "7de7752a9808c1ffc87d0300958a66e0bb09a718",
+  "consolidated_baseline": "b3d7063",
+  "baseline_backup_ref": "backup/f22-pre-live-validation-20261027",
+  "server_pids": {
+    "11434": 506214,
+    "11435": 647240
+  },
+  "production_sources_unchanged": true,
+  "discovered_11434": 3,
+  "discovered_11435": 17
+}

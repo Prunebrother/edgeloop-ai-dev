@@ -139,3 +139,19 @@ is limited by the configured server's actual availability.
 The original 221-test legacy suite and old dashboard harness were run read-only for
 migration evidence. Ongoing fork development uses its owned Python tests and current
 browser harness, rather than importing or duplicating that old application.
+
+## Full opt-in live character acceptance
+
+With the existing 11435 server running and configured for one loaded model, run:
+
+```bash
+EDGELOOP_LIVE_ACCEPTANCE=1 LIVE_ACCEPTANCE_REPORT=/tmp/edgeloop-live-new-run \
+  node tests/fork/live-acceptance.mjs
+```
+
+This starts isolated UI/observer fixtures on free ports 8780/8788, performs real
+sequential inference for Evelyn Lite v1, Evelyn Qwen3.5 Stable and Daisy Qwen3.5,
+monitors global/runner VRAM, verifies per-model memory and interrupts only a test
+inference socket. Session devices are mocked. No Ollama daemon or normal user
+observer is started/stopped. Use a new report directory each time. See
+[F2.2 live results and limitations](F22_LIVE_VALIDATION.md).

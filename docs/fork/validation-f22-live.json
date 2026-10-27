@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-27",
+  "passed": true,
+  "python_tests": 98,
+  "javascript_tests": 10,
+  "browser": "real Ollama, original engine, mocked devices; passed",
+  "original_source_validation": "81 unchanged files, 4 previously reviewed integrations",
+  "production_changes": false,
+  "baseline_commit": "7de7752a9808c1ffc87d0300958a66e0bb09a718",
+  "gpu": {
+    "baseline_used_mib": 1047,
+    "peak_used_mib": 7826,
+    "total_mib": 10240,
+    "max_resident_models": 1,
+    "peak_runner_mib": 6650
+  },
+  "steps": [
+    "Original EdgeLoop starts with simulated HR and mocked Handy; no physical hardware",
+    "All three model histories isolate and restore in the current companion UI",
+    "Disconnected Ollama leaves timer, pause/resume and stop operational; real transport recovery succeeds"
+  ],
+  "screenshots_visually_reviewed": true,
+  "limitations": [
+    "Short sequential smoke, 256-token budget and 8192 context; not a load test or character-quality certification.",
+    "Connection failure injected only in isolated test transport; one real inference socket closed midstream; no server/process restart.",
+    "Character dialogue can embellish or misinterpret telemetry even with correct observed facts; models/prompts intentionally unchanged.",
+    "GPU residency can retain the first loaded tag name because all three character tags share one base-weight blob.",
+    "Existing Starlette/httpx TestClient deprecation warning."
+  ],
+  "preservation": "live-acceptance/preservation.json",
+  "details": "live-acceptance/report.json"
+}

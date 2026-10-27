@@ -1,5 +1,7 @@
 # F2.2 — one authoritative application
 
+Subsequent live validation on the existing 11435 server is complete; see [F2.2 live acceptance](F22_LIVE_VALIDATION.md). Earlier availability records below describe their original test time.
+
 The primary application is `/home/sean/projects/edgeloop-ai-fork/`. Its original
 EdgeLoop browser engine remains the only session/hardware controller. The AI is
 read-only. The three-column UI, pairing, memory, thinking controls and artwork
