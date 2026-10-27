@@ -3,3 +3,6 @@ node_modules/
 package-lock.json
 # Screenshots and reports written by tools/smoke.js
 tools/smoke-out/
+# Optional AI observer: personal data and Python caches never enter source backups.
+.ai-data/
+__pycache__/

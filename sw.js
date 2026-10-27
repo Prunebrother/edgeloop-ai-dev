@@ -68,6 +68,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     if (request.method !== 'GET') return;
+    // AI/auth replies must never enter offline caches (including cross-port GETs).
+    if (new URL(request.url).port === '8768' || new URL(request.url).pathname.startsWith('/ai/')) return;
     const url = new URL(request.url);
     // Never intercept device APIs or signalling: the Handy cloud API, Intiface
     // websockets and PeerJS must always go to the network.

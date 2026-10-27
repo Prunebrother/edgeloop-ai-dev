@@ -1,0 +1,47 @@
+{
+  "milestone": "F2 read-only implementation checkpoint",
+  "backup_tag": "backup/f1-e651754",
+  "reference": {
+    "version": "1.1.3",
+    "commit": "d351e011249079b368ebdc8d46f83b260be7d2a5",
+    "repository": "https://github.com/marshallmims/edgeloop",
+    "license": "AGPL-3.0-only",
+    "unchanged_files": 82,
+    "reviewed_changes": [
+      "src/js/app.js",
+      "sw.js",
+      ".gitignore"
+    ]
+  },
+  "tests": {
+    "observer_protocol": {
+      "passed": 15,
+      "failed": 0
+    },
+    "javascript_adapter": {
+      "passed": 7,
+      "failed": 0
+    },
+    "upstream": {
+      "passed": 1057,
+      "files": 32,
+      "failed": 0
+    },
+    "existing_ai": {
+      "passed": 221,
+      "failed": 0
+    },
+    "existing_dashboard_dom": "passed"
+  },
+  "browser": {
+    "status": "blocked",
+    "reason": "Chromium startup denied by sandbox IPC/socket permissions; Operation not permitted",
+    "fixture": "tests/fork/browser.mjs"
+  },
+  "live_models": "not verified; Evelyn/Daisy/Mira tests use mocked Ollama",
+  "controls": "none; tool executor absent; original session owns all controls",
+  "hardware": "none connected; no physical safety verification",
+  "original_project": "unchanged; imported existing AGPL AI classes at baseline 9e89fa1",
+  "f3_started": false,
+  "f3_gate": "host browser and live-model F2 acceptance, then a separately validated authorization/execution design"
+}

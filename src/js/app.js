@@ -5195,6 +5195,13 @@ function renderRemoteHostSettings(data) {
 function syncTelemetry() {
     if (isRemotePage) return;
     const readiness = hardwareReadiness();
+    // Optional observation only; failure never changes the original control path.
+    try {
+        aiObservation?.(state, { simulated_hr: state.simEngaged, hr_ready: readiness.hrReady,
+            toy_ready: readiness.toyReady, ble: isBleConnected(), handy: handyConnected,
+            intiface: isIntifaceConnected(), tcode: isTCodeConnected(), vacuglide: isVacuglideConnected() });
+    } catch { /* AI is optional; the original session continues independently. */ }
+
     broadcastPeerTelemetry({
         type: 'TELEMETRY',
         hr: state.hrCurrent,
@@ -5322,3 +5329,10 @@ checkReadiness();
 updateEngine();
 redrawChart();
 if (!isRemotePage) maybeShowFirstRunWizard();
+
+// F2 extension is loaded independently; backend absence cannot block app boot.
+var aiObservation = null;
+if (!isRemotePage) import('./ai/companion.js').then(({ mountCompanion }) => {
+    aiObservation = mountCompanion();
+    syncTelemetry();
+}).catch(() => {});

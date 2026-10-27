@@ -1,0 +1,17 @@
+{
+  "src/js/app.js": {
+    "base_sha256": "8338a6cfe0bfb29a966a7ffcc69ea1507cd92cfea43e7e515c64bd26a716d88d",
+    "sha256": "644a267e39b6904118ef27eda25233137e07f4a7872423cea18a9d0c5697a6ee",
+    "reason": "Optional fail-isolated read-only telemetry hook and lazy panel import; original control functions unchanged"
+  },
+  "sw.js": {
+    "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
+    "sha256": "8fa9905e8b2e4d81894022159cfd5a1c71992f33769c2b72547afd25de0a6bde",
+    "reason": "Bypass local AI service/private AI endpoint caching"
+  },
+  ".gitignore": {
+    "base_sha256": "f5dace1690dab0464685a792bf7005b1e43b16c580cd5dfd8f552f362704c81a",
+    "sha256": "ac1831240cc423225d3c3481e9a1fdf72ac207c31c2578b112c480e3ca42b693",
+    "reason": "Exclude new observer private data and Python caches"
+  }
+}

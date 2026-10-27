@@ -15,14 +15,18 @@ PIN = ROOT / 'docs/fork/upstream-pin.json'
 def verify():
     pin = json.loads(PIN.read_text())
     failures = []
+    changes_path=ROOT / "docs/fork/f2-changes.json"
+    changes=json.loads(changes_path.read_text()) if changes_path.exists() else {}
+    if any(name not in pin["files"] or record["base_sha256"]!=pin["files"][name] for name,record in changes.items()):
+        raise ValueError("Invalid reviewed change manifest")
     for name, digest in pin['files'].items():
         path = ROOT / name
         if (path.is_symlink() or not path.resolve().is_relative_to(ROOT)
-                or not path.is_file() or sha256(path.read_bytes()).hexdigest() != digest):
+                or not path.is_file() or sha256(path.read_bytes()).hexdigest() != changes.get(name, {}).get('sha256', digest)):
             failures.append(name)
     if failures:
         raise ValueError('Original files differ from the pin: ' + ', '.join(failures))
-    return {key: pin[key] for key in ('version', 'commit', 'repository', 'license')} | {'unchanged_files': len(pin['files'])}
+    return {key: pin[key] for key in ('version', 'commit', 'repository', 'license')} | {'unchanged_files': len(pin['files'])-len(changes), 'reviewed_changes':list(changes)}
 
 
 def tests():

@@ -1,4 +1,42 @@
-# F1 source/test baseline validation
+# F2 validation — read-only implementation checkpoint
+
+F1 backup tag: `backup/f1-e651754`. F2 is implemented and automated protocol/adapter validation passes. **Host browser and live Ollama acceptance remain outstanding; F3 has not begun.** See [implementation/security/launch](F2_READ_ONLY.md).
+
+| Check | Result | Scope |
+|---|---|---|
+| Observer/API protocol | **15 passed** | Real FastAPI WebSocket/TestClient with existing AI classes; auth/origin/host, redaction, model-context preservation, command/native-tool rejection, queues/sequence/epoch/retired session, stale/expired/oversized/binary input, slow-model telemetry continuity, safe disconnect and static private-data isolation |
+| JavaScript capture/connection | **7 passed** | Original-state projection, hidden target/key/history redaction, measured trend, IDs/event coalescing, disabled/unavailable/reconnect behavior, urgent stop, backpressure and ignored command objects |
+| Original upstream tests | **1057 passed / 32 files** | Unchanged original test files; all original engine/rules/patterns/drivers are untouched. Three reviewed optional-extension changes are separately hashed |
+| Preserved AI backend | **221 passed** | Isolated test data; existing model/memory/Director/tool/safety regressions; original checkout unchanged |
+| Preserved dashboard DOM harness | **Passed** | Existing dashboard tests; this does not substitute for browser acceptance of the new panel |
+| Source/syntax | **Passed** | 82 unchanged pinned files plus exact reviewed hashes for `app.js`, `sw.js`, `.gitignore`; Node syntax, Python compilation, shell syntax, diff checks |
+| F2 Playwright original UI + fake Handy + mocked AI | **Blocked** | `node tests/fork/browser.mjs` fails before UI steps: Chromium `sandbox_host_linux.cc` / `shutdown: Operation not permitted`. Fixture code is supplied for host execution, not claimed passed |
+| Live Evelyn/Daisy/Mira questions | **Not verified** | The model-switch tests use mocked local Ollama transport for these model identifiers. Actual generation/quality requires running Ollama/models on the host |
+| Hardware | **Disconnected** | No real Handy/BLE/serial connection or physical-safety verification; the host fixture intercepts Handy and rejects native device permissions |
+
+The observer tests run through `/tmp/run_fork_tests.py`, the established restricted-runner selector adjustment (10 ms polling for blocked TestClient socketpair wakeups); no assertions are skipped. A normal host runs ordinary pytest. One existing Starlette/httpx deprecation warning remains. Playwright is installed; missing browser software is not the current block. A jsdom offline-cache attempt lacked dependencies and was not used as browser evidence.
+
+Commands used:
+
+```bash
+PYTHONPATH="$PWD:/home/sean/projects/edgeloop-ai" /home/sean/projects/edgeloop-ai/.venv/bin/python /tmp/run_fork_tests.py -q tests/fork
+node --test --test-isolation=none tests/fork/bridge.test.mjs
+python3 tools/fork_validate.py --tests --report /tmp/edgeloop-f2-upstream.json
+node tests/fork/browser.mjs
+# In the existing AI checkout, with isolated data:
+EDGELOOP_DATA_DIR=/tmp/edgeloop-f2-old-regression .venv/bin/python /tmp/run_edgeloop_tests.py -q
+node tests/dashboard_ui.cjs
+```
+
+No runtime service is claimed running in this sandbox. Both launch scripts require normal host socket permissions. No old B1/B2a controller is started by the observer factory, and no controller is substituted if AI disconnects. Last-observed values are retained diagnostically while unavailable context is withheld from inference. Original Stop remains entirely in original JavaScript; backend stop *observations* only cancel AI output and do not operate devices.
+
+The existing AI Director's flat-schema context filter required a narrow subclass to retain the nested validated original-state projection. Its policy/memory/repetition logic and all provider/model code are reused. Event-generated model responses are disabled in F2; the Director receives bounded semantic events for subsequent user dialogue. Native tools and control routes are absent. No identities/personality prompts are added; the shared provider preserves original Modelfile system identity alongside neutral runtime context.
+
+Before F3: complete original/fork host browser smoke with backend available and unavailable; run real selected-model session questions and confirm model switching during the same original session, updated HR/event context, quiet unsolicited behavior, original Stop with the AI service down, and private-data/source-cache isolation. F3 then requires its own explicit consent, simulation-only execution boundary, original guarded routing and command-ack/replay/priority validation. No bidirectional controls are implemented in F2.
+
+---
+
+# Archived F1 source/test baseline validation
 
 Date: 2026-10-27. Fork branch: `experiment/ai-companion`. Pinned original: EdgeLoop **1.1.3**, **d351e011249079b368ebdc8d46f83b260be7d2a5**. The existing AI project is preserved at B2a `9e89fa1`; its pre-existing uncommitted files remain untouched. No interrupted B2b implementation was added.
 

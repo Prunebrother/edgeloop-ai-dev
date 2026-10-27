@@ -7,8 +7,9 @@ https://github.com/marshallmims/edgeloop
 The original application and these fork additions are distributed under
 AGPL-3.0-only. The original LICENSE and upstream notices remain intact.
 All 85 original pinned files are unchanged at the F1 source checkpoint.
-Additions consist of fork documentation/provenance and local launch/validation
-helpers; no upstream engine, UI, hardware driver or behavior was modified.
+F2 adds optional read-only AI UI/telemetry, an observer-only service, tests and
+private-data isolation. The engine, session handlers, calculations and drivers
+remain unchanged; the reviewed original-file changes are recorded separately.
 
 Retain source access and this attribution if the fork is distributed or made
 available over a network. The Git repository and provenance manifest identify
@@ -16,4 +17,7 @@ the exact corresponding source. User data, device keys, model weights and
 conversation records are not part of this source checkout.
 
 The pre-existing EdgeLoop AI application remains a separate project. Its AI
-implementation has been audited for reuse but has not yet been integrated here.
+provider, model manager, conversation service, Director and memory implementation
+are imported here from checkpoint 9e89fa1 without copying or replacing them.
+The corresponding AI source remains at /home/sean/projects/edgeloop-ai/ under
+AGPL-3.0-only; provide both source repositories when distributing this extension.

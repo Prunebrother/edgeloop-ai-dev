@@ -1,6 +1,6 @@
 # Existing AI infrastructure reuse audit
 
-Source reviewed: `/home/sean/projects/edgeloop-ai/`, checkpoint `9e89fa1`. This is an integration plan, not an implemented bridge. Reuse these modules through the existing project/package; do not copy user data or fork the provider implementation.
+Source reviewed: `/home/sean/projects/edgeloop-ai/`, checkpoint `9e89fa1`. F2 implements the read-only bridge described in [F2_READ_ONLY.md](F2_READ_ONLY.md); command/tool adaptation remains deferred to F3. Reuse these modules through the existing project/package; do not copy user data or fork the provider implementation.
 
 | Existing module | Reusable capability | Integration boundary |
 |---|---|---|
@@ -17,6 +17,10 @@ Source reviewed: `/home/sean/projects/edgeloop-ai/`, checkpoint `9e89fa1`. This 
 
 The conversation facade needs fields such as `snapshot()`, `summary()`, HR/trend, bounded observational samples and the browser-reported session status. It must retain the browser's `seconds`, mode, goal, limits and movement as observations. Its `tick()` may expire connection information but cannot run a session engine, claim physical stop or synthesize motor frames. Disconnect means stale/unconfirmed AI knowledge; the browser continues its own safety/lifecycle.
 
-F2 should instantiate the existing model/conversation/Director classes with this facade and test model switching without any browser-state reset. F3 should inject a browser command gateway and narrowly adapt the tool registry to original mode IDs and bounded intensity. The browser independently checks every request; approving a model request on the backend never authorizes direct hardware access. Keep manual/assisted as the default and retain all old application regressions.
+F2 now instantiates the existing model/conversation/Director classes with this facade and test model switching without any browser-state reset. F3 must validate before it injects a browser command gateway and narrowly adapt the tool registry to original mode IDs and bounded intensity. The browser independently checks every request; approving a model request on the backend never authorizes direct hardware access. Keep manual/assisted as the default and retain all old application regressions.
 
 Model-specific memories already use provider/model scope and hashed file names. Preserve that behavior for `qwen3:8b`, `mira:latest`, `evelyn:latest`, `daisy-v11:latest` and future installed models. Do not reintroduce application character prompts. No live-model behavior or compatibility for these models was newly verified in F1.
+
+## F2 compatibility implementation
+
+`ai_observer.server.create_app` is a new transport-only factory using the existing classes directly. It has no command routes or executor. `BrowserObservation` stores validated original snapshots, never advances time/output and marks stale context unavailable. `ObserverDirector.context` is the only Director adaptation: the shared class filters a legacy flat schema, so this override retains the validated nested original state/freshness metadata while reusing the original scheduling, repetition and memory logic. Provider/model/history code and the original AI project are unchanged. Tests verify that no custom controller modules load and that native tool calls are rejected.
