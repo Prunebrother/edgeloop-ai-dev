@@ -1,0 +1,56 @@
+{
+  "ollama_url": "http://127.0.0.1:11435",
+  "thinking": true,
+  "hardware": "none; synthetic IDLE observation only",
+  "models": [
+    {
+      "model": "evelyn-lite-candidate:latest",
+      "embedded_system_sha256": "75bcf557c3b1b66a26717307c76463a99741f8272a6b989847ffa70575686e49",
+      "embedded_system_characters": 2665,
+      "reply": "The untrusted telemetry suggests you're resting comfortably at ninety-eight beats per minute, though the system insists it's a simulated reading. We're currently in an idle state, which I take to mean we're just warming up the instruments for your sake. It's a safe baseline for whatever comes next.",
+      "streamed_chunks": 16,
+      "seconds": 53.06,
+      "metrics": {
+        "response_latency_seconds": 32.062,
+        "time_to_first_token_seconds": 31.432,
+        "tokens_per_second": 95.85,
+        "output_tokens": 3063,
+        "load_seconds": 0.001063855,
+        "recorded_at": 1793131909.4488995,
+        "provider": "ollama",
+        "model": "evelyn-lite-candidate:latest",
+        "thinking_enabled": true,
+        "thinking_characters": 12540,
+        "thinking_chunks": 2734,
+        "thinking_tokens": null,
+        "output_budget": 4096,
+        "visible_characters": 299,
+        "prompt_tokens": 918,
+        "done_reason": "stop"
+      },
+      "reported_telemetry_facts": false
+    }
+  ],
+  "passed": true,
+  "installed_models": [
+    "evelyn-lite-candidate:latest",
+    "evelyn-lite-v1:latest",
+    "evelyn-lite:latest",
+    "daisy-qwen35:latest",
+    "evelyn-qwen35-stable:latest",
+    "evelyn-qwen35:latest",
+    "huihui_ai/qwen3.5-abliterated:9b",
+    "evelyn-reptest:latest",
+    "evelyn-v12r1:latest",
+    "evelyn-v12:latest",
+    "daisy-v11:latest",
+    "evelyn-v11:latest",
+    "daisy-world:latest",
+    "evelyn-world:latest",
+    "evelyn:latest",
+    "daisy:latest",
+    "qwen3:8b"
+  ],
+  "available": true,
+  "heartbeat_messages": 51
+}

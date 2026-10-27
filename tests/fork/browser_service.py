@@ -32,6 +32,9 @@ async def runtime(request):
     last_thinking=body.get('think')
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
     if any(m.get('content')=='long streaming response' for m in body['messages']):return httpx.Response(200,stream=Stream())
+    if body['messages'][-1].get('content')=='thinking cutoff test':
+        retry=body['options']['num_predict']>2048
+        return httpx.Response(200,text=json.dumps({'message':{'content':'Finished after reasoning.' if retry else 'UNFINISHED_DRAFT'},'done':True,'done_reason':'stop' if retry else 'length'})+'\n')
     context=body['messages'][0]['content'];match=re.search(r'"hr":(\d+)',context)
     hr=match[1] if match else 'unknown'
     return httpx.Response(200,text=json.dumps({'message':{'content':body['model']+' reports '+hr+' BPM.'},'done':True})+'\n')

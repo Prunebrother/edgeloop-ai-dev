@@ -37,6 +37,14 @@ def thinking_support(metadata):
     return {'can_enable':supported,'can_disable':True}
 
 
+class OutputBudgetExceededError(ValueError):
+    def __init__(self, config):
+        self.budget_exhausted = config.thinking
+        super().__init__(f'{config.model} reached its {config.max_tokens}-token output limit before finishing. '
+            'The visible reply is incomplete; it was not added to conversation memory. '
+            'Try a shorter request or turn thinking off.')
+
+
 class NoVisibleResponseError(ValueError):
     def __init__(self, config, done_reason=None):
         self.budget_exhausted = config.thinking and done_reason == 'length'
@@ -240,6 +248,8 @@ class OllamaProvider:
             'output_budget': config.max_tokens, 'visible_characters': content_size, 'prompt_tokens': final.get('prompt_eval_count'), 'done_reason': final.get('done_reason')})
         if not (content_size or calls):
             raise NoVisibleResponseError(config, final.get('done_reason'))
+        if final.get('done_reason') == 'length':
+            raise OutputBudgetExceededError(config)
         for call in calls.values():
             yield LLMEvent('tool_call', call=call)
         yield LLMEvent('completed', usage=dict(self.metrics.samples[-1]))

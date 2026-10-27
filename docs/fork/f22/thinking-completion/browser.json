@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "steps": [
+    "Original simulated session starts before AI",
+    "Confirmed thinking toggle reaches inference and preserves chat history",
+    "Contextual user response and redacted authoritative state",
+    "Thinking budget retry replaces incomplete draft with one finished reply",
+    "Streaming, manual scroll preservation, jump-to-latest, cancel and multiline editing",
+    "Responsive views, model memory, pause and resume",
+    "Disconnected Ollama cannot produce a placeholder model request",
+    "Model switch, backend disconnect and original Stop remain independent",
+    "Mobile pairing and independent portrait asset fallback"
+  ],
+  "fixture": "mocked Ollama and Handy; no real hardware"
+}

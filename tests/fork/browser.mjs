@@ -88,6 +88,11 @@ try {
     assert(!JSON.stringify(observed).includes('F2-MOCK-KEY'),'Credential leak');
     assert(!JSON.stringify(observed).includes('chosenTargetSeconds'),'Hidden target leak');
     assert(observed.read_only,'Tool executor attached');report.steps.push('Contextual user response and redacted authoritative state');
+    await page.locator('[data-text]').fill('thinking cutoff test');await page.locator('[data-text]').press('Enter');
+    await page.waitForFunction(()=>document.querySelector('[data-history]').textContent.includes('Finished after reasoning.')&&document.querySelector('[data-cancel]').hidden);
+    assert(!(await page.locator('[data-history]').textContent()).includes('UNFINISHED_DRAFT'),'Budget retry retained partial draft');
+    assert(await page.locator('.message-assistant').count()===2,'Budget retry duplicated assistant bubbles');
+    report.steps.push('Thinking budget retry replaces incomplete draft with one finished reply');
     // Exercise real streamed chunks and scroll anchoring using the local fixture transport.
     await page.locator('[data-text]').fill('long streaming response');
     await page.locator('[data-text]').press('Enter');

@@ -6,7 +6,7 @@
       "destination": "companion_ai/llm.py",
       "source_sha256": "32cd9e4ddb3dbdacbde55d9bc49f1da9d36059a4016f86003589cd522e903216",
       "reason": "Retain streaming provider and passive tool-call rejection; add explicit modern thinking controls and discovery response validation; license header",
-      "migrated_sha256": "f4c67676b19cbf6635ab351ee25a7bac9008ae6968351b0363d569826d9e1be8"
+      "migrated_sha256": "8e314b09832a70ab3ec7b7b908dc854a545baade312d32382227f566b0b60b1b"
     },
     {
       "source": "edgeloop_ai/director.py",
@@ -48,7 +48,7 @@
       "destination": "companion_ai/conversation.py",
       "source_sha256": "e9a5754a9447fadee255cd478b7a3246af2f436cf319bcba272aa5d18c3765c6",
       "reason": "Retain text-only model lifecycle, memory, Director and bounded recovery; remove tool execution/control imports and simulator replies; namespace memory by endpoint; do not evict external models",
-      "migrated_sha256": "4898f586be765f1829d0971bccfd1f9c91a2002ab23f2912110ea6674416c651"
+      "migrated_sha256": "b938262895abcb905672ff33922b407d42ddf201d0d45237d893b013069179d2"
     },
     {
       "source": "models/mira/Modelfile",

@@ -8,7 +8,7 @@ from companion_ai.conversation import ConversationService,ModelManager,OllamaAda
 from companion_ai.models import AIConfig,MemoryConfig,SpeechPolicy
 from companion_ai.context import compose_messages,ContextBudgetError
 from companion_ai.director import ConversationDirector,DirectorConfig,repetition,numerical_request
-from companion_ai.llm import OllamaProvider,ChatMessage,LLMRequest,ToolDefinition,ToolCall,LLMEvent,NoVisibleResponseError
+from companion_ai.llm import OllamaProvider,ChatMessage,LLMRequest,ToolDefinition,ToolCall,LLMEvent,NoVisibleResponseError,collect_reply
 from companion_ai.storage import SettingsStore
 from tests.ai.support import ObservationFixture
 def runtime_fixture(visible_on_retry=True):
@@ -68,3 +68,40 @@ async def test_reasoning_retry_shares_one_total_deadline():
     with pytest.raises(TimeoutError):
         await asyncio.wait_for(manager.reply({},'Hello',[]),1.5)
     assert manager.adapter.calls==2
+
+
+@pytest.mark.parametrize('finishes',[True,False])
+async def test_partial_thinking_reply_retries_with_reset_and_never_saves_truncation(finishes):
+    from companion_ai.llm import OutputBudgetExceededError
+    calls=[]
+    def runtime(request):
+        if request.url.path=='/api/show':
+            return httpx.Response(200,json={'system':'Exact embedded identity.','capabilities':['completion','thinking']})
+        body=json.loads(request.content);calls.append(body)
+        complete=finishes and len(calls)==2
+        return httpx.Response(200,text=json.dumps({'message':{'content':'A complete answer.' if complete else 'An unfinished sen'},'done':True,'done_reason':'stop' if complete else 'length'})+'\n')
+    manager=ModelManager(transport=httpx.MockTransport(runtime))
+    await manager.start(AIConfig(model='evelyn-lite-v1:latest'))
+    messages=[];speech=ConversationService(ObservationFixture(),messages.append,manager,director=ConversationDirector(DirectorConfig(enabled=False)))
+    speech.request('Hello',user=True);await speech.task
+    assert len(calls)==2 and [c['options']['num_predict'] for c in calls]==[2048,4096]
+    assert all(c['think'] for c in calls)
+    assert calls[0]['messages']==calls[1]['messages']
+    starts=[i for i,m in enumerate(messages) if m['type']=='response_start']
+    assert len(starts)==2 and messages[starts[1]]['reason']=='output_budget_retry'
+    final=[m for m in messages if m['type']=='speech']
+    if finishes:
+        assert final[-1]['text']=='A complete answer.'
+        assert [m['content'] for m in speech.history]==['Hello','A complete answer.']
+        assert ''.join(m['text'] for m in messages[starts[1]+1:] if m['type']=='response_delta')=='A complete answer.'
+    else:
+        assert not final and not speech.history
+        assert '4096-token output limit' in next(m['detail'] for m in messages if m['type']=='conversation_error')
+    await speech.close();await manager.stop()
+
+
+async def test_non_thinking_truncation_is_explicit_not_a_success():
+    from companion_ai.llm import OutputBudgetExceededError
+    provider=OllamaProvider('test',transport=httpx.MockTransport(lambda r:httpx.Response(200,text=json.dumps({'message':{'content':'Unfinished'},'done':True,'done_reason':'length'})+'\n')))
+    with pytest.raises(OutputBudgetExceededError,match='incomplete'):
+        await collect_reply(provider,LLMRequest(AIConfig(model='test',thinking=False), (ChatMessage('user','Hi'),)))
