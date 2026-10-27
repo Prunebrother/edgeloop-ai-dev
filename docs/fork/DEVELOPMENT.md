@@ -184,3 +184,19 @@ The runtime protocol extension is backwards-readable. An already running observe
 must be restarted to load new source; this resets its ephemeral AI conversation
 and pairing token, but not the original EdgeLoop browser session or Ollama. Never
 restart either Ollama service as part of an interface/backend source update.
+
+## F2.4 character artwork
+
+See [presentation architecture and development preview](F24_CHARACTER_PRESENTATION.md)
+and the [inventory/missing states](F24_ARTWORK_INVENTORY.md). Edit only
+`src/assets/characters/manifest.json` to configure exact model aliases, expression
+references, placement and session-reaction policy. Reference approved local originals;
+do not regenerate, rename or stage the archive as part of UI work. New public asset
+references require checking rights and server allowlist behavior. No model rebuild
+is involved. Development preview is opt-in at `/?characterPreview=1`.
+
+Start/restart the fork static server and observer to load the new allowlist and ACK
+metadata. Both use their existing launchers; never restart Ollama for an expression
+change. Restarting the observer resets its pairing token. Reload the frontend only
+after any active session is stopped normally. Tests, live-smoke limits and private
+screenshot locations are recorded in the F2.4 validation document.

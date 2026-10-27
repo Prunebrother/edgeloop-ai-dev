@@ -77,3 +77,23 @@ body.companion-app {margin:0;padding:0;display:block;height:100dvh;min-height:0;
  .conversation-scroll {min-height:48px}.chat-composer textarea {height:42px}
  .ai-health>[data-selected] {display:none}
 }
+
+/* F2.4 portrait framing: contain preserves faces, full poses and alpha. */
+#character-panel .companion-heading {padding-bottom:12px}
+#character-panel .portrait-stage {margin:0 10px;background:linear-gradient(180deg,#131b2a66,#070b1444);isolation:isolate}
+#character-panel [data-art-layers] {position:absolute;inset:0}
+#character-panel .character-art {border-radius:10px;user-select:none;pointer-events:none}
+#character-panel .character-caption {padding:12px 20px;min-height:58px}
+.character-presence {display:flex;align-items:center;justify-content:space-between;gap:12px}
+[data-character-model] {color:#8997af;font-size:10px}
+[data-character-activity] {font-size:10px;white-space:nowrap;color:#c4b5fd}
+[data-character-activity]::before {content:' ';display:inline-block;width:5px;height:5px;border-radius:50%;background:#64748b;margin-right:6px}
+#character-panel[data-activity=thinking] [data-character-activity]::before {background:#c4b5fd}
+#character-panel[data-activity=idle] [data-character-activity]::before {background:#6ee7b7}
+#character-panel [data-art-status] {min-height:12px;margin:5px 0 0}
+.character-preview {flex-shrink:0;padding:10px 16px;border-top:1px solid #334155;font-size:11px;max-height:35%;overflow:auto}
+.character-preview summary {cursor:pointer;color:#c4b5fd}
+.character-preview label {display:inline-flex;flex-direction:column;margin:8px 5px 8px 0;gap:4px}
+.character-preview select,.character-preview button {background:#131c2c;color:#e2e8f0;border:1px solid #46516a;border-radius:6px;padding:6px;font:inherit}
+#character-panel :focus-visible {outline:2px solid #c4b5fd;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){#character-panel * {transition:none!important;animation:none!important}}

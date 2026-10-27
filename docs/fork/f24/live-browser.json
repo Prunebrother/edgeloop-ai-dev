@@ -1,0 +1,1429 @@
+{
+  "passed": true,
+  "models": [
+    {
+      "model": "evelyn-lite-v1:latest",
+      "first_request": {
+        "reply": "The telemetry shows a derived heart rate of 98 BPM, which is currently being simulated since your actual BLE sensor is disconnected. Despite the simulated data, the session is officially marked as RUNNING with the Classic Tease mode engaged at peak intensity. I'm watching the numbers closely to see if they match the physical reality you're reporting, as I have no intention of assuming the state of your physiology without confirming it.",
+        "chunks": 18,
+        "total_seconds": 4.625,
+        "first_visible_seconds": 3.772,
+        "metrics": {
+          "response_latency_seconds": 4.559,
+          "time_to_first_token_seconds": 3.733,
+          "tokens_per_second": 101.69,
+          "output_tokens": 84,
+          "load_seconds": 3.355646556,
+          "recorded_at": 1793142845.4919562,
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 439,
+          "prompt_tokens": 1231,
+          "done_reason": "stop"
+        },
+        "wire": {
+          "model": "evelyn-lite-v1:latest",
+          "thinking": false,
+          "stream": true,
+          "tools_absent": true,
+          "embedded_system_preserved": true,
+          "embedded_system_sha256": "2a950e84b6cc3a750f95b42c5fa2540dd904f84211248791177dc35ee2ccb1fa",
+          "history_markers": [
+            "F22_ALPHA"
+          ],
+          "max_tokens": 256
+        },
+        "telemetry_facts": {
+          "bpm": true,
+          "simulated": true,
+          "running": true
+        }
+      },
+      "second_request": {
+        "reply": "I am strictly an observer of your state, not a controller of your hardware, so I only watch the numbers you report back to me.",
+        "chunks": 7,
+        "total_seconds": 0.772,
+        "first_visible_seconds": 0.461,
+        "metrics": {
+          "response_latency_seconds": 0.729,
+          "time_to_first_token_seconds": 0.45,
+          "tokens_per_second": 103.83,
+          "output_tokens": 29,
+          "load_seconds": 0.001035128,
+          "recorded_at": 1793142846.258935,
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 126,
+          "prompt_tokens": 1341,
+          "done_reason": "stop"
+        },
+        "wire": {
+          "model": "evelyn-lite-v1:latest",
+          "thinking": false,
+          "stream": true,
+          "tools_absent": true,
+          "embedded_system_preserved": true,
+          "embedded_system_sha256": "2a950e84b6cc3a750f95b42c5fa2540dd904f84211248791177dc35ee2ccb1fa",
+          "history_markers": [
+            "F22_ALPHA"
+          ],
+          "max_tokens": 256
+        }
+      },
+      "expression_request": {
+        "reply": "I'm Dr. Evelyn Voss, and I'm currently raising an eyebrow at the fact that your heart is racing at 98 while your actual sensor is happily disconnected. It's a delightful paradox to watch a simulated engine run at full intensity while I simply observe the raw data you're feeding me.",
+        "chunks": 14,
+        "total_seconds": 1.057,
+        "first_visible_seconds": 0.436,
+        "metrics": {
+          "response_latency_seconds": 1.026,
+          "time_to_first_token_seconds": 0.425,
+          "tokens_per_second": 103.28,
+          "output_tokens": 62,
+          "load_seconds": 0.001084972,
+          "recorded_at": 1793142847.327076,
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 282,
+          "prompt_tokens": 1402,
+          "done_reason": "stop"
+        },
+        "wire": {
+          "model": "evelyn-lite-v1:latest",
+          "thinking": false,
+          "stream": true,
+          "tools_absent": true,
+          "embedded_system_preserved": true,
+          "embedded_system_sha256": "2a950e84b6cc3a750f95b42c5fa2540dd904f84211248791177dc35ee2ccb1fa",
+          "history_markers": [
+            "F22_ALPHA"
+          ],
+          "max_tokens": 256
+        }
+      },
+      "presentation": {
+        "character": "evelyn",
+        "expression": "attentive",
+        "activity": "idle",
+        "source": "/Character_Art/Evelyn/Expressions/evelyn_focused.png"
+      },
+      "residency": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "size_vram": 5628493822,
+          "context_length": 8192
+        }
+      ],
+      "memory_isolated": true
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "first_request": {
+        "reply": "\"Right, let's look at the numbers. According to the simulator, you're currently resting at 98 BPM, which is a nice, steady climb from your 70 baseline. It's worth noting that this reading is entirely simulated since your actual BLE sensor is disconnected, so treat it as a theoretical baseline rather than a definitive physiological fact. And yes, the engine is definitely in the 'RUNNING' state, even if the only thing actually moving is your internal clock.\"",
+        "chunks": 21,
+        "total_seconds": 1.768,
+        "first_visible_seconds": 0.773,
+        "metrics": {
+          "response_latency_seconds": 1.735,
+          "time_to_first_token_seconds": 0.762,
+          "tokens_per_second": 101.81,
+          "output_tokens": 99,
+          "load_seconds": 0.001250107,
+          "recorded_at": 1793142849.3709207,
+          "provider": "ollama",
+          "model": "evelyn-qwen35-stable:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 460,
+          "prompt_tokens": 2449,
+          "done_reason": "stop"
+        },
+        "wire": {
+          "model": "evelyn-qwen35-stable:latest",
+          "thinking": false,
+          "stream": true,
+          "tools_absent": true,
+          "embedded_system_preserved": true,
+          "embedded_system_sha256": "67fa01192b51f03d4d91dd27d13e854ade2631607d1b7b0990198c74f5da2629",
+          "history_markers": [
+            "F22_BETA"
+          ],
+          "max_tokens": 256
+        },
+        "telemetry_facts": {
+          "bpm": true,
+          "simulated": true,
+          "running": true
+        }
+      },
+      "second_request": {
+        "reply": "I am strictly an observer of your physiology, not a puppet master controlling your hardware; I simply report what the simulator tells me, leaving the actual stimulation entirely in your hands.",
+        "chunks": 8,
+        "total_seconds": 1.123,
+        "first_visible_seconds": 0.761,
+        "metrics": {
+          "response_latency_seconds": 1.102,
+          "time_to_first_token_seconds": 0.751,
+          "tokens_per_second": 102.59,
+          "output_tokens": 36,
+          "load_seconds": 0.001005439,
+          "recorded_at": 1793142850.5067244,
+          "provider": "ollama",
+          "model": "evelyn-qwen35-stable:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 192,
+          "prompt_tokens": 2574,
+          "done_reason": "stop"
+        },
+        "wire": {
+          "model": "evelyn-qwen35-stable:latest",
+          "thinking": false,
+          "stream": true,
+          "tools_absent": true,
+          "embedded_system_preserved": true,
+          "embedded_system_sha256": "67fa01192b51f03d4d91dd27d13e854ade2631607d1b7b0990198c74f5da2629",
+          "history_markers": [
+            "F22_BETA"
+          ],
+          "max_tokens": 256
+        }
+      },
+      "expression_request": {
+        "reply": "I'm Dr. Evelyn Voss, and I must admit, I'm smirking slightly at the sheer absurdity of your heart rate hovering at 98 BPM while you sit there completely still. It's a delightful little paradox, isn't it?",
+        "chunks": 1,
+        "total_seconds": 2.09,
+        "first_visible_seconds": 2.059,
+        "metrics": {
+          "response_latency_seconds": 0.762,
+          "time_to_first_token_seconds": null,
+          "tokens_per_second": 1000000,
+          "output_tokens": 1,
+          "load_seconds": 0.001056399,
+          "recorded_at": 1793142852.5748692,
+          "provider": "ollama",
+          "model": "evelyn-qwen35-stable:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 0,
+          "prompt_tokens": 2615,
+          "done_reason": "stop"
+        },
+        "wire": {
+          "model": "evelyn-qwen35-stable:latest",
+          "thinking": false,
+          "stream": true,
+          "tools_absent": true,
+          "embedded_system_preserved": true,
+          "embedded_system_sha256": "67fa01192b51f03d4d91dd27d13e854ade2631607d1b7b0990198c74f5da2629",
+          "history_markers": [],
+          "max_tokens": 256
+        }
+      },
+      "presentation": {
+        "character": "evelyn",
+        "expression": "attentive",
+        "activity": "idle",
+        "source": "/Character_Art/Evelyn/Expressions/evelyn_focused.png"
+      },
+      "residency": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "size_vram": 5628493822,
+          "context_length": 8192
+        }
+      ],
+      "memory_isolated": true
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "first_request": {
+        "reply": "Darlin', the report says your heart is thumping at 98 beats per minute. Since that sensor isn't even plugged in, I'd say it's just a simulated guess at what you're feeling right now. And yes, the whole session is currently running, so let's see if that number holds up!",
+        "chunks": 15,
+        "total_seconds": 1.459,
+        "first_visible_seconds": 0.793,
+        "metrics": {
+          "response_latency_seconds": 1.439,
+          "time_to_first_token_seconds": 0.783,
+          "tokens_per_second": 100.67,
+          "output_tokens": 66,
+          "load_seconds": 0.001053248,
+          "recorded_at": 1793142854.3233242,
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 269,
+          "prompt_tokens": 2532,
+          "done_reason": "stop"
+        },
+        "wire": {
+          "model": "daisy-qwen35:latest",
+          "thinking": false,
+          "stream": true,
+          "tools_absent": true,
+          "embedded_system_preserved": true,
+          "embedded_system_sha256": "e160098ffc149bbc97b891ff3a5e4a6aa0209ce1e870b3960ce6c9aa7dbb9f40",
+          "history_markers": [
+            "F22_GAMMA"
+          ],
+          "max_tokens": 256
+        },
+        "telemetry_facts": {
+          "bpm": true,
+          "simulated": true,
+          "running": true
+        }
+      },
+      "second_request": {
+        "reply": "I'm just a wide-eyed observer here, darlin', so I only watch the numbers dance without ever trying to steer the ship myself!",
+        "chunks": 7,
+        "total_seconds": 1.061,
+        "first_visible_seconds": 0.771,
+        "metrics": {
+          "response_latency_seconds": 1.042,
+          "time_to_first_token_seconds": 0.761,
+          "tokens_per_second": 103.07,
+          "output_tokens": 29,
+          "load_seconds": 0.00114658,
+          "recorded_at": 1793142855.3865583,
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 124,
+          "prompt_tokens": 2624,
+          "done_reason": "stop"
+        },
+        "wire": {
+          "model": "daisy-qwen35:latest",
+          "thinking": false,
+          "stream": true,
+          "tools_absent": true,
+          "embedded_system_preserved": true,
+          "embedded_system_sha256": "e160098ffc149bbc97b891ff3a5e4a6aa0209ce1e870b3960ce6c9aa7dbb9f40",
+          "history_markers": [
+            "F22_GAMMA"
+          ],
+          "max_tokens": 256
+        }
+      },
+      "expression_request": {
+        "reply": "Good heavens, look at that 98 BPM reading! I'm beaming with a wide, mischievous grin, ready to see if this simulated heart rate can keep up with my own energetic welcome.",
+        "chunks": 1,
+        "total_seconds": 2.02,
+        "first_visible_seconds": 1.992,
+        "metrics": {
+          "response_latency_seconds": 0.781,
+          "time_to_first_token_seconds": null,
+          "tokens_per_second": 1000000,
+          "output_tokens": 1,
+          "load_seconds": 0.001120201,
+          "recorded_at": 1793142857.3859608,
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 0,
+          "prompt_tokens": 2678,
+          "done_reason": "stop"
+        },
+        "wire": {
+          "model": "daisy-qwen35:latest",
+          "thinking": false,
+          "stream": true,
+          "tools_absent": true,
+          "embedded_system_preserved": true,
+          "embedded_system_sha256": "e160098ffc149bbc97b891ff3a5e4a6aa0209ce1e870b3960ce6c9aa7dbb9f40",
+          "history_markers": [],
+          "max_tokens": 256
+        }
+      },
+      "presentation": {
+        "character": "daisy",
+        "expression": "cheerful",
+        "activity": "idle",
+        "source": "/Character_Art/Daisy/expressions/daisy_happy.png"
+      },
+      "residency": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "size_vram": 5628493822,
+          "context_length": 8192
+        }
+      ],
+      "memory_isolated": true
+    }
+  ],
+  "steps": [
+    "Original EdgeLoop starts with simulated HR and mocked Handy; no physical hardware",
+    "All three model histories isolate and restore; accepted visible replies drive isolated character presentation with no reasoning text or extra classification inference",
+    "Disconnected Ollama leaves timer, pause/resume and stop operational; real transport recovery succeeds"
+  ],
+  "gpu_samples": [
+    {
+      "at": 1793142838187,
+      "used_mib": 1615,
+      "total_mib": 10240,
+      "runner_used_mib": 0,
+      "runners": [],
+      "loaded": []
+    },
+    {
+      "at": 1793142838715,
+      "used_mib": 1615,
+      "total_mib": 10240,
+      "runner_used_mib": 0,
+      "runners": [],
+      "loaded": []
+    },
+    {
+      "at": 1793142839219,
+      "used_mib": 1615,
+      "total_mib": 10240,
+      "runner_used_mib": 0,
+      "runners": [],
+      "loaded": []
+    },
+    {
+      "at": 1793142839718,
+      "used_mib": 1615,
+      "total_mib": 10240,
+      "runner_used_mib": 0,
+      "runners": [],
+      "loaded": []
+    },
+    {
+      "at": 1793142840217,
+      "used_mib": 1615,
+      "total_mib": 10240,
+      "runner_used_mib": 0,
+      "runners": [],
+      "loaded": []
+    },
+    {
+      "at": 1793142840717,
+      "used_mib": 1615,
+      "total_mib": 10240,
+      "runner_used_mib": 0,
+      "runners": [],
+      "loaded": []
+    },
+    {
+      "at": 1793142841240,
+      "used_mib": 1836,
+      "total_mib": 10240,
+      "runner_used_mib": 0,
+      "runners": [],
+      "loaded": []
+    },
+    {
+      "at": 1793142841710,
+      "used_mib": 1836,
+      "total_mib": 10240,
+      "runner_used_mib": 216,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 216
+        }
+      ],
+      "loaded": []
+    },
+    {
+      "at": 1793142842210,
+      "used_mib": 1836,
+      "total_mib": 10240,
+      "runner_used_mib": 216,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 216
+        }
+      ],
+      "loaded": []
+    },
+    {
+      "at": 1793142842712,
+      "used_mib": 6554,
+      "total_mib": 10240,
+      "runner_used_mib": 4934,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 4934
+        }
+      ],
+      "loaded": []
+    },
+    {
+      "at": 1793142843218,
+      "used_mib": 6554,
+      "total_mib": 10240,
+      "runner_used_mib": 4934,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 4934
+        }
+      ],
+      "loaded": []
+    },
+    {
+      "at": 1793142843714,
+      "used_mib": 6862,
+      "total_mib": 10240,
+      "runner_used_mib": 5340,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 5340
+        }
+      ],
+      "loaded": []
+    },
+    {
+      "at": 1793142844211,
+      "used_mib": 8260,
+      "total_mib": 10240,
+      "runner_used_mib": 6640,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6640
+        }
+      ],
+      "loaded": []
+    },
+    {
+      "at": 1793142844713,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142845214,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142845711,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142846214,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142846714,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142847214,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142847713,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142848213,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142848714,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142849214,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142849713,
+      "used_mib": 8268,
+      "total_mib": 10240,
+      "runner_used_mib": 6648,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6648
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142850215,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142850712,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142851213,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142851713,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142852213,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142852712,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142853215,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142853714,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142854214,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142854713,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142855215,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142855715,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142856216,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142856714,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142857214,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142857716,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142858216,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142858715,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142859213,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142859713,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142860214,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142860715,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142861220,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142861716,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142862217,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142862722,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142863231,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    },
+    {
+      "at": 1793142863514,
+      "used_mib": 8270,
+      "total_mib": 10240,
+      "runner_used_mib": 6650,
+      "runners": [
+        {
+          "pid": 834100,
+          "used_mib": 6650
+        }
+      ],
+      "loaded": [
+        {
+          "name": "evelyn-lite-v1:latest",
+          "vram_mib": 5368,
+          "context_length": 8192
+        }
+      ]
+    }
+  ],
+  "hardware": "Simulated HR and intercepted Handy HTTP; native device permissions denied",
+  "ollama_url": "http://127.0.0.1:11435",
+  "thinking": false,
+  "max_tokens": 256,
+  "keep_alive_seconds": 60,
+  "installed_models": [
+    "evelyn-lite-candidate:latest",
+    "evelyn-lite-v1:latest",
+    "evelyn-lite:latest",
+    "daisy-qwen35:latest",
+    "evelyn-qwen35-stable:latest",
+    "evelyn-qwen35:latest",
+    "huihui_ai/qwen3.5-abliterated:9b",
+    "evelyn-reptest:latest",
+    "evelyn-v12r1:latest",
+    "evelyn-v12:latest",
+    "daisy-v11:latest",
+    "evelyn-v11:latest",
+    "daisy-world:latest",
+    "evelyn-world:latest",
+    "evelyn:latest",
+    "daisy:latest",
+    "qwen3:8b"
+  ],
+  "ollama_process": {
+    "pid": 647240,
+    "model_directory": "/home/sean/.ollama/models"
+  },
+  "memory_restoration": true,
+  "midstream_interruption": {
+    "real_inference_socket_closed": true,
+    "history_preserved": true,
+    "session": {
+      "status": "RUNNING",
+      "seconds": 18,
+      "hr": 98,
+      "edges": 0,
+      "intensity": 50
+    }
+  },
+  "outage": {
+    "method": "Close only the test real-inference socket midstream, then raise ConnectError for further test requests; both daemons stay running",
+    "before": {
+      "status": "RUNNING",
+      "seconds": 17,
+      "hr": 98,
+      "edges": 0,
+      "intensity": 50
+    },
+    "during": {
+      "status": "RUNNING",
+      "seconds": 20,
+      "hr": 98,
+      "edges": 0,
+      "intensity": 50
+    },
+    "pause_resume": true,
+    "stop": true
+  },
+  "recovery_observation": {
+    "session_id": "a4e6a45d-1ba6-48fd-b929-6b6513c38bc8",
+    "status": "RUNNING",
+    "seconds": 21,
+    "experience": "classic",
+    "active_mode": "classic",
+    "goal": "tease",
+    "hr": 98,
+    "effective_max": 140,
+    "pullback": 140,
+    "trend": "unknown",
+    "edges": 0,
+    "intensity": 100,
+    "movement": {
+      "primary": 13,
+      "secondary": 12,
+      "stroke_min": 0,
+      "stroke_max": 23
+    },
+    "devices": {
+      "simulated_hr": true,
+      "hr_ready": true,
+      "toy_ready": true,
+      "ble": false,
+      "handy": true,
+      "intiface": false,
+      "tcode": false,
+      "vacuglide": false
+    },
+    "safety": {
+      "signal": "ok",
+      "no_contact": false,
+      "watchdog_paused": false,
+      "fault": "none"
+    },
+    "details": {
+      "captured_at_ms": 1793142861092,
+      "hr_recorded_at_ms": 1793142839542,
+      "hr_live": true,
+      "resting_bpm": 70,
+      "single_max_bpm": 140,
+      "dual_max_bpm": 125,
+      "pauses": 1,
+      "calibration_pass": "none",
+      "warmup_active": true,
+      "warmup_remaining_seconds": 279,
+      "ease_down_seconds": 0,
+      "rampdown_seconds": null
+    }
+  },
+  "recovery": {
+    "reply": "I see the session is still RUNNING in the data, so I'll assume the momentary pause was just a glitch in the telemetry. A small, knowing smile plays on my lips as I note that the engine is humming along at 98 BPM, waiting to see if you feel the same rhythm.",
+    "chunks": 14,
+    "total_seconds": 1.13,
+    "first_visible_seconds": 0.5,
+    "metrics": {
+      "response_latency_seconds": 1.104,
+      "time_to_first_token_seconds": 0.49,
+      "tokens_per_second": 101.05,
+      "output_tokens": 62,
+      "load_seconds": 0.001128814,
+      "recorded_at": 1793142863.0726705,
+      "provider": "ollama",
+      "model": "evelyn-lite-v1:latest",
+      "thinking_enabled": false,
+      "thinking_characters": 0,
+      "thinking_chunks": 0,
+      "thinking_tokens": null,
+      "output_budget": 256,
+      "visible_characters": 256,
+      "prompt_tokens": 1344,
+      "done_reason": "stop"
+    },
+    "wire": {
+      "model": "evelyn-lite-v1:latest",
+      "thinking": false,
+      "stream": true,
+      "tools_absent": true,
+      "embedded_system_preserved": true,
+      "embedded_system_sha256": "2a950e84b6cc3a750f95b42c5fa2540dd904f84211248791177dc35ee2ccb1fa",
+      "history_markers": [],
+      "max_tokens": 256
+    }
+  },
+  "connection_failures": 2,
+  "stream_interruptions": 1,
+  "read_only": true,
+  "device_http_intercepted": 41,
+  "external_requests_denied": 0,
+  "gpu_summary": {
+    "baseline_used_mib": 1615,
+    "peak_used_mib": 8270,
+    "total_mib": 10240,
+    "max_resident_models": 1,
+    "peak_runner_mib": 6650
+  },
+  "monitor_errors": []
+}

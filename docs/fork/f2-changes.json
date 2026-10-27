@@ -6,8 +6,8 @@
   },
   "sw.js": {
     "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
-    "sha256": "34b9686bfadba52d558154c529ae54978daf14e3cd062bd4b15c1d70cf751f60",
-    "reason": "Public companion precache and AI/auth exclusion including configurable loopback observer ports"
+    "sha256": "d969399f6ac1c7750baafa9cddcf2a5a1c864a1a9911106c0a51c54354f45ea8",
+    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved"
   },
   ".gitignore": {
     "base_sha256": "f5dace1690dab0464685a792bf7005b1e43b16c580cd5dfd8f552f362704c81a",

@@ -1,0 +1,68 @@
+[
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/daisy-1366.png",
+    "width": 1366,
+    "height": 768,
+    "sha256": "49ea45890467e8e854ea8111b751a29cd2d173b9596ce564c30f0473858c8857"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/daisy-2560.png",
+    "width": 2560,
+    "height": 1440,
+    "sha256": "d576dbb329fc6d0effb19924b7c5da794cb66702fd55c344875ffd103c402fb7"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/daisy-390.png",
+    "width": 390,
+    "height": 844,
+    "sha256": "3199f70354463cd2e8287f4554b5dfb2c897163d9bc0c6b48bfc6263b36891a1"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/daisy-cheerful-1920.png",
+    "width": 1920,
+    "height": 1080,
+    "sha256": "d0fd02d9fc4ab0001d6955f5aa32015cbf9539708db01ab8f9ccf26d4f46516e"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/evelyn-1920.png",
+    "width": 1920,
+    "height": 1080,
+    "sha256": "892d00d4e551a7e0a75a598a378abb2d9735a5c7ccfcd7814e37cf16b7430bcb"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/live-complete-desktop.png",
+    "width": 1920,
+    "height": 1080,
+    "sha256": "2f086c5fe195db8e85c6376815c0a74df26520e0124848c0180f01214c5cb73a"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/live-complete-mobile.png",
+    "width": 390,
+    "height": 844,
+    "sha256": "5ff5033bbb1252622cbdc2f5b80a17ada2c315b636d61633ec259679ae37cbf8"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/live-daisy-qwen35.png",
+    "width": 1920,
+    "height": 1080,
+    "sha256": "83e335196c5c161da0dbdeba7fbe879a4b8198e67bba2f5f55dabf8a425e2a63"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/live-evelyn-lite-v1.png",
+    "width": 1920,
+    "height": 1080,
+    "sha256": "3635fb19655c3d0c94b4a0ee29510d9ae2296e4308c220d6daddb48e48769ebf"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/live-evelyn-qwen35-stable.png",
+    "width": 1920,
+    "height": 1080,
+    "sha256": "1192b8b67be0738fdcdbab332753102552326d0413f130623df8cec9d596446c"
+  },
+  {
+    "file": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots/live-ollama-unavailable-session-running.png",
+    "width": 1920,
+    "height": 1080,
+    "sha256": "42a3d1fccbc5967ccc7cc926d355b2036e53a7abf5f0aaad9c1f62e8e135295c"
+  }
+]

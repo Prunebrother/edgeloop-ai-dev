@@ -1,3 +1,16 @@
+# Current architecture — F2.4
+
+The [character presentation controller](F24_CHARACTER_PRESENTATION.md) consumes
+existing chat lifecycle events and verified F2.3 event acknowledgements. A shared
+JSON manifest separates model IDs, character identities, expressions, activities
+and original asset references. Rendering is asynchronous and read-only; session,
+hardware, personality and memory ownership remain unchanged. See the
+[artwork inventory](F24_ARTWORK_INVENTORY.md) and [validation](validation-f24.json).
+
+Earlier architecture records follow.
+
+---
+
 # Current architecture — F2.3
 
 The original browser engine remains the only controller. F2.3 adds validated,

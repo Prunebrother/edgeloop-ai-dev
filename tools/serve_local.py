@@ -3,6 +3,7 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 import sys
+import json
 from urllib.parse import unquote, urlsplit
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -13,6 +14,14 @@ def public_file(raw, root=ROOT):
     parts=PurePosixPath(path).parts
     if any(p.startswith('.') for p in parts): return None
     allowed=path in PUBLIC or (len(parts)==1 and parts[0].startswith('icon') and Path(path).suffix in {'.svg','.png'}) or (path.startswith('src/js/') and path.endswith('.js')) or (path.startswith('src/css/') and path.endswith('.css')) or (path.startswith('src/assets/characters/') and Path(path).suffix in {'.png','.webp','.jpg','.jpeg','.svg'})
+    # Only curated references are public; never expose the artwork archive itself.
+    if path=='src/assets/characters/manifest.json':allowed=True
+    if path.startswith('Character_Art/'):
+        try:
+            catalog=json.loads((root/'src/assets/characters/manifest.json').read_text())
+            referenced={asset.lstrip('/') for c in catalog['characters'].values() for asset in c['expressions'].values() if isinstance(asset,str)}
+            allowed=path in referenced and Path(path).suffix.lower() in {'.png','.jpg','.jpeg','.webp'}
+        except (OSError,ValueError,KeyError,TypeError,AttributeError):allowed=False
     target=root/path
     if target.absolute()!=target.resolve():return None
     if not allowed or target.is_symlink() or not target.resolve().is_relative_to(root.resolve()): return None

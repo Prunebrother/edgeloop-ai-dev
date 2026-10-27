@@ -1,0 +1,24 @@
+{
+  "artwork_originals_unchanged": 31,
+  "character_definition_files_unchanged": 20,
+  "model_stores": {
+    "/home/sean/.ollama/models": {
+      "manifests": 17,
+      "blobs": 28,
+      "manifest_hashes_and_blob_inventory_unchanged": true
+    },
+    "/home/sean/projects/edgeloop-ai/.ollama/models": {
+      "manifests": 3,
+      "blobs": 10,
+      "manifest_hashes_and_blob_inventory_unchanged": true
+    }
+  },
+  "ollama_server_pids_unchanged": [
+    506214,
+    647240
+  ],
+  "artwork_sources_staged": false,
+  "new_image_assets_committed": false,
+  "screenshots_local_only": "/home/sean/Work/backups/edgeloop-f24-20261028/screenshots",
+  "licensing": "Local references only; redistribution rights not asserted. Original provenance retained."
+}

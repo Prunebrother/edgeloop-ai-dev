@@ -6,6 +6,7 @@ import {promisify} from 'node:util';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {createServer} from 'node:net';
 import path from 'node:path';
+import {classifyDialogue} from '../../src/js/ai/presentation-controller.js';
 const exec=promisify(execFile);
 if(process.env.EDGELOOP_LIVE_ACCEPTANCE!=='1')throw Error('Set EDGELOOP_LIVE_ACCEPTANCE=1 to opt into real local inference');
 const root=path.resolve(new URL('../..',import.meta.url).pathname);
@@ -111,11 +112,16 @@ try {
   assert(JSON.stringify(warm.wire.history_markers)===JSON.stringify([markers[i]]),'Model-specific memory missing or contaminated in second inference');
   const ps=await json(ollama+'/api/ps');assert(ps.models.length<=1,'More than one model resident');
   cold.telemetry_facts={bpm:/\b98\b/.test(cold.reply),simulated:/simulat/i.test(cold.reply),running:/running/i.test(cold.reply)};
-  report.models.push({model,first_request:cold,second_request:warm,residency:ps.models.map(m=>({name:m.name,size_vram:m.size_vram,context_length:m.context_length})),memory_isolated:true});
+  const expressionReply=await chat('Say hello in your own style in one or two sentences, with a brief first-person description of your facial expression.');
+  const expectedExpression=classifyDialogue(expressionReply.reply)||'attentive';
+  await page.waitForFunction(({identity,expression})=>{const panel=document.querySelector('#character-panel');return panel.dataset.character===identity&&panel.dataset.expression===expression&&panel.dataset.activity==='idle'&&panel.querySelector('img:last-child.visible')?.naturalWidth>0&&!panel.querySelector('[data-art-status]').textContent.includes('Loading');},{identity:model.startsWith('daisy-')?'daisy':'evelyn',expression:expectedExpression});
+  const presentation=await page.locator('#character-panel').evaluate(panel=>({character:panel.dataset.character,expression:panel.dataset.expression,activity:panel.dataset.activity,source:panel.querySelector('img:last-child').getAttribute('src')}));
+  assert(!/<think[> ]/i.test(await page.locator('[data-history]').textContent()),'Reasoning exposed in UI');
+  report.models.push({model,first_request:cold,second_request:warm,expression_request:expressionReply,presentation,residency:ps.models.map(m=>({name:m.name,size_vram:m.size_vram,context_length:m.context_length})),memory_isolated:true});
   await page.screenshot({path:path.join(output,model.split(':')[0]+'.png')});console.log('Passed real streaming, thinking off and isolated history: '+model);
  }
  for(let i=0;i<models.length;i++){await select(models[i]);const text=await page.locator('[data-history]').textContent();assert(text.includes(markers[i]),'Model history not restored');for(let j=0;j<markers.length;j++)if(j!==i)assert(!text.includes(markers[j]),'Restored history leaked another model');}
- report.memory_restoration=true;report.steps.push('All three model histories isolate and restore in the current companion UI');
+ report.memory_restoration=true;report.steps.push('All three model histories isolate and restore; accepted visible replies drive isolated character presentation with no reasoning text or extra classification inference');
  const before=await state();
  const historyBefore=(await json(observer+'/fixture/state')).active_history;
  await json(observer+'/fixture/connection/cut-stream',{method:'POST'});

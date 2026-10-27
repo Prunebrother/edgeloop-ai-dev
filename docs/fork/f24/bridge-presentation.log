@@ -1,0 +1,28 @@
+✔ projection is read-only, redacts targets/keys/history and uses original values (3.44061ms)
+✔ session ID survives model/connection changes; significant events emitted once (0.565699ms)
+✔ trend is presentation only, expires and never writes measured/effective HR (0.276602ms)
+✔ disabled/unavailable AI never affects observed source, and commands are ignored (0.780803ms)
+✔ reconnect sends newest snapshot with fresh epoch and drops offline events (0.32747ms)
+✔ bounded latest-state/events, urgent stop and backpressure never replay stale batches (1.355287ms)
+✔ only localhost URLs, no credential queries; original controls have no model callback (0.997172ms)
+✔ default browser timers are called without the connection as receiver (0.655373ms)
+✔ settings, phase and capture metadata are allowlisted; missing pullback remains unknown (0.203023ms)
+✔ BLE connection is not a measurement; source changes and unique timestamps segment trend evidence (0.248666ms)
+✔ configuration changes are not HR changes and paused state is not a resume event (0.214563ms)
+✔ canonical identities use exact aliases, not name prefixes or prototype properties (0.937012ms)
+✔ twelve expressions are independent from five activities, missing states fall back to neutral (0.691363ms)
+✔ dialogue mapping requires explicit assistant self-expression, not arbitrary sentiment or physiology (1.138235ms)
+✔ activity does not erase expression; accepted replies only and no token-level changes (0.454034ms)
+✔ switching same-character models retains presentation; other characters reset and old generations cannot apply (0.203243ms)
+✔ cancel and disconnect invalidate generations, including late starts; reconnect starts a new sequence epoch (0.223863ms)
+✔ verified event adapter is bounded/deduplicated, chat has priority and stop bypasses debounce (0.200707ms)
+✔ session policy can be disabled; physiological fields and unrelated events never select emotion (0.15339ms)
+✔ development preview overlays rendering only and restores live state (0.159334ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 60.713729

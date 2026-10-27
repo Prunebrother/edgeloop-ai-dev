@@ -1,3 +1,14 @@
+# Current validation — F2.4
+
+See [character presentation](F24_CHARACTER_PRESENTATION.md),
+[machine report](validation-f24.json) and [asset inventory](F24_ARTWORK_INVENTORY.md).
+New character states are presentation-only and infer no user emotion from telemetry.
+The F2.3 factual-language limitations still apply.
+
+Earlier validation records follow.
+
+---
+
 # Current validation — F2.3
 
 See [grounding results and limitations](F23_GROUNDING.md),

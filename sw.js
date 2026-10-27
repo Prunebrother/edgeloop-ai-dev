@@ -6,7 +6,7 @@
 // offline once it has been visited. Bump CACHE_VERSION when the precache list
 // changes; old caches are removed on activate.
 
-const CACHE_VERSION = 'edgeloop-f23-v1';
+const CACHE_VERSION = 'edgeloop-f24-v1';
 const PRECACHE = [
     './',
     './index.html',
@@ -27,6 +27,8 @@ const PRECACHE = [
     './src/js/ai/layout.js',
     './src/js/ai/character.js',
     './src/js/ai/artwork-manifest.js',
+    './src/js/ai/presentation-controller.js',
+    './src/assets/characters/manifest.json',
     './src/js/state.js',
     './src/js/engine.js',
     './src/js/patterns.js',
@@ -84,6 +86,9 @@ self.addEventListener('fetch', (event) => {
     // websockets and PeerJS must always go to the network.
     if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
     if (url.hostname.endsWith('handyfeeling.com') || url.hostname.endsWith('peerjs.com')) return;
+
+    // Portraits use the browser HTTP cache; never accumulate the whole high-res archive in SW caches.
+    if (url.origin === self.location.origin && url.pathname.startsWith('/Character_Art/')) return;
 
     event.respondWith(
         fetch(request)

@@ -148,7 +148,8 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 speech.safety(event.kind)
                             elif event.kind=='signal_lost' and state.status=='PAUSED' and previous and previous['safety']['signal']!='stale':speech.safety('signal_lost')
                             else:speech.enqueue(event.kind,30 if event.kind=='edge' else 10,{'edge_count':message.snapshot.edges})
-                        publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id})
+                        publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
+                            'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} for e in message.events if e.id in state.accepted_event_ids]})
                     elif isinstance(message,Cancel):
                         # Interrupt output immediately, independently of telemetry/model discovery.
                         speech.pending.clear();speech.interrupt()

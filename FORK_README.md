@@ -1,4 +1,4 @@
-# EdgeLoop AI fork — F2.2
+# EdgeLoop AI fork — F2.4
 
 This is the primary application. Original EdgeLoop 1.1.3 owns every session,
 physiological calculation, device operation and safety decision. The companion
@@ -11,6 +11,11 @@ its own `.venv` and declared dependencies. The legacy checkout is not needed.
 See [architecture/migration](docs/fork/F22_CONSOLIDATION.md),
 [developer workflow](docs/fork/DEVELOPMENT.md), [failure diagnosis](docs/fork/F22_CONNECTIVITY.md)
 and [validation](docs/fork/validation-f22.json).
+
+See [F2.4 character artwork and expressions](docs/fork/F24_CHARACTER_PRESENTATION.md),
+[available/missing artwork](docs/fork/F24_ARTWORK_INVENTORY.md) and
+[current validation](docs/fork/validation-f24.json). F2.3 telemetry-grounding
+limitations remain documented; expression selection does not establish user emotion.
 
 ## Local development
 

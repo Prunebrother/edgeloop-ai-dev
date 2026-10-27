@@ -1,0 +1,250 @@
+[
+  {
+    "path": "Character_Art/Daisy/Daisy collage.png",
+    "bytes": 2874291,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a65e79647792f462dc257efd11bf60587e578be60285493e401047cbfbdd4cd6"
+  },
+  {
+    "path": "Character_Art/Daisy/Daisy_Chickens.png",
+    "bytes": 2882682,
+    "format": "PNG",
+    "width": 1086,
+    "height": 1448,
+    "sha256": "83a2643dbbae9ce4eb78d94712f33977e052cacd58c3841d2411cf5a9133fc2f"
+  },
+  {
+    "path": "Character_Art/Daisy/Daisy_Milk.png",
+    "bytes": 2573014,
+    "format": "PNG",
+    "width": 1086,
+    "height": 1448,
+    "sha256": "14d59c0012999ddcfa63d012244f54703134556f6c31cf633b8e524b0165ea14"
+  },
+  {
+    "path": "Character_Art/Daisy/Daisy_working.png",
+    "bytes": 2833848,
+    "format": "PNG",
+    "width": 1086,
+    "height": 1448,
+    "sha256": "1a9e62f309411d1539eb42dcc027afcf8e026b7c1920bcbf3a20d8d3839c06bd"
+  },
+  {
+    "path": "Character_Art/Daisy/daisy_sundress.png",
+    "bytes": 2779687,
+    "format": "PNG",
+    "width": 1086,
+    "height": 1448,
+    "sha256": "1eb0c28648f3829fe5d0843d1b39343824246f26247abd95d54492442c560635"
+  },
+  {
+    "path": "Character_Art/Daisy/daisy_tractor.png",
+    "bytes": 2732919,
+    "format": "PNG",
+    "width": 1086,
+    "height": 1448,
+    "sha256": "c47b60b5c93bc9049bc5414edf3e1a54f50391c1442a3cb36bc61751954d0ac9"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_comforting.png",
+    "bytes": 2860284,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c3ba7ff8ccd2f44bbadff070a5677b39bf72b5254075aef041172a9e21d8c55e"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_concerned.png",
+    "bytes": 2546354,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "99881ff6d35e94722bf26677ac41f30eb4d730ffb9357ec1c1532863b8915ce4"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_disappointed.png",
+    "bytes": 2886198,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "1d8abe2fa45a1ad27689a3c8faf447b9b7219290eac5793110763108f1a674dc"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_excited.png",
+    "bytes": 2683366,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "9a386f5881617ed6e0a73b399899fb0d4447bb5d24f06a9d7f9f726b2a97949e"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_flirty.png",
+    "bytes": 2980665,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a658a065abf8c4c9707af79d141ef5316a8de9458c0809e4d22b088add29d0d2"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_focused.png",
+    "bytes": 2717876,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "f511c519b560b0f2c1474d02c4fd28ab8930f572681f4197eba0ec7ed0a403ce"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_happy.png",
+    "bytes": 2859374,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "0af39f949a4e913b517ebcc7d6c7f892e3c661e0e5a14255e5dee63986ab1e7b"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_mischievous.png",
+    "bytes": 2639757,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "64e9c49987bec8cfecb67c65e1ec07dd2629b9c3868710652e4bf7f2fc9b79b0"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_neutral.png",
+    "bytes": 3042089,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "0ff09a5e265623af1f56a0002f29f79c4d5835e754d9747fbd177701ddfafa2a"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_playful.png",
+    "bytes": 2770062,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "0317b3618f899c9c5d87c7f78e52b80c70b554da97e1af23f21b5b71e90c6aec"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_proud.png",
+    "bytes": 2705836,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "c7adfdd374f3a565091326b21efda8ea70921490ec84594344538b36c97ce8e2"
+  },
+  {
+    "path": "Character_Art/Daisy/expressions/daisy_surprised.png",
+    "bytes": 2827265,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7ac80b5f02093abd54e6cc9f882f2584309ff2e63521177d12c89fca2fc92e5d"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_comforting.png",
+    "bytes": 2032570,
+    "format": "PNG",
+    "width": 1086,
+    "height": 1448,
+    "sha256": "28f9997eb8003ab4ad63ad9ad618acdb2f7b4fec4e1699ea6f4f7c7df8b2dd1a"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_concerned.png",
+    "bytes": 2047315,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "8690cf8e0e8b4b81c417a5707117eeca53ab3bdf8c04502992c6246a3c97a71e"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_dissapointed.png",
+    "bytes": 1918600,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "7f72c5d639bfa1ef2105fd8f4b9f5e76cd2134ea89f2f8b315edb28017a49113"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_excited.png",
+    "bytes": 1933792,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "5f1760040ea61849571698af7135ab34066ef68dcf937f96c7f81dc8723bb46f"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_flirty.png",
+    "bytes": 1932543,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "65849ccff808943d74a449c9f499698d49311d43e4ea38b1a4052dcd2b91d6b9"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_focused.png",
+    "bytes": 1934713,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "a5d8f5bf7e07f8d713c5521cca9528755f4460dfbf3cd757a38b474ec8d4d790"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_happy.png",
+    "bytes": 2059872,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "6ddab6c276efdd39230280990b8e3e3b5edf9744be7184ae1c2ceed34a224fc7"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_mischievous.png",
+    "bytes": 1941318,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "f838b4dcc81cfcef621275e4929781fae9f45f462c25499246a896e883ed8810"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_neutral.png",
+    "bytes": 2087828,
+    "format": "PNG",
+    "width": 1122,
+    "height": 1402,
+    "sha256": "cd8c0c693a903a2fb4cd7145271a0e228551c1404824e76b8931f546aeddf29a"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_playful.png",
+    "bytes": 1977750,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "99ab408a6548fe3466a50f174fc9de14292d59091ed47fe2a30afdbaf6de818a"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_proud.png",
+    "bytes": 2060603,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "ac615176ba4ea88e0a5af32ef9de8641227565ad9186fd0f1fd9efd77331fe3e"
+  },
+  {
+    "path": "Character_Art/Evelyn/Expressions/evelyn_surprised.png",
+    "bytes": 1923048,
+    "format": "PNG",
+    "width": 1024,
+    "height": 1536,
+    "sha256": "cb4608f5e310cae41a11604fde44087ca55d1370199698b9f952667a8cd37961"
+  },
+  {
+    "path": "Character_Art/README.md",
+    "bytes": 2313166,
+    "format": "PNG",
+    "width": 1086,
+    "height": 1448,
+    "sha256": "ff964d9cd670a8a8cee0e6b314338b10e0fcd10f155c75d654e9939604d3ab35"
+  }
+]

@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-28",
+  "milestone": "F2.4",
+  "status": "passed_with_documented_missing_artwork",
+  "base_artwork_checkpoint": "b116631",
+  "preserved_f23_checkpoint": "2aae519",
+  "backup_ref": "backup/f24-pre-artwork-20261028",
+  "upstream": {
+    "passed": 1057,
+    "total": 1057,
+    "test_files": 32,
+    "unchanged_pinned_files": 81,
+    "existing_reviewed_integrations": 4
+  },
+  "python_tests": {
+    "passed": 186,
+    "warning": "Existing Starlette/httpx TestClient deprecation"
+  },
+  "bridge_presentation_tests": {
+    "passed": 20
+  },
+  "dashboard_harness": "passed, legacy harness invoked read-only",
+  "dashboard_browser": "passed",
+  "portrait_browser": {
+    "passed": true,
+    "character_expression_combinations": 24,
+    "maximum_dom_image_layers": 2,
+    "steps": [
+      "Exact aliases share identity and retain the same loaded portrait node",
+      "Completed reply tone, cancellation, character switching and model history restoration",
+      "Verified stop event resets visual expression; original emergency control stops mocked session",
+      "Desktop/tablet/mobile artwork, contain scaling, reduced motion and emergency accessibility",
+      "All 24 character/expression combinations preview with missing-expression neutral fallbacks; no model inference",
+      "Image error fallback, total failure placeholder and stale image-load fencing"
+    ]
+  },
+  "live_browser": {
+    "passed": true,
+    "thinking": false,
+    "models": [
+      {
+        "model": "evelyn-lite-v1:latest",
+        "presentation": {
+          "character": "evelyn",
+          "expression": "attentive",
+          "activity": "idle",
+          "source": "/Character_Art/Evelyn/Expressions/evelyn_focused.png"
+        },
+        "first_completion_seconds": 4.625,
+        "second_completion_seconds": 0.772,
+        "expression_completion_seconds": 1.057,
+        "native_system_preserved": true
+      },
+      {
+        "model": "evelyn-qwen35-stable:latest",
+        "presentation": {
+          "character": "evelyn",
+          "expression": "attentive",
+          "activity": "idle",
+          "source": "/Character_Art/Evelyn/Expressions/evelyn_focused.png"
+        },
+        "first_completion_seconds": 1.768,
+        "second_completion_seconds": 1.123,
+        "expression_completion_seconds": 2.09,
+        "native_system_preserved": true
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "presentation": {
+          "character": "daisy",
+          "expression": "cheerful",
+          "activity": "idle",
+          "source": "/Character_Art/Daisy/expressions/daisy_happy.png"
+        },
+        "first_completion_seconds": 1.459,
+        "second_completion_seconds": 1.061,
+        "expression_completion_seconds": 2.02,
+        "native_system_preserved": true
+      }
+    ],
+    "gpu": {
+      "baseline_used_mib": 1615,
+      "peak_used_mib": 8270,
+      "total_mib": 10240,
+      "max_resident_models": 1,
+      "peak_runner_mib": 6650
+    },
+    "server": "Existing 11435, no restart; max one resident model",
+    "physical_hardware": false
+  },
+  "artwork": {
+    "inventory_files": 31,
+    "supported_expression_ids": 12,
+    "curated_images_per_character": 7,
+    "missing_dedicated_states_both_characters": [
+      "curious",
+      "thoughtful",
+      "amused",
+      "serious",
+      "relaxed"
+    ],
+    "fallback": "character neutral, then generic placeholder",
+    "identity_aliases": 15,
+    "unknown_base_models": 2
+  },
+  "screenshots": "f24/screenshots.json",
+  "screenshots_visually_reviewed": [
+    "evelyn-1920.png",
+    "daisy-2560.png",
+    "daisy-1366.png",
+    "daisy-390.png"
+  ],
+  "preservation": "f24/preservation.json",
+  "runtime_source_hashes": "f24/source-sha256.json",
+  "limitations": [
+    "Five dedicated expression assets are missing for each character; neutral fallback is visibly labelled",
+    "Conservative English phrase recognition misses paraphrases and is not an emotion model",
+    "Model selection remains disabled while generating; cancel first; controller guards asynchronous mid-generation switches",
+    "F2.3 factual-language limitations remain",
+    "Live smoke uses thinking disabled and is not a tone-classification accuracy benchmark",
+    "New screenshots retained locally; redistribution rights not established"
+  ],
+  "runtime": {
+    "dashboard": "http://127.0.0.1:8770/",
+    "observer": "ws://127.0.0.1:8768/observe",
+    "ui_pid": 838002,
+    "observer_pid": 838003,
+    "pairing_log": "/tmp/edgeloop-f24-observer.log",
+    "ollama_servers_restarted": false,
+    "browser_session_reloaded_automatically": false
+  }
+}

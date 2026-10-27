@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "steps": [
+    "Exact aliases share identity and retain the same loaded portrait node",
+    "Completed reply tone, cancellation, character switching and model history restoration",
+    "Verified stop event resets visual expression; original emergency control stops mocked session",
+    "Desktop/tablet/mobile artwork, contain scaling, reduced motion and emergency accessibility",
+    "All 24 character/expression combinations preview with missing-expression neutral fallbacks; no model inference",
+    "Image error fallback, total failure placeholder and stale image-load fencing"
+  ],
+  "art_requests": [
+    "http://127.0.0.1:8810/Character_Art/Evelyn/Expressions/evelyn_neutral.png",
+    "http://127.0.0.1:8810/Character_Art/Evelyn/Expressions/evelyn_focused.png",
+    "http://127.0.0.1:8810/Character_Art/Evelyn/Expressions/evelyn_playful.png",
+    "http://127.0.0.1:8810/Character_Art/Daisy/expressions/daisy_neutral.png",
+    "http://127.0.0.1:8810/Character_Art/Daisy/expressions/daisy_focused.png",
+    "http://127.0.0.1:8810/Character_Art/Daisy/expressions/daisy_concerned.png"
+  ],
+  "max_image_layers": 2,
+  "physical_devices": "Denied; Handy HTTP intercepted",
+  "screenshots": [
+    "evelyn-1920.png",
+    "daisy-2560.png",
+    "daisy-1366.png",
+    "daisy-390.png",
+    "daisy-cheerful-1920.png"
+  ]
+}

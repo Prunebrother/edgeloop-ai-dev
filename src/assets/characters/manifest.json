@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "provenance": "References to user-provided local originals, preserved byte-for-byte. Existing Git backup is not evidence of redistribution rights; no new image assets are added by F2.4.",
+  "expressions": [
+    "neutral",
+    "attentive",
+    "curious",
+    "thoughtful",
+    "amused",
+    "cheerful",
+    "playful",
+    "excited",
+    "surprised",
+    "serious",
+    "concerned",
+    "relaxed"
+  ],
+  "activities": [
+    "idle",
+    "thinking",
+    "listening",
+    "speaking",
+    "disconnected"
+  ],
+  "characters": {
+    "evelyn": {
+      "name": "Evelyn",
+      "fit": "contain",
+      "position": "50% 50%",
+      "expressions": {
+        "neutral": "/Character_Art/Evelyn/Expressions/evelyn_neutral.png",
+        "attentive": "/Character_Art/Evelyn/Expressions/evelyn_focused.png",
+        "curious": null,
+        "thoughtful": null,
+        "amused": null,
+        "cheerful": "/Character_Art/Evelyn/Expressions/evelyn_happy.png",
+        "playful": "/Character_Art/Evelyn/Expressions/evelyn_playful.png",
+        "excited": "/Character_Art/Evelyn/Expressions/evelyn_excited.png",
+        "surprised": "/Character_Art/Evelyn/Expressions/evelyn_surprised.png",
+        "serious": null,
+        "concerned": "/Character_Art/Evelyn/Expressions/evelyn_concerned.png",
+        "relaxed": null
+      }
+    },
+    "daisy": {
+      "name": "Daisy",
+      "fit": "contain",
+      "position": "50% 50%",
+      "expressions": {
+        "neutral": "/Character_Art/Daisy/expressions/daisy_neutral.png",
+        "attentive": "/Character_Art/Daisy/expressions/daisy_focused.png",
+        "curious": null,
+        "thoughtful": null,
+        "amused": null,
+        "cheerful": "/Character_Art/Daisy/expressions/daisy_happy.png",
+        "playful": "/Character_Art/Daisy/expressions/daisy_playful.png",
+        "excited": "/Character_Art/Daisy/expressions/daisy_excited.png",
+        "surprised": "/Character_Art/Daisy/expressions/daisy_surprised.png",
+        "serious": null,
+        "concerned": "/Character_Art/Daisy/expressions/daisy_concerned.png",
+        "relaxed": null
+      }
+    }
+  },
+  "models": {
+    "evelyn:latest": "evelyn",
+    "evelyn-world:latest": "evelyn",
+    "evelyn-v11:latest": "evelyn",
+    "evelyn-v12:latest": "evelyn",
+    "evelyn-v12r1:latest": "evelyn",
+    "evelyn-reptest:latest": "evelyn",
+    "evelyn-lite:latest": "evelyn",
+    "evelyn-lite-v1:latest": "evelyn",
+    "evelyn-lite-candidate:latest": "evelyn",
+    "evelyn-qwen35-stable:latest": "evelyn",
+    "evelyn-qwen35:latest": "evelyn",
+    "daisy:latest": "daisy",
+    "daisy-world:latest": "daisy",
+    "daisy-v11:latest": "daisy",
+    "daisy-qwen35:latest": "daisy"
+  },
+  "presentation": {
+    "session_reactions": {
+      "session_started": "attentive",
+      "pause": "attentive",
+      "session_resumed": "attentive",
+      "stop": "neutral",
+      "milestone": "cheerful"
+    },
+    "cooldown_ms": 6000,
+    "chat_hold_ms": 8000
+  }
+}

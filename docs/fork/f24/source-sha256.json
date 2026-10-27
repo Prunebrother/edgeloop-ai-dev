@@ -1,0 +1,15 @@
+{
+  "ai_observer/server.py": "6892096a8d7f4ec692710be7a8948cc098ffd9e8e63a736d4869f164ee519da7",
+  "tools/serve_local.py": "1dab2e97063687648a7713bd2437da2a2b5f0f958ff80707f96f5d33d66f89df",
+  "src/assets/characters/manifest.json": "ab0252d48e7866867f2bd917c005e046b2dd47322e006cbee51a866b790c5206",
+  "src/js/ai/artwork-manifest.js": "7564220f2bff5a65deac038201204af38267505d3991bc1a8424d8241dce2ba6",
+  "src/js/ai/character.js": "989bf920cd5ac880e7feeae3f9213fd68ee4de4493008d5237699dc557307717",
+  "src/js/ai/presentation-controller.js": "f3fcddf5474712525f354f649bfc8864ab05c526c60b7d54616493282f6924dd",
+  "src/js/ai/companion.js": "9dca60684aa80cbd8932b0819a9aac742f7df47cfb407a60777546bdec79c690",
+  "src/js/ai/connection.js": "97bad7d01250318f7a87a69154bd8700c0f5d6c703cca35feb852f21af158142",
+  "src/css/companion.css": "2cc6f53916a71ad798b75f958bfbf43fd96e61bb3f4348cb9fd6cec91a6ab003",
+  "sw.js": "d969399f6ac1c7750baafa9cddcf2a5a1c864a1a9911106c0a51c54354f45ea8",
+  "tests/fork/presentation.test.mjs": "002c938ae9dcc5f846acca5444e134cd6bb77def35de085595ab8b811e5877b8",
+  "tests/fork/character-browser.mjs": "90c40efeef7408175511dc5580107119b605caf14dd43a11340d9e3d1a8a34c8",
+  "tests/fork/live-acceptance.mjs": "2f41d091d6caaced7549c721023c6ab23447cfc104b2f3f24cbc5f030b3c170a"
+}
