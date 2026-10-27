@@ -1,0 +1,22 @@
+# Existing AI infrastructure reuse audit
+
+Source reviewed: `/home/sean/projects/edgeloop-ai/`, checkpoint `9e89fa1`. This is an integration plan, not an implemented bridge. Reuse these modules through the existing project/package; do not copy user data or fork the provider implementation.
+
+| Existing module | Reusable capability | Integration boundary |
+|---|---|---|
+| `edgeloop_ai/llm.py` | `LLMProvider`, `OllamaProvider`, typed requests/events/tool calls; discovery/capabilities, streaming and provider errors | Reuse directly; provider never receives a motor driver. Ollama remains a local service. |
+| `edgeloop_ai/conversation.py` | `ModelManager`: model discovery/selection, inference settings, unload, per-model presets; `ConversationService`: streaming, cancellation, conversation/memory isolation and event scheduling | Instantiate with a read-only browser observation facade rather than the custom session. Never import `edgeloop_ai.app` as the fork's service factory: its module-level app defaults to B2a. |
+| `edgeloop_ai/director.py` | Conversation Director, significant-event policy, cooldown/coalescing, topic/repetition diagnostics | Supply compact browser snapshots and semantic events. Its AI pacing clock is allowed; it must not advance EdgeLoop session time or compute motor output. |
+| `edgeloop_ai/context.py` | Model-neutral runtime context, untrusted telemetry framing and context budgeting | Reuse; identity/style stay in Ollama Modelfiles. Treat all session fields as data. No arbitrary browser text becomes a system instruction. |
+| `edgeloop_ai/storage.py` and `models.py` | Atomic JSON settings, inference and memory schemas | Use a separate experimental data directory. Retain provider/model memory keys; existing histories/settings remain intact until explicit migration is validated. |
+| `edgeloop_ai/diagnostics.py` | Performance/resource observations | Reuse inference diagnostics; exclude device keys, bearer tokens and hidden session targets from logs/export. |
+| `edgeloop_ai/tools.py` | Tool dialogue, strict intent validation, approvals, quotas, audit and acknowledgement principles | Requires a documented compatibility change: current executors/schema bind to local `ControlGateway`, steady/pulse presets and Gentle/Moderate. They cannot be attached unchanged to the browser engine or dispatch simulated local output on its behalf. |
+| `edgeloop_ai/app.py` | Existing FastAPI/WebSocket routes, model-selection locking, safety cancellation and bounded consumer queues | Retain API behavior through a separate observer-only app factory. Reusing the default factory creates a competing B2a coordinator and exposes local `/demo/start`/`/control`, which are inappropriate for the fork. |
+| `session.py`, `session_bridge.py`, `engine/coordinator.mjs`, `core.py`, `demo.py` | Custom engine/simulator | Preserve for Architecture A and its tests; exclude from the fork's service execution path. No fallback on AI disconnect or browser failure. |
+| `audio.py`, artwork/character assets | Existing/future optional capabilities | Preserve; no artwork, voice, STT/TTS or new personality work in this experiment. |
+
+The conversation facade needs fields such as `snapshot()`, `summary()`, HR/trend, bounded observational samples and the browser-reported session status. It must retain the browser's `seconds`, mode, goal, limits and movement as observations. Its `tick()` may expire connection information but cannot run a session engine, claim physical stop or synthesize motor frames. Disconnect means stale/unconfirmed AI knowledge; the browser continues its own safety/lifecycle.
+
+F2 should instantiate the existing model/conversation/Director classes with this facade and test model switching without any browser-state reset. F3 should inject a browser command gateway and narrowly adapt the tool registry to original mode IDs and bounded intensity. The browser independently checks every request; approving a model request on the backend never authorizes direct hardware access. Keep manual/assisted as the default and retain all old application regressions.
+
+Model-specific memories already use provider/model scope and hashed file names. Preserve that behavior for `qwen3:8b`, `mira:latest`, `evelyn:latest`, `daisy-v11:latest` and future installed models. Do not reintroduce application character prompts. No live-model behavior or compatibility for these models was newly verified in F1.

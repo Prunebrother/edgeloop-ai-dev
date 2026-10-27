@@ -1,0 +1,58 @@
+{
+  "milestone": "F1 source/test checkpoint; host UI acceptance pending",
+  "f1_complete": false,
+  "f2_complete": false,
+  "f3_complete": false,
+  "f4_complete": false,
+  "reference": {
+    "version": "1.1.3",
+    "commit": "d351e011249079b368ebdc8d46f83b260be7d2a5",
+    "repository": "https://github.com/marshallmims/edgeloop",
+    "license": "AGPL-3.0-only",
+    "unchanged_files": 85
+  },
+  "unchanged_npm_test": {
+    "passed_files": 32,
+    "failed_files": 0
+  },
+  "per_file_original_tests": {
+    "passed": 1057,
+    "failed": 0,
+    "files": 32,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "existing_ai_backend": {
+    "commit": "9e89fa1",
+    "passed": 221,
+    "failed": 0,
+    "isolated_data": true,
+    "warning": "Existing Starlette/httpx deprecation"
+  },
+  "existing_dashboard_dom_harness": "passed",
+  "playwright": {
+    "version": "1.64.1",
+    "installation": "Local ignored node_modules, offline cache, no package manifest/lockfile change",
+    "browser": "Chromium present; launch denied by sandbox IPC/socket permissions"
+  },
+  "http_server": {
+    "bind": "127.0.0.1",
+    "port": 8770,
+    "status": "blocked: socket.socket PermissionError EPERM; not running"
+  },
+  "browser_smoke": {
+    "status": "blocked",
+    "exit_code": 2,
+    "reason": "Chromium sandbox_host_linux.cc shutdown: Operation not permitted"
+  },
+  "original_browser_ui_and_simulator": "Not verified in this environment; original source retained",
+  "live_ollama": "Not tested; no AI integration or AI service started",
+  "hardware": "Disconnected; no real hardware activated",
+  "original_project": "Unchanged by this task; pre-existing working-tree changes preserved",
+  "pending": [
+    "F1 host UI/simulator/mock-Handy acceptance",
+    "F2 authenticated read-only observer service and optional AI panel",
+    "F3 validated simulated command bridge",
+    "F4 live-model integration demonstration and final migration decision"
+  ]
+}
