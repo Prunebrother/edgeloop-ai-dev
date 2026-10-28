@@ -21,4 +21,7 @@ f.MODELS.extend(['evelyn-narrative-v1:latest','daisy-narrative-v1:latest'])
 @f.app.get('/fixture/narrative')
 async def narrative():
     return {'context':f.app.state.speech.narrative.context(),'history':list(f.app.state.speech.history),'requests':f.transport.requests,'thinking':f.app.state.models.config.thinking}
+@f.app.get('/fixture/context')
+async def context_state():return f.app.state.speech.character_state()
+
 if __name__=='__main__':uvicorn.run(f.app,host='127.0.0.1',port=f.PORT,access_log=False)

@@ -10,6 +10,7 @@ from pydantic import Field
 from .models import StrictModel,MemoryConfig
 from .grounding import SessionFacts,render_facts
 from .expressions import FORMAT_INSTRUCTION
+from .narrative import abandonment_requested
 
 class ContextConfig(StrictModel):
     schema_version: Literal[1]=1
@@ -30,7 +31,6 @@ def estimate(text):return math.ceil(max(len(text),len(text.encode('utf-8')))/2.5
 def dump(value):return json.dumps(value,separators=(',',':'),ensure_ascii=False)
 def words(text):return set(re.findall(r'[a-z]{3,}',str(text).casefold()))-set('the and this that with from have will would could should about your our for was are what story please'.split())
 OPERATIONAL=re.compile(r'\b(?:bpm|heart.?rate|pulse|sensor|hardware|device|handy|session|telemetry|threshold|edge counter|pause count|intensity setting)\b',re.I)
-ABANDON=re.compile(r"\b(?:abandon|forget|discard|drop|leave behind|stop) (?:this |the |our |previous |old )?(?:story(?:line)?|plot|premise|narrative|objective)\b|\bstart (?:a )?(?:new|fresh) story(?:line)?\b",re.I)
 TOPIC_CHANGE=re.compile(r'\b(?:new topic|change (?:the )?subject|something else|another subject)\b',re.I)
 TOPICS={
  'physiology':r'\b(?:bpm|pulse|heart.?rate|trend|measurement|readings?)\b',
@@ -176,7 +176,7 @@ class ContextCompiler:
                 chosen.append((i,{k:v for k,v in m.items() if k in {'role','content','origin'}}));remaining-=cost;history_used+=cost
         if len(chosen)<len(recent):omissions.append(str(len(recent)-len(chosen))+' historical messages omitted by relevance/budget; stored conversation retained.')
         narrative_items=[];narrative_refs=[];narrative_used=0
-        if narrative and not TOPIC_CHANGE.search(prompt) and not ABANDON.search(prompt):
+        if narrative and not TOPIC_CHANGE.search(prompt) and not abandonment_requested(prompt):
             candidates=[];query=words(prompt)
             for key,priority in [('commitments',5),('threads',5),('choices',4),('developments',2)]:
                 for i,text in enumerate(narrative.get(key,[])):

@@ -328,6 +328,7 @@ class ConversationService:
         return {'type':'character_state','model':self.responder()['model'],
             'event_intelligence':self.event_intelligence.snapshot(),
             'context_intelligence':getattr(self.adapter,'context_diagnostics',{}),
+            'context_settings':getattr(self.adapter,'context_config',ContextConfig()).model_dump(),
             'narrative':narrative,'narrative_enabled':self.narrative.config.enabled,
             'narrative_epoch':self.narrative.state['epoch'],'narrative_revision':self.narrative.state['revision'],
             'director':{'enabled':config.enabled,'proactive_enabled':config.spontaneous_enabled,
@@ -340,6 +341,21 @@ class ConversationService:
                 'suppressed_count':self.director.counts['events_suppressed']+self.director.counts['responses_suppressed'],
                 'active_response':self.active_source if self.task and not self.task.done() else None,
                 'last_event':({k:v for k,v in event.items() if k in {'kind','significance'}} | {'age_seconds':round(max(0,now-event['received']),1)}) if event else None}}
+
+    def update_objective(self,action,fields=None):
+        self.sync_narrative()
+        # Validate before cancelling a valid conversation on malformed input.
+        import copy
+        before=copy.deepcopy(self.narrative.state)
+        try:self.narrative.update_objective(action,fields)
+        except (ValueError,OSError):
+            self.narrative.states[self.narrative.scope]=before
+            raise
+        self.interrupt()
+        if hasattr(self.adapter,'context_diagnostics'):self.adapter.context_diagnostics={}
+        for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:objective_changed')
+        self.pending.clear()
+        self.publish(self.character_state()|{'objective_saved':True})
 
     def configure_events(self,config):
         store=getattr(self.adapter,'store',None)
@@ -376,6 +392,7 @@ class ConversationService:
         self.interrupt()
         self.sync_narrative()
         self.narrative.reset()
+        if hasattr(self.adapter,'context_diagnostics'):self.adapter.context_diagnostics={}
         for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:storyline_reset')
         self.pending.clear()
         for key in ('topics','questions','responses','event_responses'):self.director.memory[key].clear()
@@ -548,7 +565,8 @@ class ConversationService:
         if user:
             self.last_user = now
             self.director.user(prompt)
-            from .narrative import QUIET
+            from .narrative import QUIET,abandonment_requested
+            if abandonment_requested(prompt):self.reset_narrative()
             if QUIET.search(prompt):self.narrative.state['initiative_allowed']=False
         if user and self.director.config.enabled and re.search(r"\b(no need to (?:reply|respond)|just (?:be|stay) quiet|let'?s sit quietly)\b", prompt, re.I):
             request_id=str(uuid4())
@@ -574,13 +592,14 @@ class ConversationService:
             summary = self.director.context(summary, prompt, list(compact_events.values()), user, memory.enabled)
         if event and not event.get('narrative'):summary['trigger_event']={k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm'}}
         summary['narrative_initiative']=bool(event and event.get('narrative'))
-        if memory.enabled:summary['narrative_context']=self.narrative.context()
+        if memory.enabled:summary['narrative_context']=self.narrative.context(for_compiler=True)
         summary['narrative_scope']=self.narrative_scope()
         summary['derived_observations']=[r['event'] for r in self.event_intelligence.history if r['event']['category']=='derived' and r['event']['session_id']==getattr(self.state,'session_id',None) and 0<=getattr(self.state,'wall',lambda:0)()*1000-r['event']['created_at_ms']<=60000][-3:]
         if user and self.director.config.enabled:
             from .director import numerical_request
             if numerical_request(prompt) and summary['derived_observations']:summary['derived_grounding']={'category':'derived','observation':summary['derived_observations'][-1]}
         if self.narrative.state['context_boundary']:
+            summary['narrative_epoch']=self.narrative.state['epoch']
             history=[m for m in history if m.get('narrative_epoch')==self.narrative.state['epoch']]
         if event and event['kind'] in REACTIVE_EVENTS:
             history=[m for m in history if m.get('trigger_origin') in {None,'real_user'}]

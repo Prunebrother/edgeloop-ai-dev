@@ -147,3 +147,12 @@ body.companion-app {margin:0;padding:0;display:block;height:100dvh;min-height:0;
 .event-record p {font-size:11px;margin:4px 0}.event-record h4 {margin-top:10px}
 
 .event-intelligence input[type=number] {height:auto}
+
+/* Compact optional context and fictional-objective tools stay inside existing drawers. */
+[data-context-intelligence] label,[data-objective-editor] label {display:flex;gap:.5rem;align-items:center;justify-content:space-between;margin:.6rem 0;font-size:.8rem}
+[data-context-intelligence] input[type=number] {width:6rem;height:auto}
+[data-objective-editor] label {align-items:stretch;flex-direction:column}
+[data-objective-editor] input,[data-objective-editor] select {width:100%;min-width:0}
+[data-objective-confirm] {font-size:.75rem}
+[data-objective-confirm] input {width:auto}
+[data-context-diagnostics] dd {overflow-wrap:anywhere}

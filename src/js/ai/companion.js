@@ -71,7 +71,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
         }
         if(debug)queueMicrotask(updateDiagnostics);
         if(['character_state','narrative_reset','character_menu_error'].includes(m.type)){menus.receive(m);return;}
-        if(m.type==='protocol_error'&&m.errors?.some(e=>e.path.includes('configure_events'))){menus.receive({type:'character_menu_error',detail:'Invalid event settings. Check the permitted ranges; no configuration was applied.'});return;}
+        if(m.type==='protocol_error'&&m.errors?.some(e=>['configure_events','configure_context','update_objective'].some(type=>e.path.includes(type)))){menus.receive({type:'character_menu_error',detail:'Invalid companion settings. Check the permitted ranges and selected model; no configuration was applied.'});return;}
         if(m.type==='ai_diagnostics'){if(m.responder?.model&&m.responder.model!==selected||m.id&&m.id!==presentation.lastRequest?.id)return;Object.assign(diagnostic,m);return;}
         if(m.type==='models'){
             el('model').replaceChildren();for(const entry of m.models.slice(0,128)){const o=document.createElement('option');o.value=entry.name;o.textContent=entry.name;el('model').append(o);}

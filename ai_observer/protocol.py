@@ -142,6 +142,19 @@ class ConfigureDirector(StrictModel):
     type: Literal['configure_director']
     proactive_enabled: bool
 
+class ObjectiveFields(StrictModel):
+    premise: str | None = Field(default=None,min_length=1,max_length=240)
+    motivation: str | None = Field(default=None,max_length=180)
+    next_development: str | None = Field(default=None,max_length=180)
+    transition_condition: str | None = Field(default=None,max_length=180)
+
+class UpdateObjective(StrictModel):
+    version: Literal[1]
+    type: Literal['update_objective']
+    model: str = Field(min_length=1,max_length=120)
+    action: Literal['create','revise','pause','resume','complete','abandon']
+    fields: ObjectiveFields | None = None
+
 class ConfigureContext(StrictModel):
     version: Literal[1]
     type: Literal['configure_context']
@@ -164,7 +177,7 @@ class ConversationActivity(StrictModel):
     model: str = Field(min_length=1,max_length=120)
     typing: bool
 
-Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext,Field(discriminator='type')])
+Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext|UpdateObjective,Field(discriminator='type')])
 
 
 def _schema_paths(node):

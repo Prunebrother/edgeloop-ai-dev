@@ -18,8 +18,8 @@ async def transport(request):
  if request.url.path=='/api/chat':
   assert body['think'] is False;wire.append(body)
   prompt=body['messages'][-1]['content'];marker='DERIVED TELEMETRY OBSERVATION (historical source evidence, not a safety event; no physiological cause or emotion established):\n'
-  if marker in prompt:
-   e=json.loads(prompt.split(marker,1)[1]);expression='focused' if body['model'].startswith('evelyn') else 'playful'
+  if 'DERIVED TELEMETRY OBSERVATION (' in prompt:
+   block=prompt.split('DERIVED TELEMETRY OBSERVATION (',1)[1].split('\n',1)[1];e=json.JSONDecoder().raw_decode(block)[0];e=e[0] if isinstance(e,list) else e;expression='focused' if body['model'].startswith('evelyn') else 'playful'
    dialogue=f"The simulator endpoint medians changed by {e['change_bpm']:g} BPM over {e['window_seconds']:g} seconds. We can keep that observation as a clue; no cause is established."
   else:expression='happy';dialogue='A sealed envelope waits beside the garden path. We can return to that mystery later.'
   class Stream(httpx.AsyncByteStream):

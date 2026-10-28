@@ -20,3 +20,19 @@ def test_persistent_backend_budgets_and_explicit_fallback_never_generate(tmp_pat
  restored=create_app(TOKEN,tmp_path,transport=runtime(wire))
  assert not restored.state.models.context_config.enabled
  assert restored.state.models.config.thinking is False
+
+
+def test_objective_protocol_is_authenticated_model_scoped_and_inference_free(tmp_path):
+ wire=[];app=create_app(TOKEN,tmp_path,transport=runtime(wire))
+ with TestClient(app) as client:
+  with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+   auth(ws);model=app.state.models.config.model
+   ws.send_json({'version':1,'type':'update_objective','model':model,'action':'create','fields':{'premise':'Find the violet notebook.'}})
+   state=until(ws,'character_state');assert state['narrative']['objective']['status']=='active'
+   assert not wire
+   ws.send_json({'version':1,'type':'update_objective','model':'wrong:latest','action':'complete'})
+   until(ws,'character_menu_error');assert app.state.speech.narrative.state['objective']['status']=='active'
+   ws.send_json({'version':1,'type':'update_objective','model':model,'action':'abandon'})
+   state=until(ws,'character_state');assert state['narrative']['objective']['status']=='abandoned'
+   assert app.state.speech.narrative.state['context_boundary']
+   assert app.state.observation.report is None and not wire
