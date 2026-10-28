@@ -1,0 +1,149 @@
+{
+  "$defs": {
+    "DetectorRule": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "threshold_bpm": {
+          "default": 15.0,
+          "maximum": 60,
+          "minimum": 2,
+          "title": "Threshold Bpm",
+          "type": "number"
+        },
+        "window_seconds": {
+          "default": 30.0,
+          "maximum": 1800,
+          "minimum": 5,
+          "title": "Window Seconds",
+          "type": "number"
+        },
+        "duration_seconds": {
+          "default": 20.0,
+          "maximum": 120,
+          "minimum": 3,
+          "title": "Duration Seconds",
+          "type": "number"
+        },
+        "min_samples": {
+          "default": 5,
+          "maximum": 128,
+          "minimum": 5,
+          "title": "Min Samples",
+          "type": "integer"
+        },
+        "cooldown_seconds": {
+          "default": 120.0,
+          "maximum": 1800,
+          "minimum": 5,
+          "title": "Cooldown Seconds",
+          "type": "number"
+        },
+        "hysteresis_bpm": {
+          "default": 4.0,
+          "maximum": 15,
+          "minimum": 1,
+          "title": "Hysteresis Bpm",
+          "type": "number"
+        },
+        "significance": {
+          "default": "major",
+          "enum": [
+            "major",
+            "routine"
+          ],
+          "title": "Significance",
+          "type": "string"
+        },
+        "reference": {
+          "default": "resting_setting",
+          "enum": [
+            "resting_setting",
+            "recent_measured",
+            "narrative_threshold"
+          ],
+          "title": "Reference",
+          "type": "string"
+        },
+        "reference_bpm": {
+          "default": 100.0,
+          "maximum": 220,
+          "minimum": 35,
+          "title": "Reference Bpm",
+          "type": "number"
+        },
+        "reversals": {
+          "default": 3,
+          "maximum": 6,
+          "minimum": 2,
+          "title": "Reversals",
+          "type": "integer"
+        }
+      },
+      "title": "DetectorRule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "enabled": {
+      "default": true,
+      "title": "Enabled",
+      "type": "boolean"
+    },
+    "preset": {
+      "default": "balanced",
+      "enum": [
+        "quiet",
+        "balanced",
+        "observant",
+        "custom"
+      ],
+      "title": "Preset",
+      "type": "string"
+    },
+    "max_gap_seconds": {
+      "default": 12.0,
+      "maximum": 15,
+      "minimum": 2,
+      "title": "Max Gap Seconds",
+      "type": "number"
+    },
+    "proactive_interval_seconds": {
+      "default": 120.0,
+      "maximum": 1800,
+      "minimum": 15,
+      "title": "Proactive Interval Seconds",
+      "type": "number"
+    },
+    "detectors": {
+      "additionalProperties": {
+        "$ref": "#/$defs/DetectorRule"
+      },
+      "title": "Detectors",
+      "type": "object"
+    },
+    "preferences": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "type": "integer"
+        },
+        "type": "object"
+      },
+      "title": "Preferences",
+      "type": "object"
+    }
+  },
+  "title": "EventConfig",
+  "type": "object"
+}

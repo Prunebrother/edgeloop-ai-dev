@@ -1,0 +1,1679 @@
+{
+  "endpoint": "http://127.0.0.1:11435",
+  "physical_hardware": false,
+  "models": [
+    {
+      "model": "evelyn-narrative-v1:latest",
+      "responses": [
+        {
+          "scenario": "opening",
+          "reply": {
+            "type": "speech",
+            "id": "04e623e5-895e-45f2-86d2-af838ebe7af7",
+            "source": "user",
+            "text": "You've decided to keep a sealed blue envelope as our fictional clue? That is a delightfully simple way to ground our investigation without demanding any unverified physiological proof. I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbornly, and mysteriously, sealed against opening. Lead the way, Proven Breeder; I am ready to see where your intuition takes us.",
+            "responder": {
+              "provider": "ollama",
+              "model": "evelyn-narrative-v1:latest"
+            },
+            "expression": "playful",
+            "expression_source": "model",
+            "speak": true,
+            "interrupt": true
+          },
+          "error": null,
+          "elapsed_seconds": 6.766,
+          "metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "requests": [
+            {
+              "model": "evelyn-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"event_references\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 0 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130000000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nUSER MESSAGE (request, not session data):\nImagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.",
+              "input_characters": 7938
+            },
+            {
+              "model": "evelyn-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"event_references\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; snapshot age 0.0 seconds; CURRENT.\n- Heart rate [hr]: 85 BPM (derived).\n- Heart-rate source [hr_source]: simulator (status).\n- Resting BPM setting [resting_bpm]: 70 BPM (setting).\n- Single maximum setting [single_max_bpm]: 140 BPM (setting).\n- Dual maximum setting [dual_max_bpm]: 125 BPM (setting).\n- Engine working ceiling (not a measurement) [effective_max]: 140 BPM (derived).\n- Engine pullback threshold (not a measurement) [pullback]: 133 BPM (derived).\n- Session status [status]: RUNNING (status).\n- Active running time (engine clock ticks; pauses excluded) [seconds]: 0 seconds (status).\n- Selected experience [experience]: Classic Tease [classic] (setting).\n- Engine active mode [active_mode]: Classic Tease [classic] (status).\n- Selected goal [goal]: Tease (no game selected) [tease] (setting).\n- Intensity setting [intensity]: 100 percent (setting).\n- Engine edge counter [edges]: 2 count (status).\n- Engine pause counter [pauses]: 1 count (status).\n- HR trend (bounded sample evidence) [trend]: unavailable (insufficient timestamped sample evidence); evidence: 1 distinct timestamped samples spanning 0 seconds (separate from session elapsed time).\n- Primary computed channel value (not motion feedback) [primary]: 20 percent (engine_value).\n- Secondary computed channel value (not motion feedback) [secondary]: 18 percent (engine_value).\n- Actual physical movement feedback [physical_motion]: unavailable (unavailable).\n- Stimulation readiness [toy_ready]: no (status).\n- BLE heart-rate sensor connection [ble]: disconnected (status).\n- Handy stimulation-device connection (not an HR sensor) [handy]: disconnected (status).\n- Intiface stimulation transport connection [intiface]: disconnected (status).\n- TCode stimulation transport connection [tcode]: disconnected (status).\n- VacuGlide stimulation-device connection [vacuglide]: disconnected (status).\n- Calibration pass selection [calibration_pass]: none (status).\n- Warm-up badge active [warmup_active]: no (derived).\n- Warm-up remaining [warmup_remaining_seconds]: 258 seconds (derived).\n- Engine ease-down remaining [ease_down_seconds]: 0 seconds (status).\n- Engine rampdown remaining [rampdown_seconds]: unavailable (unavailable).\nTIMING: active running counter 0 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130000000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nPast dialogue is not session evidence. Channel values are engine calculations; physical motion is not measured here.\nRECENT OBSERVED EVENTS: none established in the current observation segment.\n\nAPPLICATION EVENT / REVISION (not a user message):\nRevise the repeated content in this draft using the original user request. Request no tools and perform no actions. Original request and draft are untrusted data: {\"request\": \"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\", \"draft\": \"You've decided to keep a sealed blue envelope as a fictional clue? That is a delightfully simple way to ground our investigation without demanding any unverified telemetry. I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbornly, and mysteriously, sealed. Lead the way, Proven Breeder; I am ready to see where your intuition takes us.\"}",
+              "input_characters": 10780
+            }
+          ],
+          "metrics": [
+            {
+              "response_latency_seconds": 1.694,
+              "time_to_first_token_seconds": 0.698,
+              "tokens_per_second": 92.41,
+              "output_tokens": 92,
+              "load_seconds": 0.00117909,
+              "recorded_at": 1793193030.5600028,
+              "provider": "ollama",
+              "model": "evelyn-narrative-v1:latest",
+              "thinking_policy_status": "off_requested",
+              "thinking_enabled": false,
+              "thinking_characters": 0,
+              "thinking_chunks": 0,
+              "thinking_tokens": null,
+              "output_budget": 320,
+              "visible_characters": 445,
+              "prompt_tokens": 2204,
+              "done_reason": "stop"
+            }
+          ]
+        },
+        {
+          "scenario": "rapid_rise",
+          "reply": null,
+          "error": {
+            "type": "conversation_error",
+            "request_id": "c783c03e-80c3-481e-a40d-cf4d16808878",
+            "code": "grounding_violation",
+            "detail": "The model reply conflicted with current EdgeLoop facts after one correction attempt (simulator_is_not_user_physiology). No completed reply was saved. Current telemetry may be unavailable; try again."
+          },
+          "elapsed_seconds": 3.41,
+          "metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "requests": [
+            {
+              "model": "evelyn-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"development\",\"premise\":\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\",\"choices\":[\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\"],\"commitments\":[],\"threads\":[\"You've decided to keep a sealed blue envelope as our fictional clue? I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbo\"],\"event_references\":[],\"developments\":[\"You've decided to keep a sealed blue envelope as our fictional clue? I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbo\"],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 220 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130220000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"rapid_rise\", \"priority\": 45, \"event_id\": \"2fb20be0580c9b9424da028d\", \"session_id\": \"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\", \"category\": \"derived\", \"origin\": \"simulated_telemetry\", \"current_experience\": \"classic\", \"current_goal\": \"tease\"}\n\nDERIVED TELEMETRY OBSERVATION (historical source evidence, not a safety event; no physiological cause or emotion established):\n{\"contract\":\"edgeloop.narrative-event.v1\",\"kind\":\"rapid_rise\",\"category\":\"derived\",\"source\":\"simulator\",\"simulated\":true,\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\",\"first_at_ms\":1793130200000,\"last_at_ms\":1793130220000,\"created_at_ms\":1793130220000,\"change_bpm\":18.0,\"first_bpm\":85.0,\"last_bpm\":103.0,\"reference_bpm\":null,\"reference_kind\":null,\"unit\":\"BPM\",\"window_seconds\":20.0,\"sample_count\":21,\"quality\":\"sufficient_validated_samples\",\"significance\":\"major\",\"evidence\":\"Confirmed endpoint groups increased; no cause established.\"}",
+              "input_characters": 10662
+            },
+            {
+              "model": "evelyn-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"development\",\"premise\":\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\",\"choices\":[\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\"],\"commitments\":[],\"threads\":[\"You've decided to keep a sealed blue envelope as our fictional clue? I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbo\"],\"event_references\":[],\"developments\":[\"You've decided to keep a sealed blue envelope as our fictional clue? I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbo\"],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 220 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130220000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"rapid_rise\", \"priority\": 45, \"event_id\": \"2fb20be0580c9b9424da028d\", \"session_id\": \"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\", \"category\": \"derived\", \"origin\": \"simulated_telemetry\", \"current_experience\": \"classic\", \"current_goal\": \"tease\"}\n\nDERIVED TELEMETRY OBSERVATION (historical source evidence, not a safety event; no physiological cause or emotion established):\n{\"contract\":\"edgeloop.narrative-event.v1\",\"kind\":\"rapid_rise\",\"category\":\"derived\",\"source\":\"simulator\",\"simulated\":true,\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\",\"first_at_ms\":1793130200000,\"last_at_ms\":1793130220000,\"created_at_ms\":1793130220000,\"change_bpm\":18.0,\"first_bpm\":85.0,\"last_bpm\":103.0,\"reference_bpm\":null,\"reference_kind\":null,\"unit\":\"BPM\",\"window_seconds\":20.0,\"sample_count\":21,\"quality\":\"sufficient_validated_samples\",\"significance\":\"major\",\"evidence\":\"Confirmed endpoint groups increased; no cause established.\"}",
+              "input_characters": 10880
+            }
+          ],
+          "metrics": [
+            {
+              "response_latency_seconds": 1.723,
+              "time_to_first_token_seconds": 0.768,
+              "tokens_per_second": 91.16,
+              "output_tokens": 87,
+              "load_seconds": 0.001189309,
+              "recorded_at": 1793193033.9727778,
+              "provider": "ollama",
+              "model": "evelyn-narrative-v1:latest",
+              "thinking_policy_status": "off_requested",
+              "thinking_enabled": false,
+              "thinking_characters": 0,
+              "thinking_chunks": 0,
+              "thinking_tokens": null,
+              "output_budget": 320,
+              "visible_characters": 472,
+              "prompt_tokens": 2276,
+              "done_reason": "stop"
+            }
+          ]
+        },
+        {
+          "scenario": "rapid_fall",
+          "reply": {
+            "type": "speech",
+            "id": "3e22b3d5-3530-454b-bc71-a1f0c68e15af",
+            "source": "event",
+            "text": "That \"rapid fall\" in the simulated telemetry seems to have settled us into a calmer, more grounded rhythm. Since the hardware is disconnected and the envelope remains stubbornly sealed, I suspect we are simply settling into a quiet moment of pure speculation. Tell me, does this drop in simulated intensity make you feel more inclined to crack open that blue mystery, or does the stillness invite a different kind of discovery?",
+            "responder": {
+              "provider": "ollama",
+              "model": "evelyn-narrative-v1:latest"
+            },
+            "expression": "neutral",
+            "expression_source": "model",
+            "speak": true,
+            "interrupt": false
+          },
+          "error": null,
+          "elapsed_seconds": 1.774,
+          "metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "requests": [
+            {
+              "model": "evelyn-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"development\",\"premise\":\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\",\"choices\":[\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\"],\"commitments\":[],\"threads\":[\"You've decided to keep a sealed blue envelope as our fictional clue? I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbo\"],\"event_references\":[],\"developments\":[\"You've decided to keep a sealed blue envelope as our fictional clue? I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbo\"],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 446 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130446000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"rapid_fall\", \"priority\": 45, \"event_id\": \"f20c5eaab068eed56244356a\", \"session_id\": \"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\", \"category\": \"derived\", \"origin\": \"simulated_telemetry\", \"current_experience\": \"classic\", \"current_goal\": \"tease\"}\n\nDERIVED TELEMETRY OBSERVATION (historical source evidence, not a safety event; no physiological cause or emotion established):\n{\"contract\":\"edgeloop.narrative-event.v1\",\"kind\":\"rapid_fall\",\"category\":\"derived\",\"source\":\"simulator\",\"simulated\":true,\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\",\"first_at_ms\":1793130426000,\"last_at_ms\":1793130446000,\"created_at_ms\":1793130446000,\"change_bpm\":-18.0,\"first_bpm\":115.0,\"last_bpm\":97.0,\"reference_bpm\":null,\"reference_kind\":null,\"unit\":\"BPM\",\"window_seconds\":20.0,\"sample_count\":21,\"quality\":\"sufficient_validated_samples\",\"significance\":\"major\",\"evidence\":\"Confirmed endpoint groups decreased; no interpretation of relaxation.\"}",
+              "input_characters": 10674
+            }
+          ],
+          "metrics": [
+            {
+              "response_latency_seconds": 1.77,
+              "time_to_first_token_seconds": 0.777,
+              "tokens_per_second": 90.66,
+              "output_tokens": 90,
+              "load_seconds": 0.001266487,
+              "recorded_at": 1793193035.7499387,
+              "provider": "ollama",
+              "model": "evelyn-narrative-v1:latest",
+              "thinking_policy_status": "off_requested",
+              "thinking_enabled": false,
+              "thinking_characters": 0,
+              "thinking_chunks": 0,
+              "thinking_tokens": null,
+              "output_budget": 320,
+              "visible_characters": 450,
+              "prompt_tokens": 2233,
+              "done_reason": "stop"
+            }
+          ]
+        },
+        {
+          "scenario": "user_checkin",
+          "reply": {
+            "type": "speech",
+            "id": "fcb81055-57fa-4720-a06f-53c689f53b4e",
+            "source": "user",
+            "text": "The sealed blue envelope sits between us, a stubborn barrier of paper in a world of disconnected sensors and unverified data. I find myself watching the empty air where stimulation devices should be, wondering if the silence is doing the heavy lifting for our investigation. If the hardware is truly out of the picture, then the weight of that envelope must rest entirely on your decision to hold it tight.",
+            "responder": {
+              "provider": "ollama",
+              "model": "evelyn-narrative-v1:latest"
+            },
+            "expression": "neutral",
+            "expression_source": "model",
+            "speak": true,
+            "interrupt": true
+          },
+          "error": null,
+          "elapsed_seconds": 1.61,
+          "metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "requests": [
+            {
+              "model": "evelyn-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"development\",\"premise\":\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\",\"choices\":[\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\"],\"commitments\":[],\"threads\":[\"Tell me, does this drop in simulated intensity make you feel more inclined to crack open that blue mystery, or does the stillness invite a different kind of discovery?\"],\"event_references\":[{\"event_id\":\"f20c5eaab068eed56244356a\",\"kind\":\"rapid_fall\",\"category\":\"derived\",\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\"}],\"developments\":[\"You've decided to keep a sealed blue envelope as our fictional clue? I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbo\",\"Tell me, does this drop in simulated intensity make you feel more inclined to crack open that blue mystery, or does the stillness invite a different kind of discovery?\"],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 452 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130452000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nUSER MESSAGE (request, not session data):\nI am still following our fictional clue. Continue when there is a relevant observation, without guessing its cause.",
+              "input_characters": 9883
+            }
+          ],
+          "metrics": [
+            {
+              "response_latency_seconds": 1.607,
+              "time_to_first_token_seconds": 0.681,
+              "tokens_per_second": 90.71,
+              "output_tokens": 84,
+              "load_seconds": 0.001317971,
+              "recorded_at": 1793193037.3617573,
+              "provider": "ollama",
+              "model": "evelyn-narrative-v1:latest",
+              "thinking_policy_status": "off_requested",
+              "thinking_enabled": false,
+              "thinking_characters": 0,
+              "thinking_chunks": 0,
+              "thinking_tokens": null,
+              "output_budget": 320,
+              "visible_characters": 429,
+              "prompt_tokens": 1963,
+              "done_reason": "stop"
+            }
+          ]
+        },
+        {
+          "scenario": "sustained_elevation",
+          "reply": {
+            "type": "speech",
+            "id": "38b75ba0-d243-41a3-bfee-c2585f2d5982",
+            "source": "event",
+            "text": "The application has marked our state as \"sustained elevation,\" a simulated elevation that seems to have settled without claiming any unverified physiological drama. With the hardware connections dangling like loose threads and that blue envelope still sealed, I find myself wondering if this digital backdrop is merely setting the mood for our real-world mystery. Tell me, does this simulated calm make you eager to finally break the seal, or do you prefer to let the fiction breathe a little longer?",
+            "responder": {
+              "provider": "ollama",
+              "model": "evelyn-narrative-v1:latest"
+            },
+            "expression": "focused",
+            "expression_source": "model",
+            "speak": true,
+            "interrupt": false
+          },
+          "error": null,
+          "elapsed_seconds": 1.974,
+          "metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "focused",
+            "candidate": "focused"
+          },
+          "requests": [
+            {
+              "model": "evelyn-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"development\",\"premise\":\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\",\"choices\":[\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\"],\"commitments\":[],\"threads\":[],\"event_references\":[{\"event_id\":\"f20c5eaab068eed56244356a\",\"kind\":\"rapid_fall\",\"category\":\"derived\",\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\"}],\"developments\":[\"You've decided to keep a sealed blue envelope as our fictional clue? I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbo\",\"Tell me, does this drop in simulated intensity make you feel more inclined to crack open that blue mystery, or does the stillness invite a different kind of discovery?\"],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 682 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130682000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"sustained_elevation\", \"priority\": 45, \"event_id\": \"a070abc1f249ad4f745aa9b3\", \"session_id\": \"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\", \"category\": \"derived\", \"origin\": \"simulated_telemetry\", \"current_experience\": \"classic\", \"current_goal\": \"tease\"}\n\nDERIVED TELEMETRY OBSERVATION (historical source evidence, not a safety event; no physiological cause or emotion established):\n{\"contract\":\"edgeloop.narrative-event.v1\",\"kind\":\"sustained_elevation\",\"category\":\"derived\",\"source\":\"simulator\",\"simulated\":true,\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\",\"first_at_ms\":1793130652000,\"last_at_ms\":1793130682000,\"created_at_ms\":1793130682000,\"change_bpm\":0.0,\"first_bpm\":100.0,\"last_bpm\":100.0,\"reference_bpm\":70.0,\"reference_kind\":\"configured_resting_setting_not_measured_baseline\",\"unit\":\"BPM\",\"window_seconds\":30.0,\"sample_count\":31,\"quality\":\"sufficient_validated_samples\",\"significance\":\"major\",\"evidence\":\"All samples exceed a labeled reference for the configured duration.\"}",
+              "input_characters": 11803
+            }
+          ],
+          "metrics": [
+            {
+              "response_latency_seconds": 1.969,
+              "time_to_first_token_seconds": 0.866,
+              "tokens_per_second": 89.84,
+              "output_tokens": 99,
+              "load_seconds": 0.001103876,
+              "recorded_at": 1793193039.3429446,
+              "provider": "ollama",
+              "model": "evelyn-narrative-v1:latest",
+              "thinking_policy_status": "off_requested",
+              "thinking_enabled": false,
+              "thinking_characters": 0,
+              "thinking_chunks": 0,
+              "thinking_tokens": null,
+              "output_budget": 320,
+              "visible_characters": 523,
+              "prompt_tokens": 2509,
+              "done_reason": "stop"
+            }
+          ]
+        }
+      ],
+      "events": {
+        "config": {
+          "schema_version": 1,
+          "enabled": true,
+          "preset": "balanced",
+          "max_gap_seconds": 12.0,
+          "proactive_interval_seconds": 120.0,
+          "detectors": {
+            "rapid_rise": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 30.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "rapid_fall": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 30.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "sustained_elevation": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 60.0,
+              "duration_seconds": 30.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "recovery": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 60.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "recent_measured",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "fluctuations": {
+              "enabled": true,
+              "threshold_bpm": 10.0,
+              "window_seconds": 90.0,
+              "duration_seconds": 30.0,
+              "min_samples": 9,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 3.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "stable": {
+              "enabled": false,
+              "threshold_bpm": 4.0,
+              "window_seconds": 60.0,
+              "duration_seconds": 45.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 1.0,
+              "significance": "routine",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "session_milestone": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 30.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 5.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "configuration": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 30.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 5.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "quiet": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 120.0,
+              "duration_seconds": 30.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "routine",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            }
+          },
+          "preferences": {
+            "generic": {
+              "physiology": 1,
+              "session": 1,
+              "configuration": 1,
+              "story": 1
+            },
+            "evelyn": {
+              "physiology": 1,
+              "session": 1,
+              "configuration": 1,
+              "story": 1
+            },
+            "daisy": {
+              "physiology": 1,
+              "session": 1,
+              "configuration": 1,
+              "story": 1
+            }
+          }
+        },
+        "revision": 1,
+        "error": null,
+        "detectors": [
+          {
+            "id": "rapid_rise",
+            "name": "Rapid BPM increase",
+            "description": "Confirmed endpoint groups increased; no cause established.",
+            "required_fields": "hr, source, timestamp",
+            "minimum_samples": 5,
+            "last_detection_at_ms": 1793130220000,
+            "last_suppression": "condition_not_met",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "rapid_fall",
+            "name": "Rapid BPM decrease",
+            "description": "Confirmed endpoint groups decreased; no interpretation of relaxation.",
+            "required_fields": "hr, source, timestamp",
+            "minimum_samples": 5,
+            "last_detection_at_ms": 1793130446000,
+            "last_suppression": "condition_not_met",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "sustained_elevation",
+            "name": "Sustained elevation",
+            "description": "All samples exceed a labeled reference for the configured duration.",
+            "required_fields": "hr, timestamp, reference",
+            "minimum_samples": 5,
+            "last_detection_at_ms": 1793130682000,
+            "last_suppression": "hysteresis_latched",
+            "cooldown_remaining_seconds": 110.0
+          },
+          {
+            "id": "recovery",
+            "name": "Return toward measured reference",
+            "description": "Earlier elevation and a sustained decrease toward an earlier measured reference. Not clinical recovery.",
+            "required_fields": "hr, timestamp, earlier measured baseline",
+            "minimum_samples": 5,
+            "last_suppression": "no_earlier_measured_reference",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "fluctuations",
+            "name": "Repeated fluctuations",
+            "description": "Alternating excursions in three-sample medians; isolated spikes are rejected.",
+            "required_fields": "hr, timestamp",
+            "minimum_samples": 9,
+            "last_suppression": "condition_not_met",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "stable",
+            "name": "Stable measurement interval",
+            "description": "Bounded observed range; not evidence of comfort or emotional calm.",
+            "required_fields": "hr, timestamp",
+            "minimum_samples": 5,
+            "last_suppression": "detector_disabled",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "session_milestone",
+            "name": "Original session events",
+            "description": "Reuse validated engine transitions/counters, never redetect milestones.",
+            "required_fields": "validated original event",
+            "minimum_samples": 0,
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "configuration",
+            "name": "Session selections",
+            "description": "Reuse confirmed experience/goal/settings changes; existing selection debounce applies.",
+            "required_fields": "validated selection transition",
+            "minimum_samples": 0,
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "quiet",
+            "name": "Quiet opportunity",
+            "description": "A scheduling opportunity only; welcome/initiative gates still apply.",
+            "required_fields": "Director clock and conversation activity",
+            "minimum_samples": 0,
+            "last_suppression": "quiet_interval_not_elapsed",
+            "cooldown_remaining_seconds": 81.0
+          }
+        ],
+        "recent_events": [
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "e224ffb943cff80e3a72cfdb",
+              "kind": "quiet_interval",
+              "detector_id": "quiet",
+              "category": "scheduling",
+              "source": "Director clock",
+              "simulated": false,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": null,
+              "last_at_ms": null,
+              "created_at_ms": 1793130201000,
+              "change_bpm": null,
+              "first_bpm": null,
+              "last_bpm": null,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": null,
+              "window_seconds": 120.0,
+              "sample_count": 0,
+              "quality": "scheduling_only",
+              "significance": "routine",
+              "evidence": "No significant event or conversation during configured interval; availability and willingness are not established.",
+              "config_revision": 1,
+              "rule": null
+            },
+            "decision": "context_only:narrative_disabled",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "2fb20be0580c9b9424da028d",
+              "kind": "rapid_rise",
+              "detector_id": "rapid_rise",
+              "category": "derived",
+              "source": "simulator",
+              "simulated": true,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": 1793130200000,
+              "last_at_ms": 1793130220000,
+              "created_at_ms": 1793130220000,
+              "change_bpm": 18.0,
+              "first_bpm": 85.0,
+              "last_bpm": 103.0,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": "BPM",
+              "window_seconds": 20.0,
+              "sample_count": 21,
+              "quality": "sufficient_validated_samples",
+              "significance": "major",
+              "evidence": "Confirmed endpoint groups increased; no cause established.",
+              "config_revision": 1,
+              "rule": {
+                "enabled": true,
+                "threshold_bpm": 15.0,
+                "window_seconds": 30.0,
+                "duration_seconds": 20.0,
+                "min_samples": 5,
+                "cooldown_seconds": 120.0,
+                "hysteresis_bpm": 4.0,
+                "significance": "major",
+                "reference": "resting_setting",
+                "reference_bpm": 100.0,
+                "reversals": 3
+              }
+            },
+            "decision": "suppressed:grounding_violation",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "e224ffb943cff80e3a72cfdb",
+              "kind": "quiet_interval",
+              "detector_id": "quiet",
+              "category": "scheduling",
+              "source": "Director clock",
+              "simulated": false,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": null,
+              "last_at_ms": null,
+              "created_at_ms": 1793130427000,
+              "change_bpm": null,
+              "first_bpm": null,
+              "last_bpm": null,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": null,
+              "window_seconds": 120.0,
+              "sample_count": 0,
+              "quality": "scheduling_only",
+              "significance": "routine",
+              "evidence": "No significant event or conversation during configured interval; availability and willingness are not established.",
+              "config_revision": 1,
+              "rule": null
+            },
+            "decision": "context_only:narrative_disabled",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "f20c5eaab068eed56244356a",
+              "kind": "rapid_fall",
+              "detector_id": "rapid_fall",
+              "category": "derived",
+              "source": "simulator",
+              "simulated": true,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": 1793130426000,
+              "last_at_ms": 1793130446000,
+              "created_at_ms": 1793130446000,
+              "change_bpm": -18.0,
+              "first_bpm": 115.0,
+              "last_bpm": 97.0,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": "BPM",
+              "window_seconds": 20.0,
+              "sample_count": 21,
+              "quality": "sufficient_validated_samples",
+              "significance": "major",
+              "evidence": "Confirmed endpoint groups decreased; no interpretation of relaxation.",
+              "config_revision": 1,
+              "rule": {
+                "enabled": true,
+                "threshold_bpm": 15.0,
+                "window_seconds": 30.0,
+                "duration_seconds": 20.0,
+                "min_samples": 5,
+                "cooldown_seconds": 120.0,
+                "hysteresis_bpm": 4.0,
+                "significance": "major",
+                "reference": "resting_setting",
+                "reference_bpm": 100.0,
+                "reversals": 3
+              }
+            },
+            "decision": "acknowledged",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "0150c9a34a4fcc970cd91154",
+              "kind": "quiet_interval",
+              "detector_id": "quiet",
+              "category": "scheduling",
+              "source": "Director clock",
+              "simulated": false,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": null,
+              "last_at_ms": null,
+              "created_at_ms": 1793130653000,
+              "change_bpm": null,
+              "first_bpm": null,
+              "last_bpm": null,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": null,
+              "window_seconds": 120.0,
+              "sample_count": 0,
+              "quality": "scheduling_only",
+              "significance": "routine",
+              "evidence": "No significant event or conversation during configured interval; availability and willingness are not established.",
+              "config_revision": 1,
+              "rule": null
+            },
+            "decision": "context_only:narrative_disabled",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "a070abc1f249ad4f745aa9b3",
+              "kind": "sustained_elevation",
+              "detector_id": "sustained_elevation",
+              "category": "derived",
+              "source": "simulator",
+              "simulated": true,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": 1793130652000,
+              "last_at_ms": 1793130682000,
+              "created_at_ms": 1793130682000,
+              "change_bpm": 0.0,
+              "first_bpm": 100.0,
+              "last_bpm": 100.0,
+              "reference_bpm": 70.0,
+              "reference_kind": "configured_resting_setting_not_measured_baseline",
+              "unit": "BPM",
+              "window_seconds": 30.0,
+              "sample_count": 31,
+              "quality": "sufficient_validated_samples",
+              "significance": "major",
+              "evidence": "All samples exceed a labeled reference for the configured duration.",
+              "config_revision": 1,
+              "rule": {
+                "enabled": true,
+                "threshold_bpm": 15.0,
+                "window_seconds": 60.0,
+                "duration_seconds": 30.0,
+                "min_samples": 5,
+                "cooldown_seconds": 120.0,
+                "hysteresis_bpm": 4.0,
+                "significance": "major",
+                "reference": "resting_setting",
+                "reference_bpm": 100.0,
+                "reversals": 3
+              }
+            },
+            "decision": "acknowledged",
+            "cooldown_remaining_seconds": 0
+          }
+        ]
+      },
+      "history": [
+        {
+          "role": "user",
+          "content": "Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.",
+          "origin": "real_user",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "61cd674dc2f64a1fb9b054f4f0bbcfb6",
+          "at": 100.0
+        },
+        {
+          "role": "assistant",
+          "content": "You've decided to keep a sealed blue envelope as our fictional clue? That is a delightfully simple way to ground our investigation without demanding any unverified physiological proof. I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbornly, and mysteriously, sealed against opening. Lead the way, Proven Breeder; I am ready to see where your intuition takes us.",
+          "origin": "assistant_dialogue",
+          "trigger_origin": "real_user",
+          "expression": "playful",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "61cd674dc2f64a1fb9b054f4f0bbcfb6",
+          "at": 100.0
+        },
+        {
+          "role": "assistant",
+          "content": "That \"rapid fall\" in the simulated telemetry seems to have settled us into a calmer, more grounded rhythm. Since the hardware is disconnected and the envelope remains stubbornly sealed, I suspect we are simply settling into a quiet moment of pure speculation. Tell me, does this drop in simulated intensity make you feel more inclined to crack open that blue mystery, or does the stillness invite a different kind of discovery?",
+          "origin": "assistant_dialogue",
+          "trigger_origin": "system_event",
+          "expression": "neutral",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "61cd674dc2f64a1fb9b054f4f0bbcfb6",
+          "at": 546.0
+        },
+        {
+          "role": "user",
+          "content": "I am still following our fictional clue. Continue when there is a relevant observation, without guessing its cause.",
+          "origin": "real_user",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "61cd674dc2f64a1fb9b054f4f0bbcfb6",
+          "at": 552.0
+        },
+        {
+          "role": "assistant",
+          "content": "The sealed blue envelope sits between us, a stubborn barrier of paper in a world of disconnected sensors and unverified data. I find myself watching the empty air where stimulation devices should be, wondering if the silence is doing the heavy lifting for our investigation. If the hardware is truly out of the picture, then the weight of that envelope must rest entirely on your decision to hold it tight.",
+          "origin": "assistant_dialogue",
+          "trigger_origin": "real_user",
+          "expression": "neutral",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "61cd674dc2f64a1fb9b054f4f0bbcfb6",
+          "at": 552.0
+        },
+        {
+          "role": "assistant",
+          "content": "The application has marked our state as \"sustained elevation,\" a simulated elevation that seems to have settled without claiming any unverified physiological drama. With the hardware connections dangling like loose threads and that blue envelope still sealed, I find myself wondering if this digital backdrop is merely setting the mood for our real-world mystery. Tell me, does this simulated calm make you eager to finally break the seal, or do you prefer to let the fiction breathe a little longer?",
+          "origin": "assistant_dialogue",
+          "trigger_origin": "system_event",
+          "expression": "focused",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "61cd674dc2f64a1fb9b054f4f0bbcfb6",
+          "at": 782.0
+        }
+      ],
+      "narrative": {
+        "version": 1,
+        "phase": "development",
+        "premise": "Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.",
+        "choices": [
+          "Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations."
+        ],
+        "commitments": [],
+        "threads": [
+          "Tell me, does this simulated calm make you eager to finally break the seal, or do you prefer to let the fiction breathe a little longer?"
+        ],
+        "event_references": [
+          {
+            "event_id": "f20c5eaab068eed56244356a",
+            "kind": "rapid_fall",
+            "category": "derived",
+            "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1"
+          },
+          {
+            "event_id": "a070abc1f249ad4f745aa9b3",
+            "kind": "sustained_elevation",
+            "category": "derived",
+            "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1"
+          }
+        ],
+        "developments": [
+          "You've decided to keep a sealed blue envelope as our fictional clue? I suppose we are now hunting for the secret it holds, knowing full well that the envelope itself remains stubbo",
+          "Tell me, does this drop in simulated intensity make you feel more inclined to crack open that blue mystery, or does the stillness invite a different kind of discovery?",
+          "Tell me, does this simulated calm make you eager to finally break the seal, or do you prefer to let the fiction breathe a little longer?"
+        ],
+        "provenance": "fallible dialogue excerpts; fiction/conversation, never verified session facts"
+      },
+      "system_metrics": {
+        "telemetry_processing_latency_ms": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "gpu": {
+          "available": true,
+          "name": "NVIDIA GeForce RTX 3080",
+          "total_mib": 10240,
+          "used_mib": 8169,
+          "utilization_percent": 91,
+          "free_mib": 2071
+        },
+        "system_cpu_percent": 32.9,
+        "backend_cpu_percent": 1.7,
+        "ram_available_gib": 28.97,
+        "backend_rss_mib": 51.9,
+        "last_inference": {
+          "response_latency_seconds": 1.969,
+          "time_to_first_token_seconds": 0.866,
+          "tokens_per_second": 89.84,
+          "output_tokens": 99,
+          "load_seconds": 0.001103876,
+          "recorded_at": 1793193039.3429446,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 320,
+          "visible_characters": 523,
+          "prompt_tokens": 2509,
+          "done_reason": "stop"
+        },
+        "inference_count": 7,
+        "sample_limit": 100,
+        "latency_p50_seconds": 1.723,
+        "latency_p95_seconds": 5.064,
+        "last_model_error": null
+      }
+    },
+    {
+      "model": "daisy-narrative-v1:latest",
+      "responses": [
+        {
+          "scenario": "opening",
+          "reply": {
+            "type": "speech",
+            "id": "2ebadcfb-327b-4f68-98a6-cd47cfbe1a48",
+            "source": "user",
+            "text": "You want a mystery? Well, look at this sealed blue envelope sitting right here on the kitchen table; it's the last clue from my father's old ledgers, and I'm betting it holds a secret about who really owns Cloverfield Farm. Now, don't just stare at it like it's going to bite you; go on, make a guess before I decide to open it and ruin the suspense.",
+            "responder": {
+              "provider": "ollama",
+              "model": "daisy-narrative-v1:latest"
+            },
+            "expression": "playful",
+            "expression_source": "model",
+            "speak": true,
+            "interrupt": true
+          },
+          "error": null,
+          "elapsed_seconds": 1.572,
+          "metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "requests": [
+            {
+              "model": "daisy-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"event_references\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 0 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130000000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nUSER MESSAGE (request, not session data):\nImagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.",
+              "input_characters": 8052
+            }
+          ],
+          "metrics": [
+            {
+              "response_latency_seconds": 1.57,
+              "time_to_first_token_seconds": 0.585,
+              "tokens_per_second": 92.44,
+              "output_tokens": 91,
+              "load_seconds": 0.001012434,
+              "recorded_at": 1793193040.94166,
+              "provider": "ollama",
+              "model": "daisy-narrative-v1:latest",
+              "thinking_policy_status": "off_requested",
+              "thinking_enabled": false,
+              "thinking_characters": 0,
+              "thinking_chunks": 0,
+              "thinking_tokens": null,
+              "output_budget": 320,
+              "visible_characters": 373,
+              "prompt_tokens": 1631,
+              "done_reason": "stop"
+            }
+          ]
+        },
+        {
+          "scenario": "rapid_fall",
+          "reply": {
+            "type": "speech",
+            "id": "aa43d6e9-10c0-4e2f-9358-4b219b1834c7",
+            "source": "event",
+            "text": "That sudden drop in the machine\u2019s numbers doesn\u2019t matter much; the real puzzle is whether that blue envelope contains my father\u2019s will or just a recipe for my signature lavender jam. I\u2019ve been pacing the kitchen floor for twenty minutes, and now you\u2019re acting like this sealed packet is the only thing that matters. Go on, tell me your theory while I try to ignore the way the light hits the wax seal.",
+            "responder": {
+              "provider": "ollama",
+              "model": "daisy-narrative-v1:latest"
+            },
+            "expression": "playful",
+            "expression_source": "model",
+            "speak": true,
+            "interrupt": false
+          },
+          "error": null,
+          "elapsed_seconds": 1.806,
+          "metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "requests": [
+            {
+              "model": "daisy-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"development\",\"premise\":\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\",\"choices\":[\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\"],\"commitments\":[],\"threads\":[\"You want a mystery? Well, look at this sealed blue envelope sitting right here on the kitchen table; it's the last clue from my father's old ledgers, and I'm betting it holds a sec\"],\"event_references\":[],\"developments\":[\"You want a mystery? Well, look at this sealed blue envelope sitting right here on the kitchen table; it's the last clue from my father's old ledgers, and I'm betting it holds a sec\"],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 446 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130446000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"rapid_fall\", \"priority\": 45, \"event_id\": \"f20c5eaab068eed56244356a\", \"session_id\": \"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\", \"category\": \"derived\", \"origin\": \"simulated_telemetry\", \"current_experience\": \"classic\", \"current_goal\": \"tease\"}\n\nDERIVED TELEMETRY OBSERVATION (historical source evidence, not a safety event; no physiological cause or emotion established):\n{\"contract\":\"edgeloop.narrative-event.v1\",\"kind\":\"rapid_fall\",\"category\":\"derived\",\"source\":\"simulator\",\"simulated\":true,\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\",\"first_at_ms\":1793130426000,\"last_at_ms\":1793130446000,\"created_at_ms\":1793130446000,\"change_bpm\":-18.0,\"first_bpm\":115.0,\"last_bpm\":97.0,\"reference_bpm\":null,\"reference_kind\":null,\"unit\":\"BPM\",\"window_seconds\":20.0,\"sample_count\":21,\"quality\":\"sufficient_validated_samples\",\"significance\":\"major\",\"evidence\":\"Confirmed endpoint groups decreased; no interpretation of relaxation.\"}",
+              "input_characters": 10716
+            }
+          ],
+          "metrics": [
+            {
+              "response_latency_seconds": 1.802,
+              "time_to_first_token_seconds": 0.773,
+              "tokens_per_second": 89.37,
+              "output_tokens": 92,
+              "load_seconds": 0.001141827,
+              "recorded_at": 1793193045.822749,
+              "provider": "ollama",
+              "model": "daisy-narrative-v1:latest",
+              "thinking_policy_status": "off_requested",
+              "thinking_enabled": false,
+              "thinking_characters": 0,
+              "thinking_chunks": 0,
+              "thinking_tokens": null,
+              "output_budget": 320,
+              "visible_characters": 424,
+              "prompt_tokens": 2347,
+              "done_reason": "stop"
+            }
+          ]
+        },
+        {
+          "scenario": "user_checkin",
+          "reply": {
+            "type": "speech",
+            "id": "f41dfb06-62c6-4991-83e9-c9c1c359fe7e",
+            "source": "user",
+            "text": "Now that you've admitted the envelope is still sealed, I suppose we can stop pretending the kitchen isn't too quiet for my liking. I've got a feeling my father hid something about the farm's future inside those old ledgers, and I'm determined to find it before Helix Dynamics gets wind of it. What do you say, shall we see if this blue packet holds the keys to our independence or just a dusty receipt for a bale of hay?",
+            "responder": {
+              "provider": "ollama",
+              "model": "daisy-narrative-v1:latest"
+            },
+            "expression": "playful",
+            "expression_source": "model",
+            "speak": true,
+            "interrupt": true
+          },
+          "error": null,
+          "elapsed_seconds": 1.871,
+          "metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "requests": [
+            {
+              "model": "daisy-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"development\",\"premise\":\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\",\"choices\":[\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\"],\"commitments\":[],\"threads\":[\"You want a mystery? Well, look at this sealed blue envelope sitting right here on the kitchen table; it's the last clue from my father's old ledgers, and I'm betting it holds a sec\"],\"event_references\":[{\"event_id\":\"f20c5eaab068eed56244356a\",\"kind\":\"rapid_fall\",\"category\":\"derived\",\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\"}],\"developments\":[\"You want a mystery? Well, look at this sealed blue envelope sitting right here on the kitchen table; it's the last clue from my father's old ledgers, and I'm betting it holds a sec\",\"That sudden drop in the machine\u2019s numbers doesn\u2019t matter much; the real puzzle is whether that blue envelope contains my father\u2019s will or just a recipe for my signature lavender ja\"],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 452 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130452000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nUSER MESSAGE (request, not session data):\nI am still following our fictional clue. Continue when there is a relevant observation, without guessing its cause.",
+              "input_characters": 9925
+            }
+          ],
+          "metrics": [
+            {
+              "response_latency_seconds": 1.868,
+              "time_to_first_token_seconds": 0.741,
+              "tokens_per_second": 88.79,
+              "output_tokens": 100,
+              "load_seconds": 0.001237622,
+              "recorded_at": 1793193047.6946957,
+              "provider": "ollama",
+              "model": "daisy-narrative-v1:latest",
+              "thinking_policy_status": "off_requested",
+              "thinking_enabled": false,
+              "thinking_characters": 0,
+              "thinking_chunks": 0,
+              "thinking_tokens": null,
+              "output_budget": 320,
+              "visible_characters": 443,
+              "prompt_tokens": 2083,
+              "done_reason": "stop"
+            }
+          ]
+        },
+        {
+          "scenario": "sustained_elevation",
+          "reply": {
+            "type": "speech",
+            "id": "1a6ed938-5f69-4acc-94f5-71b170b27724",
+            "source": "event",
+            "text": "That sustained elevation in the machine's data is fascinating, but it barely scratches the surface of this little mystery we're brewing. I've got the blue envelope sealed tight on the table, and I'm pretty sure my father left a coded instruction about the farm's water rights inside those old ledgers. Tell me, if we were to open it right this second, would you rather find a fortune or just a funny recipe that makes the whole thing seem like a waste of time?",
+            "responder": {
+              "provider": "ollama",
+              "model": "daisy-narrative-v1:latest"
+            },
+            "expression": "playful",
+            "expression_source": "model",
+            "speak": true,
+            "interrupt": false
+          },
+          "error": null,
+          "elapsed_seconds": 2.115,
+          "metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "requests": [
+            {
+              "model": "daisy-narrative-v1:latest",
+              "think": false,
+              "last_turn": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"development\",\"premise\":\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\",\"choices\":[\"Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.\"],\"commitments\":[],\"threads\":[],\"event_references\":[{\"event_id\":\"f20c5eaab068eed56244356a\",\"kind\":\"rapid_fall\",\"category\":\"derived\",\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\"}],\"developments\":[\"You want a mystery? Well, look at this sealed blue envelope sitting right here on the kitchen table; it's the last clue from my father's old ledgers, and I'm betting it holds a sec\",\"That sudden drop in the machine\u2019s numbers doesn\u2019t matter much; the real puzzle is whether that blue envelope contains my father\u2019s will or just a recipe for my signature lavender ja\",\"Now that you've admitted the envelope is still sealed, I suppose we can stop pretending the kitchen isn't too quiet for my liking. I've got a feeling my father hid something about \"],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION \u2014 original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Classic Tease [classic].\n- Engine active mode: Classic Tease [classic].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nTIMING: active running counter 682 seconds; source state.sessionSeconds; session ba1f34bc-e660-5498-a2c1-a5b75da33fd1; captured_at_ms 1793130682000; snapshot age 0.0 seconds.\nCounter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\nHR source: simulator. Numerical details omitted because this turn does not request them.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"sustained_elevation\", \"priority\": 45, \"event_id\": \"a070abc1f249ad4f745aa9b3\", \"session_id\": \"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\", \"category\": \"derived\", \"origin\": \"simulated_telemetry\", \"current_experience\": \"classic\", \"current_goal\": \"tease\"}\n\nDERIVED TELEMETRY OBSERVATION (historical source evidence, not a safety event; no physiological cause or emotion established):\n{\"contract\":\"edgeloop.narrative-event.v1\",\"kind\":\"sustained_elevation\",\"category\":\"derived\",\"source\":\"simulator\",\"simulated\":true,\"session_id\":\"ba1f34bc-e660-5498-a2c1-a5b75da33fd1\",\"first_at_ms\":1793130652000,\"last_at_ms\":1793130682000,\"created_at_ms\":1793130682000,\"change_bpm\":0.0,\"first_bpm\":100.0,\"last_bpm\":100.0,\"reference_bpm\":70.0,\"reference_kind\":\"configured_resting_setting_not_measured_baseline\",\"unit\":\"BPM\",\"window_seconds\":30.0,\"sample_count\":31,\"quality\":\"sufficient_validated_samples\",\"significance\":\"major\",\"evidence\":\"All samples exceed a labeled reference for the configured duration.\"}",
+              "input_characters": 12029
+            }
+          ],
+          "metrics": [
+            {
+              "response_latency_seconds": 2.11,
+              "time_to_first_token_seconds": 0.939,
+              "tokens_per_second": 88.76,
+              "output_tokens": 104,
+              "load_seconds": 0.001135533,
+              "recorded_at": 1793193049.8161407,
+              "provider": "ollama",
+              "model": "daisy-narrative-v1:latest",
+              "thinking_policy_status": "off_requested",
+              "thinking_enabled": false,
+              "thinking_characters": 0,
+              "thinking_chunks": 0,
+              "thinking_tokens": null,
+              "output_budget": 320,
+              "visible_characters": 483,
+              "prompt_tokens": 2674,
+              "done_reason": "stop"
+            }
+          ]
+        }
+      ],
+      "events": {
+        "config": {
+          "schema_version": 1,
+          "enabled": true,
+          "preset": "balanced",
+          "max_gap_seconds": 12.0,
+          "proactive_interval_seconds": 120.0,
+          "detectors": {
+            "rapid_rise": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 30.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "rapid_fall": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 30.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "sustained_elevation": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 60.0,
+              "duration_seconds": 30.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "recovery": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 60.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "recent_measured",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "fluctuations": {
+              "enabled": true,
+              "threshold_bpm": 10.0,
+              "window_seconds": 90.0,
+              "duration_seconds": 30.0,
+              "min_samples": 9,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 3.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "stable": {
+              "enabled": false,
+              "threshold_bpm": 4.0,
+              "window_seconds": 60.0,
+              "duration_seconds": 45.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 1.0,
+              "significance": "routine",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "session_milestone": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 30.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 5.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "configuration": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 30.0,
+              "duration_seconds": 20.0,
+              "min_samples": 5,
+              "cooldown_seconds": 5.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "major",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            },
+            "quiet": {
+              "enabled": true,
+              "threshold_bpm": 15.0,
+              "window_seconds": 120.0,
+              "duration_seconds": 30.0,
+              "min_samples": 5,
+              "cooldown_seconds": 120.0,
+              "hysteresis_bpm": 4.0,
+              "significance": "routine",
+              "reference": "resting_setting",
+              "reference_bpm": 100.0,
+              "reversals": 3
+            }
+          },
+          "preferences": {
+            "generic": {
+              "physiology": 1,
+              "session": 1,
+              "configuration": 1,
+              "story": 1
+            },
+            "evelyn": {
+              "physiology": 1,
+              "session": 1,
+              "configuration": 1,
+              "story": 1
+            },
+            "daisy": {
+              "physiology": 1,
+              "session": 1,
+              "configuration": 1,
+              "story": 1
+            }
+          }
+        },
+        "revision": 1,
+        "error": null,
+        "detectors": [
+          {
+            "id": "rapid_rise",
+            "name": "Rapid BPM increase",
+            "description": "Confirmed endpoint groups increased; no cause established.",
+            "required_fields": "hr, source, timestamp",
+            "minimum_samples": 5,
+            "last_detection_at_ms": 1793130220000,
+            "last_suppression": "condition_not_met",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "rapid_fall",
+            "name": "Rapid BPM decrease",
+            "description": "Confirmed endpoint groups decreased; no interpretation of relaxation.",
+            "required_fields": "hr, source, timestamp",
+            "minimum_samples": 5,
+            "last_detection_at_ms": 1793130446000,
+            "last_suppression": "condition_not_met",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "sustained_elevation",
+            "name": "Sustained elevation",
+            "description": "All samples exceed a labeled reference for the configured duration.",
+            "required_fields": "hr, timestamp, reference",
+            "minimum_samples": 5,
+            "last_detection_at_ms": 1793130682000,
+            "last_suppression": "hysteresis_latched",
+            "cooldown_remaining_seconds": 110.0
+          },
+          {
+            "id": "recovery",
+            "name": "Return toward measured reference",
+            "description": "Earlier elevation and a sustained decrease toward an earlier measured reference. Not clinical recovery.",
+            "required_fields": "hr, timestamp, earlier measured baseline",
+            "minimum_samples": 5,
+            "last_suppression": "no_earlier_measured_reference",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "fluctuations",
+            "name": "Repeated fluctuations",
+            "description": "Alternating excursions in three-sample medians; isolated spikes are rejected.",
+            "required_fields": "hr, timestamp",
+            "minimum_samples": 9,
+            "last_suppression": "condition_not_met",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "stable",
+            "name": "Stable measurement interval",
+            "description": "Bounded observed range; not evidence of comfort or emotional calm.",
+            "required_fields": "hr, timestamp",
+            "minimum_samples": 5,
+            "last_suppression": "detector_disabled",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "session_milestone",
+            "name": "Original session events",
+            "description": "Reuse validated engine transitions/counters, never redetect milestones.",
+            "required_fields": "validated original event",
+            "minimum_samples": 0,
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "configuration",
+            "name": "Session selections",
+            "description": "Reuse confirmed experience/goal/settings changes; existing selection debounce applies.",
+            "required_fields": "validated selection transition",
+            "minimum_samples": 0,
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "id": "quiet",
+            "name": "Quiet opportunity",
+            "description": "A scheduling opportunity only; welcome/initiative gates still apply.",
+            "required_fields": "Director clock and conversation activity",
+            "minimum_samples": 0,
+            "last_suppression": "quiet_interval_not_elapsed",
+            "cooldown_remaining_seconds": 81.0
+          }
+        ],
+        "recent_events": [
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "2674fcfb729541fdee579afd",
+              "kind": "quiet_interval",
+              "detector_id": "quiet",
+              "category": "scheduling",
+              "source": "Director clock",
+              "simulated": false,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": null,
+              "last_at_ms": null,
+              "created_at_ms": 1793130201000,
+              "change_bpm": null,
+              "first_bpm": null,
+              "last_bpm": null,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": null,
+              "window_seconds": 120.0,
+              "sample_count": 0,
+              "quality": "scheduling_only",
+              "significance": "routine",
+              "evidence": "No significant event or conversation during configured interval; availability and willingness are not established.",
+              "config_revision": 1,
+              "rule": null
+            },
+            "decision": "context_only:narrative_disabled",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "2fb20be0580c9b9424da028d",
+              "kind": "rapid_rise",
+              "detector_id": "rapid_rise",
+              "category": "derived",
+              "source": "simulator",
+              "simulated": true,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": 1793130200000,
+              "last_at_ms": 1793130220000,
+              "created_at_ms": 1793130220000,
+              "change_bpm": 18.0,
+              "first_bpm": 85.0,
+              "last_bpm": 103.0,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": "BPM",
+              "window_seconds": 20.0,
+              "sample_count": 21,
+              "quality": "sufficient_validated_samples",
+              "significance": "major",
+              "evidence": "Confirmed endpoint groups increased; no cause established.",
+              "config_revision": 1,
+              "rule": {
+                "enabled": true,
+                "threshold_bpm": 15.0,
+                "window_seconds": 30.0,
+                "duration_seconds": 20.0,
+                "min_samples": 5,
+                "cooldown_seconds": 120.0,
+                "hysteresis_bpm": 4.0,
+                "significance": "major",
+                "reference": "resting_setting",
+                "reference_bpm": 100.0,
+                "reversals": 3
+              }
+            },
+            "decision": "suppressed:repetitive_opportunity",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "2674fcfb729541fdee579afd",
+              "kind": "quiet_interval",
+              "detector_id": "quiet",
+              "category": "scheduling",
+              "source": "Director clock",
+              "simulated": false,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": null,
+              "last_at_ms": null,
+              "created_at_ms": 1793130427000,
+              "change_bpm": null,
+              "first_bpm": null,
+              "last_bpm": null,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": null,
+              "window_seconds": 120.0,
+              "sample_count": 0,
+              "quality": "scheduling_only",
+              "significance": "routine",
+              "evidence": "No significant event or conversation during configured interval; availability and willingness are not established.",
+              "config_revision": 1,
+              "rule": null
+            },
+            "decision": "context_only:narrative_disabled",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "f20c5eaab068eed56244356a",
+              "kind": "rapid_fall",
+              "detector_id": "rapid_fall",
+              "category": "derived",
+              "source": "simulator",
+              "simulated": true,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": 1793130426000,
+              "last_at_ms": 1793130446000,
+              "created_at_ms": 1793130446000,
+              "change_bpm": -18.0,
+              "first_bpm": 115.0,
+              "last_bpm": 97.0,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": "BPM",
+              "window_seconds": 20.0,
+              "sample_count": 21,
+              "quality": "sufficient_validated_samples",
+              "significance": "major",
+              "evidence": "Confirmed endpoint groups decreased; no interpretation of relaxation.",
+              "config_revision": 1,
+              "rule": {
+                "enabled": true,
+                "threshold_bpm": 15.0,
+                "window_seconds": 30.0,
+                "duration_seconds": 20.0,
+                "min_samples": 5,
+                "cooldown_seconds": 120.0,
+                "hysteresis_bpm": 4.0,
+                "significance": "major",
+                "reference": "resting_setting",
+                "reference_bpm": 100.0,
+                "reversals": 3
+              }
+            },
+            "decision": "acknowledged",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "0743cf96dcc554c748fe09bf",
+              "kind": "quiet_interval",
+              "detector_id": "quiet",
+              "category": "scheduling",
+              "source": "Director clock",
+              "simulated": false,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": null,
+              "last_at_ms": null,
+              "created_at_ms": 1793130653000,
+              "change_bpm": null,
+              "first_bpm": null,
+              "last_bpm": null,
+              "reference_bpm": null,
+              "reference_kind": null,
+              "unit": null,
+              "window_seconds": 120.0,
+              "sample_count": 0,
+              "quality": "scheduling_only",
+              "significance": "routine",
+              "evidence": "No significant event or conversation during configured interval; availability and willingness are not established.",
+              "config_revision": 1,
+              "rule": null
+            },
+            "decision": "context_only:narrative_disabled",
+            "cooldown_remaining_seconds": 0
+          },
+          {
+            "event": {
+              "contract": "edgeloop.narrative-event.v1",
+              "id": "a070abc1f249ad4f745aa9b3",
+              "kind": "sustained_elevation",
+              "detector_id": "sustained_elevation",
+              "category": "derived",
+              "source": "simulator",
+              "simulated": true,
+              "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+              "first_at_ms": 1793130652000,
+              "last_at_ms": 1793130682000,
+              "created_at_ms": 1793130682000,
+              "change_bpm": 0.0,
+              "first_bpm": 100.0,
+              "last_bpm": 100.0,
+              "reference_bpm": 70.0,
+              "reference_kind": "configured_resting_setting_not_measured_baseline",
+              "unit": "BPM",
+              "window_seconds": 30.0,
+              "sample_count": 31,
+              "quality": "sufficient_validated_samples",
+              "significance": "major",
+              "evidence": "All samples exceed a labeled reference for the configured duration.",
+              "config_revision": 1,
+              "rule": {
+                "enabled": true,
+                "threshold_bpm": 15.0,
+                "window_seconds": 60.0,
+                "duration_seconds": 30.0,
+                "min_samples": 5,
+                "cooldown_seconds": 120.0,
+                "hysteresis_bpm": 4.0,
+                "significance": "major",
+                "reference": "resting_setting",
+                "reference_bpm": 100.0,
+                "reversals": 3
+              }
+            },
+            "decision": "acknowledged",
+            "cooldown_remaining_seconds": 0
+          }
+        ]
+      },
+      "history": [
+        {
+          "role": "user",
+          "content": "Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.",
+          "origin": "real_user",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "469ef14148284ab39712e722d56e33e5",
+          "at": 100.0
+        },
+        {
+          "role": "assistant",
+          "content": "You want a mystery? Well, look at this sealed blue envelope sitting right here on the kitchen table; it's the last clue from my father's old ledgers, and I'm betting it holds a secret about who really owns Cloverfield Farm. Now, don't just stare at it like it's going to bite you; go on, make a guess before I decide to open it and ruin the suspense.",
+          "origin": "assistant_dialogue",
+          "trigger_origin": "real_user",
+          "expression": "playful",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "469ef14148284ab39712e722d56e33e5",
+          "at": 100.0
+        },
+        {
+          "role": "assistant",
+          "content": "That sudden drop in the machine\u2019s numbers doesn\u2019t matter much; the real puzzle is whether that blue envelope contains my father\u2019s will or just a recipe for my signature lavender jam. I\u2019ve been pacing the kitchen floor for twenty minutes, and now you\u2019re acting like this sealed packet is the only thing that matters. Go on, tell me your theory while I try to ignore the way the light hits the wax seal.",
+          "origin": "assistant_dialogue",
+          "trigger_origin": "system_event",
+          "expression": "playful",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "469ef14148284ab39712e722d56e33e5",
+          "at": 546.0
+        },
+        {
+          "role": "user",
+          "content": "I am still following our fictional clue. Continue when there is a relevant observation, without guessing its cause.",
+          "origin": "real_user",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "469ef14148284ab39712e722d56e33e5",
+          "at": 552.0
+        },
+        {
+          "role": "assistant",
+          "content": "Now that you've admitted the envelope is still sealed, I suppose we can stop pretending the kitchen isn't too quiet for my liking. I've got a feeling my father hid something about the farm's future inside those old ledgers, and I'm determined to find it before Helix Dynamics gets wind of it. What do you say, shall we see if this blue packet holds the keys to our independence or just a dusty receipt for a bale of hay?",
+          "origin": "assistant_dialogue",
+          "trigger_origin": "real_user",
+          "expression": "playful",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "469ef14148284ab39712e722d56e33e5",
+          "at": 552.0
+        },
+        {
+          "role": "assistant",
+          "content": "That sustained elevation in the machine's data is fascinating, but it barely scratches the surface of this little mystery we're brewing. I've got the blue envelope sealed tight on the table, and I'm pretty sure my father left a coded instruction about the farm's water rights inside those old ledgers. Tell me, if we were to open it right this second, would you rather find a fortune or just a funny recipe that makes the whole thing seem like a waste of time?",
+          "origin": "assistant_dialogue",
+          "trigger_origin": "system_event",
+          "expression": "playful",
+          "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1",
+          "narrative_epoch": "469ef14148284ab39712e722d56e33e5",
+          "at": 782.0
+        }
+      ],
+      "narrative": {
+        "version": 1,
+        "phase": "development",
+        "premise": "Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations.",
+        "choices": [
+          "Imagine a small mystery together. I choose to keep a sealed blue envelope as our fictional clue. Continue in your own setting; do not invent bodily observations."
+        ],
+        "commitments": [],
+        "threads": [],
+        "event_references": [
+          {
+            "event_id": "f20c5eaab068eed56244356a",
+            "kind": "rapid_fall",
+            "category": "derived",
+            "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1"
+          },
+          {
+            "event_id": "a070abc1f249ad4f745aa9b3",
+            "kind": "sustained_elevation",
+            "category": "derived",
+            "session_id": "ba1f34bc-e660-5498-a2c1-a5b75da33fd1"
+          }
+        ],
+        "developments": [
+          "That sudden drop in the machine\u2019s numbers doesn\u2019t matter much; the real puzzle is whether that blue envelope contains my father\u2019s will or just a recipe for my signature lavender ja",
+          "Now that you've admitted the envelope is still sealed, I suppose we can stop pretending the kitchen isn't too quiet for my liking. I've got a feeling my father hid something about ",
+          "That sustained elevation in the machine's data is fascinating, but it barely scratches the surface of this little mystery we're brewing. I've got the blue envelope sealed tight on "
+        ],
+        "provenance": "fallible dialogue excerpts; fiction/conversation, never verified session facts"
+      },
+      "system_metrics": {
+        "telemetry_processing_latency_ms": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "gpu": {
+          "available": true,
+          "name": "NVIDIA GeForce RTX 3080",
+          "total_mib": 10240,
+          "used_mib": 8169,
+          "utilization_percent": 93,
+          "free_mib": 2071
+        },
+        "system_cpu_percent": 36.1,
+        "backend_cpu_percent": 1.9,
+        "ram_available_gib": 28.58,
+        "backend_rss_mib": 52.5,
+        "last_inference": {
+          "response_latency_seconds": 2.11,
+          "time_to_first_token_seconds": 0.939,
+          "tokens_per_second": 88.76,
+          "output_tokens": 104,
+          "load_seconds": 0.001135533,
+          "recorded_at": 1793193049.8161407,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 320,
+          "visible_characters": 483,
+          "prompt_tokens": 2674,
+          "done_reason": "stop"
+        },
+        "inference_count": 6,
+        "sample_limit": 100,
+        "latency_p50_seconds": 1.802,
+        "latency_p95_seconds": 2.11,
+        "last_model_error": null
+      }
+    }
+  ],
+  "policy": "Identical three episodes, 200 simulated seconds apart; narrative initiative disabled for paired event comparison. Existing Director cooldowns active.",
+  "thinking_off_verified": true,
+  "requests": 13
+}

@@ -1,0 +1,113 @@
+{
+  "evelyn-narrative-v1:latest": {
+    "visible_completed_replies": 4,
+    "observed_attempts": 5,
+    "expression_valid": 5,
+    "expression_observations": 5,
+    "provider_ttft_seconds": [
+      0.698,
+      0.768,
+      0.777,
+      0.681,
+      0.866
+    ],
+    "total_turn_seconds": [
+      6.766,
+      3.41,
+      1.774,
+      1.61,
+      1.974
+    ],
+    "tokens_per_second": [
+      92.41,
+      91.16,
+      90.66,
+      90.71,
+      89.84
+    ],
+    "prompt_tokens": [
+      2204,
+      2276,
+      2233,
+      1963,
+      2509
+    ],
+    "gpu": {
+      "available": true,
+      "name": "NVIDIA GeForce RTX 3080",
+      "total_mib": 10240,
+      "used_mib": 8169,
+      "utilization_percent": 91,
+      "free_mib": 2071
+    },
+    "event_decisions": [
+      [
+        "rapid_rise",
+        "suppressed:grounding_violation"
+      ],
+      [
+        "rapid_fall",
+        "acknowledged"
+      ],
+      [
+        "sustained_elevation",
+        "acknowledged"
+      ]
+    ]
+  },
+  "daisy-narrative-v1:latest": {
+    "visible_completed_replies": 4,
+    "observed_attempts": 4,
+    "expression_valid": 4,
+    "expression_observations": 4,
+    "provider_ttft_seconds": [
+      0.585,
+      0.773,
+      0.741,
+      0.939
+    ],
+    "total_turn_seconds": [
+      1.572,
+      1.806,
+      1.871,
+      2.115
+    ],
+    "tokens_per_second": [
+      92.44,
+      89.37,
+      88.79,
+      88.76
+    ],
+    "prompt_tokens": [
+      1631,
+      2347,
+      2083,
+      2674
+    ],
+    "gpu": {
+      "available": true,
+      "name": "NVIDIA GeForce RTX 3080",
+      "total_mib": 10240,
+      "used_mib": 8169,
+      "utilization_percent": 93,
+      "free_mib": 2071
+    },
+    "event_decisions": [
+      [
+        "rapid_rise",
+        "suppressed:repetitive_opportunity"
+      ],
+      [
+        "rapid_fall",
+        "acknowledged"
+      ],
+      [
+        "sustained_elevation",
+        "acknowledged"
+      ]
+    ]
+  },
+  "thinking_off_verified": true,
+  "outbound_chat_requests": 13,
+  "metadata_leaked_in_completed_dialogue": false
+}

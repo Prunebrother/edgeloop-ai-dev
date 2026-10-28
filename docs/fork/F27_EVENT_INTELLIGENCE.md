@@ -14,4 +14,74 @@ All values are narrative software settings, **not medically validated thresholds
 
 Original milestones/configuration changes reuse existing validated transitions. Quiet intervals are scheduling opportunities, never HR facts. Detector latches require a reset condition plus cooldown before another emission. The user-supplied sparse example has insufficient samples for default rapid windows. A repeatable forty-second/five-sample configuration is included in replay, with eight-BPM hysteresis for fall/return; exact emitted evidence is saved with evaluation.
 
-Further integration/configuration/acceptance results are recorded below as stages complete.
+The completed integration, configuration and acceptance results follow below.
+
+## Configuration and use
+
+Open **Character → Director → Event Intelligence settings**. Settings are validated by the authenticated backend and atomically stored alongside existing local settings in `event-intelligence.json`. They are service-wide except the explicitly separate generic/Evelyn/Daisy relevance maps. No model can edit them. Saving or opening menus does not run inference. Changed rules apply to future samples; pending observations from the previous revision are discarded, while an active response retains its frozen evidence. Relevance zero means context only, one normal and two greater queue relevance; story relevance supports only zero/one. Unknown models use generic preferences and the existing artwork identity resolver.
+
+Quiet makes physiological observations Routine and extends frequency/cooldowns to 300 seconds. Balanced uses the defaults above. Observant uses 12-BPM rapid changes, 90-second rapid cooldowns and a 90-second minimum proactive interval. Custom edits retain other values; Restore defaults selects Balanced. These presets can detect the same patterns in a large synthetic change while producing different commentary eligibility. They never change engine settings. Version zero settings migrate to version one; malformed/future versions disable observations with a visible error and preserve the file.
+
+Bounds: change/range 2–60 BPM; physiological window 5–120 seconds; duration 3–120 seconds and no greater than the window; 5–128 distinct samples; cooldown 5–1,800 seconds; hysteresis 1–15 BPM and less than the threshold; reference 35–220 BPM; fluctuations 2–6 reversals with at least nine samples regardless of a lower configured minimum. Maximum sample gap is 2–15 seconds; minimum proactive interval 15–1,800 seconds. Quiet windows support up to 1,800 seconds (UI minimum 30). Schema files in [f27](f27/) specify field types; cross-field restrictions are enforced by backend validators, not JSON Schema alone.
+
+## Director, context and diagnostics
+
+No model call classifies events. Major events become candidates; Routine events remain context; Critical original safety notices bypass AI and remain fixed even when all observation/proactive controls are disabled. Existing configuration debounce, user priority, active-generation deferral, topic protection, unanswered-question limits, TTL, category/global/per-event cooldowns and consecutive-unsolicited limits remain in force. Typing sends only a temporary boolean/model identity, never drafts. Physiological results share one pending slot, choosing return-to-reference, fall, rise, fluctuations, elevation then stability; related results remain visible as coalesced diagnostic evidence. A new observation replaces an older pending physiological candidate. Queue/session/model/story-epoch boundaries prevent old reactions from replaying.
+
+Diagnostics distinguish original authoritative transitions, derived observations and quiet scheduling opportunities. Each record shows its evidence, source, simulation flag, creation time, actual sample span/count, reference, frozen configuration and Director decision. Decisions include context only, coalesced, deferred with cooldown, queued/scheduled, acknowledged, model-chosen silence, repetitive suppression, factual rejection, inference error and discard. History is limited to 48 records, with the most recent 16 sent to the UI. Queues retain the existing bounded SpeechPolicy and expire stale events. Measurement history stays in bounded RAM; no physiological database is added.
+
+The existing ephemeral model turn contains one authoritative canonical snapshot, recent validated original events, per-model conversation/narrative context and, for a triggering observation or relevant numerical question, one compact derived evidence block. It explicitly establishes no cause or emotion. Snapshot/history payloads are not stored as fabricated dialogue. Significant narrative references contain only bounded event/session IDs and kinds, not raw BPM history. Start New Storyline discards pending commentary and old story references without resetting EdgeLoop or the detector history. No second expression call or personality prompt was introduced. The existing shared Ollama transport still explicitly sends `think: false`, preserves embedded SYSTEM instructions and excludes reasoning channels.
+
+## Authoritative timing audit
+
+Timing was already present as **`canonical_session.facts.seconds`** in `edgeloop.session-facts.v1`, projected from **`snapshot.seconds` → `state.sessionSeconds`**, unit `seconds`, kind `status`. The full context previously called it an engine elapsed counter; compact story/event views omitted it. Both now expose it with explicit semantics:
+
+- The original one-second master clock increments it only while `sessionStatus === 'RUNNING'`. Pause and RAMPDOWN do not advance it. It is accumulated running ticks, subject to browser scheduling, rather than a precision stopwatch or wall-clock duration.
+- `resetSessionCounters()` zeros it on stop, reset and START. A stopped snapshot therefore reports zero, **not the completed session duration**. Engine history may separately save a final duration, but that historical store is not exposed by this read-only contract.
+- Separate wall-clock session duration and total paused duration are **unavailable**. No new session timer, start timestamp inference, extrapolation or invented countdown was added.
+- `facts.status` supplies state. `facts.seconds.observed_at_ms` and `canonical_session.captured_at_ms` identify capture time; `age_seconds`, `current`, and each fact's `known/current/reason` carry freshness. After the existing five-second freshness limit, prompts omit the expired numeric value. Missing timestamps remain explicitly unknown.
+- `canonical_session.events[*].age_seconds` provides bounded same-session historical event age, accounting for source timestamp/capture delay when available; without a source timestamp, it means observer reception age. These ages measure wall/observer time, not active running duration. Derived observations carry `first_at_ms`, `last_at_ms`, `created_at_ms` and actual sample-window duration; none is session duration.
+
+The Director already uses monotonic time for event recency, cooldowns and welcomed initiative. It continues to consume validated session status rather than starting a parallel session clock. Timing is refreshed inside the existing ephemeral context when an inference is otherwise warranted; it does not create an event or inference for each tick. Formatting instructions discourage repetitive time announcements. Automated simulated lifecycle tests and the browser's original engine cover start, frozen pause, resume, stop, restart and stale context.
+
+## Replay and validation
+
+Commands from the repository root:
+
+```sh
+.venv/bin/python -m tests.fork.event_replay --compare --output /tmp/f27-replay.json
+.venv/bin/python -m pytest -q tests/ai tests/fork
+node --test tests/fork/bridge.test.mjs tests/fork/presentation.test.mjs
+.venv/bin/python tools/fork_validate.py --tests --report /tmp/f27-upstream.json
+EVENT_INTELLIGENCE_REPORT=/tmp/f27-events node tests/fork/event-intelligence-browser.mjs
+FORK_BROWSER_PORT=8840 FORK_OBSERVER_PORT=8848 FORK_BROWSER_REPORT=/tmp/f27-dashboard node tests/fork/browser.mjs
+CHARACTER_BROWSER_REPORT=/tmp/f27-artwork node tests/fork/character-browser.mjs
+EVENT_BROWSER_REPORT=/tmp/f27-original-events node tests/fork/event-reliability.mjs
+NARRATIVE_BROWSER_REPORT=/tmp/f27-narrative node tests/fork/narrative-browser.mjs
+NARRATIVE_BROWSER_REPORT=/tmp/f27-menus node tests/fork/character-menus-browser.mjs
+.venv/bin/python -m tests.fork.event_live_evaluation --live --output /tmp/f27-live.json
+```
+
+Replay covers stable, gradual/rapid rise and fall, elevation, return to reference, fluctuations, spike, sparse example and overlapping observations, plus disconnection, pause, reset, selections, validated milestone, quiet and reconnect-gap scenarios. It uses the existing strict observer contracts and simulated time, without inference. A flat 85 BPM sequence can correctly produce elevation relative to the configured 70-BPM resting setting; this is not a spike-triggered rapid event. The single-artifact regression uses an equal configured reference and rejects rapid/elevation/fluctuation artifacts. The sparse user example yields no rapid event at default settings; its explicit forty-second configuration yields rise, fall and return-to-reference, with evidence saved in `replay.json`.
+
+Results: **1,057 upstream, 312 Python and 30 bridge/presentation tests pass**. Dashboard, artwork (all 24 character/expression mappings), original event/Came Early, narrative, character menus and new Event Intelligence browser workflows pass. Tests use mocked devices/simulator only. Browser screenshot evidence includes 1920×1080, 2560×1440, 1366×768 and 390px mobile. Inspected images preserve dark styling, portrait prominence outside the drawer, readable configuration/diagnostics, composer and emergency accessibility. A mocked event stream proves UI propagation, not real-model language quality. One existing FastAPI/Starlette deprecation warning remains.
+
+A 3,000-sample local synthetic ingestion/detection check retained 181 samples, one diagnostic event and made zero model calls: median 0.303 ms, p95 0.384 ms per validated ingestion plus detection on this machine. This is a small local benchmark, not a universal latency guarantee. Bounded storage and exact results are saved in `performance.json`.
+
+## Limited live evaluation and remaining limitations
+
+Both unchanged narrative candidates ran sequentially against the existing `http://127.0.0.1:11435`, with identical synthetic rise/fall/elevation episodes, a fictional blue-envelope thread and simulated cooldown time. No server was restarted, model rebuilt or physical device connected. All **13 outbound chat requests** in the final run explicitly used `think: false`; returned metrics reported zero thinking content. Nine recorded turn outcomes had valid expression metadata (9/9), including a rejected attempt; completed dialogue had no expression-marker leakage. This limited sample does not establish general expression reliability or emotional appropriateness.
+
+Evelyn acknowledged fall/elevation; her rise attempt failed factual validation after one correction and was not saved. Daisy acknowledged fall/elevation; her rise attempt was suppressed as repetitive. These are visible Director decisions, not missing detector delivery. Final provider first-token samples were 0.585–0.939 seconds, generation rates 88.76–92.44 tokens/second and recorded turn durations 1.57–6.77 seconds (including load/correction). Prompt totals ranged 1,631–2,674 tokens, not detector-only overhead. GPU snapshots were 8,169 MiB of 10,240 MiB on an RTX 3080. Proactive dialogue retains the existing factual/repetition hold until validation: provider first token is **not** the first visible proactive token. User chat streaming and early expression metadata remain on the existing path.
+
+Initial live attempts recast simulator values as the user's pulse or inferred feelings. Focused regression guards now reject observed personal-physiology and causal phrases, preserving the existing single correction attempt and explicit failure. These deterministic checks are incomplete semantic filters: accepted prose can still imply calm, describe fictional physical details as though real, spell numbers inaccurately, repeat the envelope premise or invent possession/setting details. Final transcripts retain examples for review. Do not treat successful detector tests, valid headers or factual regex checks as proof of perfect grounding, continuity or character distinction. No broad personality/narrative redesign was attempted. Candidate definitions remain unchanged; full subjective user acceptance remains deferred.
+
+Review rubric: verify the named event and source against diagnostics; compare any numbers to endpoint medians/reference; flag implied cause/emotion, physical activity and unavailable timing; assess fresh character-specific wording, story callbacks, expression suitability, repetition and welcome pacing. Evaluate multiple sessions before changing defaults. Quiet, per-category context-only relevance and proactive OFF remain available when commentary is unwelcome. No event detection scheme here establishes medical safety.
+
+## Recovery and activation
+
+Baseline recovery branch: `backup/f27-before-415d57f`. Logical commits cover A detectors, B Director, C drawer/timing, D replay/live validation and E final evidence. The `f2.6.1-checkpoint` remains intact. A `66f28fb`, B `ad5c8ae`, C `9a9d072`, D `97fc81b`; final evidence/checkpoint is tagged `f2.7-checkpoint`.
+
+The existing user observer process was deliberately left running to preserve its RAM conversation state. F2.7 backend changes require a normal observer restart at a convenient boundary; reload the page for the updated service worker/modules and pair using that process's current key. No Ollama restart is needed. All acceptance used isolated fixture processes or the existing Ollama endpoint. Preserve/export any nonpersistent conversation before restarting. This milestone changes no original engine/driver/safety logic, Modelfiles, model stores or artwork.
+
+Representative screenshots: [settings](f27/events/event-settings-1920.png), [expression during generation](f27/events/event-generating-1920.png), [completed reply](f27/events/evelyn-event-1920.png), [evidence and significance](f27/events/event-diagnostics-2560.png), [suppression](f27/events/suppression-1366.png), [mobile](f27/events/event-settings-mobile-390.png). Machine-readable evidence and workflow results are in [f27](f27/).

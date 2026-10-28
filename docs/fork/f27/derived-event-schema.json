@@ -1,0 +1,306 @@
+{
+  "$defs": {
+    "DetectorRule": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "threshold_bpm": {
+          "default": 15.0,
+          "maximum": 60,
+          "minimum": 2,
+          "title": "Threshold Bpm",
+          "type": "number"
+        },
+        "window_seconds": {
+          "default": 30.0,
+          "maximum": 1800,
+          "minimum": 5,
+          "title": "Window Seconds",
+          "type": "number"
+        },
+        "duration_seconds": {
+          "default": 20.0,
+          "maximum": 120,
+          "minimum": 3,
+          "title": "Duration Seconds",
+          "type": "number"
+        },
+        "min_samples": {
+          "default": 5,
+          "maximum": 128,
+          "minimum": 5,
+          "title": "Min Samples",
+          "type": "integer"
+        },
+        "cooldown_seconds": {
+          "default": 120.0,
+          "maximum": 1800,
+          "minimum": 5,
+          "title": "Cooldown Seconds",
+          "type": "number"
+        },
+        "hysteresis_bpm": {
+          "default": 4.0,
+          "maximum": 15,
+          "minimum": 1,
+          "title": "Hysteresis Bpm",
+          "type": "number"
+        },
+        "significance": {
+          "default": "major",
+          "enum": [
+            "major",
+            "routine"
+          ],
+          "title": "Significance",
+          "type": "string"
+        },
+        "reference": {
+          "default": "resting_setting",
+          "enum": [
+            "resting_setting",
+            "recent_measured",
+            "narrative_threshold"
+          ],
+          "title": "Reference",
+          "type": "string"
+        },
+        "reference_bpm": {
+          "default": 100.0,
+          "maximum": 220,
+          "minimum": 35,
+          "title": "Reference Bpm",
+          "type": "number"
+        },
+        "reversals": {
+          "default": 3,
+          "maximum": 6,
+          "minimum": 2,
+          "title": "Reversals",
+          "type": "integer"
+        }
+      },
+      "title": "DetectorRule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "edgeloop.narrative-event.v1",
+      "default": "edgeloop.narrative-event.v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "title": "Kind",
+      "type": "string"
+    },
+    "detector_id": {
+      "title": "Detector Id",
+      "type": "string"
+    },
+    "category": {
+      "enum": [
+        "derived",
+        "authoritative",
+        "scheduling"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "source": {
+      "title": "Source",
+      "type": "string"
+    },
+    "simulated": {
+      "title": "Simulated",
+      "type": "boolean"
+    },
+    "session_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Session Id"
+    },
+    "first_at_ms": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "First At Ms"
+    },
+    "last_at_ms": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Last At Ms"
+    },
+    "created_at_ms": {
+      "title": "Created At Ms",
+      "type": "integer"
+    },
+    "change_bpm": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Change Bpm"
+    },
+    "first_bpm": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "First Bpm"
+    },
+    "last_bpm": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Bpm"
+    },
+    "reference_bpm": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reference Bpm"
+    },
+    "reference_kind": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reference Kind"
+    },
+    "unit": {
+      "anyOf": [
+        {
+          "const": "BPM",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Unit"
+    },
+    "window_seconds": {
+      "title": "Window Seconds",
+      "type": "number"
+    },
+    "sample_count": {
+      "maximum": 512,
+      "minimum": 0,
+      "title": "Sample Count",
+      "type": "integer"
+    },
+    "quality": {
+      "enum": [
+        "sufficient_validated_samples",
+        "validated_transition",
+        "scheduling_only"
+      ],
+      "title": "Quality",
+      "type": "string"
+    },
+    "significance": {
+      "enum": [
+        "major",
+        "routine",
+        "critical"
+      ],
+      "title": "Significance",
+      "type": "string"
+    },
+    "evidence": {
+      "title": "Evidence",
+      "type": "string"
+    },
+    "config_revision": {
+      "title": "Config Revision",
+      "type": "integer"
+    },
+    "rule": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DetectorRule"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "detector_id",
+    "category",
+    "source",
+    "simulated",
+    "session_id",
+    "first_at_ms",
+    "last_at_ms",
+    "created_at_ms",
+    "window_seconds",
+    "sample_count",
+    "quality",
+    "significance",
+    "evidence",
+    "config_revision"
+  ],
+  "title": "DerivedEvent",
+  "type": "object"
+}

@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "physical_hardware": false,
+  "steps": [
+    "Presets/defaults, persistent custom threshold, invalid-input rejection, inference-free settings and evidence-backed streamed event reaction",
+    "Model isolation, disabled-proactive suppression reasons, mobile drawer and independent emergency controls"
+  ],
+  "screenshots": [
+    "event-settings-1920.png",
+    "event-generating-1920.png",
+    "evelyn-event-1920.png",
+    "event-diagnostics-2560.png",
+    "suppression-1366.png",
+    "event-settings-mobile-390.png"
+  ]
+}

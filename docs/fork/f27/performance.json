@@ -1,0 +1,15 @@
+{
+  "synthetic_samples": 3000,
+  "validated_ingestion_plus_detection_ms": {
+    "median": 0.3034,
+    "p95": 0.3838,
+    "maximum": 0.6588
+  },
+  "retained_samples": 181,
+  "sample_limit": 512,
+  "history_seconds": 180,
+  "retained_diagnostic_events": 1,
+  "diagnostic_limit": 48,
+  "ollama_calls": 0,
+  "physical_hardware": false
+}
