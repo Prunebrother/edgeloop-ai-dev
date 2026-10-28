@@ -33,6 +33,7 @@ async def runtime(request):
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
     prompt=body['messages'][-1].get('content','').split('USER MESSAGE (request, not session data):\n')[-1]
     if prompt=='portrait playful test':return httpx.Response(200,text=json.dumps({'message':{'content':'*I give you a playful wink.* Welcome back.'},'done':True,'done_reason':'stop'})+'\n')
+    if prompt=='portrait flirty tone test':return httpx.Response(200,text=json.dumps({'message':{'content':'Come a little closer, darling.'},'done':True,'done_reason':'stop'})+'\n')
     if prompt=='portrait concerned test':return httpx.Response(200,text=json.dumps({'message':{'content':'*I frown with concern.* I am here to listen.'},'done':True,'done_reason':'stop'})+'\n')
     if prompt=='long streaming response':return httpx.Response(200,stream=Stream())
     if prompt=='grounding conflict test':return httpx.Response(200,text=json.dumps({'message':{'content':'Your current heart rate is 210 BPM.'},'done':True,'done_reason':'stop'})+'\n')

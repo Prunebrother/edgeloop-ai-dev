@@ -13,8 +13,8 @@ See [architecture/migration](docs/fork/F22_CONSOLIDATION.md),
 and [validation](docs/fork/validation-f22.json).
 
 See [F2.4 character artwork and expressions](docs/fork/F24_CHARACTER_PRESENTATION.md),
-[available/missing artwork](docs/fork/F24_ARTWORK_INVENTORY.md) and
-[current validation](docs/fork/validation-f24.json). F2.3 telemetry-grounding
+[prepared artwork inventory](docs/fork/F24_ARTWORK_INVENTORY.md) and
+[current validation](docs/fork/validation-f24-prepared-expressions.json). F2.3 telemetry-grounding
 limitations remain documented; expression selection does not establish user emotion.
 
 ## Local development

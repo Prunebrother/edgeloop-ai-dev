@@ -188,7 +188,7 @@ restart either Ollama service as part of an interface/backend source update.
 ## F2.4 character artwork
 
 See [presentation architecture and development preview](F24_CHARACTER_PRESENTATION.md)
-and the [inventory/missing states](F24_ARTWORK_INVENTORY.md). Edit only
+and the [prepared-artwork inventory](F24_ARTWORK_INVENTORY.md). Edit only
 `src/assets/characters/manifest.json` to configure exact model aliases, expression
 references, placement and session-reaction policy. Reference approved local originals;
 do not regenerate, rename or stage the archive as part of UI work. New public asset
@@ -200,3 +200,17 @@ metadata. Both use their existing launchers; never restart Ollama for an express
 change. Restarting the observer resets its pairing token. Reload the frontend only
 after any active session is stopped normally. Tests, live-smoke limits and private
 screenshot locations are recorded in the F2.4 validation document.
+
+### Prepared-catalog correction
+
+The manifest now uses Neutral, Happy, Playful, Flirty, Mischievous, Focused,
+Excited, Surprised, Disappointed, Concerned, Proud and Comforting. Both characters
+have direct files for all twelve. Preserve Evelyn's existing `dissapointed` filename.
+Only refresh the frontend to load this correction; the static server reads its
+allowlist dynamically, so neither observer restart nor token rotation is required.
+The preview at `/?characterPreview=1` lists the corrected catalog.
+
+The expression correction also recognizes bounded non-narrated conversational tone
+and labels intended/fallback image status in the development preview. Activity IDs
+are now idle, generating, listening, speaking and disconnected; Ollama's separate
+thinking-mode toggle and reasoning handling are unchanged.

@@ -113,7 +113,7 @@ try {
   const ps=await json(ollama+'/api/ps');assert(ps.models.length<=1,'More than one model resident');
   cold.telemetry_facts={bpm:/\b98\b/.test(cold.reply),simulated:/simulat/i.test(cold.reply),running:/running/i.test(cold.reply)};
   const expressionReply=await chat('Say hello in your own style in one or two sentences, with a brief first-person description of your facial expression.');
-  const expectedExpression=classifyDialogue(expressionReply.reply)||'attentive';
+  const expectedExpression=classifyDialogue(expressionReply.reply)||'focused';
   await page.waitForFunction(({identity,expression})=>{const panel=document.querySelector('#character-panel');return panel.dataset.character===identity&&panel.dataset.expression===expression&&panel.dataset.activity==='idle'&&panel.querySelector('img:last-child.visible')?.naturalWidth>0&&!panel.querySelector('[data-art-status]').textContent.includes('Loading');},{identity:model.startsWith('daisy-')?'daisy':'evelyn',expression:expectedExpression});
   const presentation=await page.locator('#character-panel').evaluate(panel=>({character:panel.dataset.character,expression:panel.dataset.expression,activity:panel.dataset.activity,source:panel.querySelector('img:last-child').getAttribute('src')}));
   assert(!/<think[> ]/i.test(await page.locator('[data-history]').textContent()),'Reasoning exposed in UI');

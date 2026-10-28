@@ -6,7 +6,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 const root=path.resolve(new URL('../..',import.meta.url).pathname),output=process.env.CHARACTER_BROWSER_REPORT||'/tmp/edgeloop-f24-character-browser';
 const uiPort=8810,aiPort=8818,ui=`http://127.0.0.1:${uiPort}`,ai=`http://127.0.0.1:${aiPort}`;
-const report={passed:false,steps:[],art_requests:[],max_image_layers:0,physical_devices:'Denied; Handy HTTP intercepted',screenshots:[]};
+const report={passed:false,steps:[],rendered_portraits:[],art_requests:[],max_image_layers:0,physical_devices:'Denied; Handy HTTP intercepted',screenshots:[]};
 const children=[];let browser,page;const errors=[];
 const assert=(v,m)=>{if(!v)throw Error(m);},sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function wait(url){for(let i=0;i<70;i++){try{if((await fetch(url)).ok)return;}catch{}await sleep(100);}throw Error('Fixture did not start');}
@@ -34,10 +34,11 @@ try{
  report.steps.push('Exact aliases share identity and retain the same loaded portrait node');
  await chat('portrait playful test');await portrait(page,'evelyn','playful');assert((await page.locator('#character-panel').getAttribute('data-activity'))==='idle','Completed reply left generating active');
  assert(await page.locator('.message-assistant').count()===1,'Duplicate conversation message');
- await page.locator('[data-text]').fill('long streaming response');await page.locator('[data-text]').press('Enter');await page.waitForFunction(()=>document.querySelector('#character-panel').dataset.activity==='thinking');await portrait(page,'evelyn','attentive');await page.locator('[data-cancel]').click();await sleep(600);assert(await page.locator('#character-panel').getAttribute('data-activity')==='idle','Cancelled generation still active');
+ await chat('portrait flirty tone test');await portrait(page,'evelyn','flirty');report.steps.push('Ordinary conversational tone selects Flirty without facial narration');
+ await page.locator('[data-text]').fill('long streaming response');await page.locator('[data-text]').press('Enter');await page.waitForFunction(()=>document.querySelector('#character-panel').dataset.activity==='generating');await portrait(page,'evelyn','focused');await page.locator('[data-cancel]').click();await sleep(600);assert(await page.locator('#character-panel').getAttribute('data-activity')==='idle','Cancelled generation still active');
  await select('daisy-qwen35:latest');await portrait(page,'daisy','neutral');await chat('portrait concerned test');await portrait(page,'daisy','concerned');
  await page.setViewportSize({width:2560,height:1440});await capture(page,'daisy-2560.png');
- await select('evelyn-lite-candidate:latest');await portrait(page,'evelyn','playful');assert((await page.locator('[data-history]').textContent()).includes('playful wink'),'History did not restore');
+ await select('evelyn-lite-candidate:latest');await portrait(page,'evelyn','flirty');assert((await page.locator('[data-history]').textContent()).includes('playful wink'),'History did not restore');
  report.steps.push('Completed reply tone, cancellation, character switching and model history restoration');
  await select('qwen3:8b');assert(await page.locator('#character-panel').getAttribute('data-character')==='generic','Unknown model borrowed named character');assert(await page.locator('#character-panel img').count()===0,'Unknown model retained another portrait');
  await select('daisy-qwen35:latest');await portrait(page,'daisy','concerned');
@@ -52,17 +53,18 @@ try{
  const expressions=await preview.locator('[data-preview-expression] option').evaluateAll(nodes=>nodes.map(n=>n.value));assert(expressions.length===12,'Preview lacks twelve states');
  for(const character of ['evelyn','daisy']){
   await preview.locator('[data-preview-character]').selectOption(character);
-  for(const expression of expressions){await preview.locator('[data-preview-expression]').selectOption(expression);await portrait(preview,character,expression);const count=await preview.locator('#character-panel img').count();report.max_image_layers=Math.max(report.max_image_layers,count);assert(count<=2,'Unbounded decoded image layers');}
+  for(const expression of expressions){await preview.locator('[data-preview-expression]').selectOption(expression);await portrait(preview,character,expression);assert(await preview.locator('[data-art-status]').textContent()==='','Prepared expression fell back: '+character+'/'+expression);assert((await preview.locator('[data-preview-result]').textContent()).includes('Intended portrait'),'Preview did not label intended artwork');report.rendered_portraits.push(await preview.locator('#character-panel').evaluate(host=>({character:host.dataset.character,requested:host.dataset.expression,rendered:host.dataset.renderedExpression,status:host.dataset.artworkStatus,source:host.querySelector('img:last-child').getAttribute('src'),width:host.querySelector('img:last-child').naturalWidth,height:host.querySelector('img:last-child').naturalHeight})));const count=await preview.locator('#character-panel img').count();report.max_image_layers=Math.max(report.max_image_layers,count);assert(count<=2,'Unbounded decoded image layers');}
  }
- await preview.locator('[data-preview-expression]').selectOption('cheerful');await portrait(preview,'daisy','cheerful');await preview.setViewportSize({width:1920,height:1080});await capture(preview,'daisy-cheerful-1920.png');
+ await preview.locator('[data-preview-character]').selectOption('evelyn');await preview.locator('[data-preview-expression]').selectOption('proud');await portrait(preview,'evelyn','proud');await capture(preview,'evelyn-proud-preview.png');
+ await preview.locator('[data-preview-character]').selectOption('daisy');await preview.locator('[data-preview-expression]').selectOption('happy');await portrait(preview,'daisy','happy');await preview.setViewportSize({width:1920,height:1080});await capture(preview,'daisy-happy-1920.png');
  assert(await preview.locator('[data-selected]').textContent()==='No AI model active','Preview changed model selection');
- report.steps.push('All 24 character/expression combinations preview with missing-expression neutral fallbacks; no model inference');
+ report.steps.push('All 24 prepared character/expression portraits load directly without fallback; no model inference');
  // Force expression failure, neutral fallback, total failure, and stale in-flight identity changes.
  const failures=await preview.evaluate(async()=>{
   const {CharacterPresentation}=await import('/src/js/ai/character.js');const host=document.createElement('aside');document.body.append(host);
   const catalog={models:{'test:tag':'test','other:tag':'other'},characters:{test:{name:'Test',expressions:{neutral:'/Character_Art/Daisy/expressions/daisy_neutral.png',playful:'/src/assets/characters/not-found.webp'}},other:{name:'Other',expressions:{neutral:'/src/assets/characters/no-neutral.webp'}}}};
   const view=new CharacterPresentation(host,catalog);view.setState({model:'test:tag',expression:'playful'});await new Promise(r=>setTimeout(r,1000));
-  const fallback=host.querySelector('img')?.naturalWidth>0&&host.querySelector('[data-art-status]').textContent.includes('Neutral portrait');
+  const fallback=host.dataset.artworkStatus==='fallback'&&host.dataset.renderedExpression==='neutral'&&host.querySelector('img')?.naturalWidth>0&&host.querySelector('[data-art-status]').textContent.includes('Neutral portrait');
   view.setModel('other:tag');await new Promise(r=>setTimeout(r,400));const placeholder=!host.querySelector('.portrait-placeholder').hidden&&host.querySelectorAll('img').length===0;
   view.setModel('test:tag');view.setModel('other:tag');await new Promise(r=>setTimeout(r,600));const stale=host.dataset.character==='other'&&host.querySelectorAll('img').length===0;
   view.destroy();host.remove();return {fallback,placeholder,stale};

@@ -5,9 +5,16 @@ Daisy portraits. The original engine, device drivers, character Modelfiles,
 conversation memory and F2.3 canonical telemetry remain authoritative and unchanged.
 AI and character presentation remain read-only; no voice or F3 control is added.
 
-See the [artwork inventory and missing variants](F24_ARTWORK_INVENTORY.md),
+See the [complete prepared-artwork inventory](F24_ARTWORK_INVENTORY.md),
 [shared manifest](../../src/assets/characters/manifest.json) and
-[validation evidence](validation-f24.json).
+[validation evidence](validation-f24-prepared-expressions.json).
+
+## Corrected prepared expression catalog
+
+The current states are **Neutral, Happy, Playful, Flirty, Mischievous, Focused,
+Excited, Surprised, Disappointed, Concerned, Proud and Comforting**. All twelve
+have direct artwork for both characters. This correction supersedes the earlier
+F2.4 coverage list; it does not modify or manufacture assets.
 
 ## Identity and configuration
 
@@ -16,7 +23,7 @@ See the [artwork inventory and missing variants](F24_ARTWORK_INVENTORY.md),
 - `models`: exact Ollama identifier → canonical visual character ID.
 - `characters`: ID → display name, contain/cover fit, object position and expression assets.
 - `expressions`: twelve standard IDs; null asset entries explicitly request neutral fallback.
-- `activities`: idle, thinking, listening, speaking and disconnected, independent of expression.
+- `activities`: idle, generating, listening, speaking and disconnected, independent of expression.
 - `presentation`: session reaction map, six-second reaction cooldown and eight-second chat priority hold.
 
 All 15 installed character aliases map explicitly to Evelyn or Daisy. The two base
@@ -53,7 +60,7 @@ and transitions were already validated by F2.3. Rejected, unsupported, duplicate
 out-of-epoch observations cannot create these reactions. The original protocol,
 authentication, origins, limits and authoritative data schema are retained.
 
-Starting a user turn depicts Attentive while activity becomes Generating. Only an
+Starting a user turn depicts Focused while activity becomes Generating. Only an
 accepted completed visible reply can choose a dialogue expression; streaming tokens
 and internal reasoning do not. Completion returns activity to Idle while retaining
 the chosen expression. Cancel/error/disconnect invalidates the request. Model/request
@@ -62,20 +69,25 @@ resets presentation sequence evidence. Restoring history inspects the last accep
 assistant reply from the existing model store; it creates no second memory system.
 A quiet/suppressed turn resets activity without inventing an expression.
 
-The lightweight dialogue mapper recognizes specific first-person self-expression
-and stage direction, for example “I smile warmly”, “I give you a playful wink”,
-“I pause thoughtfully” or “I’m beaming”. It rejects ambiguous multiple cues, quoted
-examples, fenced code and thinking blocks. It does not switch on isolated words
-such as happy, excited or worried, and never reads the user message to classify
-emotion. Unknown tone retains the prior appropriate expression. No classification
-inference call, prompt instruction, Modelfile change or invented emotional metadata
-is used. An optional bounded explicit expression argument is available to future
-presentation adapters, not an AI tool or a new accepted wire command.
+The lightweight dialogue mapper recognizes both explicit character self-expression
+and compound conversational tone. Examples include a playful wink, a sly smirk,
+“Come a little closer, darling” (Flirty), “I've got a little secret for you”
+(Mischievous), “Let's work through it step by step” (Focused), “I'm proud of you”
+(Proud) and “I'm here with you. Take your time” (Comforting). All twelve states
+have test cases with and without facial narration. The mapper uses bounded,
+contextual phrase families rather than isolated words. Quoted examples, code,
+thinking blocks, negated/hypothetical cues and ambiguous competing tones are
+ignored conservatively. Unknown tone retains the prior appropriate expression.
+It never consumes the user message or BPM fields to classify user emotion.
 
-This is intentionally limited English phrase recognition, not a general emotion
-classifier. It can miss paraphrases, and text can describe fictional gestures or
-hypotheticals. It depicts the character, never establishes a user emotion or a real
-physiological fact. F2.3’s remaining language inaccuracies are not solved by artwork.
+This is lightweight English tone recognition, not a general emotion model; it
+will miss paraphrases and can misread fiction, sarcasm or indirect context. No
+extra inference call, personality instruction, Modelfile change or second memory
+system is added. The existing `complete(id, text, model, metadata)` adapter accepts
+an optional `{expression: canonicalId}` for future alongside-dialogue metadata.
+It is bounded to the twelve IDs and gated by the active request/model. It is not
+currently requested from Ollama or accepted as a new control command. Activity
+remains a separate dimension. F2.3 factual-language limitations still apply.
 
 ## Priority and event reactions
 
@@ -83,7 +95,7 @@ physiological fact. F2.3’s remaining language inaccuracies are not solved by a
 - An active chat or its eight-second hold takes priority over routine session reactions.
 - Other reactions require a six-second cooldown; suppressed reactions are dropped,
   not queued for later narration. Up to 128 event IDs deduplicate repeated frames.
-- Defaults: start/pause/resume → Attentive; milestone → Cheerful; stop → Neutral.
+- Defaults: start/pause/resume → Focused; milestone → Happy; stop → Neutral.
 - An empty `presentation.session_reactions` object disables session-expression reactions.
 - High BPM, source changes, signal faults and edge counts do not classify emotion.
 
@@ -99,8 +111,8 @@ The right column retains the existing approximately 33% desktop allocation, alon
 27% session controls and 40% chat. Portraits use `object-fit: contain` and centered
 placement; optional cover/position is manifest-controlled. Full poses, faces and
 transparent backgrounds are preserved without stretching. Twelve expression states
-are supported, with seven curated source images per character and explicit fallback
-status for the other five.
+are supported, with twelve original source images per character. All prepared states have direct
+artwork; neutral/placeholder fallback remains for missing or failed future assets.
 
 Only the requested image is loaded, with neutral retried on failure. The renderer
 has at most two DOM image layers during a 250ms crossfade and one pending image
@@ -122,7 +134,10 @@ consistent placement cannot eliminate differences already present in the origina
 
 Open `http://127.0.0.1:8770/?characterPreview=1` and expand **Artwork preview ·
 development** in Character. Choose either character, any of twelve expressions and
-one of five activities. This is localhost-only and opt-in. It does not select an AI
+one of five activities: idle, generating, listening, speaking and disconnected.
+The preview explicitly shows the selected expression and **Intended portrait**,
+**Fallback portrait** (with rendered expression), **Loading portrait** or **Generic
+placeholder**. This is localhost-only and opt-in. It does not select an AI
 model, send a message, connect hardware or alter stored history. **Return to
 conversation** restores the live presentation state. It is absent from normal UI.
 
@@ -149,6 +164,6 @@ Live acceptance uses the existing 11435 server sequentially for all three reques
 models. It records native SYSTEM preservation, no reasoning text, selected character,
 final expression/activity and source image. A short user-requested self-description
 is a test conversation, never an application persona prompt. No extra classifier
-inference is made. Conservative unrecognized tones retaining Attentive are valid;
+inference is made. Conservative unrecognized tones retaining Focused are valid;
 this smoke is not an expression-accuracy benchmark. No Ollama daemon is restarted,
 model weights rebuilt or physical device tested.

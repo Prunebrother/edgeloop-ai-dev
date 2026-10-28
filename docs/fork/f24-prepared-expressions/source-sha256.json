@@ -1,0 +1,12 @@
+{
+  "src/assets/characters/manifest.json": "6b227044b6c26f955f6ae271569b916240e5c0348b5df7a2c0d824effde32763",
+  "src/js/ai/presentation-controller.js": "da3255b8f63bf545f81d2eb924ebb85e8dd2e4f4b53732d70268a9046cdfa36e",
+  "src/js/ai/character.js": "229ec5801aa6350daa23245b6b50f29af1280cf59307e705ce73bee661fd92e0",
+  "src/js/ai/companion.js": "fa5b5ae582da7138ad086584037e201b84f66c8b37814b8eb2f44734f1208463",
+  "src/css/companion.css": "0a69fd1132475f3020c18bd52def5b7ca8138664bb20022085fa8bd8353df6b3",
+  "sw.js": "55ecb36f3647b59d9cbc048f74abbbe849d5dd320ba97adb8b5b227c13d539c0",
+  "tests/fork/presentation.test.mjs": "b4f364bb5a62ca7aad91968ae23c54dda939bda9730e1aba08daf7fa0cf30020",
+  "tests/fork/character-browser.mjs": "2a19ec9e664f0267028fac5f01541210aff8038fa5fd68cdfb507b516a6ba3ac",
+  "tests/fork/browser.mjs": "1f56301e472a44abd60c5533f0ff151c5944061bfe661f76512bdb123c9aef6e",
+  "tests/fork/browser_service.py": "f963e3a68b48ab6f5e52d3e1f4a98b8bb9809ffdfca33f17ac3d45073e3446b3"
+}

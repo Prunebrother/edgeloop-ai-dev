@@ -26,7 +26,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     const artwork=document.createElement('aside');artwork.id='character-panel';artwork.setAttribute('aria-label','Character artwork');
     const character=new CharacterPresentation(artwork);
     const presentation=new CharacterPresentationController(view=>character.setState(view));
-    mountExpressionPreview(artwork,presentation);mountLayout(panel,artwork);
+    const previewCleanup=mountExpressionPreview(artwork,presentation);mountLayout(panel,artwork);
     const el=key=>panel.querySelector(`[data-${key}]`);
     let selected=null,current=null,pending=false,follow=true,paired=false,changing=false,thinking=null,supportsThinking=false,canDisableThinking=true;
     let discovered=new Set();
@@ -116,6 +116,6 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     el('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el('chat').requestSubmit();}};
     // Original idle/paused sessions need no engine ticks. Refresh only the read-only projection.
     const observationTimer=setInterval(()=>{if(connection.epoch){try{refreshObservation();}catch{ /* Optional AI stays isolated. */ }}},1000);
-    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);connection.disconnect();character.destroy();});
+    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);connection.disconnect();previewCleanup?.();character.destroy();});
     return (state,devices,settings)=>connection.observe(capture.project(state,devices,settings));
 }

@@ -38,24 +38,28 @@ Inspected 2026-10-28. All 31 source files are PNG by signature; the table record
 
 ## Curated presentation references
 
-The shared JSON manifest references seven existing expression images per character. `happy` is mapped to Cheerful and `focused` to Attentive after visual inspection. Neutral, Playful, Excited, Surprised and Concerned use matching originals. No crop/resize/format conversion or manufactured expression is used. Contain scaling is the default. Other source files remain archive material and are not publicly served by the local UI server.
+The corrected catalog follows the twelve expressions originally prepared by the user. All twelve have direct artwork for both Evelyn and Daisy (24 mapped originals); none is missing. The earlier F2.4 report used a different requested catalog and is retained as historical evidence, not the current coverage list. No original has been modified or renamed.
 
-| Standard expression | Existing source suffix, both characters |
-|---|---|
-| Neutral | `neutral.png` |
-| Attentive | `focused.png` |
-| Curious | Missing; neutral portrait fallback |
-| Thoughtful | Missing; neutral portrait fallback |
-| Amused | Missing; neutral portrait fallback |
-| Cheerful | `happy.png` |
-| Playful | `playful.png` |
-| Excited | `excited.png` |
-| Surprised | `surprised.png` |
-| Serious | Missing; neutral portrait fallback |
-| Concerned | `concerned.png` |
-| Relaxed | Missing; neutral portrait fallback |
+| Expression | Daisy filename | Evelyn filename |
+|---|---|---|
+| Neutral | `daisy_neutral.png` | `evelyn_neutral.png` |
+| Happy | `daisy_happy.png` | `evelyn_happy.png` |
+| Playful | `daisy_playful.png` | `evelyn_playful.png` |
+| Flirty | `daisy_flirty.png` | `evelyn_flirty.png` |
+| Mischievous | `daisy_mischievous.png` | `evelyn_mischievous.png` |
+| Focused | `daisy_focused.png` | `evelyn_focused.png` |
+| Excited | `daisy_excited.png` | `evelyn_excited.png` |
+| Surprised | `daisy_surprised.png` | `evelyn_surprised.png` |
+| Disappointed | `daisy_disappointed.png` | `evelyn_dissapointed.png` |
+| Concerned | `daisy_concerned.png` | `evelyn_concerned.png` |
+| Proud | `daisy_proud.png` | `evelyn_proud.png` |
+| Comforting | `daisy_comforting.png` | `evelyn_comforting.png` |
 
-**Missing dedicated artwork, both Evelyn and Daisy:** Curious, Thoughtful, Amused, Serious and Relaxed. All twelve state IDs work; these five have no dedicated images and visibly report neutral fallback. Neutral image failure falls through to the generic placeholder. Existing `comforting`, `flirty`, `proud`, `mischievous` and `disappointed` files are preserved, not relabelled as unverified substitutes. Evelyn’s `dissapointed` spelling and the PNG named `Character_Art/README.md` are preserved verbatim.
+Happy, Focused and Mischievous are canonical states in their own right. Previous Cheerful, Attentive and Amused IDs are not part of this catalog. Flirty, Disappointed, Proud and Comforting now use their dedicated portraits. The earlier Curious, Thoughtful, Amused, Cheerful, Attentive, Serious and Relaxed state IDs are replaced by this prepared catalog, rather than suggesting more artwork is required. Neutral remains the fallback for a future missing or failed image.
+
+Daisy’s user-supplied visual distinctions are: Neutral—relaxed stance; Happy—genuine smile with egg basket; Playful—raised eyebrow/hip pose; Flirty—soft gaze/hair gesture; Mischievous—sly smirk/secret gesture; Focused—serious/checklist; Excited—celebration; Surprised—wide eyes/interrupted movement; Disappointed—lowered shoulders/small frown; Concerned—attentive/supportive gesture; Proud—confident hands-on-hips smile; Comforting—warm expression/open hand. These descriptions concern the character depiction, not the user’s feelings.
+
+Evelyn’s existing `evelyn_dissapointed.png` spelling and the PNG named `Character_Art/README.md` are preserved verbatim. No extra artwork is required to complete the prepared expression set.
 
 ## Provenance and redistribution
 

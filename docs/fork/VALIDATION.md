@@ -1,3 +1,12 @@
+# Current expression-catalog validation — F2.4 correction
+
+The [prepared catalog](F24_ARTWORK_INVENTORY.md) now uses all twelve existing
+expression portraits for each character. See [correction tests and coverage](validation-f24-prepared-expressions.json).
+No image, backend personality, telemetry or session-control change is involved.
+Earlier validation results below retain their original catalog and test time.
+
+---
+
 # Current validation — F2.4
 
 See [character presentation](F24_CHARACTER_PRESENTATION.md),

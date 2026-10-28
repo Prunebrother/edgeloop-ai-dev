@@ -3,21 +3,21 @@
   "provenance": "References to user-provided local originals, preserved byte-for-byte. Existing Git backup is not evidence of redistribution rights; no new image assets are added by F2.4.",
   "expressions": [
     "neutral",
-    "attentive",
-    "curious",
-    "thoughtful",
-    "amused",
-    "cheerful",
+    "happy",
     "playful",
+    "flirty",
+    "mischievous",
+    "focused",
     "excited",
     "surprised",
-    "serious",
+    "disappointed",
     "concerned",
-    "relaxed"
+    "proud",
+    "comforting"
   ],
   "activities": [
     "idle",
-    "thinking",
+    "generating",
     "listening",
     "speaking",
     "disconnected"
@@ -29,17 +29,17 @@
       "position": "50% 50%",
       "expressions": {
         "neutral": "/Character_Art/Evelyn/Expressions/evelyn_neutral.png",
-        "attentive": "/Character_Art/Evelyn/Expressions/evelyn_focused.png",
-        "curious": null,
-        "thoughtful": null,
-        "amused": null,
-        "cheerful": "/Character_Art/Evelyn/Expressions/evelyn_happy.png",
+        "happy": "/Character_Art/Evelyn/Expressions/evelyn_happy.png",
         "playful": "/Character_Art/Evelyn/Expressions/evelyn_playful.png",
+        "flirty": "/Character_Art/Evelyn/Expressions/evelyn_flirty.png",
+        "mischievous": "/Character_Art/Evelyn/Expressions/evelyn_mischievous.png",
+        "focused": "/Character_Art/Evelyn/Expressions/evelyn_focused.png",
         "excited": "/Character_Art/Evelyn/Expressions/evelyn_excited.png",
         "surprised": "/Character_Art/Evelyn/Expressions/evelyn_surprised.png",
-        "serious": null,
+        "disappointed": "/Character_Art/Evelyn/Expressions/evelyn_dissapointed.png",
         "concerned": "/Character_Art/Evelyn/Expressions/evelyn_concerned.png",
-        "relaxed": null
+        "proud": "/Character_Art/Evelyn/Expressions/evelyn_proud.png",
+        "comforting": "/Character_Art/Evelyn/Expressions/evelyn_comforting.png"
       }
     },
     "daisy": {
@@ -48,17 +48,17 @@
       "position": "50% 50%",
       "expressions": {
         "neutral": "/Character_Art/Daisy/expressions/daisy_neutral.png",
-        "attentive": "/Character_Art/Daisy/expressions/daisy_focused.png",
-        "curious": null,
-        "thoughtful": null,
-        "amused": null,
-        "cheerful": "/Character_Art/Daisy/expressions/daisy_happy.png",
+        "happy": "/Character_Art/Daisy/expressions/daisy_happy.png",
         "playful": "/Character_Art/Daisy/expressions/daisy_playful.png",
+        "flirty": "/Character_Art/Daisy/expressions/daisy_flirty.png",
+        "mischievous": "/Character_Art/Daisy/expressions/daisy_mischievous.png",
+        "focused": "/Character_Art/Daisy/expressions/daisy_focused.png",
         "excited": "/Character_Art/Daisy/expressions/daisy_excited.png",
         "surprised": "/Character_Art/Daisy/expressions/daisy_surprised.png",
-        "serious": null,
+        "disappointed": "/Character_Art/Daisy/expressions/daisy_disappointed.png",
         "concerned": "/Character_Art/Daisy/expressions/daisy_concerned.png",
-        "relaxed": null
+        "proud": "/Character_Art/Daisy/expressions/daisy_proud.png",
+        "comforting": "/Character_Art/Daisy/expressions/daisy_comforting.png"
       }
     }
   },
@@ -81,11 +81,11 @@
   },
   "presentation": {
     "session_reactions": {
-      "session_started": "attentive",
-      "pause": "attentive",
-      "session_resumed": "attentive",
+      "session_started": "focused",
+      "pause": "focused",
+      "session_resumed": "focused",
       "stop": "neutral",
-      "milestone": "cheerful"
+      "milestone": "happy"
     },
     "cooldown_ms": 6000,
     "chat_hold_ms": 8000

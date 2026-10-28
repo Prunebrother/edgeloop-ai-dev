@@ -210,8 +210,8 @@ try {
         const {CharacterPresentation}=await import('/src/js/ai/character.js');
         const host=document.createElement('div');host.style.cssText='width:300px;height:400px';document.body.append(host);
         const pixel='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="400"><rect width="200" height="400" fill="purple"/></svg>');
-        const view=new CharacterPresentation(host,{models:{'test:tag':'test'},characters:{test:{name:'Test character',expressions:{neutral:pixel,cheerful:'/src/assets/characters/missing.webp'}}}});
-        view.setModel('test:tag');view.setState({expression:'cheerful',activity:'listening'});
+        const view=new CharacterPresentation(host,{models:{'test:tag':'test'},characters:{test:{name:'Test character',expressions:{neutral:pixel,happy:'/src/assets/characters/missing.webp'}}}});
+        view.setModel('test:tag');view.setState({expression:'happy',activity:'listening'});
         await new Promise(resolve=>setTimeout(resolve,350));
         const img=host.querySelector('img');
         const result={loaded:img?.naturalWidth===200,fit:img&&getComputedStyle(img).objectFit,placeholderHidden:host.querySelector('.portrait-placeholder').hidden,name:host.querySelector('[data-character-name]').textContent};host.remove();return result;

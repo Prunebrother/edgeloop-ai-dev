@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-28",
+  "milestone": "F2.4 prepared-expression correction",
+  "baseline": "6ae67aa",
+  "status": "passed",
+  "canonical_expressions": [
+    "neutral",
+    "happy",
+    "playful",
+    "flirty",
+    "mischievous",
+    "focused",
+    "excited",
+    "surprised",
+    "disappointed",
+    "concerned",
+    "proud",
+    "comforting"
+  ],
+  "activities": [
+    "idle",
+    "generating",
+    "listening",
+    "speaking",
+    "disconnected"
+  ],
+  "artwork": {
+    "characters": 2,
+    "states_per_character": 12,
+    "intended_portraits_verified_in_browser": 24,
+    "missing_assets": [],
+    "original_files_preserved_by_sha256": 31,
+    "evelyn_disappointed_existing_filename_preserved": "evelyn_dissapointed.png",
+    "coverage": "f24-prepared-expressions/asset-coverage.json"
+  },
+  "tests": {
+    "bridge_presentation": {
+      "passed": 23,
+      "includes_all_12_ordinary_tones_and_explicit_cues": true,
+      "includes_metadata_model_request_fences": true
+    },
+    "python": {
+      "passed": 186,
+      "warning": "Existing Starlette/httpx TestClient deprecation"
+    },
+    "portrait_browser": {
+      "passed": true,
+      "steps": [
+        "Exact aliases share identity and retain the same loaded portrait node",
+        "Ordinary conversational tone selects Flirty without facial narration",
+        "Completed reply tone, cancellation, character switching and model history restoration",
+        "Verified stop event resets visual expression; original emergency control stops mocked session",
+        "Desktop/tablet/mobile artwork, contain scaling, reduced motion and emergency accessibility",
+        "All 24 prepared character/expression portraits load directly without fallback; no model inference",
+        "Image error fallback, total failure placeholder and stale image-load fencing"
+      ]
+    },
+    "dashboard_browser": {
+      "passed": true,
+      "scope": "Streaming, cancellation, model history, grounding retry/rejection, simulated session controls and emergency stop"
+    },
+    "upstream": "1057/1057 from F2.4 retained; current source pin verified; engine/driver/app files unchanged in this correction"
+  },
+  "preview": {
+    "url": "http://127.0.0.1:8770/?characterPreview=1",
+    "independent_of_ollama": true,
+    "shows_requested_and_rendered_expression": true,
+    "statuses": [
+      "loading",
+      "intended",
+      "fallback",
+      "unavailable"
+    ]
+  },
+  "future_metadata": "Optional canonical expression supplied to active model/request completion; no new wire command or prompting",
+  "real_ollama_inference_calls_added": 0,
+  "observer_restarted": false,
+  "pairing_token_rotated": false,
+  "preserved": [
+    "All original artwork",
+    "Character Modelfiles",
+    "Original EdgeLoop engine/hardware drivers",
+    "F2.3 canonical telemetry, validation and grounding",
+    "Model-specific conversation memory"
+  ],
+  "screenshots": "f24-prepared-expressions/screenshots.json",
+  "runtime_source_hashes": "f24-prepared-expressions/source-sha256.json",
+  "limitations": [
+    "Lightweight English contextual phrase families, not a general emotion model; ambiguous/unknown tone retains prior expression",
+    "No model-generated expression metadata is requested yet",
+    "Screenshots retained locally; no new image derivatives committed or published"
+  ]
+}
