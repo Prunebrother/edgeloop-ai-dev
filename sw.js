@@ -6,7 +6,7 @@
 // offline once it has been visited. Bump CACHE_VERSION when the precache list
 // changes; old caches are removed on activate.
 
-const CACHE_VERSION = 'edgeloop-f26-narrative-v1';
+const CACHE_VERSION = 'edgeloop-f261-menus-v1';
 const PRECACHE = [
     './',
     './index.html',
@@ -26,6 +26,7 @@ const PRECACHE = [
     './src/js/ai/snapshot.js',
     './src/js/ai/layout.js',
     './src/js/ai/character.js',
+    './src/js/ai/character-menus.js',
     './src/js/ai/artwork-manifest.js',
     './src/js/ai/presentation-controller.js',
     './src/assets/characters/manifest.json',

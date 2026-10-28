@@ -4,6 +4,7 @@ import {ReadOnlyConnection,reactionMatchesLatest} from './connection.js';
 import {resolveArtwork} from './artwork-manifest.js';
 import {CharacterPresentation,mountExpressionPreview} from './character.js';
 import {CharacterPresentationController} from './presentation-controller.js';
+import {mountCharacterMenus} from './character-menus.js';
 import {mountLayout} from './layout.js';
 export function mountCompanion({refreshObservation=()=>{}}={}) {
     const capture=new Capture();
@@ -22,7 +23,6 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
       <button data-latest class="jump-latest" type="button" hidden>Jump to latest ↓</button>
       <p data-error class="chat-error" role="alert" hidden></p><p data-progress role="status" class="chat-progress"></p>
       <form data-chat class="chat-composer"><label for="companion-message">Message your companion</label><textarea id="companion-message" data-text maxlength="2000" rows="3" placeholder="What’s on your mind?" disabled></textarea><div class="composer-actions"><span>Enter to send · Shift+Enter for a new line</span><button data-cancel type="button" hidden>Cancel generation</button><button data-send class="accent-button" type="submit" disabled>Send ↑</button></div></form>
-      <details><summary>Story memory</summary><p>Reset the current model’s story anchors. Conversation and EdgeLoop records are retained.</p><button data-narrative-reset type="button">Reset story memory</button></details>
       <p class="read-only-note">Read-only companion · Session and safety stay with EdgeLoop</p>`;
     const artwork=document.createElement('aside');artwork.id='character-panel';artwork.setAttribute('aria-label','Character artwork');
     const character=new CharacterPresentation(artwork);
@@ -42,7 +42,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     new ResizeObserver(scroll).observe(el('history'));
     const activity=(state,label)=>{const badge=panel.querySelector('[data-activity-state]');badge.dataset.activityState=state;el('activity-label').textContent=label;};
     const controls=()=>{
-        el('narrative-reset').disabled=!paired||!selected||changing;
+        menus.scope(changing?null:selected,paired);
         el('send').disabled=!selected||pending||changing;el('text').disabled=!selected||changing;
         el('select').disabled=!paired||pending||changing||!discovered.has(el('model').value);el('model').disabled=!paired||pending||changing;
         el('thinking').disabled=!discovered.has(selected)||!selected||!supportsThinking||thinking===true&&!canDisableThinking||thinking===null||pending||changing;
@@ -70,7 +70,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             return;
         }
         if(debug)queueMicrotask(updateDiagnostics);
-        if(m.type==='narrative_reset'){el('progress').textContent='Story memory reset.';return;}
+        if(['character_state','narrative_reset','character_menu_error'].includes(m.type)){menus.receive(m);return;}
         if(m.type==='ai_diagnostics'){if(m.responder?.model&&m.responder.model!==selected||m.id&&m.id!==presentation.lastRequest?.id)return;Object.assign(diagnostic,m);return;}
         if(m.type==='models'){
             el('model').replaceChildren();for(const entry of m.models.slice(0,128)){const o=document.createElement('option');o.value=entry.name;o.textContent=entry.name;el('model').append(o);}
@@ -82,6 +82,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             controls();
         } else if(m.type==='model_selected'){
             const sameModel=selected===m.model;changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;canDisableThinking=m.can_disable_thinking!==false;el('selected').textContent='Active: '+m.model;el('name').textContent=resolveArtwork(m.model).name==='Your companion'?m.model:resolveArtwork(m.model).name;el('name').title=m.model;el('model').value=m.model;
+            queueMicrotask(()=>menus.refresh());
             Object.assign(diagnostic,{id:null,responder:{model:m.model},model_selected_expression:null,validated_expression:null,expression_valid:null});
             presentation.select(m.model,m.history||[]);
             if(!sameModel){el('history').replaceChildren();follow=true;
@@ -121,9 +122,9 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             if(m.code==='grounding_violation'&&current){current.node.remove();current=null;}
             if(m.selection_failed&&!m.active){selected=null;thinking=null;supportsThinking=false;}finish();error((m.detail||'AI unavailable')+(m.errors?.length?' · '+m.errors.map(e=>e.path.join('.')+': '+e.code).join(', '):''));activity('error',selected?'Ready · last request failed':'AI unavailable');if(m.type==='ai_error')el('ollama').textContent='Ollama request unavailable';}
     }});
+    const menus=mountCharacterMenus(artwork,{send:m=>connection.send(m),onReset:()=>{presentation.cancel();finish();}});
     el('setup').onsubmit=e=>{e.preventDefault();error('');try{connection.connect(el('url').value,el('token').value);}catch(e){error(e.message);}finally{el('token').value='';}};
     el('disconnect').onclick=()=>connection.disconnect();
-    el('narrative-reset').onclick=()=>{if(paired&&connection.send({version:1,type:'reset_narrative'})){presentation.cancel();finish();el('progress').textContent='Story memory reset requested.';}};
     el('refresh').onclick=()=>connection.send({version:1,type:'list_models'});
     const selectModel=(model,requestedThinking)=>{
         if(pending||changing)return;
@@ -141,7 +142,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     el('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el('chat').requestSubmit();}};
     // Original idle/paused sessions need no engine ticks. Refresh only the read-only projection.
     const observationTimer=setInterval(()=>{if(connection.epoch){try{refreshObservation();}catch{ /* Optional AI stays isolated. */ }}},1000);
-    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);clearInterval(diagnosticTimer);connection.disconnect();previewCleanup?.();character.destroy();});
+    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);clearInterval(diagnosticTimer);connection.disconnect();menus.destroy();previewCleanup?.();character.destroy();});
     const releaseNote=document.createElement('p');releaseNote.dataset.releaseFeedback='';releaseNote.setAttribute('role','status');releaseNote.style.fontSize='11px';releaseNote.hidden=true;document.getElementById('cameEarlyBtn')?.parentElement?.after(releaseNote);
     return (state,devices,settings)=>{
         const previous=capture.previous;const observation=capture.project(state,devices,settings);

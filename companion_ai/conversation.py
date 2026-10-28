@@ -282,17 +282,47 @@ class ConversationService:
         self.sync_narrative()
         if not self.director.memory['responses']:
             for record in self.history:
+                if self.narrative.state['context_boundary'] and record.get('narrative_epoch')!=self.narrative.state['epoch']:continue
                 if record.get('role') == 'assistant':
                     self.director.memory['responses'].append({'text':record['content'],'at':self.clock()})
 
     def sync_narrative(self):
         self.narrative.activate(self.active_model_id, getattr(self.state, 'session_id', None))
 
+    def narrative_scope(self):
+        return (self.active_model_id,getattr(self.state,'session_id',None),self.narrative.state['epoch'])
+
+    def character_state(self):
+        self.sync_narrative()
+        now=self.clock();config=self.director.config
+        event=getattr(self,'last_validated_event',None)
+        if event and event.get('session_id')!=getattr(self.state,'session_id',None):event=None
+        narrative=self.narrative.context()
+        if narrative is not None:
+            narrative=narrative | {key:list(self.narrative.state[key]) for key in ('developments','choices','commitments')} | {'recent_updates':self.narrative.state['developments'][-3:]}
+        return {'type':'character_state','model':self.responder()['model'],
+            'narrative':narrative,'narrative_enabled':self.narrative.config.enabled,
+            'narrative_epoch':self.narrative.state['epoch'],'narrative_revision':self.narrative.state['revision'],
+            'director':{'enabled':config.enabled,'proactive_enabled':config.spontaneous_enabled,
+                'narrative_initiative_enabled':config.narrative_initiative_enabled,
+                'max_consecutive_unsolicited':config.max_consecutive_unsolicited,
+                'last_decision':self.director.last_reason,
+                'cooldown_seconds':round(max(0,config.spontaneous_interval_seconds-(now-self.director.last_spoken)),1),
+                'reaction_cooldown_seconds':round(max(0,config.reaction_interval_seconds-(now-self.director.last_reaction)),1),
+                'pending':[{'kind':e['kind'],'priority':e['priority']} for e in self.pending],
+                'suppressed_count':self.director.counts['events_suppressed']+self.director.counts['responses_suppressed'],
+                'active_response':self.active_source if self.task and not self.task.done() else None,
+                'last_event':({k:v for k,v in event.items() if k in {'kind','significance'}} | {'age_seconds':round(max(0,now-event['received']),1)}) if event else None}}
+
     def reset_narrative(self):
         self.interrupt()
         self.sync_narrative()
         self.narrative.reset()
-        self.publish({'type':'narrative_reset','model':self.responder()['model']})
+        self.pending.clear()
+        for key in ('topics','questions','responses','event_responses'):self.director.memory[key].clear()
+        self.director.memory.update(topic=None,consecutive_unsolicited=0)
+        self.publish({'type':'narrative_reset','model':self.responder()['model'],'narrative_epoch':self.narrative.state['epoch']})
+        self.publish(self.character_state())
 
     def interrupt(self):
         self.generation += 1
@@ -343,6 +373,10 @@ class ConversationService:
         now = self.clock()
         event = {"kind": kind, "at": now, "priority": priority, **(details or {})}
         self.recent_events.append(event)
+        if not self.director.config.spontaneous_enabled:
+            self.director.counts['events_suppressed']+=1
+            self.director.last_reason='proactive_disabled'
+            return
         if kind in SELECTION_EVENTS:
             prior=next((e for e in self.pending if e['kind'] in SELECTION_EVENTS),None)
             if prior:
@@ -367,6 +401,7 @@ class ConversationService:
         self.pending = [e for e in self.pending if now-e["at"] <= self.policy.event_ttl_seconds]
         if getattr(self.adapter, "mode", None) in {"mock", "stopped"}:
             return
+        if not self.director.config.spontaneous_enabled:return
         if self.closed or not self.policy.enabled or not self.policy.event_responses or self.state.emergency:
             return
         # Telemetry never supersedes an in-progress user turn, regardless of interruption policy.
@@ -451,7 +486,9 @@ class ConversationService:
         if event and not event.get('narrative'):summary['trigger_event']={k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm'}}
         summary['narrative_initiative']=bool(event and event.get('narrative'))
         if memory.enabled:summary['narrative_context']=self.narrative.context()
-        summary['narrative_scope']=(self.active_model_id,self.narrative.session)
+        summary['narrative_scope']=self.narrative_scope()
+        if self.narrative.state['context_boundary']:
+            history=[m for m in history if m.get('narrative_epoch')==self.narrative.state['epoch']]
         if event and event['kind'] in REACTIVE_EVENTS:
             history=[m for m in history if m.get('trigger_origin') in {None,'real_user'}]
         self.active_event_kind = event['kind'] if event else None
@@ -509,7 +546,7 @@ class ConversationService:
                 flush(force=True)
             else:
                 text = await self.adapter.reply(summary, prompt, history)
-            if generation != self.generation or summary.get('narrative_scope')!=(self.active_model_id,getattr(self.state,'session_id',None)):
+            if generation != self.generation or summary.get('narrative_scope')!=self.narrative_scope():
                 return
             if not self.reaction_current(summary):
                 self.director.log('selection_superseded')
@@ -553,12 +590,15 @@ class ConversationService:
             memory = self.memory_config
             if memory.enabled:
                 if user:
-                    self.history.append({'role':'user', 'content':prompt, 'origin':'real_user', 'session_id':getattr(self.state,'session_id',None), 'at':self.clock()})
+                    self.history.append({'role':'user', 'content':prompt, 'origin':'real_user', 'session_id':getattr(self.state,'session_id',None), 'narrative_epoch':self.narrative.state['epoch'], 'at':self.clock()})
                 self.history.append({'role':'assistant', 'content':text, 'origin':'assistant_dialogue',
-                    'trigger_origin':'real_user' if user else 'system_event', 'expression':expression, 'session_id':getattr(self.state,'session_id',None), 'at':self.clock()})
-            if summary.get('narrative_scope')==(self.active_model_id,getattr(self.state,'session_id',None)) and memory.enabled:
+                    'trigger_origin':'real_user' if user else 'system_event', 'expression':expression, 'session_id':getattr(self.state,'session_id',None), 'narrative_epoch':self.narrative.state['epoch'], 'at':self.clock()})
+            if summary.get('narrative_scope')==self.narrative_scope() and memory.enabled:
                 self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False))
             self.director.accepted(text, user)
+            if self.director.memory['event_responses']:
+                self.director.memory['event_responses'][-1]['narrative_epoch']=self.narrative.state['epoch']
+            self.publish(self.character_state())
             store = getattr(self.adapter, 'store', None)
             if store and memory.enabled and memory.persist_between_sessions:
                 store.write(self.memory_path(), list(self.history))

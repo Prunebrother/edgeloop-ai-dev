@@ -10,7 +10,8 @@ class NarrativeAudit(f.Audit):
             if 'long streaming' not in prompt:
                 assert body['think'] is False
                 self.requests.append({'model':body['model'],'think':body['think'],'messages':body['messages']})
-                if 'brass key' in prompt:text='[[expression:focused]]I will keep the brass key for later; a violet seal points toward the garden.'
+                if 'fresh garden' in prompt:text='[[expression:happy]]A new garden path winds between the apple trees.'
+                elif 'brass key' in prompt:text='[[expression:focused]]I will keep the brass key for later; a violet seal points toward the garden.'
                 elif 'Cloverfield' in prompt:text="[[expression:playful]]A violet letter waits on Cloverfield's porch. The orchard can keep its secrets a little longer."
                 else:text='[[expression:focused]]A blue envelope waits beside the telescope. Shall we inspect its seal?'
                 return httpx.Response(200,text=json.dumps({'message':{'content':text},'done':True,'done_reason':'stop'})+'\n')

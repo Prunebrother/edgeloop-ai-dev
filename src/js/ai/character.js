@@ -5,9 +5,9 @@ const title=s=>s[0].toUpperCase()+s.slice(1);
 export class CharacterPresentation {
     constructor(host,manifest=CHARACTER_MANIFEST) {
         Object.assign(this,{host,manifest,revision:0,model:null,expression:'neutral',activity:'disconnected',identity:null,key:null,timer:null,pending:null});
-        host.innerHTML=`<header class="companion-heading"><div><p class="eyebrow">Character</p><h2 data-character-name>Your companion</h2></div><span class="expression" data-expression>Neutral</span></header>
+        host.innerHTML=`<header class="companion-heading"><div><p class="eyebrow">Character</p><h2 data-character-name>Your companion</h2><span class="character-header-status" data-character-activity>Disconnected</span></div><span class="expression" data-expression>Neutral</span></header>
           <div class="portrait-stage"><div class="portrait-placeholder"><div class="portrait-orbit" aria-hidden="true">✧</div><p>A space for your companion.</p><span>Choose a character model in Chat</span></div><div data-art-layers></div></div>
-          <footer class="character-caption"><div class="character-presence"><span data-character-model>No model selected</span><span data-character-activity>Disconnected</span></div><p data-art-status></p></footer>`;
+          <footer class="character-caption"><div class="character-presence"><span data-character-model>No model selected</span></div><p data-art-status></p></footer>`;
         this.update();
     }
     setModel(model){this.setState({model});}

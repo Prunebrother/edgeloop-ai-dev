@@ -128,8 +128,19 @@ class Cancel(StrictModel):
 class ResetNarrative(StrictModel):
     version: Literal[1]
     type: Literal['reset_narrative']
+    model: str | None = Field(default=None,min_length=1,max_length=120)
 
-Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative,Field(discriminator='type')])
+class CharacterState(StrictModel):
+    version: Literal[1]
+    type: Literal['get_character_state']
+    model: str = Field(min_length=1,max_length=120)
+
+class ConfigureDirector(StrictModel):
+    version: Literal[1]
+    type: Literal['configure_director']
+    proactive_enabled: bool
+
+Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector,Field(discriminator='type')])
 
 
 def _schema_paths(node):

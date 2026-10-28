@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 """Bounded dialogue excerpts, not generated facts or an alternative session store."""
 from hashlib import sha256
+from uuid import uuid4
 import re
 from .models import StrictModel
 from pydantic import Field
@@ -27,7 +28,7 @@ class NarrativeMemory:
 
     @staticmethod
     def empty(session):
-        return dict(version=1,session_id=session,phase='opening',premise=None,
+        return dict(version=1,session_id=session,epoch=uuid4().hex,context_boundary=False,phase='opening',premise=None,
                     developments=[],choices=[],commitments=[],threads=[],
                     initiative_allowed=False,revision=0,last_initiative_revision=-1)
 
@@ -38,8 +39,9 @@ class NarrativeMemory:
         if (scope,session)==(self.scope,self.session):return
         self.scope,self.session=scope,session
         old=self.states.get(scope)
-        if old is None and self.store and self.config.persist_between_sessions:
-            saved=self.store.read(self.path(scope),{})
+        saved=self.store.read(self.path(scope),{}) if old is None and self.store else {}
+        if not isinstance(saved,dict):saved={}
+        if old is None and self.config.persist_between_sessions:
             # Restore only sanitized dialogue excerpts, never operational state,
             # scheduling permission or a previous session identity.
             old=self.empty(session)
@@ -48,9 +50,14 @@ class NarrativeMemory:
                 if key=='premise':old[key]=self.excerpt(value or '')
                 elif isinstance(value,list):old[key]=[q for v in value if isinstance(v,str) and (q:=self.excerpt(v))][-self.config.max_excerpts:]
         if old is None or (old['session_id']!=session and not self.config.persist_between_sessions):
+            boundary=old or saved
             old=self.empty(session)
+            if boundary.get('context_boundary') is True:
+                old.update(context_boundary=True,epoch=boundary.get('epoch') if re.fullmatch(r'[a-f0-9]{32}',str(boundary.get('epoch',''))) else uuid4().hex)
         elif old['session_id']!=session:
             old.update(session_id=session,phase='opening',threads=[],initiative_allowed=False,last_initiative_revision=-1)
+        if saved.get('context_boundary') is True and re.fullmatch(r'[a-f0-9]{32}',str(saved.get('epoch',''))):
+            old.update(context_boundary=True,epoch=saved['epoch'])
         self.states[scope]=old
 
     @property
@@ -102,6 +109,7 @@ class NarrativeMemory:
 
     def reset(self):
         self.states[self.scope]=self.empty(self.session)
+        self.state['context_boundary']=True
         # Overwrite even when persistence is now disabled: explicit reset must
         # prevent an old opted-in record returning when re-enabled.
         if self.store:self.store.write(self.path(self.scope),self.state)

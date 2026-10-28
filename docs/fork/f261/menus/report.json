@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "physical_hardware": false,
+  "steps": [
+    "Both character menus, keyboard/Escape focus restoration, backend settings, no inference, readable story and cancelled reset",
+    "Candidate identities, thinking OFF, bounded callback context and independent story/dialogue restoration",
+    "Independent story reset, reset during generation and incomplete-response exclusion",
+    "Desktop/mobile artwork and independent emergency control remain accessible"
+  ],
+  "screenshots": [
+    "director-1920.png",
+    "story-memory-1920.png",
+    "evelyn-narrative-1920.png",
+    "daisy-narrative-2560.png",
+    "fresh-story-2560.png",
+    "narrative-1366.png",
+    "narrative-mobile-390.png",
+    "story-mobile-390.png",
+    "director-mobile-390.png"
+  ]
+}

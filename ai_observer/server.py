@@ -22,7 +22,7 @@ from companion_ai.event_policy import significance
 from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, safe_validation_errors
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
@@ -156,6 +156,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             if len(seen)>256:seen.pop(next(iter(seen)))
                             priority, rank=significance(event.kind,previous,state.report)
                             evidence=next((e for e in reversed(state.events) if e['kind']==event.kind),{})
+                            if priority in {'major','critical'}:speech.last_validated_event={'kind':event.kind,'significance':priority,'session_id':state.session_id,'received':clock()}
                             details={'event_id':event.id,'session_id':state.session_id,'at_ms':event.at_ms,'evidence':evidence.get('evidence'),'significance':priority}
                             if event.kind=='came_early':
                                 details.update(label='Came Early: user-confirmed premature release',meaning='The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.')
@@ -173,6 +174,28 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
                             'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (accepted_release or any(p['kind']=='came_early' for p in speech.pending) or speech.active_event_kind=='came_early' and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
+                    elif isinstance(message,(CharacterState,ResetNarrative,ConfigureDirector)):
+                        if isinstance(message,(CharacterState,ResetNarrative)) and message.model is not None and message.model!=manager.config.model:
+                            publish({'type':'character_menu_error','detail':'The selected model changed. Reopen the menu.','model':message.model});continue
+                        if isinstance(message,ResetNarrative):
+                            retained=[]
+                            while not ai_queue.empty():
+                                queued=ai_queue.get_nowait()
+                                if not isinstance(queued,Chat) or queued.model!=manager.config.model:retained.append(queued)
+                            for queued in retained:ai_queue.put_nowait(queued)
+                            try:speech.reset_narrative()
+                            except (ValueError,OSError):publish({'type':'character_menu_error','model':message.model,'detail':'The new storyline boundary could not be saved. Try again.'})
+                        elif isinstance(message,ConfigureDirector):
+                            config=DirectorConfig.model_validate(director.config.model_dump() | {'spontaneous_enabled':message.proactive_enabled})
+                            try:store.write('director.json',config.model_dump())
+                            except (ValueError,OSError):
+                                publish({'type':'character_menu_error','detail':'Director settings could not be saved.'});continue
+                            director.config=config
+                            if not config.spontaneous_enabled:
+                                speech.pending.clear()
+                                if speech.active_source=='event' and speech.task and not speech.task.done():speech.interrupt()
+                            publish(speech.character_state() | {'director_saved':True})
+                        else:publish(speech.character_state())
                     elif isinstance(message,Cancel):
                         # Interrupt output immediately, independently of telemetry/model discovery.
                         speech.pending.clear();speech.interrupt()
@@ -213,8 +236,6 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 publish({'type':'model_selected','model':manager.config.model,'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'can_disable_thinking':controls['can_disable'],'history':[{k:str(m[k])[:4000] for k in ('role','content','expression') if m.get(k) is not None} for m in list(speech.history)[-8:]]})
                         except InferenceCompatibilityError as exc:publish({'type':'ai_error','code':'inference_compatibility','detail':str(exc),'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
                         except (ValueError,httpx.HTTPError,OSError):publish({'type':'ai_error','detail':'Model settings could not be applied; check model availability and thinking support.', 'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
-                    elif isinstance(message,ResetNarrative):
-                        speech.reset_narrative()
                     elif isinstance(message,Chat):
                         chat_times[:]=[t for t in chat_times if clock()-t<60]
                         if len(chat_times)>=12:publish({'type':'ai_error','detail':'Chat rate limit'});continue

@@ -1,0 +1,20 @@
+{
+  "milestone": "F2.6.1",
+  "upstream_tests": 1057,
+  "python_tests": 272,
+  "bridge_presentation_tests": 30,
+  "browser_suites": [
+    "dashboard",
+    "artwork",
+    "event-reliability",
+    "narrative",
+    "character-menus"
+  ],
+  "physical_hardware": false,
+  "new_inference_paths": false,
+  "existing_models_or_artwork_modified": false,
+  "reset_preserves_transcript": true,
+  "reset_boundary_persists_independently_of_story_persistence": true,
+  "manual_user_acceptance": "deferred",
+  "running_observer_restarted": false
+}

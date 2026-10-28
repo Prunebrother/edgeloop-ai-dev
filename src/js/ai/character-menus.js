@@ -1,0 +1,90 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Read-only presentation and validated companion settings. No engine imports.
+export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
+    const toolbar=document.createElement('nav');toolbar.className='character-toolbar';toolbar.setAttribute('aria-label','Character management');
+    toolbar.innerHTML='<button type="button" data-menu-director aria-controls="character-director" aria-expanded="false">Director</button><button type="button" data-menu-story aria-controls="character-story" aria-expanded="false">Story Memory</button>';
+    host.querySelector('header').after(toolbar);
+    const summary=document.createElement('details');summary.className='story-summary';summary.hidden=true;
+    summary.innerHTML='<summary></summary><p></p>';toolbar.after(summary);
+    const dialogs={};let model=null,connected=false,state=null,opener=null,open=null,saving=false,resetting=false,dirty=false,storyKey=null;
+    for(const [key,title] of [['director','Conversation Director'],['story','Story Memory']]){
+        const d=document.createElement('dialog');d.id='character-'+key;d.className='character-drawer';d.setAttribute('aria-labelledby',d.id+'-title');
+        d.innerHTML='<header><div><p class="eyebrow">Character management</p><h3 id="'+d.id+'-title">'+title+'</h3></div><button type="button" data-close aria-label="Close '+title+'">×</button></header><div class="drawer-content"></div><p data-menu-notice role="status"></p>';
+        host.append(d);dialogs[key]=d;d.querySelector('[data-close]').onclick=()=>close();
+        toolbar.querySelector('[data-menu-'+key+']').onclick=()=>show(key);
+    }
+    const director=dialogs.director,story=dialogs.story;
+    director.querySelector('.drawer-content').innerHTML='<section class="menu-setting"><h4>Editable setting</h4><label><input type="checkbox" data-proactive> Enable proactive dialogue</label><p>Applies to this companion service. User replies and EdgeLoop safety notices remain independent.</p><button type="button" data-save-director>Save setting</button></section><section><h4>Read-only status</h4><dl data-director-status></dl><p class="menu-help">Cooldowns indicate pacing limits, not a promise of a scheduled reply. Initiative still requires a welcomed story and no unanswered question.</p></section>';
+    story.querySelector('.drawer-content').innerHTML='<p class="menu-help">Fictional and conversational context for the selected model. These excerpts are fallible and are not verified EdgeLoop session facts.</p><p data-story-model></p><div data-story-content></div><section class="story-reset"><button type="button" data-start-story>Start New Storyline</button><p>Clears this model’s story context and cancels its pending response. Your transcript and EdgeLoop history are retained.</p><div data-story-confirm role="group" aria-label="Confirm new storyline" hidden><p>Start a new storyline for this model? The previous story will be excluded from future context.</p><button type="button" data-story-keep>Keep current storyline</button><button type="button" data-narrative-reset>Confirm new storyline</button></div></section>';
+    const human=value=>String(value||'None recorded').replaceAll('_',' ').replace(/^./,s=>s.toUpperCase());
+    const notice=(key,text)=>{dialogs[key].querySelector('[data-menu-notice]').textContent=text;};
+    function request(){if(connected&&model)send({version:1,type:'get_character_state',model});}
+    function close(restore=true){
+        if(!open)return;dialogs[open].close();toolbar.querySelector('[data-menu-'+open+']').setAttribute('aria-expanded','false');open=null;
+        story.querySelector('[data-story-confirm]').hidden=true;if(restore&&opener?.isConnected)opener.focus();
+    }
+    function show(key){
+        if(open===key){close();return;}close(false);open=key;opener=toolbar.querySelector('[data-menu-'+key+']');opener.setAttribute('aria-expanded','true');
+        const d=dialogs[key];d.style.top=(toolbar.getBoundingClientRect().bottom-host.getBoundingClientRect().top+8)+'px';d.show();d.querySelector('[data-close]').focus();request();render();
+    }
+    function field(dl,label,text){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=text;dl.append(dt,dd);}
+    function list(parent,title,items,empty='Nothing recorded yet.'){
+        const section=document.createElement('section'),h=document.createElement('h4');h.textContent=title;section.append(h);
+        if(items?.length){const ul=document.createElement('ul');for(const value of items){const li=document.createElement('li');li.textContent=value;ul.append(li);}section.append(ul);}
+        else{const p=document.createElement('p');p.className='menu-empty';p.textContent=empty;section.append(p);}parent.append(section);
+    }
+    function render(){
+        const available=connected&&model&&state?.model===model,d=available?state.director:null,n=available?state.narrative:null;
+        const dl=director.querySelector('[data-director-status]');dl.replaceChildren();
+        const toggle=director.querySelector('[data-proactive]');toggle.disabled=!d||saving;
+        if(!saving&&!dirty)toggle.checked=!!d?.proactive_enabled;
+        director.querySelector('[data-save-director]').disabled=!d||saving;
+        if(d){
+            field(dl,'Director',d.enabled?'Enabled':'Disabled · baseline scheduler');
+            field(dl,'Proactive dialogue',d.proactive_enabled?'Enabled':'Disabled');
+            field(dl,'Story initiative',d.narrative_initiative_enabled?'Welcomed story only · up to '+d.max_consecutive_unsolicited+' consecutive unsolicited replies':'Disabled');
+            field(dl,'Recent significant event',d.last_event?human(d.last_event.kind)+' · '+d.last_event.age_seconds+'s ago':'None recorded in this session');
+            field(dl,'Event significance',d.last_event?human(d.last_event.significance):'Not available');
+            field(dl,'Last decision',human(d.last_decision));
+            field(dl,'Response cooldown',d.cooldown_seconds>0?d.cooldown_seconds+'s remaining':'No frequency cooldown');
+            field(dl,'Selection reaction cooldown',d.reaction_cooldown_seconds>0?d.reaction_cooldown_seconds+'s remaining':'No reaction cooldown');
+            field(dl,'Pending commentary',d.pending.length?d.pending.map(e=>human(e.kind)).join(', '):'None');
+            field(dl,'Suppressed since service start',String(d.suppressed_count));field(dl,'Active response',d.active_response?human(d.active_response):'None');
+        }else field(dl,'Connection',connected?'Select a model to inspect the Director.':'Pair the companion to inspect the Director.');
+        story.querySelector('[data-story-model]').textContent=model?'Model: '+model:'No model selected';
+        const body=story.querySelector('[data-story-content]'),nextStoryKey=JSON.stringify([model,available,n]);
+        if(storyKey!==nextStoryKey){storyKey=nextStoryKey;body.replaceChildren();
+        if(n){list(body,'Current premise',n.premise?[n.premise]:[],'No premise established.');list(body,'Narrative phase',[human(n.phase)]);list(body,'Story developments',n.developments);list(body,'User choices',n.choices);list(body,'Unresolved threads',n.threads);list(body,'Character commitments',n.commitments);list(body,'Recent narrative updates',n.recent_updates||n.developments?.slice(-3));}
+        else list(body,'Story memory',[],available?'Narrative memory is disabled.':'Connect and select a model to view its story.');}
+        story.querySelector('[data-start-story]').disabled=!available||resetting;
+        story.querySelector('[data-narrative-reset]').disabled=!available||resetting;
+        summary.hidden=!n?.premise;
+        summary.querySelector('summary').textContent=n?.premise?human(n.phase)+' · '+n.premise:'';
+        summary.querySelector('p').textContent=d?.last_event?'Last significant event: '+human(d.last_event.kind)+' ('+human(d.last_event.significance)+')':'No verified session event recorded.';
+    }
+    director.querySelector('[data-proactive]').onchange=()=>{dirty=true;notice('director','Unsaved change');};
+    director.querySelector('[data-save-director]').onclick=()=>{
+        const value=director.querySelector('[data-proactive]').checked;
+        if(send({version:1,type:'configure_director',proactive_enabled:value})){saving=true;notice('director','Saving…');render();}
+    };
+    story.querySelector('[data-start-story]').onclick=()=>{story.querySelector('[data-story-confirm]').hidden=false;story.querySelector('[data-story-keep]').focus();};
+    story.querySelector('[data-story-keep]').onclick=()=>{story.querySelector('[data-story-confirm]').hidden=true;story.querySelector('[data-start-story]').focus();};
+    story.querySelector('[data-narrative-reset]').onclick=()=>{
+        if(connected&&model&&send({version:1,type:'reset_narrative',model})){resetting=true;notice('story','Starting a new storyline…');onReset();render();}
+    };
+    const escape=e=>{if(e.key==='Escape'&&open){e.preventDefault();close();}};
+    const outside=e=>{if(open&&!dialogs[open].contains(e.target)&&!toolbar.contains(e.target))close(false);};
+    document.addEventListener('keydown',escape);document.addEventListener('pointerdown',outside);
+    const timer=setInterval(()=>{if(open)request();},2000);
+    return {
+        scope(next,paired){if(next!==model||connected!==paired){close(false);state=null;saving=resetting=dirty=false;for(const key of Object.keys(dialogs))notice(key,'');}model=next;connected=paired;render();},
+        receive(message){
+            if(message.model&&message.model!==model)return;
+            if(message.type==='character_state'){state=message;if(saving&&message.director_saved){saving=dirty=false;notice('director','Saved to the companion service.');}render();}
+            else if(message.type==='narrative_reset'){resetting=false;story.querySelector('[data-story-confirm]').hidden=true;if(state)state={...state,narrative:null,narrative_epoch:message.narrative_epoch};notice('story','New storyline started. Transcript retained.');request();render();story.querySelector('[data-start-story]').focus();}
+            else if(message.type==='character_menu_error'){saving=resetting=false;notice(open||'director',message.detail);render();}
+        },
+        refresh:request,
+        destroy(){clearInterval(timer);document.removeEventListener('keydown',escape);document.removeEventListener('pointerdown',outside);close(false);}
+    };
+}
