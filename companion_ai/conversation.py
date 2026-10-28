@@ -6,9 +6,10 @@ import re
 import time
 from uuid import uuid4
 import httpx
+from .expressions import clean_dialogue
 from .models import SpeechPolicy, AIConfig, MemoryConfig
 from .diagnostics import Metrics
-from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
+from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, InferenceCompatibilityError, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
 from .context import compose_messages, ContextBudgetError
 from .fidelity import violations, GroundingError
 from .director import ConversationDirector, DirectorConfig, silent_response
@@ -29,7 +30,7 @@ class ModelManager:
     def __init__(self, base_url="http://127.0.0.1:11434", transport=None, store=None):
         self.base_url, self.transport, self.store = base_url, transport, store
         saved = store.read('selection.json', {}) if store else {}
-        self.config = AIConfig.model_validate(saved.get('config', {}))
+        self.config = AIConfig.model_validate(saved.get('config', {}) | {'thinking': False})
         self.mode = "stopped"
         self.metrics = Metrics()
         self.adapter = None
@@ -44,6 +45,7 @@ class ModelManager:
 
     def provider(self, config=None):
         config = config or self.config
+        if config.thinking:raise ValueError('Thinking must be OFF in this runtime')
         factory = self.factories.get(config.provider)
         if factory is None:
             raise ValueError('Unsupported local provider: ' + config.provider)
@@ -120,6 +122,7 @@ class ModelManager:
                 self.adapter = provider
                 if isinstance(provider, OllamaProvider):
                     provider.embedded_system = metadata.get('system', '')
+                    provider.thinking_controls = thinking_support(metadata)
                 self.config = config
                 self.model_metadata = metadata
                 self.context_warnings = warnings
@@ -149,7 +152,7 @@ class ModelManager:
                 'capabilities': self.model_metadata, 'last_inference': self.metrics.samples[-1] if self.metrics.samples else None,
                 "loading": "lazy on first conversation", "idle_unload": "Ollama keep_alive", "boot_autostart": False}
 
-    async def reply(self, summary, prompt, history, on_chunk=None, on_reset=None):
+    async def reply(self, summary, prompt, history, on_chunk=None, on_reset=None, on_expression=None):
         if self.mode == 'stopped':
             raise ValueError('AI is disabled; select an installed model')
         async with self.lifecycle_lock:
@@ -169,7 +172,7 @@ class ModelManager:
                 self.context_warnings = warnings
                 async with asyncio.timeout(self.config.timeout_seconds):
                     try:
-                        result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in messages)),chunk)
+                        result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in messages)),chunk,on_expression)
                     except (NoVisibleResponseError, OutputBudgetExceededError) as exc:
                         if not exc.budget_exhausted or self.config.max_tokens>=4096:raise
                         if isinstance(exc,OutputBudgetExceededError) and on_chunk and not on_reset:raise
@@ -178,8 +181,8 @@ class ModelManager:
                         retry_messages,retry_warnings=compose_messages(summary,prompt,history,retry_config,self.memory,reserve_characters=embedded_size)
                         self.stream_reset_reason='output_budget_retry'
                         if on_reset:on_reset()
-                        self.context_warnings=retry_warnings+[f'Retrying once with {retry_config.max_tokens} output tokens after the first budget was exhausted; thinking remains enabled.']
-                        result=await collect_reply(self.adapter,LLMRequest(retry_config,tuple(ChatMessage(**m) for m in retry_messages)),chunk)
+                        self.context_warnings=retry_warnings+[f'Retrying once with {retry_config.max_tokens} output tokens after the first budget was exhausted; thinking remains disabled.']
+                        result=await collect_reply(self.adapter,LLMRequest(retry_config,tuple(ChatMessage(**m) for m in retry_messages)),chunk,on_expression)
                     # A slow generation must not turn an expired/request-time fact into a live claim.
                     if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                     problems=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}])
@@ -193,7 +196,7 @@ class ModelManager:
                         if on_reset:on_reset()
                         self.grounding_attempts=2
                         self.context_warnings+=['One factual correction requested: '+', '.join(problems)]+repair_warnings
-                        result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in repair_messages)),chunk)
+                        result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in repair_messages)),chunk,on_expression)
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                         remaining=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}])
                         if remaining:raise GroundingError(remaining)
@@ -267,8 +270,9 @@ class ConversationService:
         memory = self.memory_config
         if stored is None and store and memory.persist_between_sessions:
             stored = store.read(self.memory_path(scope), [])
-        self.history = deque(stored or [], maxlen=memory.max_messages)
+        self.history = deque([dict(m, content=clean_dialogue(m['content'])) if m.get('role')=='assistant' else m for m in (stored or [])], maxlen=memory.max_messages)
         self.active_model_id = scope
+        if hasattr(self,'pending'):self.pending.clear()
         self.director.activate(scope)
         if not self.director.memory['responses']:
             for record in self.history:
@@ -338,7 +342,7 @@ class ConversationService:
         if self.closed or not self.policy.enabled or not self.policy.event_responses or self.state.emergency:
             return
         # Telemetry never supersedes an in-progress user turn, regardless of interruption policy.
-        if self.task is not None and not self.task.done() and self.active_source == "user":
+        if self.task is not None and not self.task.done():
             return
         if now-self.last_user < self.policy.user_grace_seconds or now-self.last_event < self.policy.min_interval_seconds:
             return
@@ -414,6 +418,12 @@ class ConversationService:
             source = "user" if user else "event"
             responder = self.responder()
             self.publish({"type": "response_start", "id": request_id, "source": source, "generation": generation, 'responder': responder})
+            expression = None
+            def on_expression(value):
+                nonlocal expression
+                expression = value
+                if generation == self.generation:
+                    self.publish({'type':'response_expression','version':1,'id':request_id,'generation':generation,'responder':responder,'expression':value,'source':'model','valid':True})
             buffered = ""
             flushed_at = 0
             def flush(force=False):
@@ -431,11 +441,12 @@ class ConversationService:
                 buffered += chunk
                 flush()
             def reset_stream():
-                nonlocal buffered
+                nonlocal buffered, expression
+                expression = None
                 buffered = ''
                 if generation == self.generation:
                     self.publish({'type':'response_start','id':request_id,'source':source,'generation':generation,'reason':getattr(self.adapter,'stream_reset_reason','output_budget_retry')})
-            stream_options = {'on_reset':reset_stream} if getattr(self.adapter,'stream_reset',False) else {}
+            stream_options = {'on_reset':reset_stream, 'on_expression':on_expression} if getattr(self.adapter,'stream_reset',False) else {}
             if getattr(self.adapter, "streaming", False):
                 text = await self.adapter.reply(summary, prompt, history, on_chunk=on_chunk, **stream_options)
                 flush(force=True)
@@ -476,19 +487,21 @@ class ConversationService:
                 if generation != self.generation:return
                 flush(force=True)
                 if not user:self.publish({'type':'response_delta','id':request_id,'source':source,'generation':generation,'text':text})
+            metadata=getattr(getattr(self.adapter,'adapter',None),'last_expression_metadata',{})
+            self.publish({'type':'ai_diagnostics','expression_valid':metadata.get('valid'),'thinking':False,'inference_error':None,'director_decision':self.director.last_reason})
             memory = self.memory_config
             if memory.enabled:
                 if user:
                     self.history.append({'role':'user', 'content':prompt, 'origin':'real_user', 'at':self.clock()})
                 self.history.append({'role':'assistant', 'content':text, 'origin':'assistant_dialogue',
-                    'trigger_origin':'real_user' if user else 'system_event', 'at':self.clock()})
+                    'trigger_origin':'real_user' if user else 'system_event', 'expression':expression, 'at':self.clock()})
             self.director.accepted(text, user)
             store = getattr(self.adapter, 'store', None)
             if store and memory.enabled and memory.persist_between_sessions:
                 store.write(self.memory_path(), list(self.history))
             self.busy_until = self.clock() + min(30, max(2, len(text.split()) / 2.5))
             self.publish({"type": "speech", "id": request_id, "source": "user" if user else "event",
-                "text": text, "responder": responder, "speak": self.policy.enabled, "interrupt": user or self.policy.interruption == "interrupt"})
+                "text": text, "responder": responder, 'expression':expression, 'expression_source':'model' if expression else 'fallback', "speak": self.policy.enabled, "interrupt": user or self.policy.interruption == "interrupt"})
         except asyncio.CancelledError:
             pass
         except (httpx.HTTPError, ValueError, TypeError, KeyError, TimeoutError) as exc:
@@ -496,7 +509,7 @@ class ConversationService:
                 self.publish({"type": "response_cancel", "id": request_id, "generation": generation})
                 self.publish({"type": "conversation_error", "request_id": request_id,
                               "code": "grounding_violation" if isinstance(exc,GroundingError) else "generation_error",
-                              "detail": str(exc) if isinstance(exc, (ContextBudgetError, NoVisibleResponseError, OutputBudgetExceededError, GroundingError)) else "Local AI response unavailable or invalid. Start Ollama manually if needed; check the configured endpoint and model settings."})
+                              "detail": str(exc) if isinstance(exc, (ContextBudgetError, InferenceCompatibilityError, NoVisibleResponseError, OutputBudgetExceededError, GroundingError)) else "Local AI response unavailable or invalid. Start Ollama manually if needed; check the configured endpoint and model settings."})
 
     async def close(self):
         self.closed = True

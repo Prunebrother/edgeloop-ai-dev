@@ -50,30 +50,34 @@ export function classifyDialogue(text) {
 export class CharacterPresentationController {
     constructor(render,{now=()=>Date.now(),sessionReactions=SESSION_REACTIONS,cooldownMs=CHARACTER_MANIFEST.presentation.cooldown_ms,chatHoldMs=CHARACTER_MANIFEST.presentation.chat_hold_ms}={}) {
         Object.assign(this,{render,now,sessionReactions,cooldownMs,chatHoldMs});
-        this.model=null;this.identity='generic';this.expression='neutral';this.activity='disconnected';this.connected=false;
+        this.expressionSource='fallback';this.model=null;this.identity='generic';this.expression='neutral';this.activity='disconnected';this.connected=false;
         this.active=null;this.allowStarts=false;this.cancelled=new Set();this.seen=new Set();this.session=null;this.sequence=-1;
         this.chatUntil=0;this.lastReaction=-Infinity;this.previewState=null;this.emit();
     }
-    emit(){this.render(this.previewState||{model:this.model,expression:this.expression,activity:this.activity});}
+    emit(){this.render(this.previewState||{model:this.model,expression:this.expression,activity:this.activity,expressionSource:this.expressionSource});}
     bounded(set,value){set.add(value);if(set.size>128)set.delete(set.values().next().value);}
     select(model,history=[]) {
         this.cancel();const identity=resolveArtwork(model).id;
         if(identity!==this.identity)this.expression='neutral';
         this.model=model;this.identity=identity;
         const last=history.filter(m=>m.role==='assistant').at(-1);
-        const tone=last&&classifyDialogue(last.content);if(tone)this.expression=tone;
+        const tone=last&&(EXPRESSIONS.includes(last.expression)?last.expression:classifyDialogue(last.content));if(tone)this.expression=tone;
         this.activity=this.connected?'idle':'disconnected';this.chatUntil=this.now()+this.chatHoldMs;this.emit();
     }
     connection(connected){this.connected=Boolean(connected);if(!connected){this.cancel();this.session=null;this.sequence=-1;this.seen.clear();}this.activity=connected?'idle':'disconnected';this.emit();}
-    userMessage(){if(!this.connected)return;this.allowStarts=true;this.expression='focused';this.activity='generating';this.chatUntil=this.now()+this.chatHoldMs;this.emit();}
+    userMessage(){if(!this.connected)return;this.allowStarts=true;this.activity='generating';this.chatUntil=this.now()+this.chatHoldMs;this.emit();}
     start(id,model=this.model){
         if(!this.connected||!this.allowStarts||model!==this.model||typeof id!=='string'||this.cancelled.has(id)){if(typeof id==='string')this.bounded(this.cancelled,id);return false;}
         this.active={id,model};this.activity='generating';this.emit();return true;
     }
+    expressionUpdate(id,expression,model=this.model){
+        if(!this.connected||!this.active||this.active.id!==id||model!==this.model||this.active.model!==model||this.cancelled.has(id)||!EXPRESSIONS.includes(expression))return false;
+        this.expression=expression;this.expressionSource='model';this.emit();return true;
+    }
     complete(id,text,model=this.model,metadata=null){
         if(!this.connected||!this.active||this.active.id!==id||model!==this.model||this.active.model!==model||this.cancelled.has(id))return false;
         const expression=metadata&&EXPRESSIONS.includes(metadata.expression)?metadata.expression:classifyDialogue(text);
-        if(expression)this.expression=expression;
+        if(expression){this.expression=expression;this.expressionSource=metadata?.expression===expression?'model':'fallback';}
         this.active=null;this.allowStarts=false;this.activity='idle';this.chatUntil=this.now()+this.chatHoldMs;this.emit();return true;
     }
     cancel(){this.allowStarts=false;if(this.active)this.bounded(this.cancelled,this.active.id);this.active=null;this.activity=this.connected?'idle':'disconnected';this.emit();}
@@ -85,11 +89,7 @@ export class CharacterPresentationController {
         for(const event of events){
             if(typeof event.id!=='string'||event.session_id!==session||this.seen.has(event.id))continue;
             this.bounded(this.seen,event.id);
-            if(!Object.hasOwn(this.sessionReactions,event.kind))continue;
-            const expression=this.sessionReactions[event.kind];if(!EXPRESSIONS.includes(expression))continue;
-            if(event.kind!=='stop'&&(this.active||this.now()<this.chatUntil||this.now()-this.lastReaction<this.cooldownMs))continue;
             if(event.kind==='stop')this.cancel();
-            this.expression=expression;this.lastReaction=this.now();this.emit();
         }
     }
     // Voice activities are explicit indicators only; never inferred or animated.

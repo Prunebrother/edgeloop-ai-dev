@@ -16,7 +16,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
         <label>Pairing token<input data-token type="password" autocomplete="off" required minlength="32" maxlength="128"></label>
         <button data-connect class="accent-button" type="submit">Pair local AI</button></form>
       <div class="model-picker"><label>Ollama model<select data-model aria-label="Installed model" disabled><option value="" disabled>Pair to discover models</option></select></label><button data-select type="button" disabled>Switch model</button><button data-refresh type="button" disabled aria-label="Refresh installed models">↻</button></div>
-      <div class="model-controls"><button data-thinking type="button" aria-pressed="false" disabled>Thinking: unknown</button><span data-thinking-hint>Choose a model to see its thinking setting.</span></div>
+      <div class="model-controls" hidden><button data-thinking type="button" aria-pressed="false" disabled>Thinking: unknown</button><span data-thinking-hint>Choose a model to see its thinking setting.</span></div>
       <div class="ai-health"><span data-selected>No AI model active</span><span data-ollama>Ollama not checked</span><span data-endpoint>Ollama endpoint pending</span><span data-telemetry>Telemetry not connected</span></div>
       <div class="conversation-scroll" data-history role="log" aria-label="Conversation history" aria-live="off" tabindex="0"><div class="conversation-empty" data-empty><span aria-hidden="true">✧</span><h3>A little space to connect.</h3><p>Your conversation lives here.<br>Choose a local model and say hello.</p></div></div>
       <button data-latest class="jump-latest" type="button" hidden>Jump to latest ↓</button>
@@ -26,10 +26,13 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     const artwork=document.createElement('aside');artwork.id='character-panel';artwork.setAttribute('aria-label','Character artwork');
     const character=new CharacterPresentation(artwork);
     const presentation=new CharacterPresentationController(view=>character.setState(view));
+    const diagnostic={thinking:false};
+    const debug=['127.0.0.1','localhost'].includes(location.hostname)&&new URLSearchParams(location.search).get('characterPreview')==='1'?document.createElement('output'):null;
+    if(debug){debug.dataset.aiDiagnostics='';debug.style.cssText='display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;max-height:100px;overflow:auto';const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Runtime diagnostics · development';details.append(summary,debug);artwork.append(details);setInterval(()=>{debug.textContent=JSON.stringify({...diagnostic,model:selected,character:presentation.identity,expression:presentation.expression,expression_source:presentation.expressionSource,activity:presentation.activity,portrait:artwork.querySelector('img:last-child')?.getAttribute('src')||null,fallback:artwork.dataset.artworkStatus==='fallback'});},250);}
     const previewCleanup=mountExpressionPreview(artwork,presentation);mountLayout(panel,artwork);
     const el=key=>panel.querySelector(`[data-${key}]`);
     let selected=null,current=null,pending=false,follow=true,paired=false,changing=false,thinking=null,supportsThinking=false,canDisableThinking=true;
-    let discovered=new Set();
+    let discovered=new Set(),latestGeneration=0;
     const scroll=()=>{if(follow)el('history').scrollTop=el('history').scrollHeight;};
     el('history').onscroll=()=>{follow=el('history').scrollHeight-el('history').clientHeight-el('history').scrollTop<60;el('latest').hidden=follow;};
     el('latest').onclick=()=>{follow=true;el('latest').hidden=true;scroll();};
@@ -58,10 +61,12 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
         for(const key of ['model','select','refresh'])el(key).disabled=!connected;
         if(!connected){discovered.clear();selected=null;changing=false;thinking=null;supportsThinking=false;finish();el('text').disabled=true;el('send').disabled=true;el('selected').textContent='No active AI connection';el('telemetry').textContent='Telemetry disconnected';el('ollama').textContent='Ollama not checked';}controls();resting();
     },onMessage:m=>{
+        if(m.type==='ai_diagnostics'){Object.assign(diagnostic,m);return;}
         if(m.type==='models'){
             el('model').replaceChildren();for(const entry of m.models.slice(0,128)){const o=document.createElement('option');o.value=entry.name;o.textContent=entry.name;el('model').append(o);}
             const names=m.models.slice(0,128).map(entry=>entry.name);discovered=new Set(names);
             if(!names.length){const o=document.createElement('option');o.value='';o.textContent='No installed models';o.disabled=true;el('model').append(o);}
+            if(m.ollama_url)diagnostic.endpoint=m.ollama_url;
             if(m.ollama_url)el('endpoint').textContent='Ollama: '+m.ollama_url;el('model').value=names.includes(selected)?selected:names.includes(m.selected)?m.selected:(names[0]||'');
             el('ollama').textContent=names.length?'Ollama connected · '+names.length+' models':'Ollama connected · no installed models';
             controls();
@@ -72,18 +77,25 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
                 for(const item of m.history||[])line(item.role==='user'?'user':'assistant',item.content);}
             el('text').disabled=false;busy(false);error('');
         } else if(m.type==='response_start'){
+            if(Number.isSafeInteger(m.generation)&&m.generation<latestGeneration)return;
+            if(Number.isSafeInteger(m.generation))latestGeneration=m.generation;
+            if(m.source==='event'&&m.responder?.model===selected)presentation.allowStarts=true;
             if(!presentation.start(m.id,m.responder?.model||selected))return;
             current?.node.remove();current={id:m.id,...line('assistant',''),text:''};busy(true);
+        } else if(m.type==='response_expression'){
+            presentation.expressionUpdate(m.id,m.expression,m.responder?.model);
+            diagnostic.expression_valid=m.valid;
         } else if(m.type==='response_delta'&&current?.id===m.id){current.text+=m.text;current.body.textContent=current.text;activity('responding','Responding');scroll();}
         else if(m.type==='speech'){
             if(m.responder?.model&&m.responder.model!==selected||presentation.cancelled.has(m.id))return;
-            if(m.source==='safety')presentation.cancel();else presentation.complete(m.id,m.text,m.responder?.model||selected);
+            if(m.source==='safety')presentation.cancel();else presentation.complete(m.id,m.text,m.responder?.model||selected,{expression:m.expression});
             if(current?.id===m.id){current.body.textContent=m.text;current=null;}else line('assistant',m.text);
             busy(false);scroll();
         } else if(m.type==='response_cancel'){
             if(current?.id!==m.id)return;
             current.node.remove();current=null;presentation.cancel();finish();
         } else if(m.type==='speech_cancel'){
+            if(Number.isSafeInteger(m.generation))latestGeneration=Math.max(latestGeneration,m.generation);
             // A user request first cancels the preceding turn before its new start frame.
             if(m.type==='speech_cancel'&&pending&&!current&&!changing)return;
             presentation.cancel();finish();}
@@ -92,7 +104,8 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             if(m.accepted)presentation.sessionEvents(m.events||[],m.sequence,m.session_id);
             el('telemetry').textContent=m.accepted?'Authoritative telemetry connected · sequence '+m.sequence:'Telemetry awaiting fresh update';}
         else if(m.type==='telemetry_status')el('telemetry').textContent='Telemetry stale · session state unavailable to AI';
-        else if(['ai_error','conversation_error','protocol_error'].includes(m.type)){presentation.cancel();changing=false;if(m.ollama_url)el('endpoint').textContent='Ollama: '+m.ollama_url;
+        else if(['ai_error','conversation_error','protocol_error'].includes(m.type)){presentation.cancel();changing=false;diagnostic.inference_error=m.detail||'AI unavailable';if(m.ollama_url)diagnostic.endpoint=m.ollama_url;
+            if(m.ollama_url)el('endpoint').textContent='Ollama: '+m.ollama_url;
             if(m.code==='discovery_unavailable'){discovered.clear();const o=document.createElement('option');o.value='';o.disabled=true;o.textContent='Ollama unavailable';el('model').replaceChildren(o);}
             if(m.code==='grounding_violation'&&current){current.node.remove();current=null;}
             if(m.selection_failed&&!m.active){selected=null;thinking=null;supportsThinking=false;}finish();error((m.detail||'AI unavailable')+(m.errors?.length?' · '+m.errors.map(e=>e.path.join('.')+': '+e.code).join(', '):''));activity('error',selected?'Ready · last request failed':'AI unavailable');if(m.type==='ai_error')el('ollama').textContent='Ollama request unavailable';}
@@ -108,7 +121,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
         if(connection.send(message)){presentation.cancel();error('');changing=true;el('progress').textContent='Applying model settings…';controls();resting();}
     };
     el('select').onclick=()=>selectModel(el('model').value);
-    el('thinking').onclick=()=>{if(selected&&supportsThinking)selectModel(selected,!thinking);};
+    el('thinking').disabled=true;
     el('cancel').onclick=()=>{if(connection.send({version:1,type:'cancel_generation'})){presentation.cancel();finish();el('progress').textContent='Generation cancelled.';}};
     el('chat').onsubmit=e=>{e.preventDefault();if(!selected||pending||changing)return;
         const text=el('text').value.trim();if(text){try{refreshObservation();connection.flush(true);}catch{}}

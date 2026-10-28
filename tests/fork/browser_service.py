@@ -16,6 +16,9 @@ ollama_down=False
 TOKEN='browser-fixture-token-'+('x'*32)
 class Stream(httpx.AsyncByteStream):
     async def __aiter__(self):
+        for content in ['[[expr','ession:mis','chievous]]']:
+            yield (json.dumps({'message':{'content':content},'done':False})+'\n').encode()
+            await asyncio.sleep(.05)
         await asyncio.sleep(.3)
         for i in range(120):
             yield (json.dumps({'message':{'content':'A streamed companion message, with room to read and reflect. '*3},'done':False})+'\n').encode()
@@ -32,9 +35,9 @@ async def runtime(request):
     last_thinking=body.get('think')
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
     prompt=body['messages'][-1].get('content','').split('USER MESSAGE (request, not session data):\n')[-1]
-    if prompt=='portrait playful test':return httpx.Response(200,text=json.dumps({'message':{'content':'*I give you a playful wink.* Welcome back.'},'done':True,'done_reason':'stop'})+'\n')
-    if prompt=='portrait flirty tone test':return httpx.Response(200,text=json.dumps({'message':{'content':'Come a little closer, darling.'},'done':True,'done_reason':'stop'})+'\n')
-    if prompt=='portrait concerned test':return httpx.Response(200,text=json.dumps({'message':{'content':'*I frown with concern.* I am here to listen.'},'done':True,'done_reason':'stop'})+'\n')
+    if prompt=='portrait playful test':return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:playful]]Welcome back, you cheeky rascal.'},'done':True,'done_reason':'stop'})+'\n')
+    if prompt=='portrait flirty tone test':return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:flirty]]Come a little closer, darling.'},'done':True,'done_reason':'stop'})+'\n')
+    if prompt=='portrait concerned test':return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:concerned]]I am here to listen.'},'done':True,'done_reason':'stop'})+'\n')
     if prompt=='long streaming response':return httpx.Response(200,stream=Stream())
     if prompt=='grounding conflict test':return httpx.Response(200,text=json.dumps({'message':{'content':'Your current heart rate is 210 BPM.'},'done':True,'done_reason':'stop'})+'\n')
     if prompt=='thinking cutoff test':

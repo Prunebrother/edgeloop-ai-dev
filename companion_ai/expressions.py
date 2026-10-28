@@ -4,6 +4,7 @@ EXPRESSIONS = ('neutral', 'happy', 'playful', 'flirty', 'mischievous', 'focused'
                'excited', 'surprised', 'disappointed', 'concerned', 'proud', 'comforting')
 FORMAT_INSTRUCTION = (
     'Output format v1: begin your reply with exactly one [[expression:ID]] header. '
+    'The word expression is literal: for example [[expression:happy]]. Never put a number in the header. '
     'Choose ID from: ' + ', '.join(EXPRESSIONS) + '. '
     'Then give your normal dialogue in your established character. '
     'The header describes your intended delivery, never the user or session state. '
@@ -17,7 +18,7 @@ class ExpressionStream:
     closing delimiter/newline. Legacy prose streams as soon as it diverges from a
     reserved prefix. Inline legacy reasoning is suppressed before presentation.
     """
-    tokens = ('[[expression:', '<think>', '</think>')
+    tokens = ('[[expression:', '<think>', '</think>') + tuple('[[' + e + ':' for e in EXPRESSIONS)
 
     def __init__(self, on_expression=None, enabled=True):
         self.pending = ''
@@ -28,6 +29,7 @@ class ExpressionStream:
         self.valid = None
         self.leading = True
         self.headers = 0
+        self.canonical_header = False
         self.on_expression = on_expression
         self.enabled = enabled
 
@@ -40,7 +42,7 @@ class ExpressionStream:
                 else:self.valid = False
                 if self.tail == ']]' or char == '\n':
                     candidate = self.envelope[:-2] if self.tail == ']]' else ''
-                    valid = candidate in EXPRESSIONS and self.valid is not False
+                    valid = self.canonical_header and candidate in EXPRESSIONS and self.valid is not False
                     if self.headers == 1:
                         self.valid = valid
                         if valid and self.leading and self.enabled:
@@ -56,7 +58,8 @@ class ExpressionStream:
             self.pending += char
             while self.pending:
                 lower = self.pending.lower()
-                if lower == '[[expression:':
+                if lower.startswith('[[') and lower in self.tokens:
+                    self.canonical_header = lower == '[[expression:'
                     self.headers += 1
                     self.mode = 'metadata';self.pending = '';self.envelope = '';self.tail = ''
                     break

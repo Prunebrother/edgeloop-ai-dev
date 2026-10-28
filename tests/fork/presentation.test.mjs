@@ -9,7 +9,7 @@ test('canonical identities use exact aliases, not name prefixes or prototype pro
     for(const model of ['evelyn-lite-v1:latest','evelyn-lite-candidate:latest','evelyn-qwen35-stable:latest','evelyn-qwen35:latest'])assert.equal(resolveArtwork(model).id,'evelyn');
     for(const model of ['daisy-qwen35:latest','daisy-v11:latest'])assert.equal(resolveArtwork(model).id,'daisy');
     for(const model of ['__proto__','evelyn-some-new-model:latest','qwen3:8b',null])assert.equal(resolveArtwork(model).id,'generic');
-    assert.equal(Object.keys(MODEL_ARTWORK).length,15);
+    assert.equal(Object.keys(MODEL_ARTWORK).length,16);
 });
 test('all twelve prepared expressions have direct assets; missing custom states fall back to neutral',()=>{
     assert.deepEqual(EXPRESSIONS,['neutral','happy','playful','flirty','mischievous','focused','excited','surprised','disappointed','concerned','proud','comforting']);
@@ -34,8 +34,8 @@ test('dialogue mapping requires explicit assistant self-expression, not arbitrar
         '"I smile warmly" is the sentence you wrote.','```I smile warmly```','<think>I smile warmly</think>Hello.', '*I smile warmly. I frown with concern.*'])assert.equal(classifyDialogue(text),null,text);
 });
 test('activity does not erase expression; accepted replies only and no token-level changes',()=>{
-    const {c,views}=rig();c.userMessage();assert.equal(c.expression,'focused');assert.equal(c.activity,'generating');
-    assert(c.start('one'));c.setActivity('listening');assert.equal(c.expression,'focused');c.setActivity('speaking');assert.equal(c.expression,'focused');
+    const {c,views}=rig();c.userMessage();assert.equal(c.expression,'neutral');assert.equal(c.activity,'generating');
+    assert(c.start('one'));c.setActivity('listening');assert.equal(c.expression,'neutral');c.setActivity('speaking');assert.equal(c.expression,'neutral');
     assert(c.complete('one','*I give you a playful wink.*'));assert.equal(c.expression,'playful');assert.equal(c.activity,'idle');
     const n=views.length;assert(!c.complete('one','*I frown with concern.*'));assert.equal(views.length,n);
 });
@@ -49,19 +49,15 @@ test('switching same-character models retains presentation; other characters res
 test('cancel and disconnect invalidate generations, including late starts; reconnect starts a new sequence epoch',()=>{
     const {c,tick}=rig();c.userMessage();c.start('cancelled');c.cancel();assert(!c.complete('cancelled','*I smile warmly.*'));
     assert(!c.start('late'));c.connection(false);assert.equal(c.activity,'disconnected');assert(!c.complete('late','*I smile warmly.*'));
-    c.connection(true);tick(9000);c.sessionEvents([{id:'first',kind:'milestone',session_id:'s'}],20,'s');assert.equal(c.expression,'happy');
+    c.connection(true);tick(9000);c.sessionEvents([{id:'first',kind:'milestone',session_id:'s'}],20,'s');assert.equal(c.expression,'neutral');
     c.connection(false);c.connection(true);c.sessionEvents([{id:'new',kind:'stop',session_id:'s'}],0,'s');assert.equal(c.expression,'neutral');
 });
-test('verified event adapter is bounded/deduplicated, chat has priority and stop bypasses debounce',()=>{
+test('verified events do not dictate emotion; stop only cancels activity',()=>{
     const {c,tick}=rig();tick(9000);const event=(id,kind)=>({id,kind,session_id:'s'});
-    c.sessionEvents([event('1','milestone')],1,'s');assert.equal(c.expression,'happy');
-    c.sessionEvents([event('1','stop')],2,'s');assert.equal(c.expression,'happy');
-    c.sessionEvents([event('2','pause')],3,'s');assert.equal(c.expression,'happy');
-    tick(6001);c.sessionEvents([event('3','pause')],4,'s');assert.equal(c.expression,'focused');
-    c.userMessage();c.start('active');c.sessionEvents([event('4','milestone')],5,'s');assert.equal(c.expression,'focused');
-    c.sessionEvents([event('5','stop')],6,'s');assert.equal(c.expression,'neutral');assert.equal(c.active,null);
-    assert(!c.complete('active','*I smile warmly.*'));
-    c.sessionEvents([event('6','milestone')],5,'s');assert.equal(c.expression,'neutral');
+    c.userMessage();c.start('active');assert(c.expressionUpdate('active','mischievous'));
+    c.sessionEvents([event('1','milestone')],1,'s');assert.equal(c.expression,'mischievous');
+    c.sessionEvents([event('2','stop')],2,'s');assert.equal(c.expression,'mischievous');assert.equal(c.active,null);
+    assert(!c.expressionUpdate('active','happy'));assert(!c.complete('active','*I smile warmly.*'));
 });
 test('session policy can be disabled; physiological fields and unrelated events never select emotion',()=>{
     const {c,tick}=rig({sessionReactions:{}});tick(10000);
@@ -87,5 +83,16 @@ test('ordinary dialogue tone covers all twelve states without facial narration',
 });
 test('future explicit expression metadata is bounded and tied to the active model/request',()=>{
     const {c}=rig();c.userMessage();c.start('metadata');assert(c.complete('metadata','No clear tone here.',evelyn,{expression:'proud'}));assert.equal(c.expression,'proud');
-    c.userMessage();c.start('invalid');assert(c.complete('invalid','No clear tone here.',evelyn,{expression:'not-a-state'}));assert.equal(c.expression,'focused');
+    c.userMessage();c.start('invalid');assert(c.complete('invalid','No clear tone here.',evelyn,{expression:'not-a-state'}));assert.equal(c.expression,'proud');
+});
+
+test('stream metadata is request/model scoped, persists through activity and rejects late updates',()=>{
+ const {c}=rig();c.userMessage();c.start('one');
+ assert(c.expressionUpdate('one','comforting',evelyn));assert.equal(c.expression,'comforting');
+ c.setActivity('speaking');assert.equal(c.expression,'comforting');
+ assert(!c.expressionUpdate('one','unknown',evelyn));assert(!c.expressionUpdate('old','happy',evelyn));
+ c.complete('one','Take your time.',evelyn,{expression:'comforting'});
+ c.userMessage();assert.equal(c.expression,'comforting');c.start('two');c.select(daisy);
+ assert(!c.expressionUpdate('two','proud',evelyn));assert.equal(c.expression,'neutral');
+ c.select(evelyn,[{role:'assistant',content:'A clear answer.',expression:'proud'}]);assert.equal(c.expression,'proud');
 });

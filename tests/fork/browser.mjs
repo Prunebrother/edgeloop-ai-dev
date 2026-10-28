@@ -70,9 +70,8 @@ try {
     await page.locator('[data-model]').selectOption('evelyn-lite-v1:latest');await page.locator('[data-select]').click();
     await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('Active: evelyn-lite-v1:latest'));
     assert(await page.locator('[data-activity-label]').textContent()==='Ready','Model readiness missing');
-    assert(await page.locator('[data-thinking]').getAttribute('aria-pressed')==='true','Thinking mode not confirmed');
-    await page.locator('[data-thinking]').click();
-    await page.waitForFunction(()=>document.querySelector('[data-thinking]').getAttribute('aria-pressed')==='false');
+    assert(await page.locator('[data-thinking]').getAttribute('aria-pressed')==='false','Thinking OFF default missing');
+    assert(await page.locator('.model-controls').isHidden(),'Thinking controls exposed in normal UI');
     await page.locator('[data-text]').fill('What is the current BPM?');await page.locator('[data-chat]').evaluate(el=>el.requestSubmit());
     await page.waitForFunction(()=>document.querySelector('[data-history]').textContent.includes('98 BPM'));
     assert(await page.locator('[data-setup]').isHidden(),'Pairing form remained visible');
@@ -80,11 +79,8 @@ try {
     await page.screenshot({path:path.join(output,'desktop-1920.png')});
     let observed=await(await fetch(observerUrl+'/fixture/state')).json();
     assert(observed.state.hr===98&&observed.state.status==='RUNNING','Incorrect observed original state');
-    assert(observed.thinking===false&&observed.last_thinking===false,'Thinking off was not applied to inference');
-    await page.locator('[data-thinking]').click();
-    await page.waitForFunction(()=>document.querySelector('[data-thinking]').getAttribute('aria-pressed')==='true');
-    assert((await page.locator('[data-history]').textContent()).includes('98 BPM'),'Thinking switch cleared chat');
-    report.steps.push('Confirmed thinking toggle reaches inference and preserves chat history');
+    assert(observed.thinking===false&&observed.last_thinking===false,'Thinking OFF missing from payload');
+    report.steps.push('Thinking OFF is enforced in payloads; credentials cleared and observation accurate');
     // A bad dual field must not make a separately valid single maximum stale.
     await page.locator('#maxHr').fill('150');await page.locator('#maxHr').dispatchEvent('input');
     await page.locator('#dualMaxHr').fill('');await page.locator('#dualMaxHr').dispatchEvent('input');

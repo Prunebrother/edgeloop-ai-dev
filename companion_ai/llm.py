@@ -295,5 +295,6 @@ async def collect_reply(provider, request, on_chunk=None, on_expression=None):
         elif event.kind == 'tool_call':
             raise ValueError('Unrequested tool call; no executor is enabled')
     parser.finish()
+    provider.last_expression_metadata={'version':1,'valid':parser.valid,'expression':parser.expression}
     if not content.strip():raise NoVisibleResponseError(request.config)
     return content.strip()
