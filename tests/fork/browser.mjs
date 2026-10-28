@@ -170,7 +170,12 @@ try {
     assert((await(await fetch(observerUrl+'/health')).json()).observation_fresh,'Paused observation expired');
     await page.locator('#sessionPlayPauseBtn').click();
     await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';});
-    report.steps.push('Responsive views, model memory, pause and resume');
+    await page.waitForFunction(async old=>{const{state}=await import('/src/js/state.js');return state.sessionSeconds>old;},pausedSeconds);
+    await page.locator('#sessionStopBtn').click();
+    assert(await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='IDLE'&&state.sessionSeconds===0;}),'Stop did not reset original active counter');
+    await page.locator('#sessionPlayPauseBtn').click();
+    await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING'&&state.sessionSeconds<=2;});
+    report.steps.push('Original timing: running ticks, frozen pause, resumed ticks, stop zero and fresh restart');
     await fetch(observerUrl+'/fixture/ollama-down',{method:'POST'});
     await page.locator('[data-refresh]').click();
     await page.waitForFunction(()=>document.querySelector('[data-error]').textContent.includes('discovery unavailable'));

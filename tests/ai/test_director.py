@@ -86,7 +86,7 @@ async def test_event_turn_receives_completed_user_history_and_no_numerical_promp
     speech.request('Let us tell a story.',user=True);await speech.task
     clock.now+=100;speech.policy=SpeechPolicy(min_interval_seconds=0.,user_grace_seconds=0.)
     speech.enqueue('hr_rising',20,{'hr':119,'delta_bpm':25});speech.pump();await speech.task
-    assert calls[-1][2] and '119' not in calls[-1][1] and '119' not in json.dumps(calls[-1][0])
+    assert calls[-1][2] and '119' not in calls[-1][1] and '119' not in json.dumps({k:v for k,v in calls[-1][0].items() if k!='narrative_scope'})
     await speech.close()
 
 

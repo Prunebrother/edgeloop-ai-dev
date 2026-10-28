@@ -70,7 +70,7 @@ def test_config_change_applies_only_to_future_samples_and_presets_are_isolated()
  quiet=preset('quiet');balanced=preset('balanced');assert quiet.proactive_interval_seconds>balanced.proactive_interval_seconds
  quiet.detectors['rapid_rise'].threshold_bpm=50.;assert balanced.detectors['rapid_rise'].threshold_bpm==15.
 
-@pytest.mark.parametrize('values',[{'threshold_bpm':0},{'window_seconds':999},{'min_samples':1},{'hysteresis_bpm':16},{'duration_seconds':31.,'window_seconds':20.},{'significance':'critical'}])
+@pytest.mark.parametrize('values',[{'threshold_bpm':0},{'window_seconds':1801},{'min_samples':1},{'hysteresis_bpm':16},{'duration_seconds':31.,'window_seconds':20.},{'significance':'critical'}])
 def test_invalid_detector_settings(values):
  with pytest.raises(ValueError):DetectorRule.model_validate(values)
 
@@ -85,3 +85,14 @@ def test_versioned_config_defaults_migration_unknown_and_preferences(tmp_path):
  assert c.relevance('evelyn-narrative-v1:latest','physiology')==0
  assert c.relevance('daisy-narrative-v1:latest','physiology')==1
  assert c.relevance('unknown:latest','physiology')==1
+
+
+def test_physiology_window_cannot_exceed_shared_history_budget():
+ with pytest.raises(ValueError):EventConfig.model_validate({'detectors':{'rapid_rise':{'window_seconds':121.}}})
+ c=EventConfig.model_validate({'detectors':{'quiet':{'window_seconds':600.}}});assert c.detectors['quiet'].window_seconds==600
+
+def test_changed_duplicate_and_out_of_order_measurements_break_evidence():
+ r=Replay();r.step(85);stamp=r.state['details']['hr_recorded_at_ms']
+ r.step(130,stamp=stamp);assert r.observation.hr is None and not r.observation.samples
+ r.step(90);assert r.observation.hr==90 and len(r.observation.samples)==1
+ r.step(120,stamp=stamp-1);assert r.observation.hr is None and not r.observation.samples

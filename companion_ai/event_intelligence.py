@@ -66,6 +66,7 @@ class EventConfig(StrictModel):
   if any(self.detectors[k].window_seconds>120 for k in PHYSIOLOGY):raise ValueError('Measurement windows are limited to 120 seconds')
   if set(self.preferences)-{'generic','evelyn','daisy'}:raise ValueError('Unknown relevance identity')
   for prefs in self.preferences.values():
+   if prefs.get('story',1)>1:raise ValueError('Story relevance supports 0 (context only) or 1 (eligible)')
    if set(prefs)-{'physiology','session','configuration','story'} or any(type(v)is not int or not 0<=v<=2 for v in prefs.values()):raise ValueError('Relevance must be 0, 1 or 2 in a known category')
   self.preferences={k:{'physiology':1,'session':1,'configuration':1,'story':1}|self.preferences.get(k,{}) for k in ('generic','evelyn','daisy')}
   return self
@@ -112,6 +113,7 @@ class DerivedEvent(StrictModel):
  significance:Literal['major','routine','critical']
  evidence:str
  config_revision:int
+ rule:DetectorRule|None=None
  @model_validator(mode='after')
  def provenance(self):
   if self.category=='derived':
@@ -126,7 +128,7 @@ class EventIntelligence:
   self.clock=clock or time.monotonic;self.config=config or EventConfig();self.revision=1;self.applied_at=float('-inf')
   self.history=deque(maxlen=48);self.segment=None;self.latches={};self.last_emit={};self.commentary_at={};self.diagnostics={};self.last_significant=self.clock();self.quiet_key=None;self.error=None
  def configure(self,config):
-  self.config=config;self.revision+=1;self.applied_at=self.clock();self.latches.clear();self.quiet_key=None
+  self.config=config;self.revision+=1;self.applied_at=self.clock();self.latches.clear();self.quiet_key=None;self.error=None
   # Earlier observations remain diagnostic history; only future samples may trigger new rules.
  def reason(self,key,reason):
   self.diagnostics.setdefault(key,{})['last_suppression']=reason
@@ -142,7 +144,7 @@ class EventIntelligence:
   stamp=lambda sample:int(getattr(sample,'at_ms',observation.wall()*1000-(now-sample[0])*1000)) if sample else None
   start,end=stamp(first),stamp(last)
   identity=f'{observation.session_id}:{observation.measurement_segment}:{key}:{start}:{end}:{self.revision}'
-  return DerivedEvent(id=sha256(identity.encode()).hexdigest()[:24],kind=key,detector_id=key,category='derived',source=source,simulated=source=='simulator',session_id=observation.session_id,first_at_ms=start,last_at_ms=end,created_at_ms=int(observation.wall()*1000),window_seconds=round(last[0]-first[0],3) if samples else 0,sample_count=len(samples),quality='sufficient_validated_samples',significance=self.config.detectors[key].significance,evidence=REGISTRY[key][1],config_revision=self.revision,unit='BPM',**values)
+  return DerivedEvent(id=sha256(identity.encode()).hexdigest()[:24],kind=key,detector_id=key,category='derived',source=source,simulated=source=='simulator',session_id=observation.session_id,first_at_ms=start,last_at_ms=end,created_at_ms=int(observation.wall()*1000),window_seconds=round(last[0]-first[0],3) if samples else 0,sample_count=len(samples),quality='sufficient_validated_samples',significance=self.config.detectors[key].significance,evidence=REGISTRY[key][1],config_revision=self.revision,rule=self.config.detectors[key],unit='BPM',**values)
  def evaluate(self,o):
   now=self.clock();segment=(o.session_id,o.measurement_segment)
   if segment!=self.segment:self.segment=segment;self.latches.clear();self.last_emit.clear();self.quiet_key=None
@@ -219,7 +221,7 @@ class EventIntelligence:
   key='configuration' if kind in {'experience_changed','goal_changed','mode_changed','intensity_changed','threshold_changed'} else 'session_milestone'
   rule=self.config.detectors[key];critical=significance=='critical'
   level='critical' if critical else rule.significance if significance=='major' and self.config.enabled and rule.enabled else 'routine'
-  event=DerivedEvent(id=details['event_id'],kind=kind,detector_id=key,category='authoritative',source='original_edgeloop',simulated=o.hr_source()=='simulator',session_id=o.session_id,first_at_ms=details.get('at_ms'),last_at_ms=details.get('at_ms'),created_at_ms=int(o.wall()*1000),window_seconds=0,sample_count=0,quality='validated_transition',significance=level,evidence=details.get('evidence') or 'Validated original transition',config_revision=self.revision)
+  event=DerivedEvent(id=details['event_id'],kind=kind,detector_id=key,category='authoritative',source='original_edgeloop',simulated=o.hr_source()=='simulator',session_id=o.session_id,first_at_ms=details.get('at_ms'),last_at_ms=details.get('at_ms'),created_at_ms=int(o.wall()*1000),window_seconds=0,sample_count=0,quality='validated_transition',significance=level,evidence=details.get('evidence') or 'Validated original transition',config_revision=self.revision,rule=rule)
   self.diagnostics[key]={'last_detection_at_ms':event.created_at_ms,'last_suppression':None}
   self.record(event)
   return event,critical or self.config.enabled and rule.enabled

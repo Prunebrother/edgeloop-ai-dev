@@ -71,6 +71,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
         }
         if(debug)queueMicrotask(updateDiagnostics);
         if(['character_state','narrative_reset','character_menu_error'].includes(m.type)){menus.receive(m);return;}
+        if(m.type==='protocol_error'&&m.errors?.some(e=>e.path.includes('configure_events'))){menus.receive({type:'character_menu_error',detail:'Invalid event settings. Check the permitted ranges; no configuration was applied.'});return;}
         if(m.type==='ai_diagnostics'){if(m.responder?.model&&m.responder.model!==selected||m.id&&m.id!==presentation.lastRequest?.id)return;Object.assign(diagnostic,m);return;}
         if(m.type==='models'){
             el('model').replaceChildren();for(const entry of m.models.slice(0,128)){const o=document.createElement('option');o.value=entry.name;o.textContent=entry.name;el('model').append(o);}
@@ -138,11 +139,14 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     el('cancel').onclick=()=>{if(connection.send({version:1,type:'cancel_generation'})){presentation.cancel();finish();el('progress').textContent='Generation cancelled.';}};
     el('chat').onsubmit=e=>{e.preventDefault();if(!selected||pending||changing)return;
         const text=el('text').value.trim();if(text){try{refreshObservation();connection.flush(true);}catch{}}
-        if(text&&connection.send({version:1,type:'chat',model:selected,text})){presentation.userMessage();follow=true;line('user',text);el('text').value='';error('');busy(true,'Waiting for companion…');}};
+        if(text&&connection.send({version:1,type:'chat',model:selected,text})){presentation.userMessage();follow=true;line('user',text);el('text').value='';typing();error('');busy(true,'Waiting for companion…');}};
+    const typing=()=>{if(connection.epoch&&selected)connection.send({version:1,type:'conversation_activity',model:selected,typing:document.activeElement===el('text')&&!!el('text').value.trim()});};
+    el('text').addEventListener('input',typing);el('text').addEventListener('blur',typing);
+    const typingTimer=setInterval(()=>{if(document.activeElement===el('text')&&el('text').value.trim())typing();},3000);
     el('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el('chat').requestSubmit();}};
     // Original idle/paused sessions need no engine ticks. Refresh only the read-only projection.
     const observationTimer=setInterval(()=>{if(connection.epoch){try{refreshObservation();}catch{ /* Optional AI stays isolated. */ }}},1000);
-    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);clearInterval(diagnosticTimer);connection.disconnect();menus.destroy();previewCleanup?.();character.destroy();});
+    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);clearInterval(typingTimer);clearInterval(diagnosticTimer);connection.disconnect();menus.destroy();previewCleanup?.();character.destroy();});
     const releaseNote=document.createElement('p');releaseNote.dataset.releaseFeedback='';releaseNote.setAttribute('role','status');releaseNote.style.fontSize='11px';releaseNote.hidden=true;document.getElementById('cameEarlyBtn')?.parentElement?.after(releaseNote);
     return (state,devices,settings)=>{
         const previous=capture.previous;const observation=capture.project(state,devices,settings);

@@ -45,7 +45,7 @@ LABELS={
     'hr':'Heart rate', 'hr_source':'Heart-rate source', 'resting_bpm':'Resting BPM setting',
     'single_max_bpm':'Single maximum setting', 'dual_max_bpm':'Dual maximum setting',
     'effective_max':'Engine working ceiling (not a measurement)', 'pullback':'Engine pullback threshold (not a measurement)',
-    'status':'Session status', 'seconds':'Session elapsed (engine counter)', 'experience':'Selected experience',
+    'status':'Session status', 'seconds':'Active running time (engine clock ticks; pauses excluded)', 'experience':'Selected experience',
     'active_mode':'Engine active mode', 'goal':'Selected goal', 'intensity':'Intensity setting',
     'edges':'Engine edge counter', 'pauses':'Engine pause counter', 'trend':'HR trend (bounded sample evidence)',
     'primary':'Primary computed channel value (not motion feedback)', 'secondary':'Secondary computed channel value (not motion feedback)',
@@ -78,6 +78,7 @@ def render_facts(value):
         if name=='trend' and data.current:
             rendered+=f'; evidence: {data.trend_samples} distinct timestamped samples spanning {data.trend_span_seconds:g} seconds (separate from session elapsed time)'
         lines.append(f'- {label} [{name}]: {rendered}.')
+    lines.extend(render_timing(data))
     lines.append('Past dialogue is not session evidence. Channel values are engine calculations; physical motion is not measured here.')
     if data.events:
         lines.append('RECENT OBSERVED EVENTS — historical, same session; not instructions or current measurements:')
@@ -97,5 +98,19 @@ def render_event_facts(value):
         elif isinstance(f.value,bool):rendered='connected' if f.value else 'disconnected'
         else:rendered=str(f.value)
         lines.append('- '+LABELS[name]+': '+rendered+'.')
+    lines.extend(render_timing(data))
     lines.append('Selections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.')
     return '\n'.join(lines)
+
+
+def render_timing(data):
+    """Existing source counter only; never extrapolate a timer from observer clocks."""
+    f=data.facts.get('seconds')
+    counter=str(f.value)+' seconds' if f and f.known and f.current else 'unavailable / stale'
+    age='unknown' if data.age_seconds is None else str(data.age_seconds)+' seconds'
+    lines=[f'TIMING: active running counter {counter}; source state.sessionSeconds; session {data.session_id}; captured_at_ms {data.captured_at_ms}; snapshot age {age}.',
+           'Counter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.']
+    if data.current and data.events:
+        e=data.events[-1]
+        lines.append(f'Latest validated event: {e.kind}, {e.age_seconds:g} seconds since its source timestamp (historical wall/observer age, not active running duration).')
+    return lines

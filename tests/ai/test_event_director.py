@@ -60,3 +60,12 @@ async def test_proactive_disabled_retains_diagnostic_without_pending_replay():
  s.enqueue('rapid_rise',45,{'event_id':s.event_intelligence.history[-1]['event']['id'],'category':'derived'})
  assert not s.pending and not wire and 'proactive_disabled' in s.event_intelligence.history[-1]['decision']
  await s.close()
+
+
+def test_derived_events_cannot_be_recast_as_feelings_or_personal_simulator_pulse():
+ from companion_ai.fidelity import event_violations
+ trigger={'category':'derived','observation':{'simulated':True,'change_bpm':18}}
+ for text in ["That spike in your heart rate suggests you're feeling the envelope's weight.","The drop in your numbers suggests you're getting nervous.","Your heart decided to take a vacation.","A frantic 115 became a calm 97."]:
+  assert event_violations(text,trigger)
+ assert not event_violations('The simulator endpoint medians increased by 18 BPM. No cause is established.',trigger)
+ assert event_violations('The simulator increased by 27 BPM.',trigger)==['incorrect_derived_change']

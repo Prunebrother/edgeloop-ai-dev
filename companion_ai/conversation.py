@@ -189,7 +189,7 @@ class ModelManager:
                         result=await collect_reply(self.adapter,LLMRequest(retry_config,tuple(ChatMessage(**m) for m in retry_messages)),chunk,on_expression)
                     # A slow generation must not turn an expired/request-time fact into a live claim.
                     if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                    problems=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],summary.get('trigger_event'))+event_violations(result,summary.get('trigger_event'))
+                    problems=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],(summary.get('trigger_event') or summary.get('derived_grounding')))+event_violations(result,summary.get('trigger_event'))
                     self.grounding_attempts=1;self.grounding_corrections=problems
                     if problems:
                         if on_chunk and not on_reset:raise GroundingError(problems)
@@ -202,7 +202,7 @@ class ModelManager:
                         self.context_warnings+=['One factual correction requested: '+', '.join(problems)]+repair_warnings
                         result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in repair_messages)),chunk,on_expression)
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                        remaining=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],summary.get('trigger_event'))+event_violations(result,summary.get('trigger_event'))
+                        remaining=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],(summary.get('trigger_event') or summary.get('derived_grounding')))+event_violations(result,summary.get('trigger_event'))
                         if remaining:raise GroundingError(remaining)
                 self.load_state='ready';self.metrics.last_error=None
                 return result
@@ -228,8 +228,9 @@ class ConversationService:
         self.director = director or ConversationDirector(DirectorConfig(enabled=False), clock=clock)
         store=getattr(self.adapter,'store',None)
         event_config,event_error=load_config(store) if store else (EventConfig(),None)
+        if store and not (store.root/'event-intelligence.json').exists():event_config=event_config.model_copy(update={'proactive_interval_seconds':float(min(1800,max(15,self.director.config.spontaneous_interval_seconds)))})
         self.event_intelligence=EventIntelligence(event_config,clock=clock);self.event_intelligence.error=event_error
-        if store and (store.root/'event-intelligence.json').exists():self.director.config=self.director.config.model_copy(update={'spontaneous_interval_seconds':event_config.proactive_interval_seconds})
+        if store:self.director.config=self.director.config.model_copy(update={'spontaneous_interval_seconds':event_config.proactive_interval_seconds})
         self.last_event = float("-inf")
         self.busy_until = 0
         self.task = None
@@ -326,8 +327,8 @@ class ConversationService:
         store=getattr(self.adapter,'store',None)
         if store:store.write('event-intelligence.json',config.model_dump())
         for event in self.pending:
-            if event.get('category')=='derived':self.event_intelligence.decision(event.get('event_id'),'discarded:configuration_changed')
-        self.pending=[e for e in self.pending if e.get('category')!='derived']
+            if event.get('observation'):self.event_intelligence.decision(event.get('event_id'),'discarded:configuration_changed')
+        self.pending=[e for e in self.pending if not e.get('observation')]
         self.event_intelligence.configure(config)
         self.director.config=self.director.config.model_copy(update={'spontaneous_interval_seconds':config.proactive_interval_seconds})
 
@@ -453,11 +454,18 @@ class ConversationService:
         if self.task is not None and not self.task.done():
             for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'deferred:active_generation')
             return
-        eligible = [e for e in self.pending if e['kind'] in REACTIVE_EVENTS or (now-self.last_user >= self.policy.user_grace_seconds and now-self.last_event >= self.policy.min_interval_seconds and now-self.event_last_spoken.get(e['kind'],float('-inf')) >= self.policy.per_event_cooldown_seconds)]
+        eligible=[]
+        for candidate in self.pending:
+            gates=[('user_grace',self.policy.user_grace_seconds-(now-self.last_user)),
+                   ('speech_interval',self.policy.min_interval_seconds-(now-self.last_event)),
+                   ('event_kind_cooldown',self.policy.per_event_cooldown_seconds-(now-self.event_last_spoken.get(candidate['kind'],float('-inf'))))]
+            blocked=next(((reason,remaining) for reason,remaining in gates if remaining>0),None)
+            if candidate['kind'] in REACTIVE_EVENTS or blocked is None:eligible.append(candidate)
+            else:self.event_intelligence.decision(candidate.get('event_id'),'deferred:'+blocked[0],blocked[1])
         if not eligible:
             # A timer alone never grants permission: require an engaged story,
             # a user choice/commitment, no unanswered question and a fresh user turn.
-            allowed, reason = self.director.narrative_opportunity(self.memory_config.enabled and self.narrative.opportunity())
+            allowed, reason = self.director.narrative_opportunity(self.memory_config.enabled and self.narrative.opportunity() and self.event_intelligence.config.relevance(self.responder().get('model'),'story')>0)
             quiet=None
             if hasattr(self.state,'wall') and hasattr(self.state,'measurement_segment'):
                 quiet=self.event_intelligence.quiet(self.state,max(self.last_user,self.director.last_spoken),(self.active_model_id,self.narrative.state['epoch'],self.narrative.state['revision'],getattr(self.state,'session_id',None)))
@@ -484,7 +492,7 @@ class ConversationService:
                 self.director.last_reason=reason;self.director.log(reason,kind=candidate['kind'])
         if not opportunities:return
         event, reason = max(opportunities, key=lambda pair: (pair[0]['priority'], -pair[0]['at']))
-        prompt = 'Observed application event (not a user request): ' + json.dumps({k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm'}} | {'origin':self.director.current_origin,'current_experience':getattr(self.state,'report',{}).get('experience') if getattr(self.state,'report',None) else event.get('current_experience'),'current_goal':getattr(self.state,'report',{}).get('goal') if getattr(self.state,'report',None) else event.get('current_goal')})
+        prompt = 'Observed application event (not a user request): ' + json.dumps({k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm','observation','config_revision','narrative_epoch'}} | {'origin':self.director.current_origin,'current_experience':getattr(self.state,'report',{}).get('experience') if getattr(self.state,'report',None) else event.get('current_experience'),'current_goal':getattr(self.state,'report',{}).get('goal') if getattr(self.state,'report',None) else event.get('current_goal')})
         result = self.request(prompt, user=False, event=event)
         if result["accepted"]:
             self.director.dispatched(event, reason)
@@ -548,6 +556,9 @@ class ConversationService:
         if memory.enabled:summary['narrative_context']=self.narrative.context()
         summary['narrative_scope']=self.narrative_scope()
         summary['derived_observations']=[r['event'] for r in self.event_intelligence.history if r['event']['category']=='derived' and r['event']['session_id']==getattr(self.state,'session_id',None) and 0<=getattr(self.state,'wall',lambda:0)()*1000-r['event']['created_at_ms']<=60000][-3:]
+        if user and self.director.config.enabled:
+            from .director import numerical_request
+            if numerical_request(prompt) and summary['derived_observations']:summary['derived_grounding']={'category':'derived','observation':summary['derived_observations'][-1]}
         if self.narrative.state['context_boundary']:
             history=[m for m in history if m.get('narrative_epoch')==self.narrative.state['epoch']]
         if event and event['kind'] in REACTIVE_EVENTS:

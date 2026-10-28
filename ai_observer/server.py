@@ -167,6 +167,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             details.update(category='authoritative',observation=observation.model_dump())
                             narrative_priority=observation.significance
                             relevance=speech.event_intelligence.config.relevance(manager.config.model,'configuration' if observation.detector_id=='configuration' else 'session')
+                            if priority!='critical':rank+=5*(relevance-1)
                             if not eligible or not relevance:
                                 speech.event_intelligence.decision(event.id,'context_only:disabled_or_character_preference')
                                 narrative_priority='routine' if priority!='critical' else priority
@@ -176,6 +177,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 director.observation(event.kind,details,'edgeloop_telemetry');continue
                             if priority=='critical' or event.kind in {'pause','stop'}:
                                 speech.safety(event.kind)
+                                speech.event_intelligence.decision(event.id,'deterministic_safety_notice')
                             if narrative_priority=='major':speech.enqueue(event.kind,rank,details)
                             elif narrative_priority=='routine':
                                 speech.event_intelligence.decision(event.id,'context_only:low_significance' if eligible and relevance else 'context_only:disabled_or_character_preference')
@@ -273,7 +275,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
             for task in tasks:task.cancel()
             with suppress(asyncio.CancelledError):await asyncio.gather(*tasks,return_exceptions=True)
             if owner is identity:
-                owner=None;state.connected=False;speech.pending.clear();speech.interrupt()
+                owner=None;director.typing_until=0;state.connected=False;speech.pending.clear();speech.interrupt()
 
     return app
 

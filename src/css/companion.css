@@ -131,3 +131,19 @@ body.companion-app {margin:0;padding:0;display:block;height:100dvh;min-height:0;
 @media(max-width:760px){.character-toolbar {padding:0 16px 10px}.character-drawer {inset-inline:6px}.character-drawer>header {padding:14px}.drawer-content {padding:0 14px 10px}.character-drawer dl {grid-template-columns:minmax(95px,.9fr) minmax(0,1fr);gap:10px}.story-summary {margin-inline:16px}}
 
 .character-header-status {display:block;margin-top:6px}
+
+.event-intelligence {border-top:1px solid #354055;margin-top:18px;padding-top:14px}
+.event-intelligence summary {font-size:12px;color:#d3baf4;cursor:pointer;padding:8px 0}
+.event-intelligence details details {border-top:1px solid #354055;margin-top:10px}
+.event-intelligence fieldset {border:0;padding:0;margin:0;min-width:0}
+.event-intelligence label {display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:11px;margin:10px 0}
+.event-intelligence input[type=number],.event-intelligence select {width:135px;max-width:100%;background:#0a1221;color:#e2e8f0;border:1px solid #46516a;border-radius:7px;padding:7px;font:inherit}
+.event-intelligence select {width:100%;white-space:normal}.event-intelligence input:invalid {border-color:#fda4af}
+.event-intelligence .event-boundary {border-left:2px solid #b08ad8;padding-left:10px;color:#c7b8d8}
+.event-intelligence .event-presets {padding:8px 0}.event-presets button {margin-right:5px;margin-bottom:8px}
+.event-intelligence [data-event-save] {background:#ab8ce4;color:#160e26;margin:12px 0}
+.event-intelligence [data-detector-health] p {font-size:10px;color:#8fa1bd}
+.event-record {border:1px solid #354055;border-radius:9px;background:#111a2a;padding:0 10px 8px;margin:10px 0}
+.event-record p {font-size:11px;margin:4px 0}.event-record h4 {margin-top:10px}
+
+.event-intelligence input[type=number] {height:auto}

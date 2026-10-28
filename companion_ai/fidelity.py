@@ -123,6 +123,19 @@ def violations(text,canonical,history=(),trigger=None):
 
 def event_violations(text,event):
     """Narrow disambiguation for a proven engine action, not emotion classification."""
+    if event and event.get('category')=='derived':
+        observation=event.get('observation',{})
+        change=observation.get('change_bpm')
+        if observation.get('simulated'):
+            for sentence in re.findall(r'[^.!?]+',text):
+                if re.search(r"\b(?:your|our|my)\s+(?:own\s+)?(?:actual\s+)?(?:heart(?: rate)?|pulse|body)\b",sentence,re.I) and not re.search(r"\b(?:not your|not our|not my|cannot|can't|unmeasured|not measured)\b",sentence,re.I):return ['simulator_is_not_user_physiology']
+        for sentence in re.findall(r'[^.!?]+',text):
+            if re.search(r'\b(?:heart|pulse|BPM|spike|rise|fall|drop|increase|decrease|numbers)\b',sentence,re.I) and re.search(r"\b(?:suggests?|suggesting|indicates?|indicating|tells me|means|proves|because)\b.{0,140}\b(?:you|your|yourself)\b",sentence,re.I):return ['unsupported_physiological_interpretation']
+        if re.search(r'\b(?:frantic|calm|relaxed|aroused|distressed|excited|nervous)\s+\d{2,3}\b',text,re.I):return ['unsupported_physiological_interpretation']
+        if change is not None:
+            for match in re.finditer(r'\b(?:rose|increased|fell|decreased|changed|rise|fall|increase|decrease)\s+(?:by|of)\s+([+-]?\d+(?:\.\d+)?)\s*BPM',text,re.I):
+                if abs(abs(float(match[1]))-abs(change))>.1:return ['incorrect_derived_change']
+        if re.search(r'\b(?:BPM|heart.rate|pulse|rise|increase|decrease)\b.{0,50}\b(?:proves|means|because)\b.{0,45}\b(?:excited|aroused|relaxed|anxious|distressed|calm)\b',text,re.I):return ['unsupported_physiological_interpretation']
     if event and event.get('kind')=='came_early' and re.search(r"\b(?:show(?:ed|ing)? up early|arriv(?:e|ed|ing|al) early|early arrival)\b",text,re.I):
         return ['came_early_means_reported_premature_release_not_early_arrival']
     return []
