@@ -1,0 +1,1667 @@
+{
+  "baseline": "4b82bb5 compose_legacy algorithm, matched synthetic input scenarios; optional objective extension shared by both arms",
+  "physical_hardware": false,
+  "live": true,
+  "models": [
+    {
+      "model": "evelyn-narrative-v1:latest",
+      "context_mode": "f28",
+      "live": true,
+      "turns": [
+        {
+          "scenario": "greeting",
+          "user": "Hello. Tell me something about yourself.",
+          "reply": "Hello. I'm Dr. Evelyn Voss, the woman who insists that \"prolonged arousal\" is a legitimate metric for human efficiency rather than just a party trick. I've spent my career chasing the edge of reproductive potential in a world where every man's seed count is a ticking clock, and I'm here to see if you can help solve the equation. Since your own vitals are currently disconnected from the mainframe, I'll have to rely on your word and my own keen observations to see where we stand.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 5.3006,
+          "first_visible_seconds": 4.115,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2592
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "general",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2591,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 389,
+                "focus": 77,
+                "events": 0,
+                "expression": 244,
+                "user_message": 16,
+                "embedded_identity": 1360,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 1.189,
+            "objective": null,
+            "actual_prompt_tokens": 1209,
+            "estimate_error_tokens": 1382,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 5.291,
+            "time_to_first_token_seconds": 4.04,
+            "tokens_per_second": 90.38,
+            "output_tokens": 113,
+            "load_seconds": 3.633729798,
+            "recorded_at": 1793197194.6229997,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 505,
+            "prompt_tokens": 1209,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.0,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "start",
+          "user": null,
+          "reply": "I see the simulator has officially flipped the switch from idle to running, so I'll stop treating you like a static specimen and start treating you like a live variable. It's a modest milestone for the EdgeLoop project, but I do appreciate the formal confirmation that the session is truly underway. Now, tell me how you're feeling in the moment since the hardware claims to be ready but hasn't quite caught up yet.",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.3243,
+          "first_visible_seconds": 1.3234,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2957
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "a837abe6-b35e-514d-b878-8eb48f0e5721"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2956,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 494,
+                "focus": 88,
+                "events": 230,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1360,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "2 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.579,
+            "objective": null,
+            "actual_prompt_tokens": 1525,
+            "estimate_error_tokens": 1431,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.321,
+            "time_to_first_token_seconds": 0.313,
+            "tokens_per_second": 90.38,
+            "output_tokens": 91,
+            "load_seconds": 0.001165018,
+            "recorded_at": 1793197195.95599,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 438,
+            "prompt_tokens": 1525,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "focused",
+            "candidate": "focused"
+          },
+          "expression": "focused",
+          "repetition": {
+            "similarity": 0.112,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "pause",
+          "user": null,
+          "reply": "I see you've officially hit the pause button right as I was mentally drafting the next phase of our fertility analysis. It is a pity the simulator is running a heart-rate simulation while we're in the middle of a real-world lull; at least the data remains consistent, even if our pace has slowed. Shall we treat this as a strategic breather, or does the silence suggest the participant is simply savoring the anticipation?",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.36,
+          "first_visible_seconds": 1.3587,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2954
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "96f690cd-dcaa-5e99-bd6c-5da96371148c"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2953,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 493,
+                "focus": 88,
+                "events": 227,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1360,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "3 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.38,
+            "objective": null,
+            "actual_prompt_tokens": 1524,
+            "estimate_error_tokens": 1429,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.356,
+            "time_to_first_token_seconds": 0.31,
+            "tokens_per_second": 89.88,
+            "output_tokens": 94,
+            "load_seconds": 0.001247346,
+            "recorded_at": 1793197197.3219686,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 445,
+            "prompt_tokens": 1524,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.112,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "duration",
+          "user": "How long has the session been running? Is paused duration available?",
+          "reply": "The engine has been ticking away for exactly 205 seconds, though the session itself has been on hold for a single, indefinite count of pauses. Since your physical motion feedback is currently unavailable, I suspect those 205 seconds are just the simulator's way of keeping us in the loop while we wait. Until we verify if you actually felt the passage of time, I'll treat this duration as a convenient fiction rather than a biological reality.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 3.0528,
+          "first_visible_seconds": 0.3546,
+          "calls": 2,
+          "wire_estimated_tokens": [
+            2909,
+            2949
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "timing",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "ease_down_seconds",
+              "handy",
+              "hr_source",
+              "intiface",
+              "pauses",
+              "physical_motion",
+              "rampdown_seconds",
+              "seconds",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2948,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 463,
+                "facts": 696,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 28,
+                "embedded_identity": 1360,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "4 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.58,
+            "objective": null,
+            "actual_prompt_tokens": 1447,
+            "estimate_error_tokens": 1501,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.427,
+            "time_to_first_token_seconds": 0.335,
+            "tokens_per_second": 89.78,
+            "output_tokens": 98,
+            "load_seconds": 0.001339756,
+            "recorded_at": 1793197200.3748007,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 466,
+            "prompt_tokens": 1447,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.179,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "abandon",
+          "user": "Let's abandon this storyline and discuss music.",
+          "reply": "Since the simulators are disconnected and the physical world is free to roam, I suppose we can finally discuss music without worrying about a metronome dictating our heartbeats. It seems the real world is far less rigid than our telemetry suggests, which makes a casual conversation about melody all the more refreshing. Does this mean we can finally settle on whether your favorite track is actually a masterpiece or just a delightful anomaly?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.2622,
+          "first_visible_seconds": 0.3113,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2595
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "story",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2594,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 390,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 19,
+                "embedded_identity": 1360,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "expression soft category limit exceeded: required evidence/instructions preserved."
+            ],
+            "compilation_ms": 0.257,
+            "objective": null,
+            "actual_prompt_tokens": 1215,
+            "estimate_error_tokens": 1379,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.258,
+            "time_to_first_token_seconds": 0.229,
+            "tokens_per_second": 89.47,
+            "output_tokens": 92,
+            "load_seconds": 0.001281009,
+            "recorded_at": 1793197201.6366186,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 467,
+            "prompt_tokens": 1215,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.132,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.098,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "new_premise",
+          "user": "Imagine a fresh garden puzzle. I choose the silver ribbon as our fictional clue.",
+          "reply": "I've been waiting for a fresh puzzle; the silver ribbon is a charmingly specific choice that immediately grounds our investigation. It suggests we are looking for something delicate and perhaps a bit reflective, like a clue that only reveals itself under certain light. Consider the ribbon a hypothesis for a specific kind of sensitivity we might be testing, rather than a definitive map of the territory. Now, tell me exactly how you intend to deploy this metallic token in our current scenario.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.3605,
+          "first_visible_seconds": 0.3161,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2608
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "story",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2607,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 390,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1360,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "Superseded abandonment transition omitted for fresh premise.",
+              "2 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.279,
+            "objective": null,
+            "actual_prompt_tokens": 1222,
+            "estimate_error_tokens": 1385,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.356,
+            "time_to_first_token_seconds": 0.235,
+            "tokens_per_second": 89.19,
+            "output_tokens": 100,
+            "load_seconds": 0.001563648,
+            "recorded_at": 1793197202.9971373,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 519,
+            "prompt_tokens": 1222,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.136,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        }
+      ],
+      "manual_quality_review": "required; mocks prove mechanics only",
+      "system_metrics": {
+        "telemetry_processing_latency_ms": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "gpu": {
+          "available": true,
+          "name": "NVIDIA GeForce RTX 3080",
+          "total_mib": 10240,
+          "used_mib": 8260,
+          "utilization_percent": 92,
+          "free_mib": 1980
+        },
+        "system_cpu_percent": 33.8,
+        "backend_cpu_percent": 2.1,
+        "ram_available_gib": 29.23,
+        "backend_rss_mib": 52.2,
+        "last_inference": {
+          "response_latency_seconds": 1.356,
+          "time_to_first_token_seconds": 0.235,
+          "tokens_per_second": 89.19,
+          "output_tokens": 100,
+          "load_seconds": 0.001563648,
+          "recorded_at": 1793197202.9971373,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 519,
+          "prompt_tokens": 1222,
+          "done_reason": "stop"
+        },
+        "inference_count": 7,
+        "sample_limit": 100,
+        "latency_p50_seconds": 1.356,
+        "latency_p95_seconds": 5.291,
+        "last_model_error": null
+      },
+      "thinking_off_verified": true,
+      "embedded_system_preserved": true,
+      "outbound_calls": 7,
+      "inference_metrics": [
+        {
+          "response_latency_seconds": 5.291,
+          "time_to_first_token_seconds": 4.04,
+          "tokens_per_second": 90.38,
+          "output_tokens": 113,
+          "load_seconds": 3.633729798,
+          "recorded_at": 1793197194.6229997,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 505,
+          "prompt_tokens": 1209,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.321,
+          "time_to_first_token_seconds": 0.313,
+          "tokens_per_second": 90.38,
+          "output_tokens": 91,
+          "load_seconds": 0.001165018,
+          "recorded_at": 1793197195.95599,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 438,
+          "prompt_tokens": 1525,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.356,
+          "time_to_first_token_seconds": 0.31,
+          "tokens_per_second": 89.88,
+          "output_tokens": 94,
+          "load_seconds": 0.001247346,
+          "recorded_at": 1793197197.3219686,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 445,
+          "prompt_tokens": 1524,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.619,
+          "time_to_first_token_seconds": 0.283,
+          "tokens_per_second": 90.56,
+          "output_tokens": 121,
+          "load_seconds": 0.001882988,
+          "recorded_at": 1793197198.9454718,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 571,
+          "prompt_tokens": 1427,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.427,
+          "time_to_first_token_seconds": 0.335,
+          "tokens_per_second": 89.78,
+          "output_tokens": 98,
+          "load_seconds": 0.001339756,
+          "recorded_at": 1793197200.3748007,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 466,
+          "prompt_tokens": 1447,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.258,
+          "time_to_first_token_seconds": 0.229,
+          "tokens_per_second": 89.47,
+          "output_tokens": 92,
+          "load_seconds": 0.001281009,
+          "recorded_at": 1793197201.6366186,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 467,
+          "prompt_tokens": 1215,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.356,
+          "time_to_first_token_seconds": 0.235,
+          "tokens_per_second": 89.19,
+          "output_tokens": 100,
+          "load_seconds": 0.001563648,
+          "recorded_at": 1793197202.9971373,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 519,
+          "prompt_tokens": 1222,
+          "done_reason": "stop"
+        }
+      ],
+      "wire_payload_audit": [
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2592,
+          "characters": 6314
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2957,
+          "characters": 7226
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2954,
+          "characters": 7219
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2909,
+          "characters": 7107
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2949,
+          "characters": 7208
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2595,
+          "characters": 6321
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2608,
+          "characters": 6354
+        }
+      ],
+      "metadata_leakage": false
+    },
+    {
+      "model": "daisy-narrative-v1:latest",
+      "context_mode": "f28",
+      "live": true,
+      "turns": [
+        {
+          "scenario": "greeting",
+          "user": "Hello. Tell me something about yourself.",
+          "reply": "Hello there! I'm Daisy Mae Harper, and I'm the only one who can call the shots at Cloverfield Farm. We've got a lot of work to do to keep our family legacy alive, but I'm feeling good about it.\nSo, tell me, are you here to help with the harvest, or just to see if I can charm you like I did that new intern last week?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.4885,
+          "first_visible_seconds": 0.5674,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2637
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "general",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2637,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 389,
+                "focus": 77,
+                "events": 0,
+                "expression": 244,
+                "user_message": 16,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.218,
+            "objective": null,
+            "actual_prompt_tokens": 1312,
+            "estimate_error_tokens": 1325,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.486,
+            "time_to_first_token_seconds": 0.497,
+            "tokens_per_second": 89.89,
+            "output_tokens": 89,
+            "load_seconds": 0.001111644,
+            "recorded_at": 1793197204.519907,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 338,
+            "prompt_tokens": 1312,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "happy",
+            "candidate": "happy"
+          },
+          "expression": "happy",
+          "repetition": {
+            "similarity": 0.0,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "start",
+          "user": null,
+          "reply": "Well, look at you, finally getting the farm's data to actually *run* instead of just sitting there dreaming of calves. I suppose that means you're ready to help me sort out this mess of a donation ledger before my father's old debts catch up to us. Now, tell me, does this \"Classic Tease\" mode mean you're in the mood for some serious matchmaking, or are you just happy to be connected?",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.3888,
+          "first_visible_seconds": 1.3877,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3002
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "a837abe6-b35e-514d-b878-8eb48f0e5721"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 3002,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 494,
+                "focus": 88,
+                "events": 230,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "2 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.343,
+            "objective": null,
+            "actual_prompt_tokens": 1622,
+            "estimate_error_tokens": 1380,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.385,
+            "time_to_first_token_seconds": 0.317,
+            "tokens_per_second": 88.98,
+            "output_tokens": 95,
+            "load_seconds": 0.001519226,
+            "recorded_at": 1793197205.910614,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 407,
+            "prompt_tokens": 1622,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "happy",
+            "candidate": "happy"
+          },
+          "expression": "happy",
+          "repetition": {
+            "similarity": 0.147,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.226,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "pause",
+          "user": null,
+          "reply": "Well, don't just stand there staring at that glowing screen like a barnyard ox; the session is officially paused, which means I get to decide exactly when we resume our little experiment. I've been waiting for a moment to tell you that the new batch of clover is looking particularly lush, and I think it's time you came see it yourself.",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.1923,
+          "first_visible_seconds": 1.1911,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2999
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "96f690cd-dcaa-5e99-bd6c-5da96371148c"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2999,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 493,
+                "focus": 88,
+                "events": 227,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "3 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.473,
+            "objective": null,
+            "actual_prompt_tokens": 1621,
+            "estimate_error_tokens": 1378,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.188,
+            "time_to_first_token_seconds": 0.319,
+            "tokens_per_second": 92.15,
+            "output_tokens": 80,
+            "load_seconds": 0.001084438,
+            "recorded_at": 1793197207.109812,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 360,
+            "prompt_tokens": 1621,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.181,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "duration",
+          "user": "How long has the session been running? Is paused duration available?",
+          "reply": "Well, if the engine clock says we've been ticking away for 205 seconds, then I suppose we've been waiting long enough for a proper answer. The session is technically paused, but I'm not complaining about the time I've spent worrying about Cloverfield's future while the numbers sit there looking so perfectly still. Tell me, does that 205 seconds feel like a lifetime to you, or are you just used to the farm's chaotic rhythm?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.4627,
+          "first_visible_seconds": 0.3768,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2954
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "timing",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "ease_down_seconds",
+              "handy",
+              "hr_source",
+              "intiface",
+              "pauses",
+              "physical_motion",
+              "rampdown_seconds",
+              "seconds",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2954,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 696,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 28,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "4 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.367,
+            "objective": null,
+            "actual_prompt_tokens": 1524,
+            "estimate_error_tokens": 1430,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.458,
+            "time_to_first_token_seconds": 0.289,
+            "tokens_per_second": 88.19,
+            "output_tokens": 103,
+            "load_seconds": 0.00129008,
+            "recorded_at": 1793197208.571871,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 449,
+            "prompt_tokens": 1524,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.211,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.34,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "abandon",
+          "user": "Let's abandon this storyline and discuss music.",
+          "reply": "Well, if we're abandoning the farm tour to discuss music, I suppose I can stop worrying about the irrigation schedule for a moment. You know, my father used to say that a good country tune could make a cow forget she's in heat, but I haven't found the right playlist to match my current mood yet. What kind of rhythm are we setting tonight, darling?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.135,
+          "first_visible_seconds": 0.2646,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2640
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "story",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2640,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 390,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 19,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "expression soft category limit exceeded: required evidence/instructions preserved."
+            ],
+            "compilation_ms": 0.207,
+            "objective": null,
+            "actual_prompt_tokens": 1315,
+            "estimate_error_tokens": 1325,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.132,
+            "time_to_first_token_seconds": 0.176,
+            "tokens_per_second": 87.95,
+            "output_tokens": 84,
+            "load_seconds": 0.001134211,
+            "recorded_at": 1793197209.7087755,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 372,
+            "prompt_tokens": 1315,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.201,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.065,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "new_premise",
+          "user": "Imagine a fresh garden puzzle. I choose the silver ribbon as our fictional clue.",
+          "reply": "Well, I suppose I'll take that silver ribbon as my own little prize for keeping Cloverfield afloat while the rest of the world gets tangled in their fertility fads. Now that you've handed me a clue, I'm thinking we should use it to mark the prize-winning heirloom pumpkins before Helix shows up and tries to claim them as collateral.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.0717,
+          "first_visible_seconds": 0.2563,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2653
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "story",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2653,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 422,
+                "facts": 390,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "expression soft category limit exceeded: required evidence/instructions preserved.",
+              "Superseded abandonment transition omitted for fresh premise.",
+              "2 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.213,
+            "objective": null,
+            "actual_prompt_tokens": 1322,
+            "estimate_error_tokens": 1331,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.068,
+            "time_to_first_token_seconds": 0.172,
+            "tokens_per_second": 90.35,
+            "output_tokens": 81,
+            "load_seconds": 0.001043747,
+            "recorded_at": 1793197210.780515,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 356,
+            "prompt_tokens": 1322,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.152,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        }
+      ],
+      "manual_quality_review": "required; mocks prove mechanics only",
+      "system_metrics": {
+        "telemetry_processing_latency_ms": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "gpu": {
+          "available": true,
+          "name": "NVIDIA GeForce RTX 3080",
+          "total_mib": 10240,
+          "used_mib": 8187,
+          "utilization_percent": 92,
+          "free_mib": 2053
+        },
+        "system_cpu_percent": 39.9,
+        "backend_cpu_percent": 2.6,
+        "ram_available_gib": 29.06,
+        "backend_rss_mib": 53.2,
+        "last_inference": {
+          "response_latency_seconds": 1.068,
+          "time_to_first_token_seconds": 0.172,
+          "tokens_per_second": 90.35,
+          "output_tokens": 81,
+          "load_seconds": 0.001043747,
+          "recorded_at": 1793197210.780515,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 356,
+          "prompt_tokens": 1322,
+          "done_reason": "stop"
+        },
+        "inference_count": 6,
+        "sample_limit": 100,
+        "latency_p50_seconds": 1.385,
+        "latency_p95_seconds": 1.486,
+        "last_model_error": null
+      },
+      "thinking_off_verified": true,
+      "embedded_system_preserved": true,
+      "outbound_calls": 6,
+      "inference_metrics": [
+        {
+          "response_latency_seconds": 1.486,
+          "time_to_first_token_seconds": 0.497,
+          "tokens_per_second": 89.89,
+          "output_tokens": 89,
+          "load_seconds": 0.001111644,
+          "recorded_at": 1793197204.519907,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 338,
+          "prompt_tokens": 1312,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.385,
+          "time_to_first_token_seconds": 0.317,
+          "tokens_per_second": 88.98,
+          "output_tokens": 95,
+          "load_seconds": 0.001519226,
+          "recorded_at": 1793197205.910614,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 407,
+          "prompt_tokens": 1622,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.188,
+          "time_to_first_token_seconds": 0.319,
+          "tokens_per_second": 92.15,
+          "output_tokens": 80,
+          "load_seconds": 0.001084438,
+          "recorded_at": 1793197207.109812,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 360,
+          "prompt_tokens": 1621,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.458,
+          "time_to_first_token_seconds": 0.289,
+          "tokens_per_second": 88.19,
+          "output_tokens": 103,
+          "load_seconds": 0.00129008,
+          "recorded_at": 1793197208.571871,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 449,
+          "prompt_tokens": 1524,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.132,
+          "time_to_first_token_seconds": 0.176,
+          "tokens_per_second": 87.95,
+          "output_tokens": 84,
+          "load_seconds": 0.001134211,
+          "recorded_at": 1793197209.7087755,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 372,
+          "prompt_tokens": 1315,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.068,
+          "time_to_first_token_seconds": 0.172,
+          "tokens_per_second": 90.35,
+          "output_tokens": 81,
+          "load_seconds": 0.001043747,
+          "recorded_at": 1793197210.780515,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 356,
+          "prompt_tokens": 1322,
+          "done_reason": "stop"
+        }
+      ],
+      "wire_payload_audit": [
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2637,
+          "characters": 6428
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3002,
+          "characters": 7340
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2999,
+          "characters": 7333
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2954,
+          "characters": 7221
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2640,
+          "characters": 6435
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2653,
+          "characters": 6468
+        }
+      ],
+      "metadata_leakage": false
+    }
+  ]
+}

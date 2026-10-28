@@ -1,0 +1,18 @@
+{
+  "f27": {
+    "fixture_count": 20,
+    "repeats": 30,
+    "compile_ms_median": 0.2715,
+    "compile_ms_p95": 0.4845,
+    "estimated_prompt_mean": 2191.8,
+    "estimated_prompt_peak": 2266
+  },
+  "f28": {
+    "fixture_count": 20,
+    "repeats": 30,
+    "compile_ms_median": 0.3558,
+    "compile_ms_p95": 0.5721,
+    "estimated_prompt_mean": 1492.5,
+    "estimated_prompt_peak": 1823
+  }
+}

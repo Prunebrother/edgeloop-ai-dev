@@ -1,0 +1,17 @@
+{
+  "branch": "experiment/ai-companion",
+  "baseline": "4b82bb5",
+  "upstream_tests": 1057,
+  "python_tests": 370,
+  "bridge_presentation_tests": 30,
+  "browser_workflows": 7,
+  "physical_hardware_tested": false,
+  "active_services_restarted": false,
+  "installed_models_rebuilt": false,
+  "artwork_modified": false,
+  "manual_narrative_acceptance": "deferred; see quality limitations",
+  "unrelated_untracked_work_preserved": [
+    "characters/models/celeste-narrative-v1/",
+    "characters/models/celeste-narrative-v2/"
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "endpoint": "http://127.0.0.1:11435",
+  "paired_scenarios": "same user prompts and authoritative synthetic inputs; response-dependent histories and Director decisions may diverge",
+  "physical_hardware": false,
+  "arms": {
+    "f27": {
+      "outbound_calls": 23,
+      "completed_replies": 19,
+      "prompt_tokens_mean": 2405.17,
+      "prompt_tokens_peak": 3207,
+      "provider_first_token_mean_seconds": 0.857,
+      "turn_latency_mean_seconds": 1.943,
+      "first_visible_payload_mean_seconds": 1.154,
+      "generated_tokens_per_second_mean": 93.54,
+      "expression_metadata_valid": 22,
+      "expression_observations": 23,
+      "raw_wire_estimate_error_mean_tokens": 2306.4,
+      "gpu_snapshots_mib": [
+        8213,
+        8210
+      ],
+      "thinking_off_verified": true,
+      "embedded_system_preserved": true,
+      "metadata_leakage": false,
+      "repetition_flags": 0,
+      "grounding_failures": 0,
+      "suppressed_outcomes": [
+        [
+          "evelyn-narrative-v1:latest",
+          "milestone",
+          "unsolicited_limit"
+        ],
+        [
+          "daisy-narrative-v1:latest",
+          "start",
+          "repetitive_opportunity"
+        ],
+        [
+          "daisy-narrative-v1:latest",
+          "milestone",
+          "repetitive_opportunity"
+        ],
+        [
+          "daisy-narrative-v1:latest",
+          "pause",
+          "repetitive_opportunity"
+        ],
+        [
+          "daisy-narrative-v1:latest",
+          "resume",
+          "repetitive_opportunity"
+        ]
+      ]
+    },
+    "f28": {
+      "outbound_calls": 22,
+      "completed_replies": 22,
+      "prompt_tokens_mean": 1427.55,
+      "prompt_tokens_peak": 1645,
+      "provider_first_token_mean_seconds": 0.275,
+      "turn_latency_mean_seconds": 1.26,
+      "first_visible_payload_mean_seconds": 0.671,
+      "generated_tokens_per_second_mean": 94.51,
+      "expression_metadata_valid": 22,
+      "expression_observations": 22,
+      "raw_wire_estimate_error_mean_tokens": 1426.8,
+      "gpu_snapshots_mib": [
+        8213,
+        8210
+      ],
+      "thinking_off_verified": true,
+      "embedded_system_preserved": true,
+      "metadata_leakage": false,
+      "repetition_flags": 0,
+      "grounding_failures": 0,
+      "suppressed_outcomes": [
+        [
+          "evelyn-narrative-v1:latest",
+          "milestone",
+          "unsolicited_limit"
+        ],
+        [
+          "daisy-narrative-v1:latest",
+          "milestone",
+          "unsolicited_limit"
+        ]
+      ]
+    }
+  },
+  "matched_turns": {
+    "f27": {
+      "count": 22,
+      "prompt_tokens_mean": 2382.82,
+      "prompt_tokens_peak": 3207
+    },
+    "f28": {
+      "count": 22,
+      "prompt_tokens_mean": 1427.55,
+      "prompt_tokens_peak": 1645
+    }
+  },
+  "aggregate_prompt_reduction_percent": 40.65
+}

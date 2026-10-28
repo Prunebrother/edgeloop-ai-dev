@@ -169,6 +169,7 @@ class ContextCompiler:
         historical_query=bool(re.search(r'\b(?:earlier|previous|history|before|remember)\b',prompt,re.I)) and not re.search(r'\b(?:current|latest|now)\b',prompt,re.I)
         current_query=focus.topic in {'physiology','configuration','timing','devices','milestones'} and not historical_query
         fresh_premise=focus.source=='real_user' and focus.topic=='story' and not narrative.get('premise') and bool(re.search(r'\b(?:imagine|fresh|new|premise)\b',prompt,re.I))
+        active_instruction=lambda message: message.get('role')=='user' and bool(re.match(r"^\s*(?:please )?(?:always\b|never\b|remember:|do not\b|don't\b)",message.get('content',''),re.I))
         scoped=[];abandon_ack=False
         for i,m in enumerate(recent):
             text=m.get('content','')
@@ -176,14 +177,13 @@ class ContextCompiler:
                 if m.get('role')=='user':abandon_ack=abandonment_requested(text)
                 if abandon_ack:
                     omissions.append('Superseded abandonment transition omitted for fresh premise.');continue
-            if OPERATIONAL.search(text) and (current_query or m.get('session_id')!=data.session_id and not historical_query):
+            if not active_instruction(m) and OPERATIONAL.search(text) and (current_query or m.get('session_id')!=data.session_id and not historical_query):
                 omissions.append('Historical telemetry dialogue omitted from current-session inference; transcript retained.');continue
             if m.get('trigger_origin')=='system_event' and focus.category=='answer_user' and focus.topic not in {'physiology','milestones'}:continue
             if text in seen:continue
             seen.add(text);scoped.append((i,m))
         # Recent dialogue outranks optional narrative. Latest user instructions get first claim.
         query=words(prompt)
-        active_instruction=lambda message: message.get('role')=='user' and bool(re.match(r"^\s*(?:please )?(?:always\b|never\b|remember:|do not\b|don't\b)",message.get('content',''),re.I))
         ranked=sorted(scoped,key=lambda pair:(active_instruction(pair[1]),(3*len(query&words(pair[1].get('content','')))+(3 if pair[1].get('role')=='user' else 0)+(5 if pair[1].get('role')=='user' and re.search(r'\b(?:always|never|do not|remember|please)\b',pair[1].get('content',''),re.I) else 0),pair[0])),reverse=True)
         history_used=0
         for i,m in ranked:

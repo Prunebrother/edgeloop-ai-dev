@@ -1,0 +1,71 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "pattern": "^[a-f0-9]{32}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "premise": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Premise",
+      "type": "string"
+    },
+    "motivation": {
+      "default": "",
+      "maxLength": 180,
+      "title": "Motivation",
+      "type": "string"
+    },
+    "next_development": {
+      "default": "",
+      "maxLength": 180,
+      "title": "Next Development",
+      "type": "string"
+    },
+    "transition_condition": {
+      "default": "",
+      "maxLength": 180,
+      "title": "Transition Condition",
+      "type": "string"
+    },
+    "status": {
+      "default": "active",
+      "enum": [
+        "active",
+        "paused",
+        "completed",
+        "abandoned"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "phase": {
+      "default": "opening",
+      "maxLength": 32,
+      "title": "Phase",
+      "type": "string"
+    },
+    "revision": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "milestones": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 4,
+      "title": "Milestones",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "premise"
+  ],
+  "title": "NarrativeObjective",
+  "type": "object"
+}

@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "physical_hardware": false,
+  "steps": [
+    "User-first focus diagnostics, backend budgets, invalid inputs, inference-free edits, objective confirmation/lifecycle/model isolation, transcript retention, responsive UI and independent emergency controls"
+  ],
+  "screenshots": [
+    "context-diagnostics-1920.png",
+    "fictional-objective-2560.png",
+    "context-mobile-390.png"
+  ]
+}

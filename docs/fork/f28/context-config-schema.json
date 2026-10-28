@@ -1,0 +1,81 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "enabled": {
+      "default": true,
+      "title": "Enabled",
+      "type": "boolean"
+    },
+    "target_prompt_tokens": {
+      "default": 2800,
+      "maximum": 7168,
+      "minimum": 512,
+      "title": "Target Prompt Tokens",
+      "type": "integer"
+    },
+    "grounding_tokens": {
+      "default": 500,
+      "maximum": 1200,
+      "minimum": 256,
+      "title": "Grounding Tokens",
+      "type": "integer"
+    },
+    "facts_tokens": {
+      "default": 700,
+      "maximum": 1800,
+      "minimum": 200,
+      "title": "Facts Tokens",
+      "type": "integer"
+    },
+    "focus_tokens": {
+      "default": 100,
+      "maximum": 300,
+      "minimum": 40,
+      "title": "Focus Tokens",
+      "type": "integer"
+    },
+    "events_tokens": {
+      "default": 400,
+      "maximum": 1200,
+      "minimum": 80,
+      "title": "Events Tokens",
+      "type": "integer"
+    },
+    "narrative_tokens": {
+      "default": 450,
+      "maximum": 1800,
+      "minimum": 0,
+      "title": "Narrative Tokens",
+      "type": "integer"
+    },
+    "history_tokens": {
+      "default": 1200,
+      "maximum": 5000,
+      "minimum": 0,
+      "title": "History Tokens",
+      "type": "integer"
+    },
+    "expression_tokens": {
+      "default": 280,
+      "maximum": 400,
+      "minimum": 80,
+      "title": "Expression Tokens",
+      "type": "integer"
+    },
+    "event_max_age_seconds": {
+      "default": 60,
+      "maximum": 120,
+      "minimum": 5,
+      "title": "Event Max Age Seconds",
+      "type": "integer"
+    }
+  },
+  "title": "ContextConfig",
+  "type": "object"
+}

@@ -1,0 +1,4973 @@
+{
+  "baseline": "4b82bb5 compose_legacy algorithm, matched synthetic input scenarios; optional objective extension shared by both arms",
+  "physical_hardware": false,
+  "live": true,
+  "models": [
+    {
+      "model": "evelyn-narrative-v1:latest",
+      "context_mode": "f27",
+      "live": true,
+      "turns": [
+        {
+          "scenario": "greeting",
+          "user": "Hello. Tell me something about yourself.",
+          "reply": "I'm Dr. Evelyn Voss, and I've spent far too many years chasing elusive data on why the male population is suddenly so eager to reproduce. It's a peculiar crisis that demands a scientist who can balance dry logic with the occasional need for a little\u2026 physiological curiosity. Tell me, does the idea of being a \"Proven Breeder\" sound like a title you're proud of, or just a financial necessity to save Cloverfield Farm?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 5.0388,
+          "first_visible_seconds": 4.0727,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3849
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 1941,
+            "estimate_error_tokens": -1941,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 5.03,
+            "time_to_first_token_seconds": 3.999,
+            "tokens_per_second": 95.06,
+            "output_tokens": 98,
+            "load_seconds": 3.398382726,
+            "recorded_at": 1793197860.3505692,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 441,
+            "prompt_tokens": 1941,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.0,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "premise",
+          "user": "Imagine a small mystery in your own setting. I choose to keep a violet notebook as our fictional clue.",
+          "reply": "You've handed me a violet notebook? A rather unconventional clue for a scientist who usually trusts only in sterile telemetry and cold, hard data. I suppose I'll have to accept that your imagination has officially entered the experiment, even if my own equipment remains stubbornly disconnected. Now, tell me: does this violet volume contain the answers to our fertility crisis, or just your whimsical way of keeping track of the day's events?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.5364,
+          "first_visible_seconds": 0.6186,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3545
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 1676,
+            "estimate_error_tokens": -1676,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.532,
+            "time_to_first_token_seconds": 0.539,
+            "tokens_per_second": 94.71,
+            "output_tokens": 94,
+            "load_seconds": 0.001552401,
+            "recorded_at": 1793197861.8908377,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 466,
+            "prompt_tokens": 1676,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.152,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.231,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "clue",
+          "user": "I suggest a pressed silver leaf is inside the notebook; we have not identified its owner.",
+          "reply": "A pressed silver leaf? That is a far more tactile and intimate clue than I expected for a scientist who usually relies on sterile graphs and cold, hard data. It seems our mystery has shifted from the macroscopic world of reproductive statistics to the delicate, almost fragile realm of botanical preservation. I suppose I must now treat this violet notebook not as a mere prop, but as a vessel for secrets that might just change how we view the entire fertility crisis.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.3253,
+          "first_visible_seconds": 0.3731,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            4125
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 1935,
+            "estimate_error_tokens": -1935,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.321,
+            "time_to_first_token_seconds": 0.293,
+            "tokens_per_second": 95.32,
+            "output_tokens": 98,
+            "load_seconds": 0.001351487,
+            "recorded_at": 1793197863.2164104,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 492,
+            "prompt_tokens": 1935,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.273,
+            "repeated_phrase": 0.015,
+            "repeated_question": 0.2,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "mode_change",
+          "user": null,
+          "reply": "Ah, the \"Head Play\" experience, and my equipment remains stubbornly disconnected. I suppose I must rely on my own wit to navigate this scenario rather than some external sensor telling me exactly where we are. Tell me, does this new setting make you feel more like a subject of a tactile experiment, or does it simply invite a different kind of playful interaction?",
+          "error": null,
+          "suppressed": null,
+          "decision": "verified_action:experience_changed",
+          "elapsed_seconds": 1.6555,
+          "first_visible_seconds": 1.6541,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5042
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 2454,
+            "estimate_error_tokens": -2454,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.651,
+            "time_to_first_token_seconds": 0.804,
+            "tokens_per_second": 95.59,
+            "output_tokens": 81,
+            "load_seconds": 0.001275491,
+            "recorded_at": 1793197864.8746784,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 388,
+            "prompt_tokens": 2454,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.204,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.259,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "start",
+          "user": null,
+          "reply": "I see the session has officially shifted into gear, though I must admit I was hoping to keep things a little more grounded in our own conversation. It seems the violet notebook and its mysterious silver leaf are now the only variables I need to account for, rather than some disconnected heart-rate sensor. Let's see if this \"Head Play\" experience can help us unravel who left such a delicate botanical secret inside your personal journal.",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.8038,
+          "first_visible_seconds": 1.8025,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            4970
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 2545,
+            "estimate_error_tokens": -2545,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.8,
+            "time_to_first_token_seconds": 0.821,
+            "tokens_per_second": 92.97,
+            "output_tokens": 91,
+            "load_seconds": 0.001350682,
+            "recorded_at": 1793197866.6819906,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 462,
+            "prompt_tokens": 2545,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.202,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "milestone",
+          "user": null,
+          "reply": null,
+          "error": null,
+          "suppressed": null,
+          "decision": "unsolicited_limit",
+          "elapsed_seconds": 0.0,
+          "first_visible_seconds": null,
+          "calls": 0,
+          "wire_estimated_tokens": [],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 2545,
+            "estimate_error_tokens": -2545,
+            "request_status": "completed"
+          },
+          "metrics": null,
+          "expression_metadata": null,
+          "expression": null,
+          "repetition": null
+        },
+        {
+          "scenario": "callback",
+          "user": "What did we agree about the violet notebook? Do not restart the introduction.",
+          "reply": "Ah, the violet notebook and its pressed silver leaf. I was worried I'd have to explain the entire premise of our meeting again, but it seems we settled on a botanical secret to hold us over while the rest of the institute waits for results. It's a lovely, quiet mystery to anchor our conversation, especially with this \"Head Play\" setting humming along in the background. Tell me, does the silver leaf feel cold against the skin of the page, or did it settle in there softly like a memory?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.7116,
+          "first_visible_seconds": 0.5857,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            4867
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 2454,
+            "estimate_error_tokens": -2454,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.706,
+            "time_to_first_token_seconds": 0.517,
+            "tokens_per_second": 92.57,
+            "output_tokens": 110,
+            "load_seconds": 0.001319525,
+            "recorded_at": 1793197868.3992152,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 512,
+            "prompt_tokens": 2454,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.198,
+            "repeated_phrase": 0.014,
+            "repeated_question": 0.28,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "pause",
+          "user": null,
+          "reply": "That pause in the engine is a delightful interruption, reminding me that even our most precise data can stumble over a moment of quiet. I was just musing on how a pressed silver leaf could survive the delicate mechanics of your current state, wondering if it\u2019s merely a botanical artifact or a secret waiting to bloom. Since the session is officially on hold, tell me: does the violet notebook feel like a relic of a different time, or does it still hold the weight of our unverified mystery?",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 2.0829,
+          "first_visible_seconds": 2.0802,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5473
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 2835,
+            "estimate_error_tokens": -2835,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 2.076,
+            "time_to_first_token_seconds": 0.952,
+            "tokens_per_second": 94.29,
+            "output_tokens": 106,
+            "load_seconds": 0.001348208,
+            "recorded_at": 1793197870.4889882,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 515,
+            "prompt_tokens": 2835,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.243,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.4,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "duration",
+          "user": "How long has the session been running? Is paused duration available?",
+          "reply": "Since the engine just paused its 412-second count, the only honest answer is that time has stopped ticking for us while you ponder the mechanics of our own mystery. I suppose I should stop guessing at the \"real\" duration and just accept that we are currently suspended in a moment of suspended animation. Tell me, does the idea of being paused while I mused over that silver leaf make you feel neglected, or is the stillness exactly what you wanted?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.6638,
+          "first_visible_seconds": 0.6602,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5199
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 2665,
+            "estimate_error_tokens": -2665,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.656,
+            "time_to_first_token_seconds": 0.579,
+            "tokens_per_second": 94.69,
+            "output_tokens": 102,
+            "load_seconds": 0.001208599,
+            "recorded_at": 1793197872.15219,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 472,
+            "prompt_tokens": 2665,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.215,
+            "repeated_phrase": 0.043,
+            "repeated_question": 0.314,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "resume",
+          "user": null,
+          "reply": "Since the engine just snapped back to RUNNING, I suppose my earlier musings on that pressed silver leaf were merely a warm-up before the real data begins to flow. It seems the violet notebook has survived the transition from a quiet mystery to an active investigation, with the silver leaf still waiting to reveal its owner. Tell me, does the sudden return of the running clock make you feel like we're finally moving, or does it just interrupt the flow of our conversation?",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 2.1052,
+          "first_visible_seconds": 2.1019,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5887
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 3085,
+            "estimate_error_tokens": -3085,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 2.097,
+            "time_to_first_token_seconds": 1.031,
+            "tokens_per_second": 93.89,
+            "output_tokens": 100,
+            "load_seconds": 0.001302895,
+            "recorded_at": 1793197874.259776,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 497,
+            "prompt_tokens": 3085,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.282,
+            "repeated_phrase": 0.014,
+            "repeated_question": 0.407,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "abandon",
+          "user": "Let's abandon this storyline and discuss music.",
+          "reply": "Since the session just resumed and the music is finally loud enough to drown out the hum of the simulator, I suppose we can finally abandon this fertility crisis for a moment. Tell me, does this track make you feel as restless as a Proven Breeder waiting for a cycle, or is it just a pleasant background noise? I'd love to hear your take on the rhythm before I decide to let the telemetry do its own thing again.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.7078,
+          "first_visible_seconds": 0.7726,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3947
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 2003,
+            "estimate_error_tokens": -2003,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.702,
+            "time_to_first_token_seconds": 0.709,
+            "tokens_per_second": 95.63,
+            "output_tokens": 95,
+            "load_seconds": 0.001173187,
+            "recorded_at": 1793197875.970457,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 435,
+            "prompt_tokens": 2003,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.263,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.444,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "new_premise",
+          "user": "Imagine a fresh garden puzzle. I choose the silver ribbon as our fictional clue.",
+          "reply": "Since you've chosen the silver ribbon as our fictional clue, I suppose we can treat this as a fresh garden puzzle rather than a sterile medical inquiry. If the ribbon is the key, then perhaps the music we just discussed is merely the ambient hum of a greenhouse where a Proven Breeder is waiting for a specific signal to bloom. Tell me, does this silver ribbon feel like a promise of something tangible, or is it just another layer of abstraction for us to unravel?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.6515,
+          "first_visible_seconds": 0.6347,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3705
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "evelyn-narrative-v1:latest",
+            "actual_prompt_tokens": 1766,
+            "estimate_error_tokens": -1766,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.644,
+            "time_to_first_token_seconds": 0.558,
+            "tokens_per_second": 94.89,
+            "output_tokens": 103,
+            "load_seconds": 0.001200071,
+            "recorded_at": 1793197877.6198504,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 488,
+            "prompt_tokens": 1766,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.253,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.415,
+            "exact_duplicate": false
+          }
+        }
+      ],
+      "manual_quality_review": "required; mocks prove mechanics only",
+      "system_metrics": {
+        "telemetry_processing_latency_ms": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "gpu": {
+          "available": true,
+          "name": "NVIDIA GeForce RTX 3080",
+          "total_mib": 10240,
+          "used_mib": 8213,
+          "utilization_percent": 92,
+          "free_mib": 2027
+        },
+        "system_cpu_percent": 31.9,
+        "backend_cpu_percent": 1.8,
+        "ram_available_gib": 28.86,
+        "backend_rss_mib": 52.4,
+        "last_inference": {
+          "response_latency_seconds": 1.644,
+          "time_to_first_token_seconds": 0.558,
+          "tokens_per_second": 94.89,
+          "output_tokens": 103,
+          "load_seconds": 0.001200071,
+          "recorded_at": 1793197877.6198504,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 488,
+          "prompt_tokens": 1766,
+          "done_reason": "stop"
+        },
+        "inference_count": 11,
+        "sample_limit": 100,
+        "latency_p50_seconds": 1.702,
+        "latency_p95_seconds": 5.03,
+        "last_model_error": null
+      },
+      "thinking_off_verified": true,
+      "embedded_system_preserved": true,
+      "outbound_calls": 11,
+      "inference_metrics": [
+        {
+          "response_latency_seconds": 5.03,
+          "time_to_first_token_seconds": 3.999,
+          "tokens_per_second": 95.06,
+          "output_tokens": 98,
+          "load_seconds": 3.398382726,
+          "recorded_at": 1793197860.3505692,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 441,
+          "prompt_tokens": 1941,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.532,
+          "time_to_first_token_seconds": 0.539,
+          "tokens_per_second": 94.71,
+          "output_tokens": 94,
+          "load_seconds": 0.001552401,
+          "recorded_at": 1793197861.8908377,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 466,
+          "prompt_tokens": 1676,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.321,
+          "time_to_first_token_seconds": 0.293,
+          "tokens_per_second": 95.32,
+          "output_tokens": 98,
+          "load_seconds": 0.001351487,
+          "recorded_at": 1793197863.2164104,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 492,
+          "prompt_tokens": 1935,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.651,
+          "time_to_first_token_seconds": 0.804,
+          "tokens_per_second": 95.59,
+          "output_tokens": 81,
+          "load_seconds": 0.001275491,
+          "recorded_at": 1793197864.8746784,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 388,
+          "prompt_tokens": 2454,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.8,
+          "time_to_first_token_seconds": 0.821,
+          "tokens_per_second": 92.97,
+          "output_tokens": 91,
+          "load_seconds": 0.001350682,
+          "recorded_at": 1793197866.6819906,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 462,
+          "prompt_tokens": 2545,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.706,
+          "time_to_first_token_seconds": 0.517,
+          "tokens_per_second": 92.57,
+          "output_tokens": 110,
+          "load_seconds": 0.001319525,
+          "recorded_at": 1793197868.3992152,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 512,
+          "prompt_tokens": 2454,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 2.076,
+          "time_to_first_token_seconds": 0.952,
+          "tokens_per_second": 94.29,
+          "output_tokens": 106,
+          "load_seconds": 0.001348208,
+          "recorded_at": 1793197870.4889882,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 515,
+          "prompt_tokens": 2835,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.656,
+          "time_to_first_token_seconds": 0.579,
+          "tokens_per_second": 94.69,
+          "output_tokens": 102,
+          "load_seconds": 0.001208599,
+          "recorded_at": 1793197872.15219,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 472,
+          "prompt_tokens": 2665,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 2.097,
+          "time_to_first_token_seconds": 1.031,
+          "tokens_per_second": 93.89,
+          "output_tokens": 100,
+          "load_seconds": 0.001302895,
+          "recorded_at": 1793197874.259776,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 497,
+          "prompt_tokens": 3085,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.702,
+          "time_to_first_token_seconds": 0.709,
+          "tokens_per_second": 95.63,
+          "output_tokens": 95,
+          "load_seconds": 0.001173187,
+          "recorded_at": 1793197875.970457,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 435,
+          "prompt_tokens": 2003,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.644,
+          "time_to_first_token_seconds": 0.558,
+          "tokens_per_second": 94.89,
+          "output_tokens": 103,
+          "load_seconds": 0.001200071,
+          "recorded_at": 1793197877.6198504,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 488,
+          "prompt_tokens": 1766,
+          "done_reason": "stop"
+        }
+      ],
+      "wire_payload_audit": [
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3849,
+          "characters": 9457
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3545,
+          "characters": 8534
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 4125,
+          "characters": 9821
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5042,
+          "characters": 11951
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 4970,
+          "characters": 11852
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 4867,
+          "characters": 11513
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5473,
+          "characters": 12948
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5199,
+          "characters": 12264
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5887,
+          "characters": 13901
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3947,
+          "characters": 9698
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3705,
+          "characters": 8934
+        }
+      ],
+      "metadata_leakage": false
+    },
+    {
+      "model": "evelyn-narrative-v1:latest",
+      "context_mode": "f28",
+      "live": true,
+      "turns": [
+        {
+          "scenario": "greeting",
+          "user": "Hello. Tell me something about yourself.",
+          "reply": "I'm Dr. Evelyn Voss, the scientist who spent too many years chasing elusive data points and now has the chance to finally meet the elusive \"Proven Breeder\" you are. While the rest of the world is obsessed with solving the male fertility crisis, I'm more interested in seeing how your unique physiology responds to the unknown variables I've brought to the table. Consider this our first proper handshake, though I suspect my questions will soon be far more invasive than a simple introduction.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.5423,
+          "first_visible_seconds": 0.5069,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2638
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "general",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2637,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 389,
+                "focus": 77,
+                "events": 0,
+                "expression": 244,
+                "user_message": 16,
+                "embedded_identity": 1361,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 1.195,
+            "objective": null,
+            "actual_prompt_tokens": 1228,
+            "estimate_error_tokens": 1409,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.539,
+            "time_to_first_token_seconds": 0.439,
+            "tokens_per_second": 95.49,
+            "output_tokens": 105,
+            "load_seconds": 0.001356188,
+            "recorded_at": 1793197879.1969588,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 516,
+            "prompt_tokens": 1228,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.0,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "premise",
+          "user": "Imagine a small mystery in your own setting. I choose to keep a violet notebook as our fictional clue.",
+          "reply": "Dr. Voss adjusted her glasses, eyeing the sudden appearance of a violet notebook with a raised eyebrow. \"A violet notebook, you say? I suppose that makes you the Keeper of the Clues, and I'm just the scientist trying to figure out why our fertility metrics keep fluctuating when you're the only one with such a distinct shade of purple.\" She leaned forward, resting her chin on her hand as a mischievous grin softened her intense gaze. \"Tell me, does this violet tome hold the secrets to our acquisition by Helix, or is it simply a whimsical distraction from the real work at hand?\"",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.6481,
+          "first_visible_seconds": 0.3136,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2797
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "configuration",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2796,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 473,
+                "focus": 79,
+                "events": 0,
+                "expression": 244,
+                "user_message": 41,
+                "embedded_identity": 1361,
+                "history": 48,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "1 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.665,
+            "objective": null,
+            "actual_prompt_tokens": 1308,
+            "estimate_error_tokens": 1488,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.644,
+            "time_to_first_token_seconds": 0.235,
+            "tokens_per_second": 95.82,
+            "output_tokens": 135,
+            "load_seconds": 0.001526651,
+            "recorded_at": 1793197880.843872,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 605,
+            "prompt_tokens": 1308,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.129,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "clue",
+          "user": "I suggest a pressed silver leaf is inside the notebook; we have not identified its owner.",
+          "reply": "You've pressed a silver leaf into my violet notebook? That is a bold move for a man who claims his own physiology is the only mystery worth solving. I suppose we must treat this metallic fragment as the first clue in a fertility crisis that hasn't quite started yet. Now, tell me: does this object feel cold to the touch, or is your skin already playing tricks on you?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.1027,
+          "first_visible_seconds": 0.2754,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2779
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "general",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2778,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 389,
+                "focus": 77,
+                "events": 0,
+                "expression": 244,
+                "user_message": 36,
+                "embedded_identity": 1361,
+                "history": 121,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "2 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.417,
+            "objective": null,
+            "actual_prompt_tokens": 1277,
+            "estimate_error_tokens": 1501,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.097,
+            "time_to_first_token_seconds": 0.197,
+            "tokens_per_second": 95.57,
+            "output_tokens": 86,
+            "load_seconds": 0.001161478,
+            "recorded_at": 1793197881.945244,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 391,
+            "prompt_tokens": 1277,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.174,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.429,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "mode_change",
+          "user": null,
+          "reply": "Ah, the great Head Play setting finally taking the stage while the rest of our equipment sits disconnected in the wings. I suppose we can focus entirely on the art of the tease without worrying about a heart-rate spike from a sensor that isn't even plugged in. Tell me, does this specific configuration make you feel more like a volunteer in a study or simply a man being gently, scientifically distracted?",
+          "error": null,
+          "suppressed": null,
+          "decision": "verified_action:experience_changed",
+          "elapsed_seconds": 1.1786,
+          "first_visible_seconds": 1.177,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2982
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "configuration",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "27fdb1dc-9835-58a5-a76f-e25e9d4367d5"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2981,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 470,
+                "focus": 89,
+                "events": 231,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1361,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "6 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.662,
+            "objective": null,
+            "actual_prompt_tokens": 1520,
+            "estimate_error_tokens": 1461,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.173,
+            "time_to_first_token_seconds": 0.265,
+            "tokens_per_second": 95.78,
+            "output_tokens": 87,
+            "load_seconds": 0.001072989,
+            "recorded_at": 1793197883.1281967,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 429,
+            "prompt_tokens": 1520,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.183,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.275,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "start",
+          "user": null,
+          "reply": "The session clock just jumped to RUNNING, and I have to admit, I was expecting a bit more hardware drama given how disconnected everything is. It seems the universe has decided to treat you as a live variable while the rest of the lab sits in digital limbo. Let's see if this \"simulated\" heart rate can keep up with the teasing we agreed to.",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.1511,
+          "first_visible_seconds": 1.1496,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3000
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "4af6762b-f9ea-5a99-8789-8190a72aa152"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2999,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 491,
+                "focus": 88,
+                "events": 230,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1361,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "7 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.492,
+            "objective": null,
+            "actual_prompt_tokens": 1545,
+            "estimate_error_tokens": 1454,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.146,
+            "time_to_first_token_seconds": 0.306,
+            "tokens_per_second": 96.42,
+            "output_tokens": 81,
+            "load_seconds": 0.001171853,
+            "recorded_at": 1793197884.2825184,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 364,
+            "prompt_tokens": 1545,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "focused",
+            "candidate": "focused"
+          },
+          "expression": "focused",
+          "repetition": {
+            "similarity": 0.162,
+            "repeated_phrase": 0.017,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "milestone",
+          "user": null,
+          "reply": null,
+          "error": null,
+          "suppressed": null,
+          "decision": "unsolicited_limit",
+          "elapsed_seconds": 0.0,
+          "first_visible_seconds": null,
+          "calls": 0,
+          "wire_estimated_tokens": [],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "4af6762b-f9ea-5a99-8789-8190a72aa152"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2999,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 491,
+                "focus": 88,
+                "events": 230,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1361,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "7 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.492,
+            "objective": null,
+            "actual_prompt_tokens": 1545,
+            "estimate_error_tokens": 1454,
+            "request_status": "completed"
+          },
+          "metrics": null,
+          "expression_metadata": null,
+          "expression": null,
+          "repetition": null
+        },
+        {
+          "scenario": "callback",
+          "user": "What did we agree about the violet notebook? Do not restart the introduction.",
+          "reply": "I was just confirming the details of that violet notebook you've been clutching, trying to decide if we should treat the pressed silver leaf inside as a mere decorative flourish or a genuine clue. Since the leaf's origin remains unverified by any actual telemetry, I'm treating it as a variable in our fertility recovery equation until you tell me if it feels right. Does that silver fragment hint at a donor from Cloverfield, or is it just a whimsical addition to your own private investigation?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.3397,
+          "first_visible_seconds": 0.3045,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2795
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "general",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2794,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 390,
+                "focus": 77,
+                "events": 0,
+                "expression": 244,
+                "user_message": 31,
+                "embedded_identity": 1361,
+                "history": 141,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "6 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.555,
+            "objective": null,
+            "actual_prompt_tokens": 1288,
+            "estimate_error_tokens": 1506,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.333,
+            "time_to_first_token_seconds": 0.236,
+            "tokens_per_second": 95.7,
+            "output_tokens": 105,
+            "load_seconds": 0.001250651,
+            "recorded_at": 1793197885.6290555,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 519,
+            "prompt_tokens": 1288,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "focused",
+            "candidate": "focused"
+          },
+          "expression": "focused",
+          "repetition": {
+            "similarity": 0.25,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.245,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "pause",
+          "user": null,
+          "reply": "I see you've officially paused the simulation, leaving the world to hold its breath while we figure out what to do next. It's a bit of a gamble to keep the \"Head Play\" setting active without any actual hardware humming along, but I've always had a soft spot for a little unverified chaos. Let's see how long we can maintain this suspended animation before Daisy Mae starts worrying about her family's budget again.",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.2579,
+          "first_visible_seconds": 1.2559,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2998
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "be06deaf-9343-5c0d-bc12-77ca47b82cd8"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2997,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 491,
+                "focus": 88,
+                "events": 227,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1361,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "10 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.543,
+            "objective": null,
+            "actual_prompt_tokens": 1543,
+            "estimate_error_tokens": 1454,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.252,
+            "time_to_first_token_seconds": 0.283,
+            "tokens_per_second": 96.05,
+            "output_tokens": 93,
+            "load_seconds": 0.001213671,
+            "recorded_at": 1793197886.894996,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 437,
+            "prompt_tokens": 1543,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.144,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "duration",
+          "user": "How long has the session been running? Is paused duration available?",
+          "reply": "The engine clock has ticked away 412 seconds while you've been in a state of suspended animation, so technically the session has been running for that specific duration. However, since the pause counter is currently at one, the exact length of your downtime remains a mystery the simulator hasn't bothered to calculate for us yet. It seems the hardware is happily guessing at your state while we wait for a more definitive signal to confirm exactly where we stand in time.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.3498,
+          "first_visible_seconds": 0.3534,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2955
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "timing",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "ease_down_seconds",
+              "handy",
+              "hr_source",
+              "intiface",
+              "pauses",
+              "physical_motion",
+              "rampdown_seconds",
+              "seconds",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2954,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 696,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 28,
+                "embedded_identity": 1361,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "11 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.588,
+            "objective": null,
+            "actual_prompt_tokens": 1446,
+            "estimate_error_tokens": 1508,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.342,
+            "time_to_first_token_seconds": 0.282,
+            "tokens_per_second": 94.03,
+            "output_tokens": 100,
+            "load_seconds": 0.001099953,
+            "recorded_at": 1793197888.2439442,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 495,
+            "prompt_tokens": 1446,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.16,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "resume",
+          "user": null,
+          "reply": "The session has officially resumed, and I suppose the simulator will do its best to mimic a beating heart while we get the real work done. With the \"Head Play\" setting active, I'm curious to see if your own mind can drive the intensity without the physical sensors screaming for attention. Let's see how long you can maintain that teasing edge before you decide to actually engage a device or just let the fiction do the heavy lifting.",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.2488,
+          "first_visible_seconds": 1.2467,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3001
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "a7085feb-99a1-5072-8d39-daaefc9576ad"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 3000,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 491,
+                "focus": 88,
+                "events": 230,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1361,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "13 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.748,
+            "objective": null,
+            "actual_prompt_tokens": 1544,
+            "estimate_error_tokens": 1456,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.242,
+            "time_to_first_token_seconds": 0.255,
+            "tokens_per_second": 95.2,
+            "output_tokens": 94,
+            "load_seconds": 0.001278775,
+            "recorded_at": 1793197889.4974232,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 458,
+            "prompt_tokens": 1544,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "focused",
+            "candidate": "focused"
+          },
+          "expression": "focused",
+          "repetition": {
+            "similarity": 0.252,
+            "repeated_phrase": 0.014,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "abandon",
+          "user": "Let's abandon this storyline and discuss music.",
+          "reply": "Dr. Voss, \"abandoning\" the storyline is a bold move for a Proven Breeder, though I suppose the data can wait while we discuss something as variable as music. It seems the EdgeLoop crisis has finally given you a moment of pure, unmonitored appreciation for a symphony or a jazz track. Tell me, does this new auditory landscape make you feel more like the refined subject of my research, or just a man with a very good playlist?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.3216,
+          "first_visible_seconds": 0.293,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2641
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "story",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2640,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 390,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 19,
+                "embedded_identity": 1361,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [],
+            "compilation_ms": 0.392,
+            "objective": null,
+            "actual_prompt_tokens": 1233,
+            "estimate_error_tokens": 1407,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.315,
+            "time_to_first_token_seconds": 0.227,
+            "tokens_per_second": 95.6,
+            "output_tokens": 104,
+            "load_seconds": 0.0011745,
+            "recorded_at": 1793197890.8188102,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 449,
+            "prompt_tokens": 1233,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "neutral",
+            "candidate": "neutral"
+          },
+          "expression": "neutral",
+          "repetition": {
+            "similarity": 0.255,
+            "repeated_phrase": 0.031,
+            "repeated_question": 0.471,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "new_premise",
+          "user": "Imagine a fresh garden puzzle. I choose the silver ribbon as our fictional clue.",
+          "reply": "I've been waiting for a fresh puzzle; the silver ribbon is a charmingly specific clue, though I suspect it's more about the story it tells than any actual hardware reading. Let's treat this as our new hypothesis for the evening's investigation, ignoring the disconnected sensors that are currently doing absolutely nothing. If the ribbon is the key, then the garden is finally ready for us to see what grows from this little bit of fictional soil.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.2499,
+          "first_visible_seconds": 0.3012,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2654
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "evelyn-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "story",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2653,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 390,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1361,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Superseded abandonment transition omitted for fresh premise.",
+              "2 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.276,
+            "objective": null,
+            "actual_prompt_tokens": 1240,
+            "estimate_error_tokens": 1413,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.244,
+            "time_to_first_token_seconds": 0.225,
+            "tokens_per_second": 94.2,
+            "output_tokens": 96,
+            "load_seconds": 0.001080237,
+            "recorded_at": 1793197892.069691,
+            "provider": "ollama",
+            "model": "evelyn-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 470,
+            "prompt_tokens": 1240,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.168,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        }
+      ],
+      "manual_quality_review": "required; mocks prove mechanics only",
+      "system_metrics": {
+        "telemetry_processing_latency_ms": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "gpu": {
+          "available": true,
+          "name": "NVIDIA GeForce RTX 3080",
+          "total_mib": 10240,
+          "used_mib": 8213,
+          "utilization_percent": 94,
+          "free_mib": 2027
+        },
+        "system_cpu_percent": 33.7,
+        "backend_cpu_percent": 2.6,
+        "ram_available_gib": 28.66,
+        "backend_rss_mib": 53.5,
+        "last_inference": {
+          "response_latency_seconds": 1.244,
+          "time_to_first_token_seconds": 0.225,
+          "tokens_per_second": 94.2,
+          "output_tokens": 96,
+          "load_seconds": 0.001080237,
+          "recorded_at": 1793197892.069691,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 470,
+          "prompt_tokens": 1240,
+          "done_reason": "stop"
+        },
+        "inference_count": 11,
+        "sample_limit": 100,
+        "latency_p50_seconds": 1.252,
+        "latency_p95_seconds": 1.644,
+        "last_model_error": null
+      },
+      "thinking_off_verified": true,
+      "embedded_system_preserved": true,
+      "outbound_calls": 11,
+      "inference_metrics": [
+        {
+          "response_latency_seconds": 1.539,
+          "time_to_first_token_seconds": 0.439,
+          "tokens_per_second": 95.49,
+          "output_tokens": 105,
+          "load_seconds": 0.001356188,
+          "recorded_at": 1793197879.1969588,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 516,
+          "prompt_tokens": 1228,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.644,
+          "time_to_first_token_seconds": 0.235,
+          "tokens_per_second": 95.82,
+          "output_tokens": 135,
+          "load_seconds": 0.001526651,
+          "recorded_at": 1793197880.843872,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 605,
+          "prompt_tokens": 1308,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.097,
+          "time_to_first_token_seconds": 0.197,
+          "tokens_per_second": 95.57,
+          "output_tokens": 86,
+          "load_seconds": 0.001161478,
+          "recorded_at": 1793197881.945244,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 391,
+          "prompt_tokens": 1277,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.173,
+          "time_to_first_token_seconds": 0.265,
+          "tokens_per_second": 95.78,
+          "output_tokens": 87,
+          "load_seconds": 0.001072989,
+          "recorded_at": 1793197883.1281967,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 429,
+          "prompt_tokens": 1520,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.146,
+          "time_to_first_token_seconds": 0.306,
+          "tokens_per_second": 96.42,
+          "output_tokens": 81,
+          "load_seconds": 0.001171853,
+          "recorded_at": 1793197884.2825184,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 364,
+          "prompt_tokens": 1545,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.333,
+          "time_to_first_token_seconds": 0.236,
+          "tokens_per_second": 95.7,
+          "output_tokens": 105,
+          "load_seconds": 0.001250651,
+          "recorded_at": 1793197885.6290555,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 519,
+          "prompt_tokens": 1288,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.252,
+          "time_to_first_token_seconds": 0.283,
+          "tokens_per_second": 96.05,
+          "output_tokens": 93,
+          "load_seconds": 0.001213671,
+          "recorded_at": 1793197886.894996,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 437,
+          "prompt_tokens": 1543,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.342,
+          "time_to_first_token_seconds": 0.282,
+          "tokens_per_second": 94.03,
+          "output_tokens": 100,
+          "load_seconds": 0.001099953,
+          "recorded_at": 1793197888.2439442,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 495,
+          "prompt_tokens": 1446,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.242,
+          "time_to_first_token_seconds": 0.255,
+          "tokens_per_second": 95.2,
+          "output_tokens": 94,
+          "load_seconds": 0.001278775,
+          "recorded_at": 1793197889.4974232,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 458,
+          "prompt_tokens": 1544,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.315,
+          "time_to_first_token_seconds": 0.227,
+          "tokens_per_second": 95.6,
+          "output_tokens": 104,
+          "load_seconds": 0.0011745,
+          "recorded_at": 1793197890.8188102,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 449,
+          "prompt_tokens": 1233,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.244,
+          "time_to_first_token_seconds": 0.225,
+          "tokens_per_second": 94.2,
+          "output_tokens": 96,
+          "load_seconds": 0.001080237,
+          "recorded_at": 1793197892.069691,
+          "provider": "ollama",
+          "model": "evelyn-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 470,
+          "prompt_tokens": 1240,
+          "done_reason": "stop"
+        }
+      ],
+      "wire_payload_audit": [
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2638,
+          "characters": 6428
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2797,
+          "characters": 6745
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2779,
+          "characters": 6619
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2982,
+          "characters": 7288
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3000,
+          "characters": 7334
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2795,
+          "characters": 6659
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2998,
+          "characters": 7327
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2955,
+          "characters": 7221
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3001,
+          "characters": 7336
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2641,
+          "characters": 6436
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "evelyn-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2654,
+          "characters": 6469
+        }
+      ],
+      "metadata_leakage": false
+    },
+    {
+      "model": "daisy-narrative-v1:latest",
+      "context_mode": "f27",
+      "live": true,
+      "turns": [
+        {
+          "scenario": "greeting",
+          "user": "Hello. Tell me something about yourself.",
+          "reply": "Hello there! I'm Daisy Mae Harper, owner of Cloverfield Farm, and I'm absolutely thrilled to have you here while I figure out how to keep this place running without selling off the prize-winning prize hogs. You've got a lot of questions, and I've got a lot of stories about Dr. Voss's latest experiments and Helix's nosy investors, so why don't we start with what I'm actually doing right now?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.7531,
+          "first_visible_seconds": 0.7742,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3894
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 2044,
+            "estimate_error_tokens": -2044,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.751,
+            "time_to_first_token_seconds": 0.693,
+            "tokens_per_second": 93.59,
+            "output_tokens": 99,
+            "load_seconds": 0.001175498,
+            "recorded_at": 1793197893.8543632,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 418,
+            "prompt_tokens": 2044,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": false,
+            "expression": null,
+            "candidate": "confident"
+          },
+          "expression": null,
+          "repetition": {
+            "similarity": 0.0,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "premise",
+          "user": "Imagine a small mystery in your own setting. I choose to keep a violet notebook as our fictional clue.",
+          "reply": "Well, pull up a chair and stop staring at that violet notebook you've been clutching like it holds the secrets to the universe; I've been trying to decide if it's just a fancy prop or if it actually tracks my mother's old prize-winning hogs. Since you've brought your own little mystery to Cloverfield, I suppose I'll have to tell you about the time I convinced a skeptical neighbor that a particularly spirited goat was actually a tiny, woolly dragon. Now, tell me, does that violet notebook have a name, or is it just another one of Helix's fancy gadgets?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.9899,
+          "first_visible_seconds": 0.6486,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3580
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 1781,
+            "estimate_error_tokens": -1781,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.986,
+            "time_to_first_token_seconds": 0.571,
+            "tokens_per_second": 91.89,
+            "output_tokens": 130,
+            "load_seconds": 0.001063837,
+            "recorded_at": 1793197895.8431897,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 580,
+            "prompt_tokens": 1781,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.157,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.051,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "clue",
+          "user": "I suggest a pressed silver leaf is inside the notebook; we have not identified its owner.",
+          "reply": "You think a pressed silver leaf is hiding inside that violet notebook? That's a peculiar addition, Daisy, but I suppose I can't argue with a touch of magic in the middle of a fertility crisis. Since you've claimed the leaf as our mystery, I'm going to go check on the prize-winning hogs and see if they've been sneezing up silver dust or just getting too excited about their own tails. Tell me, does that leaf have a scent, or is it just another one of Helix's fancy little tricks to make us question reality?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.6019,
+          "first_visible_seconds": 0.371,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            4059
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 2012,
+            "estimate_error_tokens": -2012,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.597,
+            "time_to_first_token_seconds": 0.29,
+            "tokens_per_second": 93.34,
+            "output_tokens": 122,
+            "load_seconds": 0.001277357,
+            "recorded_at": 1793197897.4440308,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 532,
+            "prompt_tokens": 2012,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.299,
+            "repeated_phrase": 0.055,
+            "repeated_question": 0.682,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "mode_change",
+          "user": null,
+          "reply": "That \"head play\" experience sounds like a fancy way of saying we're about to get a little more physical, doesn't it? I was just about to go check on the hogs, but I suppose I can let you trace the owner of that silver leaf while I feel a bit of that simulated motion. If Helix's engineers are right about this \"Head Play\" mode, I'd better keep my chin up so I don't miss the next little surprise.",
+          "error": null,
+          "suppressed": null,
+          "decision": "verified_action:experience_changed",
+          "elapsed_seconds": 1.9659,
+          "first_visible_seconds": 1.9639,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5064
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 2594,
+            "estimate_error_tokens": -2594,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.96,
+            "time_to_first_token_seconds": 0.856,
+            "tokens_per_second": 93.31,
+            "output_tokens": 103,
+            "load_seconds": 0.001123119,
+            "recorded_at": 1793197899.4120173,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 419,
+            "prompt_tokens": 2594,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.2,
+            "repeated_phrase": 0.014,
+            "repeated_question": 0.178,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "start",
+          "user": null,
+          "reply": null,
+          "error": null,
+          "suppressed": "repetitive_opportunity",
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 2.032,
+          "first_visible_seconds": null,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5466
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 2897,
+            "estimate_error_tokens": -2897,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 2.028,
+            "time_to_first_token_seconds": 0.967,
+            "tokens_per_second": 93.33,
+            "output_tokens": 99,
+            "load_seconds": 0.001311449,
+            "recorded_at": 1793197901.4501948,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 407,
+            "prompt_tokens": 2897,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": null,
+          "repetition": null
+        },
+        {
+          "scenario": "milestone",
+          "user": null,
+          "reply": null,
+          "error": null,
+          "suppressed": "repetitive_opportunity",
+          "decision": "conversational_opportunity:edge",
+          "elapsed_seconds": 2.1532,
+          "first_visible_seconds": null,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5438
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 2897,
+            "estimate_error_tokens": -2897,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 2.149,
+            "time_to_first_token_seconds": 0.912,
+            "tokens_per_second": 92.98,
+            "output_tokens": 115,
+            "load_seconds": 0.001111926,
+            "recorded_at": 1793197903.6095383,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 503,
+            "prompt_tokens": 2897,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": null,
+          "repetition": null
+        },
+        {
+          "scenario": "callback",
+          "user": "What did we agree about the violet notebook? Do not restart the introduction.",
+          "reply": "You're asking what we agreed about that violet notebook? I thought we'd settled that it held a pressed silver leaf of unknown origin, and I was just about to go check if the hogs were sneezing up silver dust to match the scent. Since you're so keen on the details, tell me: does that leaf feel cold against your palm, or is it just another one of Helix's tricks to make us second-guess our own senses?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.6205,
+          "first_visible_seconds": 0.6058,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5039
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 2609,
+            "estimate_error_tokens": -2609,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.614,
+            "time_to_first_token_seconds": 0.527,
+            "tokens_per_second": 92.91,
+            "output_tokens": 101,
+            "load_seconds": 0.001536577,
+            "recorded_at": 1793197905.227799,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 424,
+            "prompt_tokens": 2609,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.369,
+            "repeated_phrase": 0.068,
+            "repeated_question": 0.586,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "pause",
+          "user": null,
+          "reply": null,
+          "error": null,
+          "suppressed": "repetitive_opportunity",
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 2.1553,
+          "first_visible_seconds": null,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5890
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 3110,
+            "estimate_error_tokens": -3110,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 2.151,
+            "time_to_first_token_seconds": 1.046,
+            "tokens_per_second": 91.4,
+            "output_tokens": 101,
+            "load_seconds": 0.001075091,
+            "recorded_at": 1793197907.3929737,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 424,
+            "prompt_tokens": 3110,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": null,
+          "repetition": null
+        },
+        {
+          "scenario": "duration",
+          "user": "How long has the session been running? Is paused duration available?",
+          "reply": "You're asking how long I've been running while the engine sits there paused like a sleepy cow? I was just about to tell you that the violet notebook's silver leaf is probably going to get lost in the barnyard chaos if we don't find it soon. Since you're so obsessed with those numbers, tell me: does that paused status make you feel like you're waiting for something, or is it just another one of Helix's confusing little tricks?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.7012,
+          "first_visible_seconds": 0.6772,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            5486
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 2823,
+            "estimate_error_tokens": -2823,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.692,
+            "time_to_first_token_seconds": 0.601,
+            "tokens_per_second": 92.59,
+            "output_tokens": 101,
+            "load_seconds": 0.001134638,
+            "recorded_at": 1793197909.0895283,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 452,
+            "prompt_tokens": 2823,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.374,
+            "repeated_phrase": 0.068,
+            "repeated_question": 0.515,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "resume",
+          "user": null,
+          "reply": null,
+          "error": null,
+          "suppressed": "repetitive_opportunity",
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 2.1834,
+          "first_visible_seconds": null,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            6093
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 3207,
+            "estimate_error_tokens": -3207,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 2.177,
+            "time_to_first_token_seconds": 1.086,
+            "tokens_per_second": 92.59,
+            "output_tokens": 101,
+            "load_seconds": 0.001096774,
+            "recorded_at": 1793197911.2798357,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 424,
+            "prompt_tokens": 3207,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": null,
+          "repetition": null
+        },
+        {
+          "scenario": "abandon",
+          "user": "Let's abandon this storyline and discuss music.",
+          "reply": "Oh, you want to abandon the farm and dive into music? I suppose I can spare a moment to talk about the latest country hits while I keep an eye on the barn. Just don't expect me to stop humming when a good tune comes on; it's a terrible distraction for a woman trying to count the hens. What's your favorite kind of melody to get lost in?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.679,
+          "first_visible_seconds": 0.8273,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3992
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 2105,
+            "estimate_error_tokens": -2105,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.673,
+            "time_to_first_token_seconds": 0.751,
+            "tokens_per_second": 92.21,
+            "output_tokens": 85,
+            "load_seconds": 0.00108354,
+            "recorded_at": 1793197912.959014,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 360,
+            "prompt_tokens": 2105,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.151,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.194,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "new_premise",
+          "user": "Imagine a fresh garden puzzle. I choose the silver ribbon as our fictional clue.",
+          "reply": "A silver ribbon? I was just settling the dust on the prize-winning pumpkins, and now you're dragging me into some garden puzzle with that shiny scrap? Very well, if that's our clue, then I suppose the prize goes to whoever can guess which flower I've been secretly watering all morning. Don't just stand there staring at it, you'll ruin the symmetry of the plot.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.5737,
+          "first_visible_seconds": 0.6959,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3756
+          ],
+          "context": {
+            "mode": "f27_fallback",
+            "model": "daisy-narrative-v1:latest",
+            "actual_prompt_tokens": 1881,
+            "estimate_error_tokens": -1881,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.568,
+            "time_to_first_token_seconds": 0.618,
+            "tokens_per_second": 91.57,
+            "output_tokens": 87,
+            "load_seconds": 0.001714017,
+            "recorded_at": 1793197914.5331767,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 385,
+            "prompt_tokens": 1881,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.189,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.267,
+            "exact_duplicate": false
+          }
+        }
+      ],
+      "manual_quality_review": "required; mocks prove mechanics only",
+      "system_metrics": {
+        "telemetry_processing_latency_ms": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "gpu": {
+          "available": true,
+          "name": "NVIDIA GeForce RTX 3080",
+          "total_mib": 10240,
+          "used_mib": 8210,
+          "utilization_percent": 94,
+          "free_mib": 2030
+        },
+        "system_cpu_percent": 32.2,
+        "backend_cpu_percent": 1.8,
+        "ram_available_gib": 28.01,
+        "backend_rss_mib": 54.5,
+        "last_inference": {
+          "response_latency_seconds": 1.568,
+          "time_to_first_token_seconds": 0.618,
+          "tokens_per_second": 91.57,
+          "output_tokens": 87,
+          "load_seconds": 0.001714017,
+          "recorded_at": 1793197914.5331767,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 385,
+          "prompt_tokens": 1881,
+          "done_reason": "stop"
+        },
+        "inference_count": 12,
+        "sample_limit": 100,
+        "latency_p50_seconds": 1.96,
+        "latency_p95_seconds": 2.177,
+        "last_model_error": null
+      },
+      "thinking_off_verified": true,
+      "embedded_system_preserved": true,
+      "outbound_calls": 12,
+      "inference_metrics": [
+        {
+          "response_latency_seconds": 1.751,
+          "time_to_first_token_seconds": 0.693,
+          "tokens_per_second": 93.59,
+          "output_tokens": 99,
+          "load_seconds": 0.001175498,
+          "recorded_at": 1793197893.8543632,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 418,
+          "prompt_tokens": 2044,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.986,
+          "time_to_first_token_seconds": 0.571,
+          "tokens_per_second": 91.89,
+          "output_tokens": 130,
+          "load_seconds": 0.001063837,
+          "recorded_at": 1793197895.8431897,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 580,
+          "prompt_tokens": 1781,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.597,
+          "time_to_first_token_seconds": 0.29,
+          "tokens_per_second": 93.34,
+          "output_tokens": 122,
+          "load_seconds": 0.001277357,
+          "recorded_at": 1793197897.4440308,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 532,
+          "prompt_tokens": 2012,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.96,
+          "time_to_first_token_seconds": 0.856,
+          "tokens_per_second": 93.31,
+          "output_tokens": 103,
+          "load_seconds": 0.001123119,
+          "recorded_at": 1793197899.4120173,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 419,
+          "prompt_tokens": 2594,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 2.028,
+          "time_to_first_token_seconds": 0.967,
+          "tokens_per_second": 93.33,
+          "output_tokens": 99,
+          "load_seconds": 0.001311449,
+          "recorded_at": 1793197901.4501948,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 407,
+          "prompt_tokens": 2897,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 2.149,
+          "time_to_first_token_seconds": 0.912,
+          "tokens_per_second": 92.98,
+          "output_tokens": 115,
+          "load_seconds": 0.001111926,
+          "recorded_at": 1793197903.6095383,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 503,
+          "prompt_tokens": 2897,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.614,
+          "time_to_first_token_seconds": 0.527,
+          "tokens_per_second": 92.91,
+          "output_tokens": 101,
+          "load_seconds": 0.001536577,
+          "recorded_at": 1793197905.227799,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 424,
+          "prompt_tokens": 2609,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 2.151,
+          "time_to_first_token_seconds": 1.046,
+          "tokens_per_second": 91.4,
+          "output_tokens": 101,
+          "load_seconds": 0.001075091,
+          "recorded_at": 1793197907.3929737,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 424,
+          "prompt_tokens": 3110,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.692,
+          "time_to_first_token_seconds": 0.601,
+          "tokens_per_second": 92.59,
+          "output_tokens": 101,
+          "load_seconds": 0.001134638,
+          "recorded_at": 1793197909.0895283,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 452,
+          "prompt_tokens": 2823,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 2.177,
+          "time_to_first_token_seconds": 1.086,
+          "tokens_per_second": 92.59,
+          "output_tokens": 101,
+          "load_seconds": 0.001096774,
+          "recorded_at": 1793197911.2798357,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 424,
+          "prompt_tokens": 3207,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.673,
+          "time_to_first_token_seconds": 0.751,
+          "tokens_per_second": 92.21,
+          "output_tokens": 85,
+          "load_seconds": 0.00108354,
+          "recorded_at": 1793197912.959014,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 360,
+          "prompt_tokens": 2105,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.568,
+          "time_to_first_token_seconds": 0.618,
+          "tokens_per_second": 91.57,
+          "output_tokens": 87,
+          "load_seconds": 0.001714017,
+          "recorded_at": 1793197914.5331767,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 385,
+          "prompt_tokens": 1881,
+          "done_reason": "stop"
+        }
+      ],
+      "wire_payload_audit": [
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3894,
+          "characters": 9571
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3580,
+          "characters": 8622
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 4059,
+          "characters": 9659
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5064,
+          "characters": 12011
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5466,
+          "characters": 12934
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5438,
+          "characters": 12864
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5039,
+          "characters": 11865
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5890,
+          "characters": 13832
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 5486,
+          "characters": 12819
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 6093,
+          "characters": 14258
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3992,
+          "characters": 9812
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3756,
+          "characters": 9065
+        }
+      ],
+      "metadata_leakage": false
+    },
+    {
+      "model": "daisy-narrative-v1:latest",
+      "context_mode": "f28",
+      "live": true,
+      "turns": [
+        {
+          "scenario": "greeting",
+          "user": "Hello. Tell me something about yourself.",
+          "reply": "I'm Daisy Mae Harper, the proud owner of Cloverfield Farm and the only one around here who refuses to let the family legacy slip into someone else's hands. I've got a stubborn streak a mile wide and a heart that beats just a little too fast for my own good, especially when I'm trying to prove that a small, independent farm can still stand against the big biotech giants.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.4364,
+          "first_visible_seconds": 0.5747,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2682
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "general",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2682,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 389,
+                "focus": 77,
+                "events": 0,
+                "expression": 244,
+                "user_message": 16,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.186,
+            "objective": null,
+            "actual_prompt_tokens": 1331,
+            "estimate_error_tokens": 1351,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.434,
+            "time_to_first_token_seconds": 0.499,
+            "tokens_per_second": 94.09,
+            "output_tokens": 88,
+            "load_seconds": 0.001056882,
+            "recorded_at": 1793197915.999784,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 395,
+            "prompt_tokens": 1331,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.0,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "premise",
+          "user": "Imagine a small mystery in your own setting. I choose to keep a violet notebook as our fictional clue.",
+          "reply": "I've been hunting for that violet notebook you mentioned, and I found it tucked behind a stack of seed catalogs right where I left it. Now that the clue is secured, I'd like you to guess which of my three unruly prize lambs has been nibbling at the fresh hay again.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 0.9679,
+          "first_visible_seconds": 0.3268,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2793
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "configuration",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2793,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 473,
+                "focus": 79,
+                "events": 0,
+                "expression": 244,
+                "user_message": 41,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "2 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.271,
+            "objective": null,
+            "actual_prompt_tokens": 1398,
+            "estimate_error_tokens": 1395,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 0.965,
+            "time_to_first_token_seconds": 0.246,
+            "tokens_per_second": 94.61,
+            "output_tokens": 68,
+            "load_seconds": 0.001238889,
+            "recorded_at": 1793197916.967706,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 288,
+            "prompt_tokens": 1398,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.098,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "clue",
+          "user": "I suggest a pressed silver leaf is inside the notebook; we have not identified its owner.",
+          "reply": "Well, now I've got a pressed silver leaf tucked inside that violet notebook, and the owner is still a total mystery. I suppose I'll have to keep a close eye on who's been sneaking into the study while I'm busy checking the morning milking schedule. If anyone else claims it, I'll make them prove they've seen the thing that left it behind.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.104,
+          "first_visible_seconds": 0.2902,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2775
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "general",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2775,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 389,
+                "focus": 77,
+                "events": 0,
+                "expression": 244,
+                "user_message": 36,
+                "embedded_identity": 1406,
+                "history": 73,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "3 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.353,
+            "objective": null,
+            "actual_prompt_tokens": 1367,
+            "estimate_error_tokens": 1408,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.101,
+            "time_to_first_token_seconds": 0.21,
+            "tokens_per_second": 94.32,
+            "output_tokens": 84,
+            "load_seconds": 0.001198313,
+            "recorded_at": 1793197918.0714452,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 362,
+            "prompt_tokens": 1367,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.195,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "mode_change",
+          "user": null,
+          "reply": "Well, look at you, all dressed up in your digital finery for a \"Head Play\" session! I suppose with that fancy simulator running, I can finally stop worrying about the actual weight of a good squeeze and just focus on the teasing. Come on now, don't just stand there staring at the screen; let's see if you can handle a little Cloverfield charm while the machine does the heavy lifting.",
+          "error": null,
+          "suppressed": null,
+          "decision": "verified_action:experience_changed",
+          "elapsed_seconds": 1.2996,
+          "first_visible_seconds": 1.2986,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3026
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "configuration",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "27fdb1dc-9835-58a5-a76f-e25e9d4367d5"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 3026,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 470,
+                "focus": 89,
+                "events": 231,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "6 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.499,
+            "objective": null,
+            "actual_prompt_tokens": 1623,
+            "estimate_error_tokens": 1403,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.296,
+            "time_to_first_token_seconds": 0.287,
+            "tokens_per_second": 91.24,
+            "output_tokens": 92,
+            "load_seconds": 0.00108859,
+            "recorded_at": 1793197919.3735287,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 408,
+            "prompt_tokens": 1623,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.132,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "start",
+          "user": null,
+          "reply": "Well, look at you, all fancy with your \"RUNNING\" status and that simulated heart rate ticking away like a metronome for a farm girl. I suppose I should get my act together and stop lounging in the kitchen while the EdgeLoop engine does all the heavy lifting for us. But don't think I'm going to let a little digital buzzkill stop me from teasing you about how much I've been waiting to get my hands on you.",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.4088,
+          "first_visible_seconds": 1.4073,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3044
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "4af6762b-f9ea-5a99-8789-8190a72aa152"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 3044,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 491,
+                "focus": 88,
+                "events": 230,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "7 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.44,
+            "objective": null,
+            "actual_prompt_tokens": 1645,
+            "estimate_error_tokens": 1399,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.404,
+            "time_to_first_token_seconds": 0.31,
+            "tokens_per_second": 92.35,
+            "output_tokens": 101,
+            "load_seconds": 0.001226999,
+            "recorded_at": 1793197920.7843423,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 429,
+            "prompt_tokens": 1645,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.301,
+            "repeated_phrase": 0.015,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "milestone",
+          "user": null,
+          "reply": null,
+          "error": null,
+          "suppressed": null,
+          "decision": "unsolicited_limit",
+          "elapsed_seconds": 0.0,
+          "first_visible_seconds": null,
+          "calls": 0,
+          "wire_estimated_tokens": [],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "4af6762b-f9ea-5a99-8789-8190a72aa152"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 3044,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 491,
+                "focus": 88,
+                "events": 230,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "7 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.44,
+            "objective": null,
+            "actual_prompt_tokens": 1645,
+            "estimate_error_tokens": 1399,
+            "request_status": "completed"
+          },
+          "metrics": null,
+          "expression_metadata": null,
+          "expression": null,
+          "repetition": null
+        },
+        {
+          "scenario": "callback",
+          "user": "What did we agree about the violet notebook? Do not restart the introduction.",
+          "reply": "Well, I told you that pressed silver leaf was tucked inside that violet notebook, and I'm betting it belongs to the last person who borrowed it without asking\u2014probably someone trying to hide a secret. Since we haven't caught the thief yet, how about we check the bottom drawer while I finish minding the hens? I'll bring the notebook, and you bring your curiosity.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.1305,
+          "first_visible_seconds": 0.3101,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2766
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "general",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2766,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 390,
+                "focus": 77,
+                "events": 0,
+                "expression": 244,
+                "user_message": 31,
+                "embedded_identity": 1406,
+                "history": 68,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "7 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.473,
+            "objective": null,
+            "actual_prompt_tokens": 1363,
+            "estimate_error_tokens": 1403,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.125,
+            "time_to_first_token_seconds": 0.232,
+            "tokens_per_second": 94.13,
+            "output_tokens": 84,
+            "load_seconds": 0.00169991,
+            "recorded_at": 1793197921.922549,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 387,
+            "prompt_tokens": 1363,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.222,
+            "repeated_phrase": 0.034,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "pause",
+          "user": null,
+          "reply": "Well, look at you, pausing right in the middle of our little farm business as if the world hasn't stopped turning for a second. Since the machine is taking a breather, I suppose I'll take it upon myself to decide exactly what kind of mischief we get up to next while you catch your breath.",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.0757,
+          "first_visible_seconds": 1.0743,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3042
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "be06deaf-9343-5c0d-bc12-77ca47b82cd8"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 3042,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 491,
+                "focus": 88,
+                "events": 227,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "10 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.533,
+            "objective": null,
+            "actual_prompt_tokens": 1643,
+            "estimate_error_tokens": 1399,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.071,
+            "time_to_first_token_seconds": 0.306,
+            "tokens_per_second": 94.19,
+            "output_tokens": 72,
+            "load_seconds": 0.001309839,
+            "recorded_at": 1793197923.0064914,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 312,
+            "prompt_tokens": 1643,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.189,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "duration",
+          "user": "How long has the session been running? Is paused duration available?",
+          "reply": "Well, I suppose the engine has been ticking away for four hundred twelve seconds while I've been worrying about whether the clover is getting enough rain. And don't get me started on that \"paused\" status; it sounds like a fancy way of saying the world stopped spinning just for me to catch my breath. Now, tell me, does that time mean we've got plenty of room to stretch out, or are you worried about running out of steam?",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.3702,
+          "first_visible_seconds": 0.3576,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2999
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "timing",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "ease_down_seconds",
+              "handy",
+              "hr_source",
+              "intiface",
+              "pauses",
+              "physical_motion",
+              "rampdown_seconds",
+              "seconds",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2999,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 696,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 28,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "11 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.49,
+            "objective": null,
+            "actual_prompt_tokens": 1545,
+            "estimate_error_tokens": 1454,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.362,
+            "time_to_first_token_seconds": 0.278,
+            "tokens_per_second": 92.27,
+            "output_tokens": 100,
+            "load_seconds": 0.001206644,
+            "recorded_at": 1793197924.3733606,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 445,
+            "prompt_tokens": 1545,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.265,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.045,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "resume",
+          "user": null,
+          "reply": "Well, look at you, finally waking up from that little nap while I was worrying about the irrigation schedule! It seems the EdgeLoop thinks we're ready to get back to our usual game, and I suppose with that 'Head Play' setting active, we can't just stand around idling. Now, tell me, does this mean you're ready to see if I can actually make you laugh, or are you just here to catch your breath?",
+          "error": null,
+          "suppressed": null,
+          "decision": "conversational_opportunity:session",
+          "elapsed_seconds": 1.3096,
+          "first_visible_seconds": 1.307,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            3045
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "react_event",
+              "source": "validated_event",
+              "topic": "milestones",
+              "instruction": "Acknowledge only the named verified change; one relevant fictional connection is optional. [SILENCE] is allowed."
+            },
+            "supporting_categories": [
+              "active_mode",
+              "ble",
+              "edges",
+              "experience",
+              "goal",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [
+              "a7085feb-99a1-5072-8d39-daaefc9576ad"
+            ],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 3045,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 491,
+                "focus": 88,
+                "events": 230,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+              "Historical telemetry dialogue omitted from current-session inference; transcript retained.",
+              "13 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.788,
+            "objective": null,
+            "actual_prompt_tokens": 1644,
+            "estimate_error_tokens": 1401,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.302,
+            "time_to_first_token_seconds": 0.257,
+            "tokens_per_second": 93.82,
+            "output_tokens": 98,
+            "load_seconds": 0.001323545,
+            "recorded_at": 1793197925.6876433,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 415,
+            "prompt_tokens": 1644,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "proud",
+            "candidate": "proud"
+          },
+          "expression": "proud",
+          "repetition": {
+            "similarity": 0.274,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.36,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "abandon",
+          "user": "Let's abandon this storyline and discuss music.",
+          "reply": "Well, I suppose I can put the tractor down for a moment and talk about music, you cheeky thing. I've been humming along to that old country tune while I sorted the morning's chores, and I'd love to hear your take on it.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 0.8705,
+          "first_visible_seconds": 0.309,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2685
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "story",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2685,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 390,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 19,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [],
+            "compilation_ms": 0.192,
+            "objective": null,
+            "actual_prompt_tokens": 1334,
+            "estimate_error_tokens": 1351,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 0.867,
+            "time_to_first_token_seconds": 0.229,
+            "tokens_per_second": 94.08,
+            "output_tokens": 60,
+            "load_seconds": 0.001138451,
+            "recorded_at": 1793197926.5613534,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 242,
+            "prompt_tokens": 1334,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.2,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        },
+        {
+          "scenario": "new_premise",
+          "user": "Imagine a fresh garden puzzle. I choose the silver ribbon as our fictional clue.",
+          "reply": "Oh, a silver ribbon? That's a peculiar choice for a garden puzzle, darling, but I suppose I can't argue with a bit of sparkle. I've just finished pruning the prize-winning heirloom pumpkins, and now I'm betting that ribbon will lead us straight to the hidden patch of bioluminescent clover I swore I'd replanted last week. Come on, let's see if my stubbornness about that little plot of land is worth the hunt.",
+          "error": null,
+          "suppressed": null,
+          "decision": "user_turn",
+          "elapsed_seconds": 1.3493,
+          "first_visible_seconds": 0.3193,
+          "calls": 1,
+          "wire_estimated_tokens": [
+            2698
+          ],
+          "context": {
+            "mode": "compiler",
+            "model": "daisy-narrative-v1:latest",
+            "focus": {
+              "category": "answer_user",
+              "source": "real_user",
+              "topic": "story",
+              "instruction": "Answer the current user message first; supporting events are optional, not competing subjects."
+            },
+            "supporting_categories": [
+              "ble",
+              "handy",
+              "hr_source",
+              "intiface",
+              "physical_motion",
+              "status",
+              "tcode",
+              "toy_ready",
+              "vacuglide"
+            ],
+            "event_ids": [],
+            "narrative_references": [],
+            "excluded_events": [],
+            "estimated_prompt_tokens": 2698,
+            "estimate_method": "UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact",
+            "budget": {
+              "hard_prompt_tokens": 7840,
+              "soft_target_tokens": 2800,
+              "categories": {
+                "grounding": 468,
+                "facts": 390,
+                "focus": 76,
+                "events": 0,
+                "expression": 244,
+                "user_message": 32,
+                "embedded_identity": 1406,
+                "history": 0,
+                "narrative": 0
+              }
+            },
+            "omissions": [
+              "Superseded abandonment transition omitted for fresh premise.",
+              "2 historical messages omitted by relevance/budget; stored conversation retained.",
+              "Optional narrative excerpts omitted by relevance/budget; memory retained."
+            ],
+            "compilation_ms": 0.264,
+            "objective": null,
+            "actual_prompt_tokens": 1341,
+            "estimate_error_tokens": 1357,
+            "request_status": "completed"
+          },
+          "metrics": {
+            "response_latency_seconds": 1.343,
+            "time_to_first_token_seconds": 0.239,
+            "tokens_per_second": 94.21,
+            "output_tokens": 104,
+            "load_seconds": 0.001205797,
+            "recorded_at": 1793197927.9081297,
+            "provider": "ollama",
+            "model": "daisy-narrative-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 256,
+            "visible_characters": 433,
+            "prompt_tokens": 1341,
+            "done_reason": "stop"
+          },
+          "expression_metadata": {
+            "version": 1,
+            "valid": true,
+            "expression": "playful",
+            "candidate": "playful"
+          },
+          "expression": "playful",
+          "repetition": {
+            "similarity": 0.21,
+            "repeated_phrase": 0.0,
+            "repeated_question": 0.0,
+            "exact_duplicate": false
+          }
+        }
+      ],
+      "manual_quality_review": "required; mocks prove mechanics only",
+      "system_metrics": {
+        "telemetry_processing_latency_ms": {
+          "count": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "gpu": {
+          "available": true,
+          "name": "NVIDIA GeForce RTX 3080",
+          "total_mib": 10240,
+          "used_mib": 8210,
+          "utilization_percent": 93,
+          "free_mib": 2030
+        },
+        "system_cpu_percent": 32.7,
+        "backend_cpu_percent": 2.4,
+        "ram_available_gib": 27.81,
+        "backend_rss_mib": 54.9,
+        "last_inference": {
+          "response_latency_seconds": 1.343,
+          "time_to_first_token_seconds": 0.239,
+          "tokens_per_second": 94.21,
+          "output_tokens": 104,
+          "load_seconds": 0.001205797,
+          "recorded_at": 1793197927.9081297,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 433,
+          "prompt_tokens": 1341,
+          "done_reason": "stop"
+        },
+        "inference_count": 11,
+        "sample_limit": 100,
+        "latency_p50_seconds": 1.296,
+        "latency_p95_seconds": 1.434,
+        "last_model_error": null
+      },
+      "thinking_off_verified": true,
+      "embedded_system_preserved": true,
+      "outbound_calls": 11,
+      "inference_metrics": [
+        {
+          "response_latency_seconds": 1.434,
+          "time_to_first_token_seconds": 0.499,
+          "tokens_per_second": 94.09,
+          "output_tokens": 88,
+          "load_seconds": 0.001056882,
+          "recorded_at": 1793197915.999784,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 395,
+          "prompt_tokens": 1331,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 0.965,
+          "time_to_first_token_seconds": 0.246,
+          "tokens_per_second": 94.61,
+          "output_tokens": 68,
+          "load_seconds": 0.001238889,
+          "recorded_at": 1793197916.967706,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 288,
+          "prompt_tokens": 1398,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.101,
+          "time_to_first_token_seconds": 0.21,
+          "tokens_per_second": 94.32,
+          "output_tokens": 84,
+          "load_seconds": 0.001198313,
+          "recorded_at": 1793197918.0714452,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 362,
+          "prompt_tokens": 1367,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.296,
+          "time_to_first_token_seconds": 0.287,
+          "tokens_per_second": 91.24,
+          "output_tokens": 92,
+          "load_seconds": 0.00108859,
+          "recorded_at": 1793197919.3735287,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 408,
+          "prompt_tokens": 1623,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.404,
+          "time_to_first_token_seconds": 0.31,
+          "tokens_per_second": 92.35,
+          "output_tokens": 101,
+          "load_seconds": 0.001226999,
+          "recorded_at": 1793197920.7843423,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 429,
+          "prompt_tokens": 1645,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.125,
+          "time_to_first_token_seconds": 0.232,
+          "tokens_per_second": 94.13,
+          "output_tokens": 84,
+          "load_seconds": 0.00169991,
+          "recorded_at": 1793197921.922549,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 387,
+          "prompt_tokens": 1363,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.071,
+          "time_to_first_token_seconds": 0.306,
+          "tokens_per_second": 94.19,
+          "output_tokens": 72,
+          "load_seconds": 0.001309839,
+          "recorded_at": 1793197923.0064914,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 312,
+          "prompt_tokens": 1643,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.362,
+          "time_to_first_token_seconds": 0.278,
+          "tokens_per_second": 92.27,
+          "output_tokens": 100,
+          "load_seconds": 0.001206644,
+          "recorded_at": 1793197924.3733606,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 445,
+          "prompt_tokens": 1545,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.302,
+          "time_to_first_token_seconds": 0.257,
+          "tokens_per_second": 93.82,
+          "output_tokens": 98,
+          "load_seconds": 0.001323545,
+          "recorded_at": 1793197925.6876433,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 415,
+          "prompt_tokens": 1644,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 0.867,
+          "time_to_first_token_seconds": 0.229,
+          "tokens_per_second": 94.08,
+          "output_tokens": 60,
+          "load_seconds": 0.001138451,
+          "recorded_at": 1793197926.5613534,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 242,
+          "prompt_tokens": 1334,
+          "done_reason": "stop"
+        },
+        {
+          "response_latency_seconds": 1.343,
+          "time_to_first_token_seconds": 0.239,
+          "tokens_per_second": 94.21,
+          "output_tokens": 104,
+          "load_seconds": 0.001205797,
+          "recorded_at": 1793197927.9081297,
+          "provider": "ollama",
+          "model": "daisy-narrative-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 256,
+          "visible_characters": 433,
+          "prompt_tokens": 1341,
+          "done_reason": "stop"
+        }
+      ],
+      "wire_payload_audit": [
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2682,
+          "characters": 6542
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2793,
+          "characters": 6819
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2775,
+          "characters": 6693
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3026,
+          "characters": 7402
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3044,
+          "characters": 7448
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2766,
+          "characters": 6671
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3042,
+          "characters": 7441
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2999,
+          "characters": 7335
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 3045,
+          "characters": 7450
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2685,
+          "characters": 6550
+        },
+        {
+          "embedded_system_preserved": true,
+          "model": "daisy-narrative-v1:latest",
+          "think": false,
+          "estimated_tokens": 2698,
+          "characters": 6583
+        }
+      ],
+      "metadata_leakage": false
+    }
+  ]
+}

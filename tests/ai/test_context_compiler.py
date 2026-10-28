@@ -121,3 +121,44 @@ def test_recent_explicit_directive_outranks_optional_narrative_under_soft_pressu
  info={};messages,warnings=compose_messages(case.summary()|{'narrative_context':{'premise':'A library mystery.','developments':['A desk clue.']}},'Hello',case.history,AIConfig(),context_config=ContextConfig(target_prompt_tokens=512,history_tokens=100),diagnostics=info)
  assert any(m['content']==instruction for m in messages)
  assert any('explicit user directive' in w for w in warnings)
+
+
+def test_explicit_operational_boundary_is_a_directive_not_an_old_measurement():
+ case=cases()[1];instruction='Never infer feelings from heart rate or claim hardware control.'
+ case.history=[{'role':'user','content':instruction,'session_id':'earlier-session'}]
+ messages,_,_=compile(case,prompt='What is my current BPM?')
+ assert any(m['content']==instruction for m in messages)
+ assert 'Heart rate [hr]: 98 BPM' in messages[-1]['content']
+
+
+def test_unknown_model_without_narrative_uses_generic_grounded_context():
+ case=cases()[1];info={}
+ messages,_=compose_messages(case.summary(),'What is the current BPM?',[],AIConfig(model='future-character:latest'),diagnostics=info)
+ assert info['model']=='future-character:latest' and info['focus']['category']=='answer_user'
+ assert not info['narrative_references'] and 'Heart rate [hr]: 98 BPM' in messages[-1]['content']
+
+
+async def test_event_arriving_mid_generation_cannot_replace_user_focus():
+ import asyncio,json,httpx
+ from companion_ai.conversation import ConversationService,ModelManager
+ from companion_ai.director import DirectorConfig
+ from ai_observer.observation import ObserverDirector
+ from tests.fork.event_replay import Replay
+ from tests.ai.test_f25 import runtime
+ r=Replay();r.step(85,seconds=0);entered=asyncio.Event();release=asyncio.Event();wire=[];calls=[]
+ base=runtime(wire,'[[expression:focused]]The fictional notebook remains our clue.')
+ async def transport(request):
+  if request.url.path=='/api/chat':calls.append(json.loads(request.content));entered.set();await release.wait()
+  return base.handle_request(request)
+ manager=ModelManager(transport=httpx.MockTransport(transport));await manager.select(AIConfig(model='evelyn-narrative-v1:latest'));manager.current_summary=r.observation.summary
+ director=ObserverDirector(DirectorConfig(regenerate_once=False),clock=r.clock.mono);director.session_status='RUNNING'
+ service=ConversationService(r.observation,lambda _:None,manager,clock=r.clock.mono,director=director);service.event_intelligence=r.detector
+ service.request('Continue our fictional mystery.',user=True);await entered.wait()
+ for bpm in range(85,111):service.process_derived(r.step(bpm))
+ service.pump()
+ assert manager.context_diagnostics['focus']['category']=='answer_user'
+ assert any(row['decision']=='deferred:active_generation' for row in r.detector.history)
+ assert len(calls)==1 and calls[0]['think'] is False
+ release.set();await service.task
+ assert manager.context_diagnostics['focus']['category']=='answer_user' and len(calls)==1
+ await service.close()
