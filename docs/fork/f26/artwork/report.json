@@ -1,0 +1,254 @@
+{
+  "passed": true,
+  "steps": [
+    "Exact aliases share identity and retain the same loaded portrait node",
+    "Ordinary conversational tone selects Flirty without facial narration",
+    "Original simulated elapsed counter crosses milestone; validated event reaches Director and model expression",
+    "Completed reply tone, cancellation, character switching and model history restoration",
+    "Verified stop preserves emotion while original emergency control stops mocked session",
+    "Desktop/tablet/mobile artwork, contain scaling, reduced motion and emergency accessibility",
+    "All 24 prepared character/expression portraits load directly without fallback; no model inference",
+    "Image error fallback, total failure placeholder and stale image-load fencing"
+  ],
+  "rendered_portraits": [
+    {
+      "character": "evelyn",
+      "requested": "neutral",
+      "rendered": "neutral",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_neutral.png",
+      "width": 1122,
+      "height": 1402
+    },
+    {
+      "character": "evelyn",
+      "requested": "happy",
+      "rendered": "happy",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_happy.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "playful",
+      "rendered": "playful",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_playful.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "flirty",
+      "rendered": "flirty",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_flirty.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "mischievous",
+      "rendered": "mischievous",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_mischievous.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "focused",
+      "rendered": "focused",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_focused.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "excited",
+      "rendered": "excited",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_excited.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "surprised",
+      "rendered": "surprised",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_surprised.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "disappointed",
+      "rendered": "disappointed",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_dissapointed.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "concerned",
+      "rendered": "concerned",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_concerned.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "proud",
+      "rendered": "proud",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_proud.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "evelyn",
+      "requested": "comforting",
+      "rendered": "comforting",
+      "status": "intended",
+      "source": "/Character_Art/Evelyn/Expressions/evelyn_comforting.png",
+      "width": 1086,
+      "height": 1448
+    },
+    {
+      "character": "daisy",
+      "requested": "neutral",
+      "rendered": "neutral",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_neutral.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "happy",
+      "rendered": "happy",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_happy.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "playful",
+      "rendered": "playful",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_playful.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "flirty",
+      "rendered": "flirty",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_flirty.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "mischievous",
+      "rendered": "mischievous",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_mischievous.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "focused",
+      "rendered": "focused",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_focused.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "excited",
+      "rendered": "excited",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_excited.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "surprised",
+      "rendered": "surprised",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_surprised.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "disappointed",
+      "rendered": "disappointed",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_disappointed.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "concerned",
+      "rendered": "concerned",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_concerned.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "proud",
+      "rendered": "proud",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_proud.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "character": "daisy",
+      "requested": "comforting",
+      "rendered": "comforting",
+      "status": "intended",
+      "source": "/Character_Art/Daisy/expressions/daisy_comforting.png",
+      "width": 1024,
+      "height": 1536
+    }
+  ],
+  "art_requests": [
+    "http://127.0.0.1:8810/Character_Art/Evelyn/Expressions/evelyn_neutral.png",
+    "http://127.0.0.1:8810/Character_Art/Evelyn/Expressions/evelyn_playful.png",
+    "http://127.0.0.1:8810/Character_Art/Evelyn/Expressions/evelyn_flirty.png",
+    "http://127.0.0.1:8810/Character_Art/Evelyn/Expressions/evelyn_mischievous.png",
+    "http://127.0.0.1:8810/Character_Art/Evelyn/Expressions/evelyn_proud.png",
+    "http://127.0.0.1:8810/Character_Art/Daisy/expressions/daisy_neutral.png",
+    "http://127.0.0.1:8810/Character_Art/Daisy/expressions/daisy_concerned.png",
+    "http://127.0.0.1:8810/Character_Art/Evelyn/Expressions/evelyn_proud.png"
+  ],
+  "max_image_layers": 2,
+  "physical_devices": "Denied; Handy HTTP intercepted",
+  "screenshots": [
+    "evelyn-1920.png",
+    "expression-streaming.png",
+    "verified-event-diagnostics.png",
+    "daisy-2560.png",
+    "daisy-1366.png",
+    "daisy-390.png",
+    "evelyn-proud-preview.png",
+    "daisy-happy-1920.png",
+    "missing-artwork-fallback.png"
+  ]
+}

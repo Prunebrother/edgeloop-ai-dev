@@ -1,0 +1,38 @@
+✔ projection is read-only, redacts targets/keys/history and uses original values (3.851553ms)
+✔ session ID survives model/connection changes; significant events emitted once (0.55059ms)
+✔ trend is presentation only, expires and never writes measured/effective HR (0.288532ms)
+✔ disabled/unavailable AI never affects observed source, and commands are ignored (0.724284ms)
+✔ reconnect sends newest snapshot with fresh epoch and drops offline events (0.328232ms)
+✔ bounded latest-state/events, urgent stop and backpressure never replay stale batches (1.387076ms)
+✔ only localhost URLs, no credential queries; original controls have no model callback (1.034423ms)
+✔ default browser timers are called without the connection as receiver (0.695659ms)
+✔ settings, phase and capture metadata are allowlisted; missing pullback remains unknown (0.202955ms)
+✔ BLE connection is not a measurement; source changes and unique timestamps segment trend evidence (0.288395ms)
+✔ configuration changes are not HR changes and paused state is not a resume event (0.218342ms)
+✔ Came Early requires a source counter delta and original accepted ending, never a click or idle write (0.184256ms)
+✔ a selection reaction cannot update the UI after a newer local engine projection, even before network acknowledgement (0.134252ms)
+✔ story reset acknowledgement is presentation data and control messages remain ignored (0.220284ms)
+✔ canonical identities use exact aliases, not name prefixes or prototype properties (1.002986ms)
+✔ all twelve prepared expressions have direct assets; missing custom states fall back to neutral (0.66915ms)
+✔ dialogue mapping requires explicit assistant self-expression, not arbitrary sentiment or physiology (4.572838ms)
+✔ activity does not erase expression; accepted replies only and no token-level changes (0.552511ms)
+✔ switching same-character models retains presentation; other characters reset and old generations cannot apply (0.228821ms)
+✔ cancel and disconnect invalidate generations, including late starts; reconnect starts a new sequence epoch (0.223459ms)
+✔ verified events do not dictate emotion; stop only cancels activity (0.205628ms)
+✔ session policy can be disabled; physiological fields and unrelated events never select emotion (0.173452ms)
+✔ development preview overlays rendering only and restores live state (0.165224ms)
+✔ each prepared emotion has a distinct explicit self-expression cue (3.873656ms)
+✔ ordinary dialogue tone covers all twelve states without facial narration (0.989274ms)
+✔ future explicit expression metadata is bounded and tied to the active model/request (0.243538ms)
+✔ stream metadata is request/model scoped, persists through activity and rejects late updates (0.206653ms)
+✔ a validated streamed expression outranks fallback prose and activity until request completion (0.183075ms)
+✔ missing metadata is visibly diagnosed as retained rather than a new model choice (0.203692ms)
+✔ verified ending of accepted Came Early preserves its in-flight acknowledgement, ordinary stop cancels (0.179551ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 75.603828

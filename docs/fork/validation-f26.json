@@ -1,0 +1,71 @@
+{
+  "upstream_tests": 1057,
+  "python_tests": 262,
+  "bridge_presentation_tests": 30,
+  "browser_suites": [
+    "dashboard",
+    "artwork",
+    "event-reliability",
+    "narrative-browser"
+  ],
+  "live_comparison": [
+    {
+      "model": "evelyn-lite-v1:latest",
+      "turns": 8,
+      "valid_expressions": 8,
+      "completed": 8,
+      "mean_total_seconds": 1.821,
+      "mean_first_visible_seconds": 0.793,
+      "mean_tokens_per_second": 93.0,
+      "mean_prompt_tokens": 1617,
+      "gpu_snapshot_mib": 8266,
+      "exact_duplicate_replies": 0
+    },
+    {
+      "model": "evelyn-narrative-v1:latest",
+      "turns": 8,
+      "valid_expressions": 7,
+      "completed": 8,
+      "mean_total_seconds": 1.487,
+      "mean_first_visible_seconds": 0.405,
+      "mean_tokens_per_second": 88.5,
+      "mean_prompt_tokens": 1866,
+      "gpu_snapshot_mib": 8270,
+      "exact_duplicate_replies": 0
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "turns": 8,
+      "valid_expressions": 7,
+      "completed": 8,
+      "mean_total_seconds": 1.551,
+      "mean_first_visible_seconds": 0.49,
+      "mean_tokens_per_second": 87.1,
+      "mean_prompt_tokens": 3024,
+      "gpu_snapshot_mib": 8263,
+      "exact_duplicate_replies": 0
+    },
+    {
+      "model": "daisy-narrative-v1:latest",
+      "turns": 8,
+      "valid_expressions": 8,
+      "completed": 8,
+      "mean_total_seconds": 1.377,
+      "mean_first_visible_seconds": 0.428,
+      "mean_tokens_per_second": 90.0,
+      "mean_prompt_tokens": 2009,
+      "gpu_snapshot_mib": 8165,
+      "exact_duplicate_replies": 0
+    }
+  ],
+  "comparison_requests": 32,
+  "all_comparison_requests_thinking_off": true,
+  "extended_steps": 40,
+  "extended_user_replies": 37,
+  "extended_initiatives": 1,
+  "extended_requests": 38,
+  "original_model_digests_preserved": true,
+  "native_candidate_sources_verified": true,
+  "manual_user_acceptance": "deferred",
+  "candidate_promotion": "not approved; subjective narrative reliability remains experimental"
+}

@@ -24,4 +24,51 @@ Existing model sources, installed baseline models, artwork, drivers and safety l
 
 ## Validation
 
-Results, reproducible evaluation commands, quality rubric and outstanding manual checks will be appended after regression and live evaluation. Manual user acceptance is deferred; automated checks cannot establish narrative quality.
+The implementation is checkpointed; candidate promotion and full manual user acceptance remain pending. The models are selectable experiments, not replacements for the working baselines. [Machine-readable results](validation-f26.json) and [synthetic transcripts/screenshots](f26/) preserve evidence, including earlier poor runs.
+
+- **1,057 upstream**, **262 Python**, and **30 bridge/presentation** tests passed. The upstream pin verified again after the final backend changes; no engine, driver, handler, safety or artwork bytes changed. One pre-existing FastAPI/Starlette test-client deprecation warning remains.
+- The offline forty-turn test verifies context bounds, current validated selections, milestones/pause/resume/stop, metadata exclusion and outbound `think:false` throughout. Targeted tests cover quiet requests, no unanswered-question loops, disabled memory, stale/reconnected observations, independent reset, cancellation, model/session scoping, optional context-budget fallback and simulator/hardware grounding.
+- Existing dashboard, artwork and event Playwright suites passed, using the original engine with simulated HR and intercepted Handy HTTP, with physical permissions denied. All 24 original portraits, fallbacks, reduced motion, responsive controls and cancellation were exercised. The new narrative browser suite passed: exact candidate identities, callback context, model restoration, independent reset and reset during streaming. New screenshots show 1920×1080, 2560×1440, 1366×768 and 390px mobile. These narrative browser replies are explicitly mocked; they demonstrate integration, not live narrative quality. Screenshots were visually reviewed at desktop and mobile sizes.
+- Live evaluation used the existing **11435** Ollama endpoint, the installed Qwen3.5-derived baselines and the two new candidates. No Ollama server was restarted, model weights downloaded or existing model replaced. All pre-F2.6 model digests and existing source files remained unchanged; final candidate native SYSTEM values were checked against their versioned sources. The shared transport preserved native SYSTEM and requested `think:false` in every audited inference, including existing bounded revisions/corrections. Reasoning-channel content is excluded before dialogue, story excerpts, expression parsing or memory.
+- Final paired comparison: eight turns per model, identical scripted prompts/current source data, same 8192 context/320 output budget/.6 runtime temperature; 32 outbound requests, all thinking OFF, all 32 replies completed. This measures the existing baseline definitions under the F2.6 harness, not a statistically controlled F2.5.1-versus-F2.6 trial.
+
+| Model | Valid expressions | Mean total s | Mean first visible s | Tokens/s | Mean prompt tokens |
+|---|---:|---:|---:|---:|---:|
+| evelyn-lite-v1:latest | 8/8 | 1.821 | 0.793 | 93.0 | 1617 |
+| evelyn-narrative-v1:latest | 7/8 | 1.487 | 0.405 | 88.5 | 1866 |
+| daisy-qwen35:latest | 7/8 | 1.551 | 0.49 | 87.1 | 3024 |
+| daisy-narrative-v1:latest | 8/8 | 1.377 | 0.428 | 90.0 | 2009 |
+
+These are small stochastic samples including model loading and cache effects, not guaranteed speed improvements. GPU snapshots after each model were about 8.1 GiB of 10 GiB on the RTX 3080; snapshots are not peak-memory measurements. Token counts include the complete native SYSTEM, runtime context and retained dialogue. Existing metadata is excluded from visible/history content even when invalid. An unsupported ID such as `curious` causes the conservative presentation fallback, not a broken portrait.
+
+The extended live Daisy run covered **40 steps: 37 user replies, one permitted Director initiative, one quiet interval without inference, and a model-switch/restoration check**. All 38 chat requests carried `think:false`; 33/37 user replies had a valid expression header. The initiative lacked a valid header and correctly used fallback. It included validated mode/goal changes, edge increments, pause/resume, accepted Came Early and stop; source proof was checked, not inferred from prompts. Stale telemetry was explicitly unavailable; reconnect did not replay old events. Simulated time replaced waiting through a real session. This extended run preceded the final optional-budget fallback and narrow “officially paused” wording guard; the final complete regression and eight-turn comparison include both. It uses synthetic validated observer data, not real physical devices. The separate event browser suite verifies original-control event delivery.
+
+## Review observations and quality gate
+
+There is useful mechanical improvement: premise/choice excerpts survive beyond eight dialogue messages, current facts remain separate, initiative has a bounded welcome condition, and reset is independently testable. Refined Daisy responses were shorter and more recognizably tied to Cloverfield; Evelyn retained her investigative language. However this does **not** establish a reliably superior story experience. Daisy occasionally imitates experimental language; Evelyn overuses “variable” and “hypothesis.” Both sometimes repeat openings, re-open an envelope already opened, turn the sketch into a physical key, move an object between locations without an agreed action, or describe a stop as a pause. Earlier runs also conflated simulator BPM with bodily physiology; reducing numeric priming and the existing one-correction grounding path address observed forms, not every possible paraphrase. Earlier exact duplicates occurred even after the bounded repetition retry; the final short comparison had no exact duplicates, which is not proof repetition is solved. The extended initiative advanced dialogue but also treated the sketched key as physically in hand. All such story excerpts remain fallible fiction and cannot become telemetry.
+
+Candidates therefore remain **experimental**, with no automatic selection or baseline replacement. Manual user acceptance is deferred, including comfort/pacing across a real uninterrupted simulated session, subjective expression suitability, consistency of callbacks and story-object state, and whether either candidate is preferable to its baseline. No physical-hardware acceptance was attempted or needed.
+
+For manual review, compare paired transcripts blind where possible. Score each dimension 0 (fails), 1 (inconsistent), or 2 (consistently good): recognizable identity, development beyond the opening, preservation of user choices/object state, relevant callbacks, varied language, welcome initiative, expression suitability and natural conclusion. Separately flag every unsupported operational claim, repeated unanswered question and boundary violation; a good style score never excuses one. Review at least the complete extended transcript and several fresh paired runs before promotion. Do not convert automated counts into subjective quality scores.
+
+## Reproduce and troubleshoot
+
+```sh
+.venv/bin/python -m pytest -q tests/ai tests/fork
+node --test tests/fork/bridge.test.mjs tests/fork/presentation.test.mjs
+FORK_BROWSER_PORT=8840 FORK_OBSERVER_PORT=8848 FORK_BROWSER_REPORT=/tmp/f26-dashboard node tests/fork/browser.mjs
+CHARACTER_BROWSER_REPORT=/tmp/f26-artwork node tests/fork/character-browser.mjs
+EVENT_BROWSER_REPORT=/tmp/f26-events node tests/fork/event-reliability.mjs
+NARRATIVE_BROWSER_REPORT=/tmp/f26-narrative-browser node tests/fork/narrative-browser.mjs
+.venv/bin/python tools/fork_validate.py --tests --report /tmp/f26-upstream.json
+.venv/bin/python -m tests.fork.narrative_evaluation --live --output /tmp/f26-comparison.json
+.venv/bin/python -m tests.fork.narrative_evaluation --live --extended --models daisy-narrative-v1:latest --output /tmp/f26-extended.json
+```
+
+The live harness uses temporary in-memory settings/history and synthetic telemetry. It never changes the running application's selected model or personal memory. Candidate sources can be built with the existing Ollama CLI pattern, **only into the experimental names**, using `OLLAMA_HOST=http://127.0.0.1:11435 ollama create evelyn-narrative-v1 -f characters/models/evelyn-narrative-v1/Modelfile` (substitute Daisy). Both candidates are already installed from the final sources; no rebuild is necessary for normal selection. Refresh discovery and select the candidate explicitly. A running observer must load the updated backend code before using story reset/initiative; reload the browser for updated frontend modules. Ollama services were left running.
+
+For story errors, inspect the latest user choices and compare narrative excerpts with dialogue; reset Story memory to clear anchors while retaining chat. The extractor is intentionally conservative and can discard legitimate sentences containing numbers or operational vocabulary. It does not semantically resolve arbitrary promises. A new EdgeLoop session clears anchors by default, including any idle-session premise; ordinary per-model conversation history remains and prior operational turns are omitted unless explicitly asked about historical dialogue. Use a fresh story invitation if needed. Explicit “new scene” semantics beyond the reset button remain a future extension.
+
+If context is tight, optional story excerpts yield before current authoritative facts; diagnostics/warnings explain the omission and stored anchors remain. For expressions compare candidate → validated → applied → rendered → asset/fallback in `?characterPreview=1`, then use the local manual preview to distinguish a model choice from rendering. `curious` and `thoughtful` are not valid IDs. For reasoning issues inspect thinking policy/status and compatibility diagnostics; never enable thinking as a fallback or insert reasoning into story memory. Reconnect sends only current source observations. Neither story instructions nor prose can dispatch hardware commands.
+
+Future extensions may add better validated story-state extraction, explicit resolved-thread handling and opt-in story editing, while keeping them outside operational authority. TTS/STT can consume only the existing clean dialogue stream and activity lifecycle; no voice or animation work is implemented here.

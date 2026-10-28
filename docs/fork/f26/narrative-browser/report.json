@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "physical_hardware": false,
+  "steps": [
+    "Candidate identities, thinking OFF, bounded callback context and independent story/dialogue restoration",
+    "Independent story reset, reset during generation and incomplete-response exclusion",
+    "Desktop/mobile artwork and independent emergency control remain accessible"
+  ],
+  "screenshots": [
+    "evelyn-narrative-1920.png",
+    "daisy-narrative-2560.png",
+    "narrative-1366.png",
+    "narrative-mobile-390.png"
+  ]
+}

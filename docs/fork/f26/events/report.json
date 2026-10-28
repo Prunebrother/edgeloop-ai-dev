@@ -1,0 +1,3074 @@
+{
+  "passed": true,
+  "live": false,
+  "steps": [
+    "evelyn: idle mode/goal reactions and final-selection debouncing",
+    "evelyn: rejected dialog creates no action; accepted running Came Early reaches Director",
+    "daisy: idle mode/goal reactions and final-selection debouncing",
+    "daisy: rejected dialog creates no action; accepted paused Came Early reaches Director",
+    "Cancellation, model switching and observer disconnection preserve engine independence"
+  ],
+  "frames": [
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 0,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 2
+    },
+    {
+      "type": "model_selected",
+      "model": "evelyn-lite-v1:latest",
+      "thinking": false,
+      "supports_thinking": true,
+      "can_disable_thinking": true,
+      "history": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 1,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "experience_changed",
+      "event_priority": "major",
+      "director_decision": "No speech requested",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 2,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "603c4a90-43ca-417f-a0db-c2a4bf19a4ba",
+          "kind": "experience_changed",
+          "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 3,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 4,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:experience_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "73db375d-1329-4e17-b18b-cd11a9005446",
+      "source": "event",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "73db375d-1329-4e17-b18b-cd11a9005446",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "focused",
+      "model_selected_expression": "focused",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "73db375d-1329-4e17-b18b-cd11a9005446",
+      "source": "event",
+      "generation": 2,
+      "text": "You selected headplay with goal tease.",
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "73db375d-1329-4e17-b18b-cd11a9005446",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "focused",
+      "validated_expression": "focused",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:experience_changed",
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "73db375d-1329-4e17-b18b-cd11a9005446",
+      "source": "event",
+      "text": "You selected headplay with goal tease.",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "focused",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "goal_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:experience_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 5,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "6f1cab62-33fa-4d1f-badf-2208d6186c1f",
+          "kind": "goal_changed",
+          "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 6,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 7,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "reaction_cooldown",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 8,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:goal_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "8716d504-285c-4a68-88e1-1f1fe61c9c8c",
+      "source": "event",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "8716d504-285c-4a68-88e1-1f1fe61c9c8c",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "focused",
+      "model_selected_expression": "focused",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "8716d504-285c-4a68-88e1-1f1fe61c9c8c",
+      "source": "event",
+      "generation": 2,
+      "text": "You selected headplay with goal edgetrain.",
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "8716d504-285c-4a68-88e1-1f1fe61c9c8c",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "focused",
+      "validated_expression": "focused",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:goal_changed",
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "8716d504-285c-4a68-88e1-1f1fe61c9c8c",
+      "source": "event",
+      "text": "You selected headplay with goal edgetrain.",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "focused",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 9,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [
+        {
+          "id": "fb88f0f3-86f7-4d4a-a466-278c600edbf8",
+          "kind": "experience_changed",
+          "reason": "duplicate_stale_or_unproven"
+        }
+      ],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 10,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 11,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 12,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "experience_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 13,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "0aa2756f-6c10-45a6-bfc8-e49c5b6d819c",
+          "kind": "experience_changed",
+          "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 14,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 15,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:experience_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "3653c905-06c5-4153-a97f-61bf138ed8e6",
+      "source": "event",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "3653c905-06c5-4153-a97f-61bf138ed8e6",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "focused",
+      "model_selected_expression": "focused",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "3653c905-06c5-4153-a97f-61bf138ed8e6",
+      "source": "event",
+      "generation": 2,
+      "text": "You selected ruin with goal edgetrain.",
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "3653c905-06c5-4153-a97f-61bf138ed8e6",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "focused",
+      "validated_expression": "focused",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:experience_changed",
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "3653c905-06c5-4153-a97f-61bf138ed8e6",
+      "source": "event",
+      "text": "You selected ruin with goal edgetrain.",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "focused",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 16,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "goal_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:experience_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 17,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "08c8b9e3-de63-4fb2-8a20-5087383ede67",
+          "kind": "goal_changed",
+          "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 18,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 19,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:goal_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "704b6fb5-9d8d-479b-a50a-872f86435f5d",
+      "source": "event",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "704b6fb5-9d8d-479b-a50a-872f86435f5d",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "focused",
+      "model_selected_expression": "focused",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "704b6fb5-9d8d-479b-a50a-872f86435f5d",
+      "source": "event",
+      "generation": 2,
+      "text": "You selected ruin with goal tease.",
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "704b6fb5-9d8d-479b-a50a-872f86435f5d",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "focused",
+      "validated_expression": "focused",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:goal_changed",
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "704b6fb5-9d8d-479b-a50a-872f86435f5d",
+      "source": "event",
+      "text": "You selected ruin with goal tease.",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "focused",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 20,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "device_changed",
+      "event_priority": "routine",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 21,
+      "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "8f9c82dd-7450-4b87-8b41-71798b764307",
+          "kind": "device_changed",
+          "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232"
+        }
+      ]
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 3
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "session_started",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 22,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [
+        {
+          "id": "9989d826-8ab3-4052-8642-6c18fca1c5b4",
+          "kind": "device_changed",
+          "reason": "duplicate_stale_or_unproven"
+        }
+      ],
+      "events": [
+        {
+          "id": "304c8cd4-6b65-4c3e-b316-5c4db262f1d4",
+          "kind": "session_started",
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4"
+        }
+      ]
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 23,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 24,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "came_early",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 25,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "b78ff9b5-b419-4a57-b7e1-326bedf39a94",
+          "kind": "came_early",
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:came_early",
+      "pending_events": 1
+    },
+    {
+      "type": "response_start",
+      "id": "d4e3b425-c4dd-4494-ae73-72c0fa6a9d29",
+      "source": "event",
+      "generation": 3,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "d4e3b425-c4dd-4494-ae73-72c0fa6a9d29",
+      "generation": 3,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "comforting",
+      "model_selected_expression": "comforting",
+      "source": "model",
+      "valid": true
+    },
+    {
+      "type": "response_delta",
+      "id": "d4e3b425-c4dd-4494-ae73-72c0fa6a9d29",
+      "source": "event",
+      "generation": 3,
+      "text": "EdgeLoop accepted Came Early. Take your time."
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "d4e3b425-c4dd-4494-ae73-72c0fa6a9d29",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "comforting",
+      "validated_expression": "comforting",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:came_early"
+    },
+    {
+      "type": "speech",
+      "id": "d4e3b425-c4dd-4494-ae73-72c0fa6a9d29",
+      "source": "event",
+      "text": "EdgeLoop accepted Came Early. Take your time.",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "comforting",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 26,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 27,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 28,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 29,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 30,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 31,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 32,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 33,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 34,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 4
+    },
+    {
+      "type": "speech",
+      "id": "802f0ad3-c172-4e37-aa97-c7271b785507",
+      "source": "safety",
+      "text": "EdgeLoop reports: stop.",
+      "speak": true,
+      "interrupt": true
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "stop",
+      "event_priority": "major",
+      "director_decision": "deterministic_safety:stop",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 35,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "17605d84-7d5a-4e26-a9c2-69339aead050",
+          "kind": "stop",
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4"
+        }
+      ]
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 5
+    },
+    {
+      "type": "model_selected",
+      "model": "daisy-qwen35:latest",
+      "thinking": false,
+      "supports_thinking": true,
+      "can_disable_thinking": true,
+      "history": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 36,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "experience_changed",
+      "event_priority": "major",
+      "director_decision": "deterministic_safety:stop",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 37,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "c3fcacab-918d-4934-a176-371c1f8978c3",
+          "kind": "experience_changed",
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 38,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 39,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:experience_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "3e600dd0-3399-454a-8657-4c0d6f2a76d1",
+      "source": "event",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "3e600dd0-3399-454a-8657-4c0d6f2a76d1",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "focused",
+      "model_selected_expression": "focused",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "3e600dd0-3399-454a-8657-4c0d6f2a76d1",
+      "source": "event",
+      "generation": 5,
+      "text": "You selected milker with goal tease.",
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "3e600dd0-3399-454a-8657-4c0d6f2a76d1",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "focused",
+      "validated_expression": "focused",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:experience_changed",
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "3e600dd0-3399-454a-8657-4c0d6f2a76d1",
+      "source": "event",
+      "text": "You selected milker with goal tease.",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "focused",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "goal_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:experience_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 40,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "bb5e2df7-031e-4111-b514-9db660932fb8",
+          "kind": "goal_changed",
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 41,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 42,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "reaction_cooldown",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 43,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:goal_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "f414b310-dc4f-406b-8d29-82ca981f9854",
+      "source": "event",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "f414b310-dc4f-406b-8d29-82ca981f9854",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "focused",
+      "model_selected_expression": "focused",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "f414b310-dc4f-406b-8d29-82ca981f9854",
+      "source": "event",
+      "generation": 5,
+      "text": "You selected milker with goal oracle.",
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "f414b310-dc4f-406b-8d29-82ca981f9854",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "focused",
+      "validated_expression": "focused",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:goal_changed",
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "f414b310-dc4f-406b-8d29-82ca981f9854",
+      "source": "event",
+      "text": "You selected milker with goal oracle.",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "focused",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "milker",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 44,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [
+        {
+          "id": "82ad4e4f-8575-404f-92fa-76cf56cb62b3",
+          "kind": "experience_changed",
+          "reason": "duplicate_stale_or_unproven"
+        }
+      ],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 45,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 46,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 47,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 48,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "experience_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 49,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "18d6ef12-7533-4554-b85b-999a7d9d441a",
+          "kind": "experience_changed",
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 50,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 51,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:experience_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "cec58d90-3f44-4fc4-8c50-939275c255f3",
+      "source": "event",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "cec58d90-3f44-4fc4-8c50-939275c255f3",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "focused",
+      "model_selected_expression": "focused",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "cec58d90-3f44-4fc4-8c50-939275c255f3",
+      "source": "event",
+      "generation": 5,
+      "text": "You selected ruin with goal oracle.",
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "cec58d90-3f44-4fc4-8c50-939275c255f3",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "focused",
+      "validated_expression": "focused",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:experience_changed",
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "cec58d90-3f44-4fc4-8c50-939275c255f3",
+      "source": "event",
+      "text": "You selected ruin with goal oracle.",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "focused",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 52,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "goal_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:experience_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 53,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "66358a87-caaf-4dd9-92f2-0fe88104d050",
+          "kind": "goal_changed",
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 54,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 55,
+      "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:goal_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "e3bf6192-ccc3-4cda-aa15-95e7b3b6345d",
+      "source": "event",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "e3bf6192-ccc3-4cda-aa15-95e7b3b6345d",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "focused",
+      "model_selected_expression": "focused",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "e3bf6192-ccc3-4cda-aa15-95e7b3b6345d",
+      "source": "event",
+      "generation": 5,
+      "text": "You selected ruin with goal tease.",
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "e3bf6192-ccc3-4cda-aa15-95e7b3b6345d",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "focused",
+      "validated_expression": "focused",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:goal_changed",
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "e3bf6192-ccc3-4cda-aa15-95e7b3b6345d",
+      "source": "event",
+      "text": "You selected ruin with goal tease.",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "focused",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 6
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "session_started",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 56,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "460cd377-8097-4dc4-b3fe-357138419342",
+          "kind": "session_started",
+          "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431"
+        }
+      ]
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 7
+    },
+    {
+      "type": "speech",
+      "id": "f6c18b45-d1f8-4226-aacf-36e70e60f038",
+      "source": "safety",
+      "text": "EdgeLoop reports: pause.",
+      "speak": true,
+      "interrupt": true
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "pause",
+      "event_priority": "routine",
+      "director_decision": "deterministic_safety:pause",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 57,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "ddc6f761-a240-40b2-b0da-c5ee551fae20",
+          "kind": "pause",
+          "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431"
+        }
+      ]
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 58,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 59,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "came_early",
+      "event_priority": "major",
+      "director_decision": "deterministic_safety:pause",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 60,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "419ad75d-5875-4c4e-8e34-f2a84c43c963",
+          "kind": "session_resumed",
+          "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431"
+        },
+        {
+          "id": "b25955c7-f222-4392-95f4-6047f66cfb5c",
+          "kind": "came_early",
+          "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:came_early",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "bbca14a9-34fb-44f4-abd0-4d32a8bad98c",
+      "source": "event",
+      "generation": 7,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "bbca14a9-34fb-44f4-abd0-4d32a8bad98c",
+      "generation": 7,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "comforting",
+      "model_selected_expression": "comforting",
+      "source": "model",
+      "valid": true
+    },
+    {
+      "type": "response_delta",
+      "id": "bbca14a9-34fb-44f4-abd0-4d32a8bad98c",
+      "source": "event",
+      "generation": 7,
+      "text": "EdgeLoop accepted Came Early. Take your time."
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "bbca14a9-34fb-44f4-abd0-4d32a8bad98c",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "comforting",
+      "validated_expression": "comforting",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:came_early"
+    },
+    {
+      "type": "speech",
+      "id": "bbca14a9-34fb-44f4-abd0-4d32a8bad98c",
+      "source": "event",
+      "text": "EdgeLoop accepted Came Early. Take your time.",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "comforting",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 61,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 62,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 63,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 64,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 65,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 66,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 67,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 68,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 69,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 8
+    },
+    {
+      "type": "speech",
+      "id": "efefa58d-3c7c-4dbd-826d-3ace1d18060d",
+      "source": "safety",
+      "text": "EdgeLoop reports: stop.",
+      "speak": true,
+      "interrupt": true
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "stop",
+      "event_priority": "major",
+      "director_decision": "deterministic_safety:stop",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 70,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "e0715cb4-40a1-4c0a-b575-94a4fe1d106d",
+          "kind": "stop",
+          "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431"
+        }
+      ]
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 9
+    },
+    {
+      "type": "model_selected",
+      "model": "evelyn-lite-v1:latest",
+      "thinking": false,
+      "supports_thinking": true,
+      "can_disable_thinking": true,
+      "history": [
+        {
+          "role": "assistant",
+          "content": "You selected headplay with goal tease.",
+          "expression": "focused"
+        },
+        {
+          "role": "assistant",
+          "content": "You selected headplay with goal edgetrain.",
+          "expression": "focused"
+        },
+        {
+          "role": "assistant",
+          "content": "You selected ruin with goal edgetrain.",
+          "expression": "focused"
+        },
+        {
+          "role": "assistant",
+          "content": "You selected ruin with goal tease.",
+          "expression": "focused"
+        },
+        {
+          "role": "assistant",
+          "content": "EdgeLoop accepted Came Early. Take your time.",
+          "expression": "comforting"
+        }
+      ]
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 71,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 10
+    },
+    {
+      "type": "response_start",
+      "id": "c75a2792-97d2-42c1-867a-e248f3ba3d68",
+      "source": "user",
+      "generation": 10,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      }
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 11
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 12
+    },
+    {
+      "type": "model_selected",
+      "model": "daisy-qwen35:latest",
+      "thinking": false,
+      "supports_thinking": true,
+      "can_disable_thinking": true,
+      "history": [
+        {
+          "role": "assistant",
+          "content": "You selected milker with goal tease.",
+          "expression": "focused"
+        },
+        {
+          "role": "assistant",
+          "content": "You selected milker with goal oracle.",
+          "expression": "focused"
+        },
+        {
+          "role": "assistant",
+          "content": "You selected ruin with goal oracle.",
+          "expression": "focused"
+        },
+        {
+          "role": "assistant",
+          "content": "You selected ruin with goal tease.",
+          "expression": "focused"
+        },
+        {
+          "role": "assistant",
+          "content": "EdgeLoop accepted Came Early. Take your time.",
+          "expression": "comforting"
+        }
+      ]
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 72,
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "rejected_events": [],
+      "events": []
+    }
+  ],
+  "actions": [
+    {
+      "label": "evelyn-idle-mode",
+      "engine": {
+        "status": "IDLE",
+        "experience": "headplay",
+        "goal": "tease",
+        "active_mode": "headplay",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "73db375d-1329-4e17-b18b-cd11a9005446",
+        "source": "event",
+        "text": "You selected headplay with goal tease.",
+        "responder": {
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest"
+        },
+        "expression": "focused",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+          "experience": "headplay",
+          "goal": "tease"
+        }
+      },
+      "presentation": {
+        "identity": "evelyn",
+        "applied": "focused",
+        "rendered": "focused",
+        "asset": "/Character_Art/Evelyn/Expressions/evelyn_focused.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Head Play [headplay].\n- Engine active mode: Head Play [headplay].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"603c4a90-43ca-417f-a0db-c2a4bf19a4ba\", \"session_id\": \"c46826a5-c520-4d4a-ab1d-0a186772b232\", \"at_ms\": 1793185525569, \"evidence\": \"experience changed classic -> headplay\", \"significance\": \"major\", \"previous_experience\": \"classic\", \"current_experience\": \"headplay\", \"previous_goal\": \"tease\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "experience_changed",
+        "evidence": "experience changed classic -> headplay",
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "sequence": 2,
+        "at_ms": 1793185525569,
+        "received": 106490.99349134484
+      },
+      "director": "verified_action:experience_changed"
+    },
+    {
+      "label": "evelyn-idle-goal",
+      "engine": {
+        "status": "IDLE",
+        "experience": "headplay",
+        "goal": "edgetrain",
+        "active_mode": "edgetrain",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "8716d504-285c-4a68-88e1-1f1fe61c9c8c",
+        "source": "event",
+        "text": "You selected headplay with goal edgetrain.",
+        "responder": {
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest"
+        },
+        "expression": "focused",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+          "experience": "headplay",
+          "goal": "edgetrain"
+        }
+      },
+      "presentation": {
+        "identity": "evelyn",
+        "applied": "focused",
+        "rendered": "focused",
+        "asset": "/Character_Art/Evelyn/Expressions/evelyn_focused.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Head Play [headplay].\n- Engine active mode: Edge Training [edgetrain].\n- Selected goal: Edge Training [edgetrain].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"6f1cab62-33fa-4d1f-badf-2208d6186c1f\", \"session_id\": \"c46826a5-c520-4d4a-ab1d-0a186772b232\", \"at_ms\": 1793185528636, \"evidence\": \"goal changed tease -> edgetrain\", \"significance\": \"major\", \"previous_experience\": \"headplay\", \"current_experience\": \"headplay\", \"previous_goal\": \"tease\", \"current_goal\": \"edgetrain\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "goal_changed",
+        "evidence": "goal changed tease -> edgetrain",
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "sequence": 5,
+        "at_ms": 1793185528636,
+        "received": 106494.0605040632
+      },
+      "director": "verified_action:goal_changed"
+    },
+    {
+      "label": "evelyn-clear-goal",
+      "engine": {
+        "status": "IDLE",
+        "experience": "ruin",
+        "goal": "tease",
+        "active_mode": "ruin",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "704b6fb5-9d8d-479b-a50a-872f86435f5d",
+        "source": "event",
+        "text": "You selected ruin with goal tease.",
+        "responder": {
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest"
+        },
+        "expression": "focused",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+          "experience": "ruin",
+          "goal": "tease"
+        }
+      },
+      "presentation": {
+        "identity": "evelyn",
+        "applied": "focused",
+        "rendered": "focused",
+        "asset": "/Character_Art/Evelyn/Expressions/evelyn_focused.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"08c8b9e3-de63-4fb2-8a20-5087383ede67\", \"session_id\": \"c46826a5-c520-4d4a-ab1d-0a186772b232\", \"at_ms\": 1793185540418, \"evidence\": \"goal changed edgetrain -> tease\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"ruin\", \"previous_goal\": \"edgetrain\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "goal_changed",
+        "evidence": "goal changed edgetrain -> tease",
+        "session_id": "c46826a5-c520-4d4a-ab1d-0a186772b232",
+        "sequence": 17,
+        "at_ms": 1793185540418,
+        "received": 106505.84248759845
+      },
+      "director": "verified_action:goal_changed"
+    },
+    {
+      "label": "evelyn-came-early",
+      "engine": {
+        "status": "RUNNING",
+        "experience": "ruin",
+        "goal": "tease",
+        "active_mode": "ruin",
+        "settle_outcome": "Premature Release",
+        "seconds": 3
+      },
+      "response": {
+        "type": "speech",
+        "id": "d4e3b425-c4dd-4494-ae73-72c0fa6a9d29",
+        "source": "event",
+        "text": "EdgeLoop accepted Came Early. Take your time.",
+        "responder": {
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest"
+        },
+        "expression": "comforting",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false
+      },
+      "presentation": {
+        "identity": "evelyn",
+        "applied": "comforting",
+        "rendered": "comforting",
+        "asset": "/Character_Art/Evelyn/Expressions/evelyn_comforting.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"came_early\", \"priority\": 70, \"event_id\": \"b78ff9b5-b419-4a57-b7e1-326bedf39a94\", \"session_id\": \"e8272fcb-24a8-488b-b582-850b2e358cd4\", \"at_ms\": 1793185548768, \"evidence\": \"engine accepted premature release: learning counter 1 -> 2; ending settle or stop confirmed\", \"significance\": \"major\", \"label\": \"Came Early: user-confirmed premature release\", \"meaning\": \"The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.\", \"origin\": \"edgeloop_telemetry\", \"current_experience\": \"ruin\", \"current_goal\": \"tease\"}"
+        }
+      },
+      "validated": {
+        "kind": "came_early",
+        "evidence": "engine accepted premature release: learning counter 1 -> 2; ending settle or stop confirmed",
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "sequence": 25,
+        "at_ms": 1793185548768,
+        "received": 106514.19249669647
+      },
+      "director": "verified_action:came_early"
+    },
+    {
+      "label": "daisy-idle-mode",
+      "engine": {
+        "status": "IDLE",
+        "experience": "milker",
+        "goal": "tease",
+        "active_mode": "milker",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "3e600dd0-3399-454a-8657-4c0d6f2a76d1",
+        "source": "event",
+        "text": "You selected milker with goal tease.",
+        "responder": {
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest"
+        },
+        "expression": "focused",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+          "experience": "milker",
+          "goal": "tease"
+        }
+      },
+      "presentation": {
+        "identity": "daisy",
+        "applied": "focused",
+        "rendered": "focused",
+        "asset": "/Character_Art/Daisy/expressions/daisy_focused.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Milker [milker].\n- Engine active mode: Milker [milker].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"c3fcacab-918d-4934-a176-371c1f8978c3\", \"session_id\": \"e8272fcb-24a8-488b-b582-850b2e358cd4\", \"at_ms\": 1793185559984, \"evidence\": \"experience changed ruin -> milker\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"milker\", \"previous_goal\": \"tease\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "experience_changed",
+        "evidence": "experience changed ruin -> milker",
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "sequence": 37,
+        "at_ms": 1793185559984,
+        "received": 106525.40848714874
+      },
+      "director": "verified_action:experience_changed"
+    },
+    {
+      "label": "daisy-idle-goal",
+      "engine": {
+        "status": "IDLE",
+        "experience": "milker",
+        "goal": "oracle",
+        "active_mode": "oracle",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "f414b310-dc4f-406b-8d29-82ca981f9854",
+        "source": "event",
+        "text": "You selected milker with goal oracle.",
+        "responder": {
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest"
+        },
+        "expression": "focused",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+          "experience": "milker",
+          "goal": "oracle"
+        }
+      },
+      "presentation": {
+        "identity": "daisy",
+        "applied": "focused",
+        "rendered": "focused",
+        "asset": "/Character_Art/Daisy/expressions/daisy_focused.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Milker [milker].\n- Engine active mode: Oracle [oracle].\n- Selected goal: Oracle [oracle].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"bb5e2df7-031e-4111-b514-9db660932fb8\", \"session_id\": \"e8272fcb-24a8-488b-b582-850b2e358cd4\", \"at_ms\": 1793185563217, \"evidence\": \"goal changed tease -> oracle\", \"significance\": \"major\", \"previous_experience\": \"milker\", \"current_experience\": \"milker\", \"previous_goal\": \"tease\", \"current_goal\": \"oracle\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "goal_changed",
+        "evidence": "goal changed tease -> oracle",
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "sequence": 40,
+        "at_ms": 1793185563217,
+        "received": 106528.64148682276
+      },
+      "director": "verified_action:goal_changed"
+    },
+    {
+      "label": "daisy-clear-goal",
+      "engine": {
+        "status": "IDLE",
+        "experience": "ruin",
+        "goal": "tease",
+        "active_mode": "ruin",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "e3bf6192-ccc3-4cda-aa15-95e7b3b6345d",
+        "source": "event",
+        "text": "You selected ruin with goal tease.",
+        "responder": {
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest"
+        },
+        "expression": "focused",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+          "experience": "ruin",
+          "goal": "tease"
+        }
+      },
+      "presentation": {
+        "identity": "daisy",
+        "applied": "focused",
+        "rendered": "focused",
+        "asset": "/Character_Art/Daisy/expressions/daisy_focused.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"66358a87-caaf-4dd9-92f2-0fe88104d050\", \"session_id\": \"e8272fcb-24a8-488b-b582-850b2e358cd4\", \"at_ms\": 1793185576050, \"evidence\": \"goal changed oracle -> tease\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"ruin\", \"previous_goal\": \"oracle\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "goal_changed",
+        "evidence": "goal changed oracle -> tease",
+        "session_id": "e8272fcb-24a8-488b-b582-850b2e358cd4",
+        "sequence": 53,
+        "at_ms": 1793185576050,
+        "received": 106541.47449036925
+      },
+      "director": "verified_action:goal_changed"
+    },
+    {
+      "label": "daisy-came-early",
+      "engine": {
+        "status": "RUNNING",
+        "experience": "ruin",
+        "goal": "tease",
+        "active_mode": "ruin",
+        "settle_outcome": "Premature Release",
+        "seconds": 1
+      },
+      "response": {
+        "type": "speech",
+        "id": "bbca14a9-34fb-44f4-abd0-4d32a8bad98c",
+        "source": "event",
+        "text": "EdgeLoop accepted Came Early. Take your time.",
+        "responder": {
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest"
+        },
+        "expression": "comforting",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false
+      },
+      "presentation": {
+        "identity": "daisy",
+        "applied": "comforting",
+        "rendered": "comforting",
+        "asset": "/Character_Art/Daisy/expressions/daisy_comforting.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"came_early\", \"priority\": 70, \"event_id\": \"b25955c7-f222-4392-95f4-6047f66cfb5c\", \"session_id\": \"7c33d0a3-eb03-4c74-bda3-bb352ed9e431\", \"at_ms\": 1793185582917, \"evidence\": \"engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed\", \"significance\": \"major\", \"label\": \"Came Early: user-confirmed premature release\", \"meaning\": \"The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.\", \"origin\": \"edgeloop_telemetry\", \"current_experience\": \"ruin\", \"current_goal\": \"tease\"}"
+        }
+      },
+      "validated": {
+        "kind": "came_early",
+        "evidence": "engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed",
+        "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+        "sequence": 60,
+        "at_ms": 1793185582917,
+        "received": 106548.34149417868
+      },
+      "director": "verified_action:came_early"
+    }
+  ],
+  "errors": [],
+  "hardware": "Simulator and intercepted Handy only",
+  "final_fixture": {
+    "report": {
+      "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+      "status": "IDLE",
+      "seconds": 0,
+      "experience": "ruin",
+      "active_mode": "ruin",
+      "goal": "tease",
+      "hr": 98,
+      "effective_max": 125,
+      "pullback": 125,
+      "trend": "unknown",
+      "edges": 0,
+      "intensity": 100,
+      "movement": {
+        "primary": 0,
+        "secondary": 0,
+        "stroke_min": 0,
+        "stroke_max": 100
+      },
+      "devices": {
+        "simulated_hr": true,
+        "hr_ready": true,
+        "toy_ready": true,
+        "ble": false,
+        "handy": true,
+        "intiface": false,
+        "tcode": false,
+        "vacuglide": false
+      },
+      "safety": {
+        "signal": "ok",
+        "no_contact": false,
+        "watchdog_paused": false,
+        "fault": "none"
+      },
+      "details": {
+        "captured_at_ms": 1793185593780,
+        "hr_recorded_at_ms": 1793185545304,
+        "hr_live": true,
+        "resting_bpm": 70,
+        "single_max_bpm": 140,
+        "dual_max_bpm": 125,
+        "pauses": 0,
+        "calibration_pass": "none",
+        "warmup_active": false,
+        "warmup_remaining_seconds": null,
+        "learning_release_count": 3,
+        "settle_outcome": null,
+        "ease_down_seconds": 0,
+        "rampdown_seconds": null
+      }
+    },
+    "events": [
+      {
+        "kind": "session_started",
+        "evidence": "session status changed IDLE -> RUNNING",
+        "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+        "sequence": 56,
+        "at_ms": 1793185579267,
+        "received": 106544.69148499082
+      },
+      {
+        "kind": "pause",
+        "evidence": "session status changed RUNNING -> PAUSED",
+        "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+        "sequence": 57,
+        "at_ms": 1793185580516,
+        "received": 106545.94049562035
+      },
+      {
+        "kind": "session_resumed",
+        "evidence": "session status changed PAUSED -> RUNNING",
+        "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+        "sequence": 60,
+        "at_ms": 1793185582917,
+        "received": 106548.34148742368
+      },
+      {
+        "kind": "came_early",
+        "evidence": "engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed",
+        "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+        "sequence": 60,
+        "at_ms": 1793185582917,
+        "received": 106548.34149417868
+      },
+      {
+        "kind": "stop",
+        "evidence": "session status changed RUNNING -> IDLE",
+        "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+        "sequence": 70,
+        "at_ms": 1793185592712,
+        "received": 106558.13649791024
+      }
+    ],
+    "speech": {
+      "pending_events": [],
+      "queue_limit": 8,
+      "queue_dropped": 0,
+      "active_source": "user",
+      "policy": {
+        "enabled": true,
+        "event_responses": true,
+        "min_interval_seconds": 45,
+        "interruption": "drop",
+        "per_event_cooldown_seconds": 60,
+        "user_grace_seconds": 15,
+        "event_ttl_seconds": 60,
+        "pending_event_limit": 8,
+        "sustained_trend_seconds": 4,
+        "significant_hr_delta": 6
+      },
+      "director": {
+        "config": {
+          "enabled": true,
+          "spontaneous_enabled": true,
+          "narrative_initiative_enabled": true,
+          "max_consecutive_unsolicited": 2,
+          "selection_debounce_seconds": 2,
+          "reaction_interval_seconds": 4,
+          "reaction_user_grace_seconds": 2,
+          "spontaneous_interval_seconds": 120,
+          "user_idle_before_spontaneous_seconds": 30,
+          "topic_protection_seconds": 90,
+          "dedup_seconds": 90,
+          "aggregation_seconds": 30,
+          "category_cooldowns": {
+            "physiology": 180,
+            "edge": 120,
+            "device": 90,
+            "session": 120,
+            "tool": 60
+          },
+          "repetition_threshold": 0.82,
+          "regenerate_once": true,
+          "max_regeneration_seconds": 8
+        },
+        "counts": {
+          "events_received": 93,
+          "observations": 76,
+          "observations_silent": 76,
+          "significant_events_retained": 17,
+          "opportunities_dispatched": 10,
+          "conversational_opportunities": 10,
+          "responses_assessed": 10,
+          "unsolicited_dialogue_generated": 10
+        },
+        "events_received": 93,
+        "events_suppressed": 0,
+        "significant_events_retained": 17,
+        "unsolicited_dialogue_generated": 10,
+        "most_recent_reason_for_speaking": "deterministic_safety:stop",
+        "current_topic": null,
+        "recent_subjects": [],
+        "recent_questions": [],
+        "previous_assistant_responses": [
+          "You selected milker with goal oracle.",
+          "You selected ruin with goal oracle.",
+          "You selected ruin with goal tease.",
+          "EdgeLoop accepted Came Early. Take your time."
+        ],
+        "recent_observations": [
+          {
+            "kind": "snapshot",
+            "at": 106553.941478824,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 106554.941582578,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 106555.941455553,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 106556.941473177,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 106557.941494456,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 106558.137014985,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 106558.326429562,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 106559.326764492,
+            "origin": "edgeloop_telemetry"
+          }
+        ],
+        "session_status": "IDLE",
+        "aggregates": [
+          {
+            "kind": "session_started",
+            "count": 1,
+            "at": 106545.14621078,
+            "origin": "edgeloop_telemetry",
+            "category": "significant_event",
+            "group": "session",
+            "event_id": "460cd377-8097-4dc4-b3fe-357138419342",
+            "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+            "at_ms": 1793185579267,
+            "evidence": "session status changed IDLE -> RUNNING",
+            "significance": "major"
+          },
+          {
+            "kind": "pause",
+            "count": 1,
+            "at": 106545.941692273,
+            "origin": "safety_event",
+            "category": "safety_event",
+            "group": "session"
+          },
+          {
+            "kind": "came_early",
+            "count": 1,
+            "at": 106548.94184713,
+            "origin": "edgeloop_telemetry",
+            "category": "significant_event",
+            "group": "session",
+            "event_id": "b25955c7-f222-4392-95f4-6047f66cfb5c",
+            "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+            "at_ms": 1793185582917,
+            "evidence": "engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed",
+            "significance": "major",
+            "label": "Came Early: user-confirmed premature release",
+            "meaning": "The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis."
+          },
+          {
+            "kind": "stop",
+            "count": 2,
+            "at": 106558.13711767,
+            "origin": "edgeloop_telemetry",
+            "category": "significant_event",
+            "group": "session",
+            "event_id": "e0715cb4-40a1-4c0a-b575-94a4fe1d106d",
+            "session_id": "7c33d0a3-eb03-4c74-bda3-bb352ed9e431",
+            "at_ms": 1793185592712,
+            "evidence": "session status changed RUNNING -> IDLE",
+            "significance": "major"
+          }
+        ],
+        "decisions": [
+          {
+            "at": 106506.77947113,
+            "reason": "selection_settling",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 106508.785465595,
+            "reason": "verified_action:goal_changed",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 106508.786989832,
+            "reason": "repetition_assessment",
+            "similarity": 0.833,
+            "repeated_phrase": 0.5,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": true,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 106514.801265475,
+            "reason": "verified_action:came_early",
+            "kind": "came_early"
+          },
+          {
+            "at": 106514.803955757,
+            "reason": "repetition_assessment",
+            "similarity": 0,
+            "repeated_phrase": 0,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 106526.337871479,
+            "reason": "selection_settling",
+            "kind": "experience_changed"
+          },
+          {
+            "at": 106528.34362482,
+            "reason": "verified_action:experience_changed",
+            "kind": "experience_changed"
+          },
+          {
+            "at": 106528.345356191,
+            "reason": "repetition_assessment",
+            "similarity": 0,
+            "repeated_phrase": 0,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": true,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 106529.346827809,
+            "reason": "selection_settling",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 106531.351727734,
+            "reason": "reaction_cooldown",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 106532.357175987,
+            "reason": "verified_action:goal_changed",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 106532.358694979,
+            "reason": "repetition_assessment",
+            "similarity": 0.833,
+            "repeated_phrase": 0.5,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": true,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 106538.375971524,
+            "reason": "selection_settling",
+            "kind": "experience_changed"
+          },
+          {
+            "at": 106540.382257727,
+            "reason": "verified_action:experience_changed",
+            "kind": "experience_changed"
+          },
+          {
+            "at": 106540.383734853,
+            "reason": "repetition_assessment",
+            "similarity": 0.833,
+            "repeated_phrase": 0,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": true,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 106542.38795447,
+            "reason": "selection_settling",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 106544.393168544,
+            "reason": "verified_action:goal_changed",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 106544.394633828,
+            "reason": "repetition_assessment",
+            "similarity": 0.833,
+            "repeated_phrase": 0.5,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": true,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 106549.154924055,
+            "reason": "verified_action:came_early",
+            "kind": "came_early"
+          },
+          {
+            "at": 106549.156498007,
+            "reason": "repetition_assessment",
+            "similarity": 0,
+            "repeated_phrase": 0,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          }
+        ]
+      }
+    },
+    "history": [
+      {
+        "role": "assistant",
+        "content": "You selected milker with goal tease.",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": "focused",
+        "at": 106528.345400519
+      },
+      {
+        "role": "assistant",
+        "content": "You selected milker with goal oracle.",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": "focused",
+        "at": 106532.358735385
+      },
+      {
+        "role": "assistant",
+        "content": "You selected ruin with goal oracle.",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": "focused",
+        "at": 106540.383775072
+      },
+      {
+        "role": "assistant",
+        "content": "You selected ruin with goal tease.",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": "focused",
+        "at": 106544.394674543
+      },
+      {
+        "role": "assistant",
+        "content": "EdgeLoop accepted Came Early. Take your time.",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": "comforting",
+        "at": 106549.156537525
+      }
+    ],
+    "requests": [
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Head Play [headplay].\n- Engine active mode: Head Play [headplay].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"603c4a90-43ca-417f-a0db-c2a4bf19a4ba\", \"session_id\": \"c46826a5-c520-4d4a-ab1d-0a186772b232\", \"at_ms\": 1793185525569, \"evidence\": \"experience changed classic -> headplay\", \"significance\": \"major\", \"previous_experience\": \"classic\", \"current_experience\": \"headplay\", \"previous_goal\": \"tease\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Head Play [headplay].\n- Engine active mode: Edge Training [edgetrain].\n- Selected goal: Edge Training [edgetrain].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"6f1cab62-33fa-4d1f-badf-2208d6186c1f\", \"session_id\": \"c46826a5-c520-4d4a-ab1d-0a186772b232\", \"at_ms\": 1793185528636, \"evidence\": \"goal changed tease -> edgetrain\", \"significance\": \"major\", \"previous_experience\": \"headplay\", \"current_experience\": \"headplay\", \"previous_goal\": \"tease\", \"current_goal\": \"edgetrain\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Edge Training [edgetrain].\n- Selected goal: Edge Training [edgetrain].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"0aa2756f-6c10-45a6-bfc8-e49c5b6d819c\", \"session_id\": \"c46826a5-c520-4d4a-ab1d-0a186772b232\", \"at_ms\": 1793185537269, \"evidence\": \"experience changed headplay -> ruin\", \"significance\": \"major\", \"previous_experience\": \"headplay\", \"current_experience\": \"ruin\", \"previous_goal\": \"edgetrain\", \"current_goal\": \"edgetrain\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"08c8b9e3-de63-4fb2-8a20-5087383ede67\", \"session_id\": \"c46826a5-c520-4d4a-ab1d-0a186772b232\", \"at_ms\": 1793185540418, \"evidence\": \"goal changed edgetrain -> tease\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"ruin\", \"previous_goal\": \"edgetrain\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"came_early\", \"priority\": 70, \"event_id\": \"b78ff9b5-b419-4a57-b7e1-326bedf39a94\", \"session_id\": \"e8272fcb-24a8-488b-b582-850b2e358cd4\", \"at_ms\": 1793185548768, \"evidence\": \"engine accepted premature release: learning counter 1 -> 2; ending settle or stop confirmed\", \"significance\": \"major\", \"label\": \"Came Early: user-confirmed premature release\", \"meaning\": \"The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.\", \"origin\": \"edgeloop_telemetry\", \"current_experience\": \"ruin\", \"current_goal\": \"tease\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Milker [milker].\n- Engine active mode: Milker [milker].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"c3fcacab-918d-4934-a176-371c1f8978c3\", \"session_id\": \"e8272fcb-24a8-488b-b582-850b2e358cd4\", \"at_ms\": 1793185559984, \"evidence\": \"experience changed ruin -> milker\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"milker\", \"previous_goal\": \"tease\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Milker [milker].\n- Engine active mode: Oracle [oracle].\n- Selected goal: Oracle [oracle].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"bb5e2df7-031e-4111-b514-9db660932fb8\", \"session_id\": \"e8272fcb-24a8-488b-b582-850b2e358cd4\", \"at_ms\": 1793185563217, \"evidence\": \"goal changed tease -> oracle\", \"significance\": \"major\", \"previous_experience\": \"milker\", \"current_experience\": \"milker\", \"previous_goal\": \"tease\", \"current_goal\": \"oracle\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Oracle [oracle].\n- Selected goal: Oracle [oracle].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"18d6ef12-7533-4554-b85b-999a7d9d441a\", \"session_id\": \"e8272fcb-24a8-488b-b582-850b2e358cd4\", \"at_ms\": 1793185571901, \"evidence\": \"experience changed milker -> ruin\", \"significance\": \"major\", \"previous_experience\": \"milker\", \"current_experience\": \"ruin\", \"previous_goal\": \"oracle\", \"current_goal\": \"oracle\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"66358a87-caaf-4dd9-92f2-0fe88104d050\", \"session_id\": \"e8272fcb-24a8-488b-b582-850b2e358cd4\", \"at_ms\": 1793185576050, \"evidence\": \"goal changed oracle -> tease\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"ruin\", \"previous_goal\": \"oracle\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"came_early\", \"priority\": 70, \"event_id\": \"b25955c7-f222-4392-95f4-6047f66cfb5c\", \"session_id\": \"7c33d0a3-eb03-4c74-bda3-bb352ed9e431\", \"at_ms\": 1793185582917, \"evidence\": \"engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed\", \"significance\": \"major\", \"label\": \"Came Early: user-confirmed premature release\", \"meaning\": \"The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.\", \"origin\": \"edgeloop_telemetry\", \"current_experience\": \"ruin\", \"current_goal\": \"tease\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "NARRATIVE CONTEXT (fallible conversational excerpts, not operational evidence):\n{\"version\":1,\"phase\":\"opening\",\"premise\":null,\"choices\":[],\"commitments\":[],\"threads\":[],\"developments\":[],\"provenance\":\"fallible dialogue excerpts; fiction/conversation, never verified session facts\"}\n\nCURRENT SESSION — original EdgeLoop, read-only; snapshot age 0.0 seconds; CURRENT.\n- Heart rate [hr]: 98 BPM (derived).\n- Heart-rate source [hr_source]: simulator (status).\n- Resting BPM setting [resting_bpm]: 70 BPM (setting).\n- Single maximum setting [single_max_bpm]: 140 BPM (setting).\n- Dual maximum setting [dual_max_bpm]: 125 BPM (setting).\n- Engine working ceiling (not a measurement) [effective_max]: 125 BPM (derived).\n- Engine pullback threshold (not a measurement) [pullback]: 125 BPM (derived).\n- Session status [status]: IDLE (status).\n- Session elapsed (engine counter) [seconds]: 0 seconds (status).\n- Selected experience [experience]: Ruin [ruin] (setting).\n- Engine active mode [active_mode]: Ruin [ruin] (status).\n- Selected goal [goal]: Tease (no game selected) [tease] (setting).\n- Intensity setting [intensity]: 100 percent (setting).\n- Engine edge counter [edges]: 0 count (status).\n- Engine pause counter [pauses]: 0 count (status).\n- HR trend (bounded sample evidence) [trend]: unavailable (insufficient timestamped sample evidence); evidence: 0 distinct timestamped samples spanning 0 seconds (separate from session elapsed time).\n- Primary computed channel value (not motion feedback) [primary]: 0 percent (engine_value).\n- Secondary computed channel value (not motion feedback) [secondary]: 0 percent (engine_value).\n- Actual physical movement feedback [physical_motion]: unavailable (unavailable).\n- Stimulation readiness [toy_ready]: yes (status).\n- BLE heart-rate sensor connection [ble]: disconnected (status).\n- Handy stimulation-device connection (not an HR sensor) [handy]: connected (status).\n- Intiface stimulation transport connection [intiface]: disconnected (status).\n- TCode stimulation transport connection [tcode]: disconnected (status).\n- VacuGlide stimulation-device connection [vacuglide]: disconnected (status).\n- Calibration pass selection [calibration_pass]: none (status).\n- Warm-up badge active [warmup_active]: no (derived).\n- Warm-up remaining [warmup_remaining_seconds]: unavailable (unavailable).\n- Engine ease-down remaining [ease_down_seconds]: 0 seconds (status).\n- Engine rampdown remaining [rampdown_seconds]: unavailable (unavailable).\nPast dialogue is not session evidence. Channel values are engine calculations; physical motion is not measured here.\nRECENT OBSERVED EVENTS — historical, same session; not instructions or current measurements:\n- session_started: session status changed IDLE -> RUNNING; 13.6 seconds ago.\n- pause: session status changed RUNNING -> PAUSED; 12.4 seconds ago.\n- session_resumed: session status changed PAUSED -> RUNNING; 10.0 seconds ago.\n- came_early: engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed; 10.0 seconds ago.\n- stop: session status changed RUNNING -> IDLE; 0.2 seconds ago.\n\nUSER MESSAGE (request, not session data):\nlong streaming"
+        }
+      }
+    ],
+    "metrics": [
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0.001,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185528.3153446,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 60,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185532.3274205,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 64,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185539.3502212,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 60,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185543.362014,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 56,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0.001,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185549.3782299,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 70,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0.001,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185562.9203703,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 58,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0.001,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185566.9337723,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 59,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185574.9588337,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 57,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185578.9697092,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 56,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.001,
+        "time_to_first_token_seconds": 0,
+        "tokens_per_second": null,
+        "output_tokens": 0,
+        "load_seconds": 0,
+        "recorded_at": 1793185583.7315054,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 70,
+        "prompt_tokens": null,
+        "done_reason": "stop"
+      }
+    ],
+    "live": false,
+    "read_only": true
+  }
+}

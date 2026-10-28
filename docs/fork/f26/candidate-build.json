@@ -1,0 +1,8 @@
+{
+  "endpoint": "http://127.0.0.1:11435",
+  "created": [
+    "evelyn-narrative-v1:latest",
+    "daisy-narrative-v1:latest"
+  ],
+  "original_model_digests_unchanged": true
+}
