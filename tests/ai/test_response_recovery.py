@@ -29,44 +29,26 @@ def runtime_fixture(visible_on_retry=True):
     return httpx.MockTransport(handler),calls
 
 
-async def test_text_only_reasoning_exhaustion_retries_once_without_disabling_thinking():
+async def test_reasoning_only_output_fails_without_retry_or_leak():
     transport,calls=runtime_fixture()
     manager=ModelManager(transport=transport)
     await manager.start(AIConfig(model='evelyn-v11:latest'))
-    chunks=[]
-    result=await manager.reply({'conversation_source':'user'},'Hello Evelyn',[],on_chunk=chunks.append)
-    assert result=='Good morning! Evelyn here.' and chunks==[result]
-    assert [call['options']['num_predict'] for call in calls]==[2048,4096]
-    assert all(call['think'] is True and not call.get('tools') for call in calls)
-    assert calls[0]['messages']==calls[1]['messages']
-    assert manager.config.max_tokens==2048 and manager.config.thinking
-    assert manager.metrics.samples[-1]['output_budget']==4096
+    with pytest.raises(NoVisibleResponseError):await manager.reply({},'Hello',[])
+    assert len(calls)==1 and calls[0]['think'] is False
     assert 'PRIVATE' not in json.dumps(list(manager.metrics.samples))
-    await manager.stop()
 
 
-async def test_reasoning_retry_is_bounded_and_reports_actual_failed_budget():
-    transport,calls=runtime_fixture(visible_on_retry=False)
-    manager=ModelManager(transport=transport)
-    await manager.start(AIConfig(model='evelyn-v11:latest'))
-    with pytest.raises(NoVisibleResponseError,match='4096 output tokens'):
-        await manager.reply({'conversation_source':'user'},'Hello',[])
-    assert len(calls)==2 and all(call['think'] for call in calls)
-    assert manager.load_state=='error'
-    await manager.stop()
-
-
-async def test_reasoning_retry_shares_one_total_deadline():
+async def test_output_retry_shares_one_total_deadline():
+    from companion_ai.llm import OutputBudgetExceededError
     class Slow:
         calls=0
         async def stream(self,request):
             self.calls+=1
             await asyncio.sleep(.6 if self.calls==1 else 10)
-            raise NoVisibleResponseError(request.config,'length')
+            raise OutputBudgetExceededError(request.config)
             yield
     manager=ModelManager();manager.mode='ollama';manager.config=AIConfig(timeout_seconds=1.0);manager.adapter=Slow()
-    with pytest.raises(TimeoutError):
-        await asyncio.wait_for(manager.reply({},'Hello',[]),1.5)
+    with pytest.raises(TimeoutError):await asyncio.wait_for(manager.reply({},'Hello',[]),1.5)
     assert manager.adapter.calls==2
 
 
@@ -85,7 +67,7 @@ async def test_partial_thinking_reply_retries_with_reset_and_never_saves_truncat
     messages=[];speech=ConversationService(ObservationFixture(),messages.append,manager,director=ConversationDirector(DirectorConfig(enabled=False)))
     speech.request('Hello',user=True);await speech.task
     assert len(calls)==2 and [c['options']['num_predict'] for c in calls]==[2048,4096]
-    assert all(c['think'] for c in calls)
+    assert all(c['think'] is False for c in calls)
     assert calls[0]['messages']==calls[1]['messages']
     starts=[i for i,m in enumerate(messages) if m['type']=='response_start']
     assert len(starts)==2 and messages[starts[1]]['reason']=='output_budget_retry'

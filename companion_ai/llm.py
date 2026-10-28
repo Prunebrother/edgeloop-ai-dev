@@ -37,9 +37,13 @@ def thinking_support(metadata):
     return {'can_enable':supported,'can_disable':True}
 
 
+class InferenceCompatibilityError(ValueError):
+    """No retry or change to model definitions is permitted."""
+
+
 class OutputBudgetExceededError(ValueError):
     def __init__(self, config):
-        self.budget_exhausted = config.thinking
+        self.budget_exhausted = True
         super().__init__(f'{config.model} reached its {config.max_tokens}-token output limit before finishing. '
             'The visible reply is incomplete; it was not added to conversation memory. '
             'Try a shorter request or turn thinking off.')
@@ -129,6 +133,7 @@ class OllamaProvider:
         self.attempted = False
         self.lock = asyncio.Lock()
         self.embedded_system = None
+        self.thinking_controls = None
 
     def client(self, timeout=5):
         return httpx.AsyncClient(base_url=self.base_url, timeout=timeout, trust_env=False, transport=self.transport)
@@ -155,6 +160,7 @@ class OllamaProvider:
         data = await self.describe(model)
         if model == self.model:
             self.embedded_system = data.get('system', '')
+            self.thinking_controls = thinking_support(data)
         limits = [v for k, v in data.get('model_info', {}).items() if k.endswith('.context_length') and isinstance(v, int)]
         return {'model': model, 'system': data.get('system', ''), 'capabilities': data.get('capabilities', []),
                 'context_length': min(limits) if limits else data.get('details', {}).get('context_length'),
@@ -168,6 +174,17 @@ class OllamaProvider:
 
     async def stream(self, request):
         config = request.config
+        if config.thinking:
+            raise InferenceCompatibilityError('Thinking must be OFF in this runtime')
+        if self.embedded_system is None or self.thinking_controls is None or config.model != self.model:
+            metadata = await self.describe(config.model)
+            if not thinking_support(metadata)['can_disable']:
+                raise InferenceCompatibilityError('Selected model cannot comply with think:false; select a compatible model')
+            self.embedded_system = metadata.get('system', '')
+            self.thinking_controls = thinking_support(metadata)
+            self.model = config.model
+        if not self.thinking_controls['can_disable']:
+            raise InferenceCompatibilityError('Selected model cannot comply with think:false; select a compatible model')
         messages = [m.for_ollama() for m in request.messages]
         if any(m['role'] == 'system' for m in messages):
             if self.embedded_system is None:
@@ -180,7 +197,7 @@ class OllamaProvider:
             if sum(len(m['content']) + 80 for m in messages) + len(json.dumps([t.as_json() for t in request.tools])) > (config.context_length - config.max_tokens - 64) * 2.5:
                 raise ValueError('Embedded model instructions and runtime exceed estimated context budget; increase context length')
         payload = {'model': config.model, 'messages': messages,
-            'stream': True, 'think': config.thinking, 'keep_alive': config.idle_unload_seconds,
+            'stream': True, 'think': False, 'keep_alive': config.idle_unload_seconds,
             'options': {'num_ctx': config.context_length, 'num_thread': config.cpu_threads,
                         'num_predict': config.max_tokens, 'temperature': config.temperature,
                         'top_p': config.top_p, 'top_k': config.top_k, 'repeat_penalty': config.repeat_penalty}}
@@ -198,6 +215,8 @@ class OllamaProvider:
         timeout = httpx.Timeout(config.timeout_seconds, connect=2)
         async with asyncio.timeout(config.timeout_seconds), self.lock, self.client(timeout) as client:
             async with client.stream('POST', '/api/chat', json=payload) as response:
+                if response.status_code in {400, 422}:
+                    raise InferenceCompatibilityError('Ollama rejected the thinking-OFF chat protocol; no fallback enabling thinking was attempted')
                 response.raise_for_status()
                 async for line in response.aiter_lines():
                     if not line:
@@ -258,18 +277,23 @@ class OllamaProvider:
         if not self.attempted and not force:
             return
         async with self.client(10) as client:
-            result = await client.post('/api/generate', json={'model': model or self.model, 'keep_alive': 0, 'stream': False})
+            result = await client.post('/api/generate', json={'model': model or self.model, 'keep_alive': 0, 'stream': False, 'think': False})
             result.raise_for_status()
 
 
-async def collect_reply(provider, request, on_chunk=None):
+async def collect_reply(provider, request, on_chunk=None, on_expression=None):
     """Text-only application path: structured calls require an explicit external router."""
+    from .expressions import ExpressionStream
+    parser = ExpressionStream(on_expression, request.config.explicit_expressions)
     content = ''
     async for event in provider.stream(request):
         if event.kind == 'text_delta':
-            content += event.text
-            if on_chunk:
-                on_chunk(event.text)
+            visible = parser.feed(event.text)
+            content += visible
+            if on_chunk and visible:
+                on_chunk(visible)
         elif event.kind == 'tool_call':
             raise ValueError('Unrequested tool call; no executor is enabled')
+    parser.finish()
+    if not content.strip():raise NoVisibleResponseError(request.config)
     return content.strip()

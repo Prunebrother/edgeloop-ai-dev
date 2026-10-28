@@ -33,6 +33,7 @@ def fake_runtime(limit=8192):
 async def test_normalized_tool_call_and_result_round_trip():
     calls=[]
     def handler(request):
+        if request.url.path=='/api/show':return httpx.Response(200,json={'capabilities':['completion']})
         body=json.loads(request.content);calls.append(body)
         if len(calls)==1:
             assert body['tools'][0]['function']['name']=='read_state'
@@ -61,7 +62,7 @@ async def test_cancel_closes_provider_stream():
             yield b''
         async def aclose(self):
             closed.set()
-    provider=OllamaProvider('qwen3:8b',transport=httpx.MockTransport(lambda r:httpx.Response(200,stream=Stream())))
+    provider=OllamaProvider('qwen3:8b',transport=httpx.MockTransport(lambda r:httpx.Response(200,json={}) if r.url.path=='/api/show' else httpx.Response(200,stream=Stream())))
     async def consume():
         return [e async for e in provider.stream(LLMRequest(AIConfig(),(ChatMessage('user','Hello'),)))]
     task=asyncio.create_task(consume())
@@ -76,7 +77,7 @@ async def test_total_inference_deadline():
         async def __aiter__(self):
             await asyncio.sleep(10)
             yield b''
-    provider=OllamaProvider('qwen3:8b',transport=httpx.MockTransport(lambda r:httpx.Response(200,stream=Stream())))
+    provider=OllamaProvider('qwen3:8b',transport=httpx.MockTransport(lambda r:httpx.Response(200,json={}) if r.url.path=='/api/show' else httpx.Response(200,stream=Stream())))
     with pytest.raises(TimeoutError):
         [e async for e in provider.stream(LLMRequest(AIConfig(timeout_seconds=1.0),(ChatMessage('user','Hi'),)))]
 

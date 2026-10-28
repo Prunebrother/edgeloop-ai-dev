@@ -32,7 +32,8 @@ class AIConfig(StrictModel):
     top_k: int = Field(default=20, ge=0, le=200)
     repeat_penalty: float = Field(default=1.0, ge=0, le=2)
     timeout_seconds: float = Field(default=120.0, ge=1, le=300)
-    thinking: bool = True
+    thinking: bool = False
+    explicit_expressions: bool = True
     # Legacy saved configs remain readable; this preference is no longer injected.
     response_length: Literal["inherit", "brief", "normal", "detailed"] = "inherit"
 

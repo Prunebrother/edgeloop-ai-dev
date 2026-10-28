@@ -139,12 +139,13 @@ async def test_model_chosen_silence_not_saved_or_spoken(marker):
 
 async def test_thinking_is_counted_but_never_exposed_as_dialogue():
     def handler(request):
-        assert json.loads(request.content)['think'] is True
+        if request.url.path=='/api/show':return httpx.Response(200,json={})
+        assert json.loads(request.content)['think'] is False
         return httpx.Response(200,text='\n'.join(json.dumps(row) for row in [
             {'message':{'thinking':'PRIVATE REASONING'},'done':False},
             {'message':{'content':'Visible answer.'},'done':True,'eval_count':10,'eval_duration':100000000}])+'\n')
     provider=OllamaProvider('qwen3:8b',transport=httpx.MockTransport(handler))
-    events=[e async for e in provider.stream(LLMRequest(AIConfig(thinking=True),(ChatMessage('user','Hello'),)))]
+    events=[e async for e in provider.stream(LLMRequest(AIConfig(thinking=False),(ChatMessage('user','Hello'),)))]
     assert ''.join(e.text for e in events)=='Visible answer.'
     assert 'PRIVATE' not in json.dumps(provider.metrics.samples[-1])
     assert provider.metrics.samples[-1]['thinking_characters']==17
@@ -154,7 +155,7 @@ async def test_thinking_is_counted_but_never_exposed_as_dialogue():
 async def test_thinking_budget_exhaustion_records_diagnostics_without_leak():
     provider=OllamaProvider('qwen3:8b',transport=httpx.MockTransport(lambda r:httpx.Response(200,text=json.dumps({'message':{'thinking':'secret'},'done':True,'done_reason':'length','eval_count':16})+'\n')))
     with pytest.raises(ValueError,match='no visible response'):
-        [e async for e in provider.stream(LLMRequest(AIConfig(thinking=True),()))]
+        [e async for e in provider.stream(LLMRequest(AIConfig(thinking=False),()))]
     assert provider.metrics.samples[-1]['done_reason']=='length'
     assert 'secret' not in json.dumps(provider.metrics.samples[-1])
 

@@ -10,7 +10,7 @@ from tests.ai.support import ObservationFixture
 
 NEW_MODELS=['evelyn-lite-v1:latest','evelyn-lite-candidate:latest','evelyn-qwen35-stable:latest','evelyn-qwen35:latest','daisy-qwen35:latest','daisy-v11:latest']
 @pytest.mark.parametrize('model',NEW_MODELS)
-@pytest.mark.parametrize('thinking',[False,True])
+@pytest.mark.parametrize('thinking',[False])
 async def test_qwen35_embedded_identity_and_private_thinking_are_preserved(model,thinking):
     wire=[];identity='  Exact embedded character system for '+model+'\nUnchanged.\n'
     def runtime(request):
