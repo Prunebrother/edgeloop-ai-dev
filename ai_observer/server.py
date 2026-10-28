@@ -59,7 +59,10 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
             await asyncio.sleep(.25)
             if owner and clock()>expires:
                 await owner['ws'].close(code=1008);continue
-            if owner and state.fresh():speech.pump()
+            if owner and state.fresh():
+                previous_decision=director.last_reason
+                speech.pump()
+                if director.last_reason!=previous_decision:publish({'type':'ai_diagnostics','director_decision':director.last_reason,'pending_events':len(speech.pending)})
             if owner and state.connected and not state.fresh():
                 state.connected=False;speech.pending.clear();speech.interrupt()
                 publish({'type':'telemetry_status','fresh':False})
@@ -154,13 +157,22 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             priority, rank=significance(event.kind,previous,state.report)
                             evidence=next((e for e in reversed(state.events) if e['kind']==event.kind),{})
                             details={'event_id':event.id,'session_id':state.session_id,'at_ms':event.at_ms,'evidence':evidence.get('evidence'),'significance':priority}
+                            if event.kind=='came_early':
+                                details.update(label='Came Early: user-confirmed premature release',meaning='The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.')
+                            if event.kind in {'experience_changed','goal_changed'}:
+                                details.update(previous_experience=previous['experience'],current_experience=state.report['experience'],previous_goal=previous['goal'],current_goal=state.report['goal'])
+                            accepted_release=any(e.kind=='came_early' and e.id in state.accepted_event_ids for e in message.events)
+                            release_pending=any(e['kind']=='came_early' for e in speech.pending) or (speech.active_event_kind=='came_early' and speech.task is not None and not speech.task.done())
+                            if event.kind in {'stop','session_resumed'} and (accepted_release or release_pending):
+                                director.observation(event.kind,details,'edgeloop_telemetry');continue
                             if priority=='critical' or event.kind in {'pause','stop'}:
                                 speech.safety(event.kind)
                             if priority=='major':speech.enqueue(event.kind,rank,details)
                             elif priority=='routine':director.observation(event.kind,details,'edgeloop_telemetry')
                             publish({'type':'ai_diagnostics','last_event':event.kind,'event_priority':priority,'director_decision':director.last_reason,'thinking':False,'inference_error':manager.metrics.last_error})
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
-                            'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} for e in message.events if e.id in state.accepted_event_ids]})
+                            'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
+                            'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (accepted_release or any(p['kind']=='came_early' for p in speech.pending) or speech.active_event_kind=='came_early' and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
                     elif isinstance(message,Cancel):
                         # Interrupt output immediately, independently of telemetry/model discovery.
                         speech.pending.clear();speech.interrupt()

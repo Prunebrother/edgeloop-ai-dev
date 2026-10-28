@@ -5205,7 +5205,8 @@ function syncAiObservation(readiness = hardwareReadiness()) {
             resting_bpm: limits.invalid.includes('min') ? null : limits.minHr,
             single_max_bpm: limits.invalid.includes('max') ? null : limits.maxHr,
             dual_max_bpm: Number.isFinite(dual) && dual > limits.minHr && dual <= 250 ? dual : null,
-            warmup_minutes: advancedSettings.warmupMinutes, hr_live: pulseIsLive() });
+            warmup_minutes: advancedSettings.warmupMinutes, hr_live: pulseIsLive(),
+            learning_release_count: advancedSettings.learningProfile?.breakthroughEvents ?? 0 });
     } catch { /* AI is optional; the original session continues independently. */ }
 }
 

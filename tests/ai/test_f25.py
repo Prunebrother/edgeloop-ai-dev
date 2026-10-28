@@ -131,7 +131,7 @@ def test_event_classification_uses_actual_contract_only():
     current={'devices':{'ble':False},'status':'RUNNING'}
     for kind in ['edge','milestone','stop','session_started','session_resumed']:assert significance(kind,previous,current)==('major',50)
     for kind in ['signal_lost','no_contact','device_changed']:assert significance(kind,previous,current)==('critical',100)
-    for kind in ['threshold_changed','goal_changed','mode_changed','made_up_goal_completion']:assert significance(kind,previous,current)==('routine',10)
+    for kind in ['threshold_changed','mode_changed','made_up_goal_completion']:assert significance(kind,previous,current)==('routine',10)
 
 
 def test_observer_reconnect_default_off_and_validated_event_payload(tmp_path):

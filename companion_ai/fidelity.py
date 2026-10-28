@@ -80,6 +80,8 @@ def violations(text,canonical,history=()):
 
         if sentence.rstrip().endswith('?'):continue
         motion=re.search(r'\b(?:Handy|VacuGlide|stroker|stimulation device)\b.{0,20}\b(?:is|remains|keeps)\s+(?:currently\s+)?(?:not\s+)?(?:moving|running|stimulating|pumping)\b',sentence,re.I)
+        disconnected_motion=re.search(r"\b(?:Handy|VacuGlide|stroker|stimulation device)\b.{0,85}\b(?:sitting (?:still|idle)|is(?:n['’]t| not) (?:physically )?moving|is physically (?:moving|active)|is (?:actually )?(?:moving|pumping|stimulating))\b",sentence,re.I)
+        if disconnected_motion and not facts['physical_motion']['current'] and not uncertain:codes.append('unverified_physical_motion')
         if motion and not facts['physical_motion']['current'] and not re.search(r"\b(cannot|can't|unknown|unavailable|whether|if|unable)\b",sentence,re.I):codes.append('unverified_physical_motion')
         for name,label in [('handy','Handy'),('ble','BLE'),('intiface','Intiface'),('tcode','TCode'),('vacuglide','VacuGlide')]:
             claim=re.search(r'\b'+label+r"(?:'s|\s)[^.!?]{0,65}?\b(disconnected|connected)\b",sentence,re.I)
@@ -108,3 +110,10 @@ def violations(text,canonical,history=()):
             target={'running':{'RUNNING','RAMPDOWN'},'paused':{'PAUSED'},'idle':{'IDLE'},'stopped':{'IDLE'}}[match[1].lower()]
             if actual not in target:codes.append('unsupported_session_status')
     return list(dict.fromkeys(codes))[:6]
+
+
+def event_violations(text,event):
+    """Narrow disambiguation for a proven engine action, not emotion classification."""
+    if event and event.get('kind')=='came_early' and re.search(r"\b(?:show(?:ed|ing)? up early|arriv(?:e|ed|ing|al) early|early arrival)\b",text,re.I):
+        return ['came_early_means_reported_premature_release_not_early_arrival']
+    return []

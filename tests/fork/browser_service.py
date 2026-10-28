@@ -34,7 +34,7 @@ async def runtime(request):
     body=json.loads(request.content)
     last_thinking=body.get('think')
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
-    if 'Application event or revision, not a user message' in body['messages'][0]['content']:
+    if 'APPLICATION EVENT / REVISION' in body['messages'][-1]['content']:
         return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:proud]]Five minutes are recorded in this simulated session.'},'done':True,'done_reason':'stop'})+'\n')
     prompt=body['messages'][-1].get('content','').split('USER MESSAGE (request, not session data):\n')[-1]
     if prompt=='portrait playful test':return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:playful]]Welcome back, you cheeky rascal.'},'done':True,'done_reason':'stop'})+'\n')

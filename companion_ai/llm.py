@@ -298,6 +298,6 @@ async def collect_reply(provider, request, on_chunk=None, on_expression=None):
     remainder=parser.finish()
     content += remainder
     if remainder and on_chunk:on_chunk(remainder)
-    provider.last_expression_metadata={'version':1,'valid':parser.valid,'expression':parser.expression}
+    provider.last_expression_metadata={'version':1,'valid':parser.valid,'expression':parser.expression,'candidate':parser.candidate}
     if not content.strip():raise NoVisibleResponseError(request.config)
     return content.strip()

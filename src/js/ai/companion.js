@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import {Capture} from './snapshot.js';
-import {ReadOnlyConnection} from './connection.js';
+import {ReadOnlyConnection,reactionMatchesLatest} from './connection.js';
 import {resolveArtwork} from './artwork-manifest.js';
 import {CharacterPresentation,mountExpressionPreview} from './character.js';
 import {CharacterPresentationController} from './presentation-controller.js';
@@ -28,7 +28,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     const presentation=new CharacterPresentationController(view=>character.setState(view));
     const diagnostic={thinking:false};let diagnosticTimer=null;
     const debug=['127.0.0.1','localhost'].includes(location.hostname)&&new URLSearchParams(location.search).get('characterPreview')==='1'?document.createElement('output'):null;
-    const updateDiagnostics=()=>{if(debug)debug.textContent=JSON.stringify({...diagnostic,model:selected,character:presentation.identity,expression:presentation.expression,expression_source:presentation.expressionSource,activity:presentation.activity,portrait:artwork.querySelector('img:last-child')?.getAttribute('src')||null,fallback:artwork.dataset.artworkStatus==='fallback'});};
+    const updateDiagnostics=()=>{if(debug)debug.textContent=JSON.stringify({...diagnostic,model:selected,character:presentation.identity,expression:presentation.expression,expression_source:presentation.previewState?'development_preview':presentation.expressionSource,applied_expression:presentation.expression,rendered_expression:artwork.dataset.renderedExpression||null,request_id:presentation.lastRequest?.id||null,preview_expression:presentation.previewState?.expression||null,activity:presentation.activity,portrait:artwork.querySelector('img:last-child')?.getAttribute('src')||null,fallback:artwork.dataset.artworkStatus==='fallback'});};
     if(debug){debug.dataset.aiDiagnostics='';debug.style.cssText='display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;max-height:100px;overflow:auto';const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Runtime diagnostics · development';details.append(summary,debug);artwork.append(details);diagnosticTimer=setInterval(updateDiagnostics,250);}
     const previewCleanup=mountExpressionPreview(artwork,presentation);mountLayout(panel,artwork);
     const el=key=>panel.querySelector(`[data-${key}]`);
@@ -62,8 +62,13 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
         for(const key of ['model','select','refresh'])el(key).disabled=!connected;
         if(!connected){latestGeneration=0;discovered.clear();selected=null;changing=false;thinking=null;supportsThinking=false;finish();el('text').disabled=true;el('send').disabled=true;el('selected').textContent='No active AI connection';el('telemetry').textContent='Telemetry disconnected';el('ollama').textContent='Ollama not checked';}controls();resting();
     },onMessage:m=>{
+        if(!reactionMatchesLatest(m.reaction_selection,connection.latest)){
+            if(current?.id===m.id){current.node.remove();current=null;presentation.cancel();busy(false);}
+            if(typeof m.id==='string')presentation.bounded(presentation.cancelled,m.id);
+            return;
+        }
         if(debug)queueMicrotask(updateDiagnostics);
-        if(m.type==='ai_diagnostics'){Object.assign(diagnostic,m);return;}
+        if(m.type==='ai_diagnostics'){if(m.responder?.model&&m.responder.model!==selected||m.id&&m.id!==presentation.lastRequest?.id)return;Object.assign(diagnostic,m);return;}
         if(m.type==='models'){
             el('model').replaceChildren();for(const entry of m.models.slice(0,128)){const o=document.createElement('option');o.value=entry.name;o.textContent=entry.name;el('model').append(o);}
             const names=m.models.slice(0,128).map(entry=>entry.name);discovered=new Set(names);
@@ -74,6 +79,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             controls();
         } else if(m.type==='model_selected'){
             const sameModel=selected===m.model;changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;canDisableThinking=m.can_disable_thinking!==false;el('selected').textContent='Active: '+m.model;el('name').textContent=resolveArtwork(m.model).name==='Your companion'?m.model:resolveArtwork(m.model).name;el('name').title=m.model;el('model').value=m.model;
+            Object.assign(diagnostic,{id:null,responder:{model:m.model},model_selected_expression:null,validated_expression:null,expression_valid:null});
             presentation.select(m.model,m.history||[]);
             if(!sameModel){el('history').replaceChildren();follow=true;
                 for(const item of m.history||[])line(item.role==='user'?'user':'assistant',item.content);}
@@ -83,14 +89,14 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             if(Number.isSafeInteger(m.generation))latestGeneration=m.generation;
             if(m.source==='event'&&m.responder?.model===selected)presentation.allowStarts=true;
             if(!presentation.start(m.id,m.responder?.model||selected))return;
+            Object.assign(diagnostic,{model_selected_expression:null,validated_expression:null,expression_valid:null});
             current?.node.remove();current={id:m.id,...line('assistant',''),text:''};busy(true);
         } else if(m.type==='response_expression'){
-            presentation.expressionUpdate(m.id,m.expression,m.responder?.model);
-            diagnostic.expression_valid=m.valid;
+            if(presentation.expressionUpdate(m.id,m.expression,m.responder?.model))Object.assign(diagnostic,{model_selected_expression:m.model_selected_expression,validated_expression:m.expression,expression_valid:m.valid});
         } else if(m.type==='response_delta'&&current?.id===m.id){current.text+=m.text;current.body.textContent=current.text;activity('responding','Responding');scroll();}
         else if(m.type==='speech'){
             if(m.responder?.model&&m.responder.model!==selected||presentation.cancelled.has(m.id))return;
-            if(m.source==='safety')presentation.cancel();else presentation.complete(m.id,m.text,m.responder?.model||selected,{expression:m.expression});
+            if(m.source==='safety')presentation.cancel();else if(!presentation.complete(m.id,m.text,m.responder?.model||selected,{expression:m.expression}))return;
             if(current?.id===m.id){current.body.textContent=m.text;current=null;}else line('assistant',m.text);
             busy(false);scroll();
         } else if(m.type==='response_cancel'){
@@ -132,5 +138,13 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     // Original idle/paused sessions need no engine ticks. Refresh only the read-only projection.
     const observationTimer=setInterval(()=>{if(connection.epoch){try{refreshObservation();}catch{ /* Optional AI stays isolated. */ }}},1000);
     window.addEventListener('pagehide',()=>{clearInterval(observationTimer);clearInterval(diagnosticTimer);connection.disconnect();previewCleanup?.();character.destroy();});
-    return (state,devices,settings)=>connection.observe(capture.project(state,devices,settings));
+    const releaseNote=document.createElement('p');releaseNote.dataset.releaseFeedback='';releaseNote.setAttribute('role','status');releaseNote.style.fontSize='11px';releaseNote.hidden=true;document.getElementById('cameEarlyBtn')?.parentElement?.after(releaseNote);
+    return (state,devices,settings)=>{
+        const previous=capture.previous;const observation=capture.project(state,devices,settings);
+        const before=previous?.details?.learning_release_count,after=observation.snapshot.details.learning_release_count;
+        if(Number.isInteger(before)&&Number.isInteger(after)&&after>before){
+            releaseNote.hidden=false;releaseNote.textContent=observation.events.some(e=>e.kind==='came_early')?'EdgeLoop accepted Came Early; the session is ending.':observation.snapshot.status==='IDLE'?'EdgeLoop updated the learning profile while idle; no active session was ended.':'EdgeLoop updated the learning profile; no new session-ending transition was confirmed.';
+        }else if(previous&&previous.status!==observation.snapshot.status){releaseNote.hidden=true;}
+        connection.observe(observation);
+    };
 }

@@ -164,8 +164,8 @@ def test_prompt_provenance_and_neutral_runtime():
     summary={'conversation_source':'event','director':{'enabled':True}}
     messages,_=compose_messages(summary,'Application opportunity',[{'role':'assistant','content':'Prior event dialogue','origin':'assistant_dialogue','at':100.}],AIConfig())
     assert len([m for m in messages if m['role']=='system'])==1
-    assert not any(m['role']=='user' for m in messages)
-    assert 'Application opportunity' in messages[0]['content']
+    assert messages[-1]['role']=='user' and messages[-1]['origin']=='system_event'
+    assert 'APPLICATION EVENT' in messages[-1]['content'] and 'Application opportunity' in messages[-1]['content']
     assert 'at' not in messages[1]
     assert all(word not in messages[0]['content'] for word in ['Personality:', 'Conversational style:', 'Response preference:', 'Character:'])
 

@@ -75,6 +75,13 @@ class BrowserObservation:
         if kind in {'stop','pause','session_resumed','session_started'}:
             allowed={'stop':r['status']=='IDLE' and p['status']!='IDLE','pause':r['status']=='PAUSED' and p['status'] in {'RUNNING','RAMPDOWN'},'session_resumed':p['status']=='PAUSED' and r['status'] in {'RUNNING','RAMPDOWN'},'session_started':p['status']=='IDLE' and r['status']=='RUNNING'}
             return f"session status changed {p['status']} -> {r['status']}" if allowed[kind] else None
+        if kind=='came_early':
+            before=(p.get('details') or {}).get('learning_release_count')
+            after=(r.get('details') or {}).get('learning_release_count')
+            ending=(r.get('details') or {}).get('settle_outcome')=='premature_release' or r['status']=='IDLE'
+            if p['status'] in {'RUNNING','PAUSED'} and p['active_mode'] not in {'survival','calibrate'} and isinstance(before,int) and isinstance(after,int) and after>before and ending:
+                return f'engine accepted premature release: learning counter {before} -> {after}; ending settle or stop confirmed'
+            return None
         if kind=='edge':return f"engine edge counter increased {p['edges']} -> {r['edges']}" if r['edges']>p['edges'] else None
         fields={'experience_changed':'experience','goal_changed':'goal','intensity_changed':'intensity'}
         if kind in fields:

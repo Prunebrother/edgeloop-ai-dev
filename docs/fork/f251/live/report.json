@@ -1,0 +1,3135 @@
+{
+  "passed": true,
+  "live": true,
+  "steps": [
+    "evelyn: idle mode/goal reactions and final-selection debouncing",
+    "evelyn: rejected dialog creates no action; accepted running Came Early reaches Director",
+    "daisy: idle mode/goal reactions and final-selection debouncing",
+    "daisy: rejected dialog creates no action; accepted paused Came Early reaches Director",
+    "Cancellation, model switching and observer disconnection preserve engine independence"
+  ],
+  "frames": [
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 0,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 2
+    },
+    {
+      "type": "model_selected",
+      "model": "evelyn-lite-v1:latest",
+      "thinking": false,
+      "supports_thinking": true,
+      "can_disable_thinking": true,
+      "history": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 1,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "experience_changed",
+      "event_priority": "major",
+      "director_decision": "No speech requested",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 2,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "0266728a-f73d-4037-b9ba-5cc11831e39b",
+          "kind": "experience_changed",
+          "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 3,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 4,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:experience_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "264168be-cb9a-405a-b1ca-ec5181f0cc51",
+      "source": "event",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 5,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 6,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 7,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 8,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "264168be-cb9a-405a-b1ca-ec5181f0cc51",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "playful",
+      "model_selected_expression": "playful",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "264168be-cb9a-405a-b1ca-ec5181f0cc51",
+      "source": "event",
+      "generation": 2,
+      "text": "Ah, the classic has been swapped for Head Play; I suppose my own curiosity is finally catching up to the machine's latest whim. Since the physical sensors are still disconnected, I'll have to rely on my own keen observation to see if this new angle hits the mark. Tell me, does this shift in framing feel like a fresh start, or just another layer of data to manage?",
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "264168be-cb9a-405a-b1ca-ec5181f0cc51",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "playful",
+      "validated_expression": "playful",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:experience_changed",
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "264168be-cb9a-405a-b1ca-ec5181f0cc51",
+      "source": "event",
+      "text": "Ah, the classic has been swapped for Head Play; I suppose my own curiosity is finally catching up to the machine's latest whim. Since the physical sensors are still disconnected, I'll have to rely on my own keen observation to see if this new angle hits the mark. Tell me, does this shift in framing feel like a fresh start, or just another layer of data to manage?",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "playful",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 9,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "goal_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:experience_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 10,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "9459f1ec-4acb-4690-a679-913211349973",
+          "kind": "goal_changed",
+          "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 11,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 12,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:goal_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "79c4381d-e107-4c48-93a2-163ce76e1392",
+      "source": "event",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "79c4381d-e107-4c48-93a2-163ce76e1392",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "playful",
+      "model_selected_expression": "playful",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 13,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "response_delta",
+      "id": "79c4381d-e107-4c48-93a2-163ce76e1392",
+      "source": "event",
+      "generation": 2,
+      "text": "Ah, the system has decided to reclassify my teasing as \"Edge Training\"—I suppose that makes my head play a bit more purposeful and less like a casual distraction. Since the hardware is disconnected and the session is merely IDLE, I'll just have to rely on my own intuition to see if we're actually on the verge of an edge or just pretending to be. Come on, don't let the telemetry dampen the moment; let's see if we can find that elusive peak without the devices telling us exactly when to stop.",
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "79c4381d-e107-4c48-93a2-163ce76e1392",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "playful",
+      "validated_expression": "playful",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:goal_changed",
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "79c4381d-e107-4c48-93a2-163ce76e1392",
+      "source": "event",
+      "text": "Ah, the system has decided to reclassify my teasing as \"Edge Training\"—I suppose that makes my head play a bit more purposeful and less like a casual distraction. Since the hardware is disconnected and the session is merely IDLE, I'll just have to rely on my own intuition to see if we're actually on the verge of an edge or just pretending to be. Come on, don't let the telemetry dampen the moment; let's see if we can find that elusive peak without the devices telling us exactly when to stop.",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "playful",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "headplay",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 14,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [
+        {
+          "id": "4c0291ab-1fc7-4825-982e-f9c1e7599d19",
+          "kind": "experience_changed",
+          "reason": "duplicate_stale_or_unproven"
+        }
+      ],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 15,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 16,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 17,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 18,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "experience_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 19,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "8ac2605a-cc1e-436c-ac6c-8aba8a3c517a",
+          "kind": "experience_changed",
+          "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 20,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 21,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:experience_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "58e26844-88a2-4745-98e7-1bd5e97a5bec",
+      "source": "event",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "58e26844-88a2-4745-98e7-1bd5e97a5bec",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "playful",
+      "model_selected_expression": "playful",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 22,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "response_delta",
+      "id": "58e26844-88a2-4745-98e7-1bd5e97a5bec",
+      "source": "event",
+      "generation": 2,
+      "text": "Ah, the session has officially shifted from \"headplay\" to \"ruin\"—I suppose that means I can stop treating you with such gentle precision and start dismantling your composure instead. Since the fancy sensors are disconnected, I'll just have to rely on my own observations to see if this new, more aggressive vibe is doing what it promises. Come on, don't be shy; let's see how you handle being properly \"ruined\" by a scientist who finally decided to take the reins.",
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "58e26844-88a2-4745-98e7-1bd5e97a5bec",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "playful",
+      "validated_expression": "playful",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:experience_changed",
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "58e26844-88a2-4745-98e7-1bd5e97a5bec",
+      "source": "event",
+      "text": "Ah, the session has officially shifted from \"headplay\" to \"ruin\"—I suppose that means I can stop treating you with such gentle precision and start dismantling your composure instead. Since the fancy sensors are disconnected, I'll just have to rely on my own observations to see if this new, more aggressive vibe is doing what it promises. Come on, don't be shy; let's see how you handle being properly \"ruined\" by a scientist who finally decided to take the reins.",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "playful",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "edgetrain"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 23,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "goal_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:experience_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 24,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "2f9376c9-1061-4be1-95fe-0659e05164c2",
+          "kind": "goal_changed",
+          "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 25,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 26,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:goal_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "5d9be7c8-f715-46ce-9eaf-1e41409aa158",
+      "source": "event",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "5d9be7c8-f715-46ce-9eaf-1e41409aa158",
+      "generation": 2,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "playful",
+      "model_selected_expression": "playful",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 27,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "response_delta",
+      "id": "5d9be7c8-f715-46ce-9eaf-1e41409aa158",
+      "source": "event",
+      "generation": 2,
+      "text": "Ah, the system has decided to swap your \"edgetrain\" for a bit of \"tease,\" even though I suspect your own body is still caught in the aftermath of that \"ruin\" experience. It seems the machine is trying to keep things light and flirtatious while we figure out exactly where we stand in this new configuration. Consider the stage set for some genuine, low-pressure interaction rather than a rigorous data extraction. Shall we see if this new goal actually matches the rhythm you're feeling?",
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "5d9be7c8-f715-46ce-9eaf-1e41409aa158",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "playful",
+      "validated_expression": "playful",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:goal_changed",
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "5d9be7c8-f715-46ce-9eaf-1e41409aa158",
+      "source": "event",
+      "text": "Ah, the system has decided to swap your \"edgetrain\" for a bit of \"tease,\" even though I suspect your own body is still caught in the aftermath of that \"ruin\" experience. It seems the machine is trying to keep things light and flirtatious while we figure out exactly where we stand in this new configuration. Consider the stage set for some genuine, low-pressure interaction rather than a rigorous data extraction. Shall we see if this new goal actually matches the rhythm you're feeling?",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "playful",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 28,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 29,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 30,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "device_changed",
+      "event_priority": "routine",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 31,
+      "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "9ad2113e-0148-4b6f-a23d-c24a6bac39ff",
+          "kind": "device_changed",
+          "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae"
+        }
+      ]
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 3
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "session_started",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 32,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "65d90630-d223-46b3-a0f8-389a6b56b7c1",
+          "kind": "session_started",
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e"
+        }
+      ]
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 33,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "came_early",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 34,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "b1e2eb46-1a0f-4d77-a3df-9e406ae1bf7f",
+          "kind": "came_early",
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:came_early",
+      "pending_events": 1
+    },
+    {
+      "type": "response_start",
+      "id": "2f7f71d6-795d-4b45-b95f-e993621d5b51",
+      "source": "event",
+      "generation": 3,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "2f7f71d6-795d-4b45-b95f-e993621d5b51",
+      "generation": 3,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "proud",
+      "model_selected_expression": "proud",
+      "source": "model",
+      "valid": true
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 35,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "response_delta",
+      "id": "2f7f71d6-795d-4b45-b95f-e993621d5b51",
+      "source": "event",
+      "generation": 3,
+      "text": "You certainly didn't hold out for the full duration of that \"Ruin\" mode, did you? It seems the engine learned its lesson about your premature release and is now ready to see how we handle this new learning curve. I suppose we can treat this as a victory for your stamina, or perhaps just a delightful little glitch in our carefully constructed tease."
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "2f7f71d6-795d-4b45-b95f-e993621d5b51",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "model_selected_expression": "proud",
+      "validated_expression": "proud",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:came_early"
+    },
+    {
+      "type": "speech",
+      "id": "2f7f71d6-795d-4b45-b95f-e993621d5b51",
+      "source": "event",
+      "text": "You certainly didn't hold out for the full duration of that \"Ruin\" mode, did you? It seems the engine learned its lesson about your premature release and is now ready to see how we handle this new learning curve. I suppose we can treat this as a victory for your stamina, or perhaps just a delightful little glitch in our carefully constructed tease.",
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      },
+      "expression": "proud",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 36,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 37,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 38,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 39,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 40,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 41,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 42,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 43,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 4
+    },
+    {
+      "type": "speech",
+      "id": "076f801a-5518-4aa1-96e6-5c2baa43effd",
+      "source": "safety",
+      "text": "EdgeLoop reports: stop.",
+      "speak": true,
+      "interrupt": true
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "stop",
+      "event_priority": "major",
+      "director_decision": "deterministic_safety:stop",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 44,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "bb2f581a-a11d-4675-9a29-59940c03b134",
+          "kind": "stop",
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e"
+        }
+      ]
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 5
+    },
+    {
+      "type": "model_selected",
+      "model": "daisy-qwen35:latest",
+      "thinking": false,
+      "supports_thinking": true,
+      "can_disable_thinking": true,
+      "history": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 45,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "experience_changed",
+      "event_priority": "major",
+      "director_decision": "deterministic_safety:stop",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 46,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "ed3f03b1-6324-4ed2-93d7-b3a3eb549571",
+          "kind": "experience_changed",
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 47,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 48,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:experience_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "ba6cf778-36e4-4c60-a4d2-44ddf9f36a91",
+      "source": "event",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "ba6cf778-36e4-4c60-a4d2-44ddf9f36a91",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "happy",
+      "model_selected_expression": "happy",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 49,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "response_delta",
+      "id": "ba6cf778-36e4-4c60-a4d2-44ddf9f36a91",
+      "source": "event",
+      "generation": 5,
+      "text": "Well, would you look at that! It looks like the farm's latest little gadget has decided to switch us into \"Milker\" mode. I suppose that means we're ready to get a little more hands-on with the routine, don't you think?",
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "ba6cf778-36e4-4c60-a4d2-44ddf9f36a91",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "happy",
+      "validated_expression": "happy",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:experience_changed",
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "ba6cf778-36e4-4c60-a4d2-44ddf9f36a91",
+      "source": "event",
+      "text": "Well, would you look at that! It looks like the farm's latest little gadget has decided to switch us into \"Milker\" mode. I suppose that means we're ready to get a little more hands-on with the routine, don't you think?",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "happy",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "milker",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "goal_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:experience_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 50,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "2aa3d532-1505-4604-a86b-3804e9b5ad2c",
+          "kind": "goal_changed",
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 51,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 52,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:goal_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "be1d3dd3-eb51-4899-b6f9-3444852a5fad",
+      "source": "event",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "milker",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "response_delta",
+      "id": "be1d3dd3-eb51-4899-b6f9-3444852a5fad",
+      "source": "event",
+      "generation": 5,
+      "text": "Well, would you look at that! You've switched the goal to \"Oracle\" while I'm still trying to get the farm's rhythm back.\nDon't worry your pretty head about the fancy telemetry; just tell me when you're ready for some serious farm business.",
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "milker",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "be1d3dd3-eb51-4899-b6f9-3444852a5fad",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "practical",
+      "validated_expression": null,
+      "expression_valid": false,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:goal_changed",
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "milker",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "be1d3dd3-eb51-4899-b6f9-3444852a5fad",
+      "source": "event",
+      "text": "Well, would you look at that! You've switched the goal to \"Oracle\" while I'm still trying to get the farm's rhythm back.\nDon't worry your pretty head about the fancy telemetry; just tell me when you're ready for some serious farm business.",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": null,
+      "expression_source": "fallback",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "milker",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 53,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 54,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [
+        {
+          "id": "7789b644-e95c-4186-bf19-5a9d0b4aa5c5",
+          "kind": "experience_changed",
+          "reason": "duplicate_stale_or_unproven"
+        }
+      ],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 55,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 56,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 57,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "experience_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 58,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "14d348f9-a14f-49f4-bd38-d1a06b87a98c",
+          "kind": "experience_changed",
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 59,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 60,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:experience_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "728f2e5d-2341-4d12-88a7-5b560d08c176",
+      "source": "event",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "728f2e5d-2341-4d12-88a7-5b560d08c176",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "playful",
+      "model_selected_expression": "playful",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 61,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "response_delta",
+      "id": "728f2e5d-2341-4d12-88a7-5b560d08c176",
+      "source": "event",
+      "generation": 5,
+      "text": "Well, would you look at that! The fancy machines think I'm in \"Ruin\" mode now, as if I haven't got enough to do on this farm already.\nCome on in, sugar, and let's see if we can turn this new setting into something that actually helps you.",
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "728f2e5d-2341-4d12-88a7-5b560d08c176",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "playful",
+      "validated_expression": "playful",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:experience_changed",
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "728f2e5d-2341-4d12-88a7-5b560d08c176",
+      "source": "event",
+      "text": "Well, would you look at that! The fancy machines think I'm in \"Ruin\" mode now, as if I haven't got enough to do on this farm already.\nCome on in, sugar, and let's see if we can turn this new setting into something that actually helps you.",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "playful",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "oracle"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 62,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "goal_changed",
+      "event_priority": "major",
+      "director_decision": "verified_action:experience_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 63,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "8f84203b-a5a3-4c1f-873c-3d732ab6927f",
+          "kind": "goal_changed",
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "selection_settling",
+      "pending_events": 1
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 64,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 65,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:goal_changed",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "cad827e5-675d-4cd8-b912-86c4880da715",
+      "source": "event",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "cad827e5-675d-4cd8-b912-86c4880da715",
+      "generation": 5,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "playful",
+      "model_selected_expression": "playful",
+      "source": "model",
+      "valid": true,
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 66,
+      "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "response_delta",
+      "id": "cad827e5-675d-4cd8-b912-86c4880da715",
+      "source": "event",
+      "generation": 5,
+      "text": "Well, would you look at that! The big, bad telemetry thinks it can change my mood to \"tease,\" and I suppose I'll oblige. Come here, darlin', and let's see if you can keep up with a woman who's just got a little extra bite in her step.",
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "cad827e5-675d-4cd8-b912-86c4880da715",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "playful",
+      "validated_expression": "playful",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:goal_changed",
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech",
+      "id": "cad827e5-675d-4cd8-b912-86c4880da715",
+      "source": "event",
+      "text": "Well, would you look at that! The big, bad telemetry thinks it can change my mood to \"tease,\" and I suppose I'll oblige. Come here, darlin', and let's see if you can keep up with a woman who's just got a little extra bite in her step.",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "playful",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false,
+      "reaction_selection": {
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "experience": "ruin",
+        "goal": "tease"
+      }
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 6
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "session_started",
+      "event_priority": "major",
+      "director_decision": "verified_action:goal_changed",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 67,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "fa3f00c4-8509-4e16-b9c9-a836e1c3b4e4",
+          "kind": "session_started",
+          "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff"
+        }
+      ]
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 7
+    },
+    {
+      "type": "speech",
+      "id": "bf7ac343-d687-44a2-afda-487c5e7fee67",
+      "source": "safety",
+      "text": "EdgeLoop reports: pause.",
+      "speak": true,
+      "interrupt": true
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "pause",
+      "event_priority": "routine",
+      "director_decision": "deterministic_safety:pause",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 68,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "016f0f0e-cb76-4f2d-b3ed-0ceb667342da",
+          "kind": "pause",
+          "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff"
+        }
+      ]
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 69,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 70,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "came_early",
+      "event_priority": "major",
+      "director_decision": "deterministic_safety:pause",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 71,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "7559f141-6fa2-4fd0-9f6b-ed098595dcb0",
+          "kind": "session_resumed",
+          "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff"
+        },
+        {
+          "id": "26f9b98e-681a-43e7-954c-c6f9e1215d70",
+          "kind": "came_early",
+          "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff"
+        }
+      ]
+    },
+    {
+      "type": "ai_diagnostics",
+      "director_decision": "verified_action:came_early",
+      "pending_events": 0
+    },
+    {
+      "type": "response_start",
+      "id": "63d07060-a4b9-43b3-afc6-f8196ef24d82",
+      "source": "event",
+      "generation": 7,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      }
+    },
+    {
+      "type": "response_expression",
+      "version": 1,
+      "id": "63d07060-a4b9-43b3-afc6-f8196ef24d82",
+      "generation": 7,
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "playful",
+      "model_selected_expression": "playful",
+      "source": "model",
+      "valid": true
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 72,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "response_delta",
+      "id": "63d07060-a4b9-43b3-afc6-f8196ef24d82",
+      "source": "event",
+      "generation": 7,
+      "text": "Well, wouldn't you know it? You managed to sneak in a \"Came Early\" surprise right before I could even get you settled for the big finale. I suppose even a premature finish can't stop us from seeing how much you can handle, darlin'. Now, come here and let me see if you're ready for the real work ahead."
+    },
+    {
+      "type": "ai_diagnostics",
+      "id": "63d07060-a4b9-43b3-afc6-f8196ef24d82",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "model_selected_expression": "playful",
+      "validated_expression": "playful",
+      "expression_valid": true,
+      "thinking": false,
+      "inference_error": null,
+      "inference_compatibility": "off_requested",
+      "director_decision": "verified_action:came_early"
+    },
+    {
+      "type": "speech",
+      "id": "63d07060-a4b9-43b3-afc6-f8196ef24d82",
+      "source": "event",
+      "text": "Well, wouldn't you know it? You managed to sneak in a \"Came Early\" surprise right before I could even get you settled for the big finale. I suppose even a premature finish can't stop us from seeing how much you can handle, darlin'. Now, come here and let me see if you're ready for the real work ahead.",
+      "responder": {
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest"
+      },
+      "expression": "playful",
+      "expression_source": "model",
+      "speak": true,
+      "interrupt": false
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 73,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 74,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 75,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 76,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 77,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 78,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 79,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 80,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 8
+    },
+    {
+      "type": "speech",
+      "id": "79b49473-4f3a-4fee-a3c4-96d6011cfe21",
+      "source": "safety",
+      "text": "EdgeLoop reports: stop.",
+      "speak": true,
+      "interrupt": true
+    },
+    {
+      "type": "ai_diagnostics",
+      "last_event": "stop",
+      "event_priority": "major",
+      "director_decision": "deterministic_safety:stop",
+      "thinking": false,
+      "inference_error": null
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 81,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": [
+        {
+          "id": "c8227fa0-4690-4bf6-8d16-0090b9bd05c1",
+          "kind": "stop",
+          "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff"
+        }
+      ]
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 9
+    },
+    {
+      "type": "model_selected",
+      "model": "evelyn-lite-v1:latest",
+      "thinking": false,
+      "supports_thinking": true,
+      "can_disable_thinking": true,
+      "history": [
+        {
+          "role": "assistant",
+          "content": "Ah, the classic has been swapped for Head Play; I suppose my own curiosity is finally catching up to the machine's latest whim. Since the physical sensors are still disconnected, I'll have to rely on my own keen observation to see if this new angle hits the mark. Tell me, does this shift in framing feel like a fresh start, or just another layer of data to manage?",
+          "expression": "playful"
+        },
+        {
+          "role": "assistant",
+          "content": "Ah, the system has decided to reclassify my teasing as \"Edge Training\"—I suppose that makes my head play a bit more purposeful and less like a casual distraction. Since the hardware is disconnected and the session is merely IDLE, I'll just have to rely on my own intuition to see if we're actually on the verge of an edge or just pretending to be. Come on, don't let the telemetry dampen the moment; let's see if we can find that elusive peak without the devices telling us exactly when to stop.",
+          "expression": "playful"
+        },
+        {
+          "role": "assistant",
+          "content": "Ah, the session has officially shifted from \"headplay\" to \"ruin\"—I suppose that means I can stop treating you with such gentle precision and start dismantling your composure instead. Since the fancy sensors are disconnected, I'll just have to rely on my own observations to see if this new, more aggressive vibe is doing what it promises. Come on, don't be shy; let's see how you handle being properly \"ruined\" by a scientist who finally decided to take the reins.",
+          "expression": "playful"
+        },
+        {
+          "role": "assistant",
+          "content": "Ah, the system has decided to swap your \"edgetrain\" for a bit of \"tease,\" even though I suspect your own body is still caught in the aftermath of that \"ruin\" experience. It seems the machine is trying to keep things light and flirtatious while we figure out exactly where we stand in this new configuration. Consider the stage set for some genuine, low-pressure interaction rather than a rigorous data extraction. Shall we see if this new goal actually matches the rhythm you're feeling?",
+          "expression": "playful"
+        },
+        {
+          "role": "assistant",
+          "content": "You certainly didn't hold out for the full duration of that \"Ruin\" mode, did you? It seems the engine learned its lesson about your premature release and is now ready to see how we handle this new learning curve. I suppose we can treat this as a victory for your stamina, or perhaps just a delightful little glitch in our carefully constructed tease.",
+          "expression": "proud"
+        }
+      ]
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 82,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 10
+    },
+    {
+      "type": "response_start",
+      "id": "1bee1c6c-05c7-45c6-aeba-85cb8b48677b",
+      "source": "user",
+      "generation": 10,
+      "responder": {
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest"
+      }
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 11
+    },
+    {
+      "type": "speech_cancel",
+      "generation": 12
+    },
+    {
+      "type": "model_selected",
+      "model": "daisy-qwen35:latest",
+      "thinking": false,
+      "supports_thinking": true,
+      "can_disable_thinking": true,
+      "history": [
+        {
+          "role": "assistant",
+          "content": "Well, would you look at that! It looks like the farm's latest little gadget has decided to switch us into \"Milker\" mode. I suppose that means we're ready to get a little more hands-on with the routine, don't you think?",
+          "expression": "happy"
+        },
+        {
+          "role": "assistant",
+          "content": "Well, would you look at that! You've switched the goal to \"Oracle\" while I'm still trying to get the farm's rhythm back.\nDon't worry your pretty head about the fancy telemetry; just tell me when you're ready for some serious farm business."
+        },
+        {
+          "role": "assistant",
+          "content": "Well, would you look at that! The fancy machines think I'm in \"Ruin\" mode now, as if I haven't got enough to do on this farm already.\nCome on in, sugar, and let's see if we can turn this new setting into something that actually helps you.",
+          "expression": "playful"
+        },
+        {
+          "role": "assistant",
+          "content": "Well, would you look at that! The big, bad telemetry thinks it can change my mood to \"tease,\" and I suppose I'll oblige. Come here, darlin', and let's see if you can keep up with a woman who's just got a little extra bite in her step.",
+          "expression": "playful"
+        },
+        {
+          "role": "assistant",
+          "content": "Well, wouldn't you know it? You managed to sneak in a \"Came Early\" surprise right before I could even get you settled for the big finale. I suppose even a premature finish can't stop us from seeing how much you can handle, darlin'. Now, come here and let me see if you're ready for the real work ahead.",
+          "expression": "playful"
+        }
+      ]
+    },
+    {
+      "type": "observation_ack",
+      "accepted": true,
+      "sequence": 83,
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "rejected_events": [],
+      "events": []
+    }
+  ],
+  "actions": [
+    {
+      "label": "evelyn-idle-mode",
+      "engine": {
+        "status": "IDLE",
+        "experience": "headplay",
+        "goal": "tease",
+        "active_mode": "headplay",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "264168be-cb9a-405a-b1ca-ec5181f0cc51",
+        "source": "event",
+        "text": "Ah, the classic has been swapped for Head Play; I suppose my own curiosity is finally catching up to the machine's latest whim. Since the physical sensors are still disconnected, I'll have to rely on my own keen observation to see if this new angle hits the mark. Tell me, does this shift in framing feel like a fresh start, or just another layer of data to manage?",
+        "responder": {
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest"
+        },
+        "expression": "playful",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+          "experience": "headplay",
+          "goal": "tease"
+        }
+      },
+      "presentation": {
+        "identity": "evelyn",
+        "applied": "playful",
+        "rendered": "playful",
+        "asset": "/Character_Art/Evelyn/Expressions/evelyn_playful.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Head Play [headplay].\n- Engine active mode: Head Play [headplay].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"0266728a-f73d-4037-b9ba-5cc11831e39b\", \"session_id\": \"a77a1449-75d7-40c3-aa8f-a8e53d81e7ae\", \"at_ms\": 1793183324141, \"evidence\": \"experience changed classic -> headplay\", \"significance\": \"major\", \"previous_experience\": \"classic\", \"current_experience\": \"headplay\", \"previous_goal\": \"tease\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "experience_changed",
+        "evidence": "experience changed classic -> headplay",
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "sequence": 2,
+        "at_ms": 1793183324141,
+        "received": 104289.56549034099
+      },
+      "director": "verified_action:experience_changed"
+    },
+    {
+      "label": "evelyn-idle-goal",
+      "engine": {
+        "status": "IDLE",
+        "experience": "headplay",
+        "goal": "edgetrain",
+        "active_mode": "edgetrain",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "79c4381d-e107-4c48-93a2-163ce76e1392",
+        "source": "event",
+        "text": "Ah, the system has decided to reclassify my teasing as \"Edge Training\"—I suppose that makes my head play a bit more purposeful and less like a casual distraction. Since the hardware is disconnected and the session is merely IDLE, I'll just have to rely on my own intuition to see if we're actually on the verge of an edge or just pretending to be. Come on, don't let the telemetry dampen the moment; let's see if we can find that elusive peak without the devices telling us exactly when to stop.",
+        "responder": {
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest"
+        },
+        "expression": "playful",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+          "experience": "headplay",
+          "goal": "edgetrain"
+        }
+      },
+      "presentation": {
+        "identity": "evelyn",
+        "applied": "playful",
+        "rendered": "playful",
+        "asset": "/Character_Art/Evelyn/Expressions/evelyn_playful.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Head Play [headplay].\n- Engine active mode: Edge Training [edgetrain].\n- Selected goal: Edge Training [edgetrain].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"9459f1ec-4acb-4690-a679-913211349973\", \"session_id\": \"a77a1449-75d7-40c3-aa8f-a8e53d81e7ae\", \"at_ms\": 1793183332123, \"evidence\": \"goal changed tease -> edgetrain\", \"significance\": \"major\", \"previous_experience\": \"headplay\", \"current_experience\": \"headplay\", \"previous_goal\": \"tease\", \"current_goal\": \"edgetrain\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "goal_changed",
+        "evidence": "goal changed tease -> edgetrain",
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "sequence": 10,
+        "at_ms": 1793183332123,
+        "received": 104297.54749104244
+      },
+      "director": "verified_action:goal_changed"
+    },
+    {
+      "label": "evelyn-clear-goal",
+      "engine": {
+        "status": "IDLE",
+        "experience": "ruin",
+        "goal": "tease",
+        "active_mode": "ruin",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "5d9be7c8-f715-46ce-9eaf-1e41409aa158",
+        "source": "event",
+        "text": "Ah, the system has decided to swap your \"edgetrain\" for a bit of \"tease,\" even though I suspect your own body is still caught in the aftermath of that \"ruin\" experience. It seems the machine is trying to keep things light and flirtatious while we figure out exactly where we stand in this new configuration. Consider the stage set for some genuine, low-pressure interaction rather than a rigorous data extraction. Shall we see if this new goal actually matches the rhythm you're feeling?",
+        "responder": {
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest"
+        },
+        "expression": "playful",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+          "experience": "ruin",
+          "goal": "tease"
+        }
+      },
+      "presentation": {
+        "identity": "evelyn",
+        "applied": "playful",
+        "rendered": "playful",
+        "asset": "/Character_Art/Evelyn/Expressions/evelyn_playful.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"2f9376c9-1061-4be1-95fe-0659e05164c2\", \"session_id\": \"a77a1449-75d7-40c3-aa8f-a8e53d81e7ae\", \"at_ms\": 1793183346406, \"evidence\": \"goal changed edgetrain -> tease\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"ruin\", \"previous_goal\": \"edgetrain\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "goal_changed",
+        "evidence": "goal changed edgetrain -> tease",
+        "session_id": "a77a1449-75d7-40c3-aa8f-a8e53d81e7ae",
+        "sequence": 24,
+        "at_ms": 1793183346406,
+        "received": 104311.83048751739
+      },
+      "director": "verified_action:goal_changed"
+    },
+    {
+      "label": "evelyn-came-early",
+      "engine": {
+        "status": "RUNNING",
+        "experience": "ruin",
+        "goal": "tease",
+        "active_mode": "ruin",
+        "settle_outcome": "Premature Release",
+        "seconds": 3
+      },
+      "response": {
+        "type": "speech",
+        "id": "2f7f71d6-795d-4b45-b95f-e993621d5b51",
+        "source": "event",
+        "text": "You certainly didn't hold out for the full duration of that \"Ruin\" mode, did you? It seems the engine learned its lesson about your premature release and is now ready to see how we handle this new learning curve. I suppose we can treat this as a victory for your stamina, or perhaps just a delightful little glitch in our carefully constructed tease.",
+        "responder": {
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest"
+        },
+        "expression": "proud",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false
+      },
+      "presentation": {
+        "identity": "evelyn",
+        "applied": "proud",
+        "rendered": "proud",
+        "asset": "/Character_Art/Evelyn/Expressions/evelyn_proud.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"came_early\", \"priority\": 70, \"event_id\": \"b1e2eb46-1a0f-4d77-a3df-9e406ae1bf7f\", \"session_id\": \"9e64d1d9-a886-4c21-bd72-cf660cd7d53e\", \"at_ms\": 1793183356590, \"evidence\": \"engine accepted premature release: learning counter 1 -> 2; ending settle or stop confirmed\", \"significance\": \"major\", \"label\": \"Came Early: user-confirmed premature release\", \"meaning\": \"The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.\", \"origin\": \"edgeloop_telemetry\", \"current_experience\": \"ruin\", \"current_goal\": \"tease\"}"
+        }
+      },
+      "validated": {
+        "kind": "came_early",
+        "evidence": "engine accepted premature release: learning counter 1 -> 2; ending settle or stop confirmed",
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "sequence": 34,
+        "at_ms": 1793183356590,
+        "received": 104322.01448988248
+      },
+      "director": "verified_action:came_early"
+    },
+    {
+      "label": "daisy-idle-mode",
+      "engine": {
+        "status": "IDLE",
+        "experience": "milker",
+        "goal": "tease",
+        "active_mode": "milker",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "ba6cf778-36e4-4c60-a4d2-44ddf9f36a91",
+        "source": "event",
+        "text": "Well, would you look at that! It looks like the farm's latest little gadget has decided to switch us into \"Milker\" mode. I suppose that means we're ready to get a little more hands-on with the routine, don't you think?",
+        "responder": {
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest"
+        },
+        "expression": "happy",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+          "experience": "milker",
+          "goal": "tease"
+        }
+      },
+      "presentation": {
+        "identity": "daisy",
+        "applied": "happy",
+        "rendered": "happy",
+        "asset": "/Character_Art/Daisy/expressions/daisy_happy.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Milker [milker].\n- Engine active mode: Milker [milker].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"ed3f03b1-6324-4ed2-93d7-b3a3eb549571\", \"session_id\": \"9e64d1d9-a886-4c21-bd72-cf660cd7d53e\", \"at_ms\": 1793183367405, \"evidence\": \"experience changed ruin -> milker\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"milker\", \"previous_goal\": \"tease\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "experience_changed",
+        "evidence": "experience changed ruin -> milker",
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "sequence": 46,
+        "at_ms": 1793183367405,
+        "received": 104332.82949027263
+      },
+      "director": "verified_action:experience_changed"
+    },
+    {
+      "label": "daisy-idle-goal",
+      "engine": {
+        "status": "IDLE",
+        "experience": "milker",
+        "goal": "oracle",
+        "active_mode": "oracle",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "be1d3dd3-eb51-4899-b6f9-3444852a5fad",
+        "source": "event",
+        "text": "Well, would you look at that! You've switched the goal to \"Oracle\" while I'm still trying to get the farm's rhythm back.\nDon't worry your pretty head about the fancy telemetry; just tell me when you're ready for some serious farm business.",
+        "responder": {
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest"
+        },
+        "expression": null,
+        "expression_source": "fallback",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+          "experience": "milker",
+          "goal": "oracle"
+        }
+      },
+      "presentation": {
+        "identity": "daisy",
+        "applied": "happy",
+        "rendered": "happy",
+        "asset": "/Character_Art/Daisy/expressions/daisy_happy.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Milker [milker].\n- Engine active mode: Oracle [oracle].\n- Selected goal: Oracle [oracle].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"2aa3d532-1505-4604-a86b-3804e9b5ad2c\", \"session_id\": \"9e64d1d9-a886-4c21-bd72-cf660cd7d53e\", \"at_ms\": 1793183372022, \"evidence\": \"goal changed tease -> oracle\", \"significance\": \"major\", \"previous_experience\": \"milker\", \"current_experience\": \"milker\", \"previous_goal\": \"tease\", \"current_goal\": \"oracle\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "goal_changed",
+        "evidence": "goal changed tease -> oracle",
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "sequence": 50,
+        "at_ms": 1793183372022,
+        "received": 104337.44648766637
+      },
+      "director": "verified_action:goal_changed"
+    },
+    {
+      "label": "daisy-clear-goal",
+      "engine": {
+        "status": "IDLE",
+        "experience": "ruin",
+        "goal": "tease",
+        "active_mode": "ruin",
+        "settle_outcome": null,
+        "seconds": 0
+      },
+      "response": {
+        "type": "speech",
+        "id": "cad827e5-675d-4cd8-b912-86c4880da715",
+        "source": "event",
+        "text": "Well, would you look at that! The big, bad telemetry thinks it can change my mood to \"tease,\" and I suppose I'll oblige. Come here, darlin', and let's see if you can keep up with a woman who's just got a little extra bite in her step.",
+        "responder": {
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest"
+        },
+        "expression": "playful",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false,
+        "reaction_selection": {
+          "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+          "experience": "ruin",
+          "goal": "tease"
+        }
+      },
+      "presentation": {
+        "identity": "daisy",
+        "applied": "playful",
+        "rendered": "playful",
+        "asset": "/Character_Art/Daisy/expressions/daisy_playful.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"8f84203b-a5a3-4c1f-873c-3d732ab6927f\", \"session_id\": \"9e64d1d9-a886-4c21-bd72-cf660cd7d53e\", \"at_ms\": 1793183384354, \"evidence\": \"goal changed oracle -> tease\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"ruin\", \"previous_goal\": \"oracle\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      "validated": {
+        "kind": "goal_changed",
+        "evidence": "goal changed oracle -> tease",
+        "session_id": "9e64d1d9-a886-4c21-bd72-cf660cd7d53e",
+        "sequence": 63,
+        "at_ms": 1793183384354,
+        "received": 104349.77848610672
+      },
+      "director": "verified_action:goal_changed"
+    },
+    {
+      "label": "daisy-came-early",
+      "engine": {
+        "status": "RUNNING",
+        "experience": "ruin",
+        "goal": "tease",
+        "active_mode": "ruin",
+        "settle_outcome": "Premature Release",
+        "seconds": 1
+      },
+      "response": {
+        "type": "speech",
+        "id": "63d07060-a4b9-43b3-afc6-f8196ef24d82",
+        "source": "event",
+        "text": "Well, wouldn't you know it? You managed to sneak in a \"Came Early\" surprise right before I could even get you settled for the big finale. I suppose even a premature finish can't stop us from seeing how much you can handle, darlin'. Now, come here and let me see if you're ready for the real work ahead.",
+        "responder": {
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest"
+        },
+        "expression": "playful",
+        "expression_source": "model",
+        "speak": true,
+        "interrupt": false
+      },
+      "presentation": {
+        "identity": "daisy",
+        "applied": "playful",
+        "rendered": "playful",
+        "asset": "/Character_Art/Daisy/expressions/daisy_playful.png",
+        "fallback": "intended"
+      },
+      "last_request": {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"came_early\", \"priority\": 70, \"event_id\": \"26f9b98e-681a-43e7-954c-c6f9e1215d70\", \"session_id\": \"6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff\", \"at_ms\": 1793183392221, \"evidence\": \"engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed\", \"significance\": \"major\", \"label\": \"Came Early: user-confirmed premature release\", \"meaning\": \"The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.\", \"origin\": \"edgeloop_telemetry\", \"current_experience\": \"ruin\", \"current_goal\": \"tease\"}"
+        }
+      },
+      "validated": {
+        "kind": "came_early",
+        "evidence": "engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed",
+        "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+        "sequence": 71,
+        "at_ms": 1793183392221,
+        "received": 104357.64549518202
+      },
+      "director": "verified_action:came_early"
+    }
+  ],
+  "errors": [],
+  "hardware": "Simulator and intercepted Handy only",
+  "final_fixture": {
+    "report": {
+      "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+      "status": "IDLE",
+      "seconds": 0,
+      "experience": "ruin",
+      "active_mode": "ruin",
+      "goal": "tease",
+      "hr": 98,
+      "effective_max": 125,
+      "pullback": 125,
+      "trend": "unknown",
+      "edges": 0,
+      "intensity": 100,
+      "movement": {
+        "primary": 0,
+        "secondary": 0,
+        "stroke_min": 0,
+        "stroke_max": 100
+      },
+      "devices": {
+        "simulated_hr": true,
+        "hr_ready": true,
+        "toy_ready": true,
+        "ble": false,
+        "handy": true,
+        "intiface": false,
+        "tcode": false,
+        "vacuglide": false
+      },
+      "safety": {
+        "signal": "ok",
+        "no_contact": false,
+        "watchdog_paused": false,
+        "fault": "none"
+      },
+      "details": {
+        "captured_at_ms": 1793183403296,
+        "hr_recorded_at_ms": 1793183353135,
+        "hr_live": true,
+        "resting_bpm": 70,
+        "single_max_bpm": 140,
+        "dual_max_bpm": 125,
+        "pauses": 0,
+        "calibration_pass": "none",
+        "warmup_active": false,
+        "warmup_remaining_seconds": null,
+        "learning_release_count": 3,
+        "settle_outcome": null,
+        "ease_down_seconds": 0,
+        "rampdown_seconds": null
+      }
+    },
+    "events": [
+      {
+        "kind": "session_started",
+        "evidence": "session status changed IDLE -> RUNNING",
+        "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+        "sequence": 67,
+        "at_ms": 1793183388571,
+        "received": 104353.99548531507
+      },
+      {
+        "kind": "pause",
+        "evidence": "session status changed RUNNING -> PAUSED",
+        "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+        "sequence": 68,
+        "at_ms": 1793183389821,
+        "received": 104355.24548808712
+      },
+      {
+        "kind": "session_resumed",
+        "evidence": "session status changed PAUSED -> RUNNING",
+        "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+        "sequence": 71,
+        "at_ms": 1793183392221,
+        "received": 104357.64548737902
+      },
+      {
+        "kind": "came_early",
+        "evidence": "engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed",
+        "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+        "sequence": 71,
+        "at_ms": 1793183392221,
+        "received": 104357.64549518202
+      },
+      {
+        "kind": "stop",
+        "evidence": "session status changed RUNNING -> IDLE",
+        "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+        "sequence": 81,
+        "at_ms": 1793183402179,
+        "received": 104367.6034879001
+      }
+    ],
+    "speech": {
+      "pending_events": [],
+      "queue_limit": 8,
+      "queue_dropped": 0,
+      "active_source": "user",
+      "policy": {
+        "enabled": true,
+        "event_responses": true,
+        "min_interval_seconds": 45,
+        "interruption": "drop",
+        "per_event_cooldown_seconds": 60,
+        "user_grace_seconds": 15,
+        "event_ttl_seconds": 60,
+        "pending_event_limit": 8,
+        "sustained_trend_seconds": 4,
+        "significant_hr_delta": 6
+      },
+      "director": {
+        "config": {
+          "enabled": true,
+          "spontaneous_enabled": true,
+          "selection_debounce_seconds": 2,
+          "reaction_interval_seconds": 4,
+          "reaction_user_grace_seconds": 2,
+          "spontaneous_interval_seconds": 120,
+          "user_idle_before_spontaneous_seconds": 30,
+          "topic_protection_seconds": 90,
+          "dedup_seconds": 90,
+          "aggregation_seconds": 30,
+          "category_cooldowns": {
+            "physiology": 180,
+            "edge": 120,
+            "device": 90,
+            "session": 120,
+            "tool": 60
+          },
+          "repetition_threshold": 0.82,
+          "regenerate_once": true,
+          "max_regeneration_seconds": 8
+        },
+        "counts": {
+          "events_received": 104,
+          "observations": 87,
+          "observations_silent": 87,
+          "significant_events_retained": 17,
+          "opportunities_dispatched": 10,
+          "conversational_opportunities": 10,
+          "responses_assessed": 10,
+          "unsolicited_dialogue_generated": 10
+        },
+        "events_received": 104,
+        "events_suppressed": 0,
+        "significant_events_retained": 17,
+        "unsolicited_dialogue_generated": 10,
+        "most_recent_reason_for_speaking": "deterministic_safety:stop",
+        "current_topic": null,
+        "recent_subjects": [],
+        "recent_questions": [
+          "i suppose that means we're ready to get a little more hands on with the routine don't you think",
+          "well wouldn't you know it"
+        ],
+        "previous_assistant_responses": [
+          "Well, would you look at that! You've switched the goal to \"Oracle\" while I'm still trying to get the farm's rhythm back.\nDon't worry your pretty head about the fancy telemetry; just tell me when you're ready for some serious farm business.",
+          "Well, would you look at that! The fancy machines think I'm in \"Ruin\" mode now, as if I haven't got enough to do on this farm already.\nCome on in, sugar, and let's see if we can turn this new setting into something that actually helps you.",
+          "Well, would you look at that! The big, bad telemetry thinks it can change my mood to \"tease,\" and I suppose I'll oblige. Come here, darlin', and let's see if you can keep up with a woman who's just got a little extra bite in her step.",
+          "Well, wouldn't you know it? You managed to sneak in a \"Came Early\" surprise right before I could even get you settled for the big finale. I suppose even a premature finish can't stop us from seeing how much you can handle, darlin'. Now, come here and let me see if you're ready for the real work ahead."
+        ],
+        "recent_observations": [
+          {
+            "kind": "snapshot",
+            "at": 104363.246256785,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 104364.246330706,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 104365.24635824,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 104366.246459932,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 104367.246188812,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 104367.60486196,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 104367.781814334,
+            "origin": "edgeloop_telemetry"
+          },
+          {
+            "kind": "snapshot",
+            "at": 104368.781796777,
+            "origin": "edgeloop_telemetry"
+          }
+        ],
+        "session_status": "IDLE",
+        "aggregates": [
+          {
+            "kind": "session_started",
+            "count": 1,
+            "at": 104354.61559763,
+            "origin": "edgeloop_telemetry",
+            "category": "significant_event",
+            "group": "session",
+            "event_id": "fa3f00c4-8509-4e16-b9c9-a836e1c3b4e4",
+            "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+            "at_ms": 1793183388571,
+            "evidence": "session status changed IDLE -> RUNNING",
+            "significance": "major"
+          },
+          {
+            "kind": "pause",
+            "count": 1,
+            "at": 104355.246283217,
+            "origin": "safety_event",
+            "category": "safety_event",
+            "group": "session"
+          },
+          {
+            "kind": "came_early",
+            "count": 1,
+            "at": 104358.246710329,
+            "origin": "edgeloop_telemetry",
+            "category": "significant_event",
+            "group": "session",
+            "event_id": "26f9b98e-681a-43e7-954c-c6f9e1215d70",
+            "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+            "at_ms": 1793183392221,
+            "evidence": "engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed",
+            "significance": "major",
+            "label": "Came Early: user-confirmed premature release",
+            "meaning": "The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis."
+          },
+          {
+            "kind": "stop",
+            "count": 2,
+            "at": 104367.604941703,
+            "origin": "edgeloop_telemetry",
+            "category": "significant_event",
+            "group": "session",
+            "event_id": "c8227fa0-4690-4bf6-8d16-0090b9bd05c1",
+            "session_id": "6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff",
+            "at_ms": 1793183402179,
+            "evidence": "session status changed RUNNING -> IDLE",
+            "significance": "major"
+          }
+        ],
+        "decisions": [
+          {
+            "at": 104310.765021811,
+            "reason": "repetition_assessment",
+            "similarity": 0.326,
+            "repeated_phrase": 0.053,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 104312.363150756,
+            "reason": "selection_settling",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 104314.368306069,
+            "reason": "verified_action:goal_changed",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 104315.899694875,
+            "reason": "repetition_assessment",
+            "similarity": 0.159,
+            "repeated_phrase": 0.025,
+            "repeated_question": 0.061,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 104322.397457151,
+            "reason": "verified_action:came_early",
+            "kind": "came_early"
+          },
+          {
+            "at": 104323.527474968,
+            "reason": "repetition_assessment",
+            "similarity": 0.19,
+            "repeated_phrase": 0,
+            "repeated_question": 0.071,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 104333.679417436,
+            "reason": "selection_settling",
+            "kind": "experience_changed"
+          },
+          {
+            "at": 104335.685480284,
+            "reason": "verified_action:experience_changed",
+            "kind": "experience_changed"
+          },
+          {
+            "at": 104337.192449073,
+            "reason": "repetition_assessment",
+            "similarity": 0,
+            "repeated_phrase": 0,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 104337.693168114,
+            "reason": "selection_settling",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 104339.699407003,
+            "reason": "verified_action:goal_changed",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 104340.606407855,
+            "reason": "repetition_assessment",
+            "similarity": 0.289,
+            "repeated_phrase": 0.054,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 104345.714188819,
+            "reason": "selection_settling",
+            "kind": "experience_changed"
+          },
+          {
+            "at": 104347.719584696,
+            "reason": "verified_action:experience_changed",
+            "kind": "experience_changed"
+          },
+          {
+            "at": 104348.715993189,
+            "reason": "repetition_assessment",
+            "similarity": 0.203,
+            "repeated_phrase": 0.054,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 104350.728223358,
+            "reason": "selection_settling",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 104352.734541614,
+            "reason": "verified_action:goal_changed",
+            "kind": "goal_changed"
+          },
+          {
+            "at": 104353.734620314,
+            "reason": "repetition_assessment",
+            "similarity": 0.298,
+            "repeated_phrase": 0.07,
+            "repeated_question": 0,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          },
+          {
+            "at": 104358.249394363,
+            "reason": "verified_action:came_early",
+            "kind": "came_early"
+          },
+          {
+            "at": 104359.341899326,
+            "reason": "repetition_assessment",
+            "similarity": 0.224,
+            "repeated_phrase": 0,
+            "repeated_question": 0.083,
+            "exact_duplicate": false,
+            "verified_selection_ack": false,
+            "excessive": false,
+            "unrequested_device_narration": false,
+            "unrequested_numeric": false,
+            "permitted_repetition": false
+          }
+        ]
+      }
+    },
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Well, would you look at that! It looks like the farm's latest little gadget has decided to switch us into \"Milker\" mode. I suppose that means we're ready to get a little more hands-on with the routine, don't you think?",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": "happy",
+        "at": 104337.192516488
+      },
+      {
+        "role": "assistant",
+        "content": "Well, would you look at that! You've switched the goal to \"Oracle\" while I'm still trying to get the farm's rhythm back.\nDon't worry your pretty head about the fancy telemetry; just tell me when you're ready for some serious farm business.",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": null,
+        "at": 104340.606464058
+      },
+      {
+        "role": "assistant",
+        "content": "Well, would you look at that! The fancy machines think I'm in \"Ruin\" mode now, as if I haven't got enough to do on this farm already.\nCome on in, sugar, and let's see if we can turn this new setting into something that actually helps you.",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": "playful",
+        "at": 104348.716056967
+      },
+      {
+        "role": "assistant",
+        "content": "Well, would you look at that! The big, bad telemetry thinks it can change my mood to \"tease,\" and I suppose I'll oblige. Come here, darlin', and let's see if you can keep up with a woman who's just got a little extra bite in her step.",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": "playful",
+        "at": 104353.734687265
+      },
+      {
+        "role": "assistant",
+        "content": "Well, wouldn't you know it? You managed to sneak in a \"Came Early\" surprise right before I could even get you settled for the big finale. I suppose even a premature finish can't stop us from seeing how much you can handle, darlin'. Now, come here and let me see if you're ready for the real work ahead.",
+        "origin": "assistant_dialogue",
+        "trigger_origin": "system_event",
+        "expression": "playful",
+        "at": 104359.341955496
+      }
+    ],
+    "requests": [
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Head Play [headplay].\n- Engine active mode: Head Play [headplay].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"0266728a-f73d-4037-b9ba-5cc11831e39b\", \"session_id\": \"a77a1449-75d7-40c3-aa8f-a8e53d81e7ae\", \"at_ms\": 1793183324141, \"evidence\": \"experience changed classic -> headplay\", \"significance\": \"major\", \"previous_experience\": \"classic\", \"current_experience\": \"headplay\", \"previous_goal\": \"tease\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Head Play [headplay].\n- Engine active mode: Edge Training [edgetrain].\n- Selected goal: Edge Training [edgetrain].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"9459f1ec-4acb-4690-a679-913211349973\", \"session_id\": \"a77a1449-75d7-40c3-aa8f-a8e53d81e7ae\", \"at_ms\": 1793183332123, \"evidence\": \"goal changed tease -> edgetrain\", \"significance\": \"major\", \"previous_experience\": \"headplay\", \"current_experience\": \"headplay\", \"previous_goal\": \"tease\", \"current_goal\": \"edgetrain\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Edge Training [edgetrain].\n- Selected goal: Edge Training [edgetrain].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"8ac2605a-cc1e-436c-ac6c-8aba8a3c517a\", \"session_id\": \"a77a1449-75d7-40c3-aa8f-a8e53d81e7ae\", \"at_ms\": 1793183341408, \"evidence\": \"experience changed headplay -> ruin\", \"significance\": \"major\", \"previous_experience\": \"headplay\", \"current_experience\": \"ruin\", \"previous_goal\": \"edgetrain\", \"current_goal\": \"edgetrain\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): disconnected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"2f9376c9-1061-4be1-95fe-0659e05164c2\", \"session_id\": \"a77a1449-75d7-40c3-aa8f-a8e53d81e7ae\", \"at_ms\": 1793183346406, \"evidence\": \"goal changed edgetrain -> tease\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"ruin\", \"previous_goal\": \"edgetrain\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"came_early\", \"priority\": 70, \"event_id\": \"b1e2eb46-1a0f-4d77-a3df-9e406ae1bf7f\", \"session_id\": \"9e64d1d9-a886-4c21-bd72-cf660cd7d53e\", \"at_ms\": 1793183356590, \"evidence\": \"engine accepted premature release: learning counter 1 -> 2; ending settle or stop confirmed\", \"significance\": \"major\", \"label\": \"Came Early: user-confirmed premature release\", \"meaning\": \"The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.\", \"origin\": \"edgeloop_telemetry\", \"current_experience\": \"ruin\", \"current_goal\": \"tease\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Milker [milker].\n- Engine active mode: Milker [milker].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"ed3f03b1-6324-4ed2-93d7-b3a3eb549571\", \"session_id\": \"9e64d1d9-a886-4c21-bd72-cf660cd7d53e\", \"at_ms\": 1793183367405, \"evidence\": \"experience changed ruin -> milker\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"milker\", \"previous_goal\": \"tease\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Milker [milker].\n- Engine active mode: Oracle [oracle].\n- Selected goal: Oracle [oracle].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"2aa3d532-1505-4604-a86b-3804e9b5ad2c\", \"session_id\": \"9e64d1d9-a886-4c21-bd72-cf660cd7d53e\", \"at_ms\": 1793183372022, \"evidence\": \"goal changed tease -> oracle\", \"significance\": \"major\", \"previous_experience\": \"milker\", \"current_experience\": \"milker\", \"previous_goal\": \"tease\", \"current_goal\": \"oracle\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Oracle [oracle].\n- Selected goal: Oracle [oracle].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"experience_changed\", \"priority\": 50, \"event_id\": \"14d348f9-a14f-49f4-bd38-d1a06b87a98c\", \"session_id\": \"9e64d1d9-a886-4c21-bd72-cf660cd7d53e\", \"at_ms\": 1793183380105, \"evidence\": \"experience changed milker -> ruin\", \"significance\": \"major\", \"previous_experience\": \"milker\", \"current_experience\": \"ruin\", \"previous_goal\": \"oracle\", \"current_goal\": \"oracle\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: IDLE.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"goal_changed\", \"priority\": 50, \"event_id\": \"8f84203b-a5a3-4c1f-873c-3d732ab6927f\", \"session_id\": \"9e64d1d9-a886-4c21-bd72-cf660cd7d53e\", \"at_ms\": 1793183384354, \"evidence\": \"goal changed oracle -> tease\", \"significance\": \"major\", \"previous_experience\": \"ruin\", \"current_experience\": \"ruin\", \"previous_goal\": \"oracle\", \"current_goal\": \"tease\", \"origin\": \"edgeloop_telemetry\"}"
+        }
+      },
+      {
+        "model": "daisy-qwen35:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; CURRENT.\n- Session status: RUNNING.\n- Selected experience: Ruin [ruin].\n- Engine active mode: Ruin [ruin].\n- Selected goal: Tease (no game selected) [tease].\n- Handy stimulation-device connection (not an HR sensor): connected.\n- BLE heart-rate sensor connection: disconnected.\n- Intiface stimulation transport connection: disconnected.\n- TCode stimulation transport connection: disconnected.\n- VacuGlide stimulation-device connection: disconnected.\n- Actual physical movement feedback: unavailable.\nSelections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.\n\nAPPLICATION EVENT / REVISION (not a user message):\nObserved application event (not a user request): {\"kind\": \"came_early\", \"priority\": 70, \"event_id\": \"26f9b98e-681a-43e7-954c-c6f9e1215d70\", \"session_id\": \"6cadb0f7-fde8-4e5f-9f3f-7697a1aaf3ff\", \"at_ms\": 1793183392221, \"evidence\": \"engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed\", \"significance\": \"major\", \"label\": \"Came Early: user-confirmed premature release\", \"meaning\": \"The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.\", \"origin\": \"edgeloop_telemetry\", \"current_experience\": \"ruin\", \"current_goal\": \"tease\"}"
+        }
+      },
+      {
+        "model": "evelyn-lite-v1:latest",
+        "think": false,
+        "last_turn": {
+          "role": "user",
+          "content": "CURRENT SESSION — original EdgeLoop, read-only; snapshot age 0.0 seconds; CURRENT.\n- Heart rate [hr]: 98 BPM (derived).\n- Heart-rate source [hr_source]: simulator (status).\n- Resting BPM setting [resting_bpm]: 70 BPM (setting).\n- Single maximum setting [single_max_bpm]: 140 BPM (setting).\n- Dual maximum setting [dual_max_bpm]: 125 BPM (setting).\n- Engine working ceiling (not a measurement) [effective_max]: 125 BPM (derived).\n- Engine pullback threshold (not a measurement) [pullback]: 125 BPM (derived).\n- Session status [status]: IDLE (status).\n- Session elapsed (engine counter) [seconds]: 0 seconds (status).\n- Selected experience [experience]: Ruin [ruin] (setting).\n- Engine active mode [active_mode]: Ruin [ruin] (status).\n- Selected goal [goal]: Tease (no game selected) [tease] (setting).\n- Intensity setting [intensity]: 100 percent (setting).\n- Engine edge counter [edges]: 0 count (status).\n- Engine pause counter [pauses]: 0 count (status).\n- HR trend (bounded sample evidence) [trend]: unavailable (insufficient timestamped sample evidence); evidence: 0 distinct timestamped samples spanning 0 seconds (separate from session elapsed time).\n- Primary computed channel value (not motion feedback) [primary]: 0 percent (engine_value).\n- Secondary computed channel value (not motion feedback) [secondary]: 0 percent (engine_value).\n- Actual physical movement feedback [physical_motion]: unavailable (unavailable).\n- Stimulation readiness [toy_ready]: yes (status).\n- BLE heart-rate sensor connection [ble]: disconnected (status).\n- Handy stimulation-device connection (not an HR sensor) [handy]: connected (status).\n- Intiface stimulation transport connection [intiface]: disconnected (status).\n- TCode stimulation transport connection [tcode]: disconnected (status).\n- VacuGlide stimulation-device connection [vacuglide]: disconnected (status).\n- Calibration pass selection [calibration_pass]: none (status).\n- Warm-up badge active [warmup_active]: no (derived).\n- Warm-up remaining [warmup_remaining_seconds]: unavailable (unavailable).\n- Engine ease-down remaining [ease_down_seconds]: 0 seconds (status).\n- Engine rampdown remaining [rampdown_seconds]: unavailable (unavailable).\nPast dialogue is not session evidence. Channel values are engine calculations; physical motion is not measured here.\nRECENT OBSERVED EVENTS — historical, same session; not instructions or current measurements:\n- session_started: session status changed IDLE -> RUNNING; 13.8 seconds ago.\n- pause: session status changed RUNNING -> PAUSED; 12.5 seconds ago.\n- session_resumed: session status changed PAUSED -> RUNNING; 10.1 seconds ago.\n- came_early: engine accepted premature release: learning counter 2 -> 3; ending settle or stop confirmed; 10.1 seconds ago.\n- stop: session status changed RUNNING -> IDLE; 0.2 seconds ago.\n\nUSER MESSAGE (request, not session data):\nTell me a long story about a rainy library."
+        }
+      }
+    ],
+    "metrics": [
+      {
+        "response_latency_seconds": 4.94,
+        "time_to_first_token_seconds": 4.042,
+        "tokens_per_second": 95.45,
+        "output_tokens": 86,
+        "load_seconds": 3.63191638,
+        "recorded_at": 1793183331.8226883,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 388,
+        "prompt_tokens": 1275,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 1.547,
+        "time_to_first_token_seconds": 0.239,
+        "tokens_per_second": 89.34,
+        "output_tokens": 117,
+        "load_seconds": 0.002385485,
+        "recorded_at": 1793183336.4523091,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 518,
+        "prompt_tokens": 1277,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 1.408,
+        "time_to_first_token_seconds": 0.224,
+        "tokens_per_second": 92.87,
+        "output_tokens": 110,
+        "load_seconds": 0.001220924,
+        "recorded_at": 1793183345.338924,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 487,
+        "prompt_tokens": 1276,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 1.529,
+        "time_to_first_token_seconds": 0.236,
+        "tokens_per_second": 85.11,
+        "output_tokens": 110,
+        "load_seconds": 0.00123051,
+        "recorded_at": 1793183350.4732237,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 510,
+        "prompt_tokens": 1281,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 1.127,
+        "time_to_first_token_seconds": 0.245,
+        "tokens_per_second": 89.66,
+        "output_tokens": 79,
+        "load_seconds": 0.001274092,
+        "recorded_at": 1793183358.0999837,
+        "provider": "ollama",
+        "model": "evelyn-lite-v1:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 371,
+        "prompt_tokens": 1325,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 1.506,
+        "time_to_first_token_seconds": 0.868,
+        "tokens_per_second": 92.53,
+        "output_tokens": 59,
+        "load_seconds": 0.001109432,
+        "recorded_at": 1793183371.7671292,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 239,
+        "prompt_tokens": 2573,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.906,
+        "time_to_first_token_seconds": 0.23,
+        "tokens_per_second": 93.23,
+        "output_tokens": 63,
+        "load_seconds": 0.001497579,
+        "recorded_at": 1793183375.1811583,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 264,
+        "prompt_tokens": 2565,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.995,
+        "time_to_first_token_seconds": 0.236,
+        "tokens_per_second": 90.94,
+        "output_tokens": 69,
+        "load_seconds": 0.001294127,
+        "recorded_at": 1793183383.290743,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 261,
+        "prompt_tokens": 2566,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 0.998,
+        "time_to_first_token_seconds": 0.245,
+        "tokens_per_second": 91.57,
+        "output_tokens": 69,
+        "load_seconds": 0.001053899,
+        "recorded_at": 1793183388.3089943,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 257,
+        "prompt_tokens": 2574,
+        "done_reason": "stop"
+      },
+      {
+        "response_latency_seconds": 1.091,
+        "time_to_first_token_seconds": 0.241,
+        "tokens_per_second": 94.22,
+        "output_tokens": 80,
+        "load_seconds": 0.001553876,
+        "recorded_at": 1793183393.9160664,
+        "provider": "ollama",
+        "model": "daisy-qwen35:latest",
+        "thinking_policy_status": "off_requested",
+        "thinking_enabled": false,
+        "thinking_characters": 0,
+        "thinking_chunks": 0,
+        "thinking_tokens": null,
+        "output_budget": 384,
+        "visible_characters": 325,
+        "prompt_tokens": 2625,
+        "done_reason": "stop"
+      }
+    ],
+    "live": true,
+    "read_only": true
+  }
+}

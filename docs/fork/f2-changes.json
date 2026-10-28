@@ -1,13 +1,13 @@
 {
   "src/js/app.js": {
     "base_sha256": "8338a6cfe0bfb29a966a7ffcc69ea1507cd92cfea43e7e515c64bd26a716d88d",
-    "sha256": "ffc1c08459011dcdd0cdf8a4e69102768e00b4acfb8ba2f9ba3c6eb5f6f2928b",
-    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged"
+    "sha256": "e3dcc372bd9280fcedb8a621633eb9cf31c902bfb8776af1d75614e5b32197ec",
+    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged; F2.5.1 projects existing learning-release counter only; original handlers and safety unchanged"
   },
   "sw.js": {
     "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
-    "sha256": "0187c0f20568c59a59f2e8971a7d54a6a53cc3313730382222faf635aace3269",
-    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only"
+    "sha256": "86e2e8581a05f958852d8a2f1c163abb8a03c0eddca92e8752a0ed4d6f56104d",
+    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only; F2.5.1 cache version only"
   },
   ".gitignore": {
     "base_sha256": "f5dace1690dab0464685a792bf7005b1e43b16c580cd5dfd8f552f362704c81a",

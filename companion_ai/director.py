@@ -9,6 +9,7 @@ import time
 from typing import Annotated, Literal
 from pydantic import Field
 from .models import StrictModel
+from .event_policy import REACTIVE_EVENTS, SELECTION_EVENTS
 
 Origin = Literal['real_user', 'assistant_dialogue', 'edgeloop_telemetry', 'simulated_telemetry', 'tool_result', 'safety_event', 'system_event']
 Category = Literal['observation', 'significant_event', 'conversational_opportunity', 'safety_event']
@@ -17,6 +18,9 @@ logger = logging.getLogger(__name__)
 class DirectorConfig(StrictModel):
     enabled: bool = True
     spontaneous_enabled: bool = True
+    selection_debounce_seconds: float = Field(default=2.0, ge=.2, le=10)
+    reaction_interval_seconds: float = Field(default=4.0, ge=0, le=60)
+    reaction_user_grace_seconds: float = Field(default=2.0, ge=0, le=30)
     spontaneous_interval_seconds: float = Field(default=120., ge=0, le=3600)
     user_idle_before_spontaneous_seconds: float = Field(default=30., ge=0, le=600)
     topic_protection_seconds: float = Field(default=90., ge=0, le=600)
@@ -109,6 +113,7 @@ class ConversationDirector:
         self.seen={}
         self.last_category={}
         self.last_spoken=float('-inf')
+        self.last_reaction=float('-inf')
         self.last_reason='No speech requested'
         self.model_states={}
         self.active_scope='default'
@@ -173,6 +178,11 @@ class ConversationDirector:
         now=self.clock();group=group_for(event['kind'])
         if not self.config.enabled:return True,'baseline_scheduler'
         if not self.config.spontaneous_enabled:return False,'spontaneous_disabled'
+        if event['kind'] in REACTIVE_EVENTS:
+            if now<event.get('not_before',0):return False,'selection_settling'
+            if now-self.memory['last_user']<self.config.reaction_user_grace_seconds:return False,'user_turn_grace'
+            if now-self.last_reaction<self.config.reaction_interval_seconds:return False,'reaction_cooldown'
+            return True,'verified_action:'+event['kind']
         if group=='tool':return False,'acknowledgement_already_available'
         if now-self.memory['last_user']<self.config.user_idle_before_spontaneous_seconds:return False,'active_conversation'
         if now-self.last_spoken<self.config.spontaneous_interval_seconds:return False,'spontaneous_frequency'
@@ -181,6 +191,7 @@ class ConversationDirector:
         return True,'conversational_opportunity:'+group
 
     def dispatched(self,event,reason):
+        if event['kind'] in REACTIVE_EVENTS:self.last_reaction=self.clock()
         self.last_spoken=self.clock();self.last_category[group_for(event['kind'])]=self.clock()
         self.last_reason=reason
         self.counts['opportunities_dispatched']+=1
@@ -218,10 +229,21 @@ class ConversationDirector:
         score=repetition(text,[r['text'] for r in self.memory['responses']])
         numeric=bool(re.search(r'\b\d{2,3}\s*(?:bpm|beats per minute)\b',text,re.I))
         permitted=user and (numerical_request(prompt) or bool(re.search(r'\b(repeat|again|exactly|nickname|your name)\b',prompt,re.I)))
-        excessive=not permitted and (score['similarity']>=self.config.repetition_threshold or score['repeated_phrase']>=.65 or score['repeated_question']>=.9 or numeric and not numerical_request(prompt))
+        selection_ack=False
+        if not user and prompt.startswith('Observed application event (not a user request): ') and len(text.split())<=40:
+            try:
+                event=json.loads(prompt.split(': ',1)[1])
+                from .grounding import MODE_NAMES
+                field='experience' if event.get('kind')=='experience_changed' else 'goal'
+                value=event.get('current_'+field)
+                names=[str(value),MODE_NAMES.get(value,'')]
+                selection_ack=event.get('kind') in SELECTION_EVENTS and value!=event.get('previous_'+field) and bool(re.search(r'\b(selected|selection|picked|chose|chosen)\b',text,re.I)) and any(name and re.search(r'\b'+re.escape(name)+r'\b',text,re.I) for name in names)
+            except (ValueError,TypeError):pass
+        threshold=max(.95,self.config.repetition_threshold) if selection_ack else self.config.repetition_threshold
+        excessive=not permitted and (score['exact_duplicate'] or score['similarity']>=threshold or score['repeated_phrase']>=(.9 if selection_ack else .65) or score['repeated_question']>=.9 or numeric and not numerical_request(prompt))
         device_narration = user and not tools_relevant(prompt) and bool(re.search(r'\b(simulator|telemetry|device|heart.rate|bpm)\b|\bpulse pattern\b',text,re.I))
         excessive = excessive or device_narration
-        score.update(excessive=excessive,unrequested_device_narration=device_narration,unrequested_numeric=numeric and not numerical_request(prompt),permitted_repetition=permitted)
+        score.update(verified_selection_ack=selection_ack,excessive=excessive,unrequested_device_narration=device_narration,unrequested_numeric=numeric and not numerical_request(prompt),permitted_repetition=permitted)
         self.counts['responses_assessed']+=1
         self.log('repetition_assessment',**score)
         return score

@@ -50,6 +50,8 @@ class ProjectionDetails(StrictModel):
     calibration_pass: Literal['none','primary','dual']
     warmup_active: bool | None
     warmup_remaining_seconds: int | None = Field(ge=0,le=86400)
+    learning_release_count: int | None = Field(default=None,ge=0,le=1000000)
+    settle_outcome: Literal['premature_release'] | None = None
     ease_down_seconds: int | None = Field(ge=0,le=3600)
     rampdown_seconds: int | None = Field(ge=0,le=3600)
 
@@ -88,7 +90,7 @@ class Snapshot(StrictModel):
         return self
 
 EventKind = Literal['session_started','pause','stop','session_resumed','mode_changed','edge',
-                    'signal_lost','signal_restored','no_contact','device_changed','milestone','experience_changed','goal_changed','intensity_changed','threshold_changed']
+                    'signal_lost','signal_restored','no_contact','device_changed','milestone','experience_changed','goal_changed','intensity_changed','threshold_changed','came_early']
 class Event(StrictModel):
     id: Identifier
     kind: EventKind

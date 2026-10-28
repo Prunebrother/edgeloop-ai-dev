@@ -59,7 +59,7 @@ export class CharacterPresentationController {
     select(model,history=[]) {
         this.cancel();const identity=resolveArtwork(model).id;
         if(identity!==this.identity){this.expression='neutral';this.expressionSource='fallback';}
-        this.model=model;this.identity=identity;
+        this.model=model;this.identity=identity;this.lastRequest=null;
         const last=history.filter(m=>m.role==='assistant').at(-1);
         const tone=last&&(EXPRESSIONS.includes(last.expression)?last.expression:classifyDialogue(last.content));if(tone){this.expression=tone;this.expressionSource=EXPRESSIONS.includes(last.expression)?'memory':'fallback';}
         this.activity=this.connected?'idle':'disconnected';this.chatUntil=this.now()+this.chatHoldMs;this.emit();
@@ -68,16 +68,17 @@ export class CharacterPresentationController {
     userMessage(){if(!this.connected)return;this.allowStarts=true;this.activity='generating';this.chatUntil=this.now()+this.chatHoldMs;this.emit();}
     start(id,model=this.model){
         if(!this.connected||!this.allowStarts||model!==this.model||typeof id!=='string'||this.cancelled.has(id)){if(typeof id==='string')this.bounded(this.cancelled,id);return false;}
-        this.active={id,model};this.activity='generating';this.emit();return true;
+        this.lastRequest={id,model};this.active={id,model,expression:null};this.activity='generating';this.emit();return true;
     }
     expressionUpdate(id,expression,model=this.model){
         if(!this.connected||!this.active||this.active.id!==id||model!==this.model||this.active.model!==model||this.cancelled.has(id)||!EXPRESSIONS.includes(expression))return false;
-        this.expression=expression;this.expressionSource='model';this.emit();return true;
+        this.active.expression=expression;this.expression=expression;this.expressionSource='model';this.emit();return true;
     }
     complete(id,text,model=this.model,metadata=null){
         if(!this.connected||!this.active||this.active.id!==id||model!==this.model||this.active.model!==model||this.cancelled.has(id))return false;
-        const expression=metadata&&EXPRESSIONS.includes(metadata.expression)?metadata.expression:classifyDialogue(text);
-        if(expression){this.expression=expression;this.expressionSource=metadata?.expression===expression?'model':'fallback';}
+        const intended=this.active.expression||(metadata&&EXPRESSIONS.includes(metadata.expression)?metadata.expression:null);
+        const expression=intended||classifyDialogue(text);
+        if(expression){this.expression=expression;this.expressionSource=intended?'model':'fallback';}else this.expressionSource='retained';
         this.active=null;this.allowStarts=false;this.activity='idle';this.chatUntil=this.now()+this.chatHoldMs;this.emit();return true;
     }
     cancel(){this.allowStarts=false;if(this.active)this.bounded(this.cancelled,this.active.id);this.active=null;this.activity=this.connected?'idle':'disconnected';this.emit();}
@@ -89,7 +90,7 @@ export class CharacterPresentationController {
         for(const event of events){
             if(typeof event.id!=='string'||event.session_id!==session||this.seen.has(event.id))continue;
             this.bounded(this.seen,event.id);
-            if(event.kind==='stop')this.cancel();
+            if(event.kind==='stop'&&event.preserve_reaction!==true)this.cancel();
         }
     }
     // Voice activities are explicit indicators only; never inferred or animated.

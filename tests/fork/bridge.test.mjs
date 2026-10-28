@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {Capture} from '../../src/js/ai/snapshot.js';
-import {ReadOnlyConnection} from '../../src/js/ai/connection.js';
+import {ReadOnlyConnection,reactionMatchesLatest} from '../../src/js/ai/connection.js';
 const uuid=()=>crypto.randomUUID();
 function raw(){return {sessionStatus:'IDLE',sessionSeconds:0,teaseMode:'classic',activeMode:'classic',gameMode:null,
     sensorHr:90,effectiveMaxHr:140,edgeTriggerHr:133,history:[90],lastHrTimestamp:1,edges:0,intensityValue:50,
@@ -136,4 +136,22 @@ test('configuration changes are not HR changes and paused state is not a resume 
  assert.ok(changed.events.some(e=>e.kind==='threshold_changed'));assert.equal(changed.snapshot.trend,'unknown');
  s.sessionStatus='RAMPDOWN';const phase=c.project(s,devices);assert.ok(!phase.events.some(e=>e.kind==='session_resumed'));
  s.sessionStatus='PAUSED';assert.ok(c.project(s,devices).events.some(e=>e.kind==='pause'));
+});
+
+test('Came Early requires a source counter delta and original accepted ending, never a click or idle write',()=>{
+ let now=1000;const c=new Capture({now:()=>now}),s=raw();s.sessionStatus='RUNNING';s.settleOutcome=null;
+ c.project(s,devices,{learning_release_count:0});now+=500;s.settleOutcome='Premature Release';
+ let projection=c.project(s,devices,{learning_release_count:1});assert(projection.events.some(e=>e.kind==='came_early'));
+ now+=500;assert(!c.project(s,devices,{learning_release_count:1}).events.some(e=>e.kind==='came_early'));
+ s.sessionStatus='IDLE';s.settleOutcome=null;now+=500;c.project(s,devices,{learning_release_count:1});
+ now+=500;assert(!c.project(s,devices,{learning_release_count:2}).events.some(e=>e.kind==='came_early'));
+});
+
+test('a selection reaction cannot update the UI after a newer local engine projection, even before network acknowledgement',()=>{
+ const old={session_id:'s',experience:'headplay',goal:'tease'};
+ assert(reactionMatchesLatest(old,{...old}));
+ assert(!reactionMatchesLatest(old,{...old,experience:'ruin'}));
+ assert(!reactionMatchesLatest(old,{...old,goal:'oracle'}));
+ assert(!reactionMatchesLatest(old,{...old,session_id:'next'}));
+ assert(!reactionMatchesLatest(old,null));assert(reactionMatchesLatest(null,null));
 });

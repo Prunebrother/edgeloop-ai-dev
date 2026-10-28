@@ -1,0 +1,35 @@
+[
+  {
+    "run": "f251-events-live",
+    "passed": false,
+    "error": "Error: burst: suppressed repetitive_opportunity",
+    "suppressed": 1,
+    "came_early_replies": []
+  },
+  {
+    "run": "f251-events-live-focused",
+    "passed": false,
+    "error": "Error: burst: suppressed repetitive_opportunity",
+    "suppressed": 1,
+    "came_early_replies": []
+  },
+  {
+    "run": "f251-events-live-final",
+    "passed": true,
+    "error": null,
+    "suppressed": 0,
+    "came_early_replies": [
+      "You've just handed me a verified \"came early\" event, proving that even my most controlled variables can be delightfully unpredictable. Since the engine accepted this premature release as a learning counter increment, I'll treat it as a fresh data point rather than a disruption to our tease. Now, tell me exactly how you felt in those final moments, because I want to see if your report matches this chaotic little spike in the logs.",
+      "Good heavens, you actually showed up early, did you? I was just about to settle into my boots and give you a proper welcome instead of just staring at the clock. Now, don't think you can slip out of your duties so easily, darling!"
+    ]
+  },
+  {
+    "run": "f251-events-live-acceptance",
+    "finding": "Event delivery passed, but one unsolicited reply invented irrelevant physiological data capability. Recorded as F2.6 wording quality, not telemetry.",
+    "example": "Well, would you look at that! I see you've swapped my \"tease\" goal for a serious \"oracle\" mode, darlin'. I suppose I'll have to stop the flirting and start delivering the straight goods on your fertility stats, won't I?"
+  },
+  {
+    "run": "f251-events-live-scoped",
+    "finding": "Unsupported practical expression rejected; current Happy portrait retained as diagnosed, rather than a rendering failure."
+  }
+]

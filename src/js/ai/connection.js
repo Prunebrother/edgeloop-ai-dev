@@ -67,3 +67,9 @@ export class ReadOnlyConnection {
         this.onStatus('AI disabled; EdgeLoop controls remain independent');
     }
 }
+
+// Presentation freshness only; source is the existing original-engine projection.
+export function reactionMatchesLatest(scope,snapshot){
+    if(!scope)return true;
+    return Boolean(snapshot&&['session_id','experience','goal'].every(key=>typeof scope[key]==='string'&&scope[key]===snapshot[key]));
+}

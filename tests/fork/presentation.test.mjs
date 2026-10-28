@@ -96,3 +96,23 @@ test('stream metadata is request/model scoped, persists through activity and rej
  assert(!c.expressionUpdate('two','proud',evelyn));assert.equal(c.expression,'neutral');
  c.select(evelyn,[{role:'assistant',content:'A clear answer.',expression:'proud'}]);assert.equal(c.expression,'proud');
 });
+
+test('a validated streamed expression outranks fallback prose and activity until request completion',()=>{
+ const {c}=rig();c.userMessage();c.start('stream');c.expressionUpdate('stream','concerned');
+ c.setActivity('speaking');assert(c.complete('stream','I smile warmly.',evelyn));assert.equal(c.expression,'concerned');
+ c.userMessage();c.start('next');assert(!c.expressionUpdate('stream','happy'));c.cancel();assert(!c.expressionUpdate('next','happy'));
+});
+
+test('missing metadata is visibly diagnosed as retained rather than a new model choice',()=>{
+ const {c}=rig();c.userMessage();c.start('a');c.expressionUpdate('a','concerned');c.complete('a','I am listening.',evelyn);
+ c.userMessage();c.start('b');c.complete('b','A plain answer.',evelyn);
+ assert.equal(c.expression,'concerned');assert.equal(c.expressionSource,'retained');
+ c.select(daisy);assert.equal(c.lastRequest,null);
+});
+
+test('verified ending of accepted Came Early preserves its in-flight acknowledgement, ordinary stop cancels',()=>{
+ const {c}=rig();c.userMessage();c.start('release');c.expressionUpdate('release','comforting');
+ c.sessionEvents([{id:'stop-release',kind:'stop',session_id:'s',preserve_reaction:true}],1,'s');
+ assert(c.active);assert(c.complete('release','Take your time.',evelyn));assert.equal(c.expression,'comforting');
+ c.userMessage();c.start('ordinary');c.sessionEvents([{id:'stop-other',kind:'stop',session_id:'s'}],2,'s');assert.equal(c.active,null);
+});

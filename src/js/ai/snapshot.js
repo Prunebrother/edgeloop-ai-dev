@@ -57,6 +57,8 @@ export class Capture {
                 resting_bpm:optional(settings.resting_bpm,30,250),single_max_bpm:optional(settings.single_max_bpm,30,250),dual_max_bpm:optional(settings.dual_max_bpm,30,250),
                 pauses:optional(state.pauses,0,1000000),calibration_pass:['primary','dual'].includes(state.calibrationPass)?state.calibrationPass:'none',
                 warmup_active:warmupActive,warmup_remaining_seconds:warmupActive?Math.ceil(warmup-elapsed):null,
+                learning_release_count:optional(settings.learning_release_count,0,1000000),
+                settle_outcome:state.settleOutcome==='Premature Release'?'premature_release':null,
                 ease_down_seconds:optional(state.settleSecondsLeft,0,3600),
                 rampdown_seconds:state.sessionStatus==='RAMPDOWN'||state.resumeStatus==='RAMPDOWN'?optional(state.rampdownSecondsLeft,0,3600):null}};
         const kinds=[];
@@ -67,6 +69,10 @@ export class Capture {
                 else if(p.status==='IDLE')kinds.push('session_started');
                 else if(p.status==='PAUSED')kinds.push('session_resumed');
             }
+            const releases=snapshot.details.learning_release_count,prior=p.details?.learning_release_count;
+            if(snapshot.session_id===p.session_id&&Number.isInteger(releases)&&Number.isInteger(prior)&&releases>prior&&
+                ['RUNNING','PAUSED'].includes(p.status)&&!['survival','calibrate'].includes(p.active_mode)&&
+                (snapshot.details.settle_outcome==='premature_release'||snapshot.status==='IDLE'))kinds.push('came_early');
             if(snapshot.session_id===p.session_id&&snapshot.edges>p.edges)kinds.push('edge');
             if(snapshot.experience!==p.experience)kinds.push('experience_changed');
             if(snapshot.goal!==p.goal)kinds.push('goal_changed');

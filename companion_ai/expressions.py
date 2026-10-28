@@ -4,10 +4,10 @@ EXPRESSIONS = ('neutral', 'happy', 'playful', 'flirty', 'mischievous', 'focused'
                'excited', 'surprised', 'disappointed', 'concerned', 'proud', 'comforting')
 FORMAT_INSTRUCTION = (
     'Output format v1: begin your reply with exactly one [[expression:ID]] header. '
-    'The word expression is literal: for example [[expression:happy]]. Never put a number in the header. '
+    'The word expression is literal. ID is one allowed identifier, never a number. '
     'Choose ID from: ' + ', '.join(EXPRESSIONS) + '. '
     'Then give your normal dialogue in your established character. '
-    'The header describes your intended delivery, never the user or session state. '
+    'Choose the expression for the delivery of this particular reply; do not copy an earlier header mechanically. The header describes your intended delivery, never the user or session state. '
     'Do not explain the header or narrate a facial gesture for this format.')
 
 
@@ -28,6 +28,7 @@ class ExpressionStream:
         self.tail = ''
         self.oversized = False
         self.expression = None
+        self.candidate = None
         self.valid = None
         self.leading = True
         self.headers = 0
@@ -44,6 +45,7 @@ class ExpressionStream:
         candidate = content.removeprefix('expression:')
         valid = closed and not self.oversized and content.startswith('expression:') and candidate in EXPRESSIONS
         if self.headers == 1:
+            self.candidate = candidate if not self.oversized and 0<len(candidate)<=32 and all(c in 'abcdefghijklmnopqrstuvwxyz_' for c in candidate) else None
             self.valid = valid
             if valid and self.leading and self.enabled:
                 self.expression = candidate

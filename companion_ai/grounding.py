@@ -84,3 +84,18 @@ def render_facts(value):
         lines.extend(f'- {e.kind}: {e.evidence}; {e.age_seconds:.1f} seconds ago.' for e in data.events)
     else:lines.append('RECENT OBSERVED EVENTS: none established in the current observation segment.')
     return '\n'.join(lines)
+
+
+def render_event_facts(value):
+    """Focused view of existing validated facts for a short control-event acknowledgement."""
+    data=SessionFacts.model_validate(value)
+    lines=['CURRENT SESSION — original EdgeLoop, read-only; '+('CURRENT' if data.current else 'UNAVAILABLE / STALE')+'.']
+    for name in ('status','experience','active_mode','goal','handy','ble','intiface','tcode','vacuglide','physical_motion'):
+        f=data.facts[name]
+        if not f.known or not f.current:rendered='unavailable'
+        elif name in {'experience','active_mode','goal'}:rendered=MODE_NAMES.get(f.value,str(f.value))+' ['+str(f.value)+']'
+        elif isinstance(f.value,bool):rendered='connected' if f.value else 'disconnected'
+        else:rendered=str(f.value)
+        lines.append('- '+LABELS[name]+': '+rendered+'.')
+    lines.append('Selections are settings, not hardware activity. Physical movement is not measured. No physiological interpretation is warranted for this acknowledgement.')
+    return '\n'.join(lines)

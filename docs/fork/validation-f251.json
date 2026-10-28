@@ -1,0 +1,19 @@
+{
+  "milestone": "F2.5.1",
+  "baseline": "a91381c",
+  "backup_ref": "backup/f251-before-20261028",
+  "upstream_tests": 1057,
+  "python_tests": 246,
+  "bridge_presentation_tests": 29,
+  "dashboard_passed": true,
+  "artwork_browser_passed": true,
+  "real_control_mock_passed": true,
+  "real_control_live_passed": true,
+  "live_completed_event_reactions": 10,
+  "live_chat_requests": 11,
+  "all_live_payloads_think_false": true,
+  "no_model_or_artwork_changes": true,
+  "remaining_language_quality": "See F251_RELIABILITY.md",
+  "live_valid_expression_metadata": 9,
+  "live_invalid_metadata_fallbacks": 1
+}

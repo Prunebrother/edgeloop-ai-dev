@@ -30,9 +30,9 @@ export class CharacterPresentation {
         this.key=key;const revision=++this.revision;clearTimeout(this.timer);
         if(this.pending){this.pending.onload=this.pending.onerror=null;this.pending.src='';this.pending=null;}
         // Never retain another character's image while its replacement loads.
-        if(this.identity!==view.id){layers.replaceChildren();placeholder.hidden=false;this.displayed=null;}
+        if(this.identity!==view.id){layers.replaceChildren();placeholder.hidden=false;this.displayed=null;this.displayedExpression=null;}
         else if(this.displayed)layers.replaceChildren(this.displayed);
-        this.identity=view.id;this.loadedExpression=null;host.dataset.renderedExpression='';
+        this.identity=view.id;this.loadedExpression=null;host.dataset.renderedExpression=this.displayed?this.displayedExpression||'':'';
         if(!view.src){layers.replaceChildren();placeholder.hidden=false;status.textContent='Portrait unavailable';host.dataset.artworkStatus='unavailable';return;}
         status.textContent='Loading portrait…';host.dataset.artworkStatus='loading';let index=0;
         const img=new Image();this.pending=img;img.className='character-art';img.decoding='async';
@@ -40,7 +40,7 @@ export class CharacterPresentation {
         img.onload=async()=>{
             try{await img.decode();}catch{} // Decode asynchronously; never await it from chat.
             if(revision!==this.revision)return;
-            this.pending=null;this.displayed=img;this.loadedExpression=view.candidates[index].expression;
+            this.pending=null;this.displayed=img;this.loadedExpression=view.candidates[index].expression;this.displayedExpression=this.loadedExpression;
             host.dataset.artworkStatus=this.loadedExpression===view.expression?'intended':'fallback';host.dataset.renderedExpression=this.loadedExpression;
             img.alt=view.name+' · '+title(this.loadedExpression);placeholder.hidden=true;
             // Drop an earlier outgoing layer before starting another transition.
@@ -51,7 +51,7 @@ export class CharacterPresentation {
         };
         img.onerror=()=>{if(revision!==this.revision)return;
             const fallback=view.candidates[++index];if(fallback)img.src=fallback.src;
-            else{this.pending=null;this.displayed=null;layers.replaceChildren();placeholder.hidden=false;status.textContent='Portrait unavailable';host.dataset.artworkStatus='unavailable';host.dataset.renderedExpression='';}
+            else{this.pending=null;this.displayed=null;this.displayedExpression=null;layers.replaceChildren();placeholder.hidden=false;status.textContent='Portrait unavailable';host.dataset.artworkStatus='unavailable';host.dataset.renderedExpression='';}
         };
         img.src=view.src;
     }

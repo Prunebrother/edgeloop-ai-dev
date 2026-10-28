@@ -1,0 +1,38 @@
+{
+  "baseline": "a91381c",
+  "mode": {
+    "first_loss": "observer significance policy",
+    "classification": [
+      "routine",
+      10
+    ]
+  },
+  "goal": {
+    "first_loss": "observer significance policy",
+    "classification": [
+      "routine",
+      10
+    ]
+  },
+  "came_early": {
+    "first_loss": "source projection/protocol",
+    "capture_kind_present": false,
+    "protocol_kind_present": false
+  },
+  "pacing": {
+    "event_ttl_seconds": 60,
+    "director_spontaneous_interval_seconds": 120,
+    "finding": "A milestone can expire before spontaneous pacing permits another reply."
+  },
+  "repetition": {
+    "last_transport_role": "assistant",
+    "last_transport_content": "An earlier assistant reply",
+    "finding": "An application event is carried in SYSTEM; final historical assistant turn can invite continuation."
+  },
+  "expression": {
+    "validated_stream": "concerned",
+    "after_completion_without_metadata": "happy",
+    "first_loss": "presentation completion fallback when final metadata is absent",
+    "finding": "Fallback can replace valid streaming metadata; normal end-to-end metadata is otherwise request scoped."
+  }
+}
