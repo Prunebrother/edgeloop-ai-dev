@@ -12,16 +12,22 @@ class ObservedDevice:
     velocity: int | None = None
     pattern: str = 'unknown'
 
+class Measurement(tuple):
+    def __new__(cls,at,bpm,at_ms):
+        value=super().__new__(cls,(at,bpm));value.at_ms=at_ms;return value
+
 class BrowserObservation:
     def __init__(self, clock=time.monotonic, wall=time.time):
         self.clock,self.wall=clock,wall
         self.report=None;self.received=None;self.connected=False;self.sequence=-1;self.session_id=None
-        self.samples=deque(maxlen=12);self.retired_sessions=deque(maxlen=64)
+        self.invalid_sample_stamp=None;self.measurement_segment=0;self.trend_segment_at=self.clock()
+        self.samples=deque(maxlen=512);self.retired_sessions=deque(maxlen=64)
         self.events=deque(maxlen=32);self.seen_events=OrderedDict();self.accepted_event_ids=set()
         self.capture_delay=0;self.last_sample=None;self.sample_source=None;self.last_capture=None;self.segment_started=self.clock()
 
     def begin_epoch(self):
         self.connected=False;self.sequence=-1;self.received=None
+        self.measurement_segment+=1;self.trend_segment_at=self.clock()
         self.samples.clear();self.events.clear();self.seen_events.clear();self.accepted_event_ids.clear()
         self.last_sample=None;self.sample_source=None;self.last_capture=None;self.segment_started=self.clock()
 
@@ -39,22 +45,29 @@ class BrowserObservation:
         if changed:
             if self.session_id is not None:self.retired_sessions.append(self.session_id)
             self.events.clear();self.seen_events.clear()
-        if changed or gap:
+        if changed or gap or previous and previous['status']!=report['status']:
+            self.measurement_segment+=1;self.trend_segment_at=self.clock()
             self.samples.clear();self.last_sample=None;self.segment_started=self.clock()
         self.sequence=message.sequence;self.report=report;self.session_id=report['session_id']
         self.received=self.clock();self.connected=True;self.last_capture=captured
         self.capture_delay=max(0,self.wall()-captured/1000) if captured is not None else 0
         source=self.hr_source()
         if source!=self.sample_source or not self.hr_current():
+            self.measurement_segment+=1;self.trend_segment_at=self.clock()
             self.samples.clear();self.last_sample=None;self.segment_started=self.clock()
         self.sample_source=source
         stamp=details.get('hr_recorded_at_ms')
+        if stamp is not None and self.last_sample is not None and (stamp<self.last_sample or stamp==self.last_sample and previous and report.get('hr')!=previous.get('hr')):
+            self.invalid_sample_stamp=stamp;self.samples.clear();self.measurement_segment+=1
+        elif stamp is not None and self.invalid_sample_stamp is not None and stamp>self.invalid_sample_stamp:self.invalid_sample_stamp=None
         if self.hr_current() and stamp is not None and stamp!=self.last_sample:
             at=self.received-max(0,details['captured_at_ms']-stamp)/1000-self.capture_delay
-            if self.samples and (at<=self.samples[-1][0] or at-self.samples[-1][0]>5):self.samples.clear()
-            if self.clock()-at<=15 and at>=self.segment_started-.001:self.samples.append((at,self.report['hr']))
+            if self.samples and (at<=self.samples[-1][0] or at-self.samples[-1][0]>15):
+                self.samples.clear();self.measurement_segment+=1;self.trend_segment_at=at
+            elif self.samples and at-self.samples[-1][0]>5:self.trend_segment_at=at
+            if self.clock()-at<=5 and at>=self.segment_started-.001:self.samples.append(Measurement(at,self.report['hr'],stamp))
             self.last_sample=stamp
-        self.samples=deque(((t,b) for t,b in self.samples if self.clock()-t<=15),maxlen=12)
+        self.samples=deque((s for s in self.samples if self.clock()-s[0]<=180),maxlen=512)
         self.accepted_event_ids.clear()
         for event in message.events:
             if event.id in self.seen_events:continue
@@ -103,6 +116,7 @@ class BrowserObservation:
         return 'simulator' if d['simulated_hr'] else 'BLE sensor' if d['ble'] else 'unavailable'
     def hr_current(self):
         if not self.fresh() or self.report['hr'] is None:return False
+        if self.invalid_sample_stamp is not None and (self.report.get('details') or {}).get('hr_recorded_at_ms')==self.invalid_sample_stamp:return False
         r=self.report
         if not r['devices']['hr_ready'] or r['safety']['no_contact'] or r['safety']['signal']!='ok' or (r.get('details') or {}).get('hr_live') is False:return False
         if self.hr_source()=='simulator':return True # The original simulator is a persistent manual slider.
@@ -114,7 +128,7 @@ class BrowserObservation:
     def hr(self):return self.report['hr'] if self.hr_current() else None
     @property
     def trend(self):
-        samples=[(t,b) for t,b in self.samples if self.clock()-t<=15]
+        samples=[(t,b) for t,b in self.samples if self.clock()-t<=15 and t>=self.trend_segment_at][-12:]
         if not self.hr_current() or len(samples)<4 or samples[-1][0]-samples[0][0]<3:return 'unknown'
         changes=[b[1]-a[1] for a,b in zip(samples,samples[1:])];delta=samples[-1][1]-samples[0][1]
         if delta>=3 and all(d>=0 for d in changes):return 'rising'
@@ -132,7 +146,7 @@ class BrowserObservation:
 
     def canonical(self):
         r=self.report or {};d=r.get('details') or {};current=self.fresh();facts={};captured=d.get('captured_at_ms')
-        valid_samples=[(t,b) for t,b in self.samples if self.clock()-t<=15] if self.hr_current() else []
+        valid_samples=[(t,b) for t,b in self.samples if self.clock()-t<=15 and t>=self.trend_segment_at][-12:] if self.hr_current() else []
         span=valid_samples[-1][0]-valid_samples[0][0] if len(valid_samples)>1 else 0
         def add(name,value,kind,source,unit=None,available=True,reason='unavailable',observed=...):
             known=value is not None;live=known and current and available
