@@ -1,0 +1,74 @@
+{
+  "milestone": "F2.8.1",
+  "branch": "experiment/ai-companion",
+  "starting_head": "c3f8e33",
+  "initial_implementation_commit": "9c3f9fe492450a5c7688d46c519cae2ef9bb7224",
+  "final_implementation_commit": "1c541e105922542c9fa3e7485f3c82de1799cf2f",
+  "checkpoint_tag": "f2.8.1-checkpoint",
+  "upstream": {
+    "passed": 1057,
+    "failed_files": 0,
+    "runner": "python tools/fork_validate.py --tests",
+    "evidence": "upstream-tests.json"
+  },
+  "python": {
+    "passed": 418,
+    "deselected": 3,
+    "failed": 0,
+    "new_f281_cases": 46,
+    "seconds": 20.62,
+    "environment_workaround": "test-process-only selector polling at 20ms; no application changes",
+    "unavailable": [
+      "tests/ai/test_development.py::test_observer_occupied_port_is_actionable_and_does_not_publish_token",
+      "tests/ai/test_development.py::test_ui_occupied_port_is_actionable",
+      "tests/fork/test_desktop_launcher.py::test_pairing_only_available_to_same_origin_post"
+    ],
+    "unavailable_reason": "AF_INET socket creation denied: EPERM; attempted in unfiltered suite"
+  },
+  "companion_javascript": {
+    "passed": 37,
+    "failed": 0,
+    "runner": "node --test --test-isolation=none --test-reporter=tap tests/fork/*.test.mjs"
+  },
+  "browser": {
+    "passed": 0,
+    "unavailable_workflows": 7,
+    "attempted_fixture": "context-intelligence-browser.mjs",
+    "result": "Fixture unavailable; localhost server sockets denied by sandbox",
+    "desktop_launcher_browser": "same unavailable prerequisite",
+    "screenshots": []
+  },
+  "live_models": {
+    "endpoint": "http://127.0.0.1:11435",
+    "models": [
+      "evelyn-narrative-v1:latest",
+      "daisy-narrative-v1:latest",
+      "celeste-narrative-v2:latest"
+    ],
+    "status": "unavailable from execution sandbox; discovery ConnectError",
+    "generations": 0,
+    "thinking_policy": false
+  },
+  "safety": {
+    "physical_hardware_tested": false,
+    "services_restarted": false,
+    "installed_models_modified": false,
+    "character_sources_or_artwork_modified": false,
+    "engine_or_drivers_modified": false,
+    "original_app_changes": "read-only final observations only, after original motor-stop/restart actions"
+  },
+  "context_cost_sample": {
+    "extra_grounding_characters": 704,
+    "extra_estimated_tokens": 282,
+    "example_estimated_prompt_tokens_excluding_embedded_identity": 1552,
+    "compile_ms_sample": 0.963,
+    "actual_model_prompt_tokens_or_latency": "not measured"
+  },
+  "remaining_limitations": [
+    "Exact physical-session failure path lacks retained event trace/transcript; code failures reproduced synthetically",
+    "Browser, live narrative and three socket-based tests need a socket-capable environment",
+    "Regex grounding and reference instructions are incomplete; distinct voices and long conversations require human review",
+    "Completed-session summary retention is bounded and process-local",
+    "Existing provisional user streaming can precede final grounding correction"
+  ]
+}
