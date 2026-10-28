@@ -46,3 +46,29 @@ def test_invalid_context_file_preserves_file_and_reports_baseline_fallback(tmp_p
  assert app.state.models.context_config_error and store.read('context-intelligence.json')['schema_version']==99
  app.state.models.configure_context(ContextConfig())
  assert app.state.models.context_config.enabled and app.state.models.context_config_error is None
+
+
+def test_abandonment_drops_chat_queued_behind_discovery_before_old_story_can_restart(tmp_path):
+ import asyncio,threading,httpx
+ from companion_ai.models import AIConfig
+ entered=threading.Event();release=threading.Event();wire=[]
+ mock=runtime(wire,'[[expression:focused]]A fresh garden path waits.')
+ async def transport(request):
+  if request.url.path=='/api/tags':
+   entered.set()
+   while not release.is_set():await asyncio.sleep(.01)
+   return httpx.Response(200,json={'models':[{'name':'qwen3:8b'}]})
+  return mock.handle_request(request)
+ app=create_app(TOKEN,tmp_path,transport=httpx.MockTransport(transport))
+ with TestClient(app) as client:
+  with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+   auth(ws);client.portal.call(app.state.models.start,AIConfig())
+   model=app.state.models.config.model
+   ws.send_json({'version':1,'type':'update_objective','model':model,'action':'create','fields':{'premise':'Find the old notebook.'}});until(ws,'character_state')
+   ws.send_json({'version':1,'type':'list_models'});assert entered.wait(2)
+   ws.send_json({'version':1,'type':'chat','model':model,'text':'Imagine the old notebook mystery.'})
+   ws.send_json({'version':1,'type':'update_objective','model':model,'action':'abandon'})
+   until(ws,'character_state');release.set();until(ws,'models')
+   ws.send_json({'version':1,'type':'get_character_state','model':model});until(ws,'character_state')
+   assert not wire and not app.state.speech.history
+   assert app.state.speech.narrative.state['objective']['status']=='abandoned'

@@ -190,7 +190,13 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                     elif isinstance(message,UpdateObjective):
                         if message.model!=manager.config.model:
                             publish({'type':'character_menu_error','detail':'The selected model changed. Reopen Story Memory.','model':message.model});continue
-                        try:speech.update_objective(message.action,message.fields.model_dump(exclude_none=True) if message.fields else {})
+                        try:
+                            speech.update_objective(message.action,message.fields.model_dump(exclude_none=True) if message.fields else {})
+                            retained=[]
+                            while not ai_queue.empty():
+                                queued=ai_queue.get_nowait()
+                                if not isinstance(queued,Chat) or queued.model!=manager.config.model:retained.append(queued)
+                            for queued in retained:ai_queue.put_nowait(queued)
                         except (ValueError,OSError):publish({'type':'character_menu_error','detail':'Fictional objective could not be applied. Check the lifecycle action and avoid operational measurements or instructions.','model':message.model})
                     elif isinstance(message,ConfigureContext):
                         try:
