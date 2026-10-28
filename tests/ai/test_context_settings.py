@@ -36,3 +36,13 @@ def test_objective_protocol_is_authenticated_model_scoped_and_inference_free(tmp
    state=until(ws,'character_state');assert state['narrative']['objective']['status']=='abandoned'
    assert app.state.speech.narrative.state['context_boundary']
    assert app.state.observation.report is None and not wire
+
+
+def test_invalid_context_file_preserves_file_and_reports_baseline_fallback(tmp_path):
+ from companion_ai.storage import SettingsStore
+ store=SettingsStore(tmp_path);store.write('context-intelligence.json',{'schema_version':99})
+ app=create_app(TOKEN,tmp_path)
+ assert not app.state.models.context_config.enabled
+ assert app.state.models.context_config_error and store.read('context-intelligence.json')['schema_version']==99
+ app.state.models.configure_context(ContextConfig())
+ assert app.state.models.context_config.enabled and app.state.models.context_config_error is None

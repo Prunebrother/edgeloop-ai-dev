@@ -156,3 +156,6 @@ body.companion-app {margin:0;padding:0;display:block;height:100dvh;min-height:0;
 [data-objective-confirm] {font-size:.75rem}
 [data-objective-confirm] input {width:auto}
 [data-context-diagnostics] dd {overflow-wrap:anywhere}
+
+[data-context-intelligence] input[type=number], [data-objective-editor] input:not([type=checkbox]), [data-objective-editor] select {height:auto;min-height:36px;background:#0a1221;color:#e2e8f0;border:1px solid #46516a;border-radius:7px;padding:7px;font:inherit}
+[data-context-intelligence] summary,[data-objective-editor] summary {cursor:pointer;color:#d3baf4;font-size:12px;padding:8px 0}

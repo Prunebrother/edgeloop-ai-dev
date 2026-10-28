@@ -22,7 +22,7 @@ export function mountContextIntelligence(director,story,{send,getModel}) {
   if(model!==state?.model){model=state?.model;dirty=objectiveDirty=saving=objectiveSaving=false;panel.querySelector('[data-context-notice]').textContent='';objective.querySelector('[data-objective-notice]').textContent='';}
   if(state?.context_saved){dirty=saving=false;panel.querySelector('[data-context-notice]').textContent='Context budgets saved locally.';}
   if(state?.objective_saved){objectiveDirty=objectiveSaving=false;objective.querySelector('[data-objective-notice]').textContent='Fictional objective updated.';}
-  config=state?.context_settings||null;
+  config=state?.context_settings||null;if(state?.context_error)panel.querySelector('[data-context-notice]').textContent=state.context_error;
   for(const input of form.querySelectorAll('input,button'))input.disabled=!config||saving;
   if(config&&!dirty&&!saving){form.querySelector('[data-context-enabled]').checked=config.enabled;for(const input of inputs.querySelectorAll('input'))input.value=config[input.name];}
   const dl=panel.querySelector('dl');dl.replaceChildren();const d=state?.context_intelligence;

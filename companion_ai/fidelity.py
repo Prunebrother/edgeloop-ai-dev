@@ -29,9 +29,26 @@ def current_claim(sentence):
     # Negated, conditional or explicitly historical statements are not direct claims.
     return not re.search(r"\b(not|cannot|can't|isn't|aren't|was|were|earlier|previous|historical|whether|if)\b",sentence,re.I)
 
+def timing_violations(text,canonical):
+    """Narrow checks for explicit duration claims; not a general language verifier."""
+    counter=canonical['facts']['seconds'];codes=[]
+    for sentence in re.findall(r'[^.!?]+',text):
+        if re.search(r"\b(?:unavailable|unknown|not measured|cannot|can't|not known|fictional|imagined|earlier)\b",sentence,re.I):continue
+        duration=bool(re.search(r'\b(?:\d+(?:\.\d+)?|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:seconds?|minutes?|hours?)\b',sentence,re.I))
+        if duration and (re.search(r'\b(?:wall[ -]clock|real time|paused duration|pause (?:has )?lasted|including pauses)\b',sentence,re.I)):
+            codes.append('unsupported_wall_or_paused_duration')
+        match=re.search(r'\b(?:engine (?:clock|counter)|active running (?:counter|time)|session (?:running time|clock))\b[^0-9]{0,45}(\d+(?:\.\d+)?)\s*(seconds?|minutes?|hours?)\b',sentence,re.I)
+        if match:
+            if not counter['known'] or not counter['current']:codes.append('unavailable_session_timing')
+            else:
+                value=float(match[1])*(60 if match[2].lower().startswith('minute') else 3600 if match[2].lower().startswith('hour') else 1)
+                tolerance=1 if match[2].lower().startswith('second') else 15
+                if abs(value-counter['value'])>tolerance:codes.append('wrong_running_counter')
+    return codes
+
 def violations(text,canonical,history=(),trigger=None):
     if not canonical:return []
-    facts=canonical['facts'];codes=[];clean=text.replace('**','').replace('_','')
+    facts=canonical['facts'];codes=timing_violations(text,canonical);clean=text.replace('**','').replace('_','')
     allowed={f['value'] for f in facts.values() if f['known'] and f['current'] and f['unit']=='BPM'}
     if trigger and trigger.get('category')=='derived':
         try:

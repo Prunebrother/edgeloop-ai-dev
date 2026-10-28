@@ -51,7 +51,7 @@ try{
  await shot('story-memory-1920.png',1920,1080);await page.keyboard.press('Escape');
  assert(await page.locator('#character-panel img[data-menu-probe=retained]').count()===1,'Menus reloaded the portrait');
  report.steps.push('Both character menus, keyboard/Escape focus restoration, backend settings, no inference, readable story and cancelled reset');
- const before=await state();assert(before.requests.at(-1).messages.at(-1).content.includes('blue envelope'),'Callback context missing');assert(before.requests.every(r=>r.think===false),'Thinking enabled');
+ const before=await state();assert(before.requests.at(-1).messages.some(m=>m.content.includes('blue envelope')),'Callback context missing');assert(before.requests.every(r=>r.think===false),'Thinking enabled');
  await page.getByText('Runtime diagnostics · development',{exact:true}).click();await shot('evelyn-narrative-1920.png',1920,1080);assert(await page.locator('#character-panel').getAttribute('data-character')==='evelyn','Wrong Evelyn artwork');
  await select('daisy-narrative-v1:latest');assert((await state()).context.premise===null,'Narrative leaked between models');await chat('Imagine a Cloverfield mystery. I choose the violet letter.');assert(await page.locator('#character-panel').getAttribute('data-character')==='daisy','Wrong Daisy artwork');await shot('daisy-narrative-2560.png',2560,1440);
  await select('evelyn-narrative-v1:latest');assert((await state()).context.premise.includes('blue envelope'),'Story not restored');assert((await page.locator('[data-history]').textContent()).includes('brass key'),'Dialogue not restored');

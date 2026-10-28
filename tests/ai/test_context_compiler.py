@@ -102,3 +102,22 @@ def test_direct_compiler_client_honors_explicit_epoch_boundary():
  messages,_,_=compile(case,prompt='Hello',narrative_epoch='new')
  assert not any('abandoned' in m['content'] for m in messages)
  assert any('jazz' in m['content'] for m in messages)
+
+
+def test_fresh_premise_does_not_replay_abandonment_request_or_its_acknowledgement():
+ case=cases()[1];case.history=[{'role':'user','content':"Let's abandon this storyline and discuss music."},{'role':'assistant','content':'We can discuss piano music instead.'}]
+ messages,_,_=compile(case,prompt='Imagine a fresh garden mystery. I choose the silver ribbon.',narrative_context={'premise':None,'choices':["Let's abandon this storyline and discuss music."],'developments':['We can discuss piano music instead.']})
+ assert not any('piano music' in m['content'] or 'discuss music' in m['content'] for m in messages)
+
+
+def test_negative_abandonment_keeps_active_story_context():
+ messages,_,d=compile(prompt='Do not abandon the story. Keep the violet notebook.',narrative_context={'premise':'The violet notebook mystery.'})
+ assert 'premise:0' in d['narrative_references'] and 'violet notebook mystery' in messages[-1]['content']
+
+
+def test_recent_explicit_directive_outranks_optional_narrative_under_soft_pressure():
+ case=cases()[1];instruction='Never invent an answer to my questions. '+'Keep the answer transparent. '*35
+ case.history=[{'role':'user','content':instruction}]
+ info={};messages,warnings=compose_messages(case.summary()|{'narrative_context':{'premise':'A library mystery.','developments':['A desk clue.']}},'Hello',case.history,AIConfig(),context_config=ContextConfig(target_prompt_tokens=512,history_tokens=100),diagnostics=info)
+ assert any(m['content']==instruction for m in messages)
+ assert any('explicit user directive' in w for w in warnings)

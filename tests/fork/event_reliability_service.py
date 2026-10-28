@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 """Isolated F2.5.1 browser fixture. No drivers; optional audited existing Ollama."""
-import asyncio,json,os,tempfile
+import asyncio,json,os,tempfile,re
 from pathlib import Path
 import httpx,uvicorn
 from ai_observer.server import create_app
@@ -22,6 +22,12 @@ class Audit(httpx.AsyncBaseTransport):
                 prompt=body['messages'][-1]['content']
                 if 'APPLICATION EVENT / REVISION' in prompt:
                     trigger=json.loads(prompt.split('Observed application event (not a user request): ',1)[-1]) if 'Observed application event (not a user request): ' in prompt else {}
+                    if 'SUPPORTING VERIFIED HISTORICAL EVENTS:\n' in prompt:
+                        values=json.JSONDecoder().raw_decode(prompt.split('SUPPORTING VERIFIED HISTORICAL EVENTS:\n',1)[1])[0]
+                        trigger=values[0] if values else {}
+                        for key,label in [('experience','Selected experience'),('goal','Selected goal')]:
+                            match=re.search(label+r' \['+key+r'\]:[^\n]*\[([a-z]+)\]',prompt)
+                            if match:trigger['current_'+key]=match[1]
                     if trigger.get('kind')=='came_early':text='[[expression:comforting]]EdgeLoop accepted Came Early. Take your time.'
                     else:text='[[expression:focused]]You selected '+str(trigger.get('current_experience'))+' with goal '+str(trigger.get('current_goal'))+'.'
                 elif 'long streaming' in prompt:

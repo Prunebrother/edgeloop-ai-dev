@@ -14,7 +14,7 @@ from .models import SpeechPolicy, AIConfig, MemoryConfig
 from .diagnostics import Metrics
 from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, InferenceCompatibilityError, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
 from .context import compose_messages, ContextBudgetError
-from .context_compiler import ContextConfig
+from .context_compiler import ContextConfig,load_context_config
 from .fidelity import violations, event_violations, GroundingError
 from .director import ConversationDirector, DirectorConfig, silent_response
 
@@ -47,7 +47,7 @@ class ModelManager:
         self.context_warnings = []
         self.model_metadata = None
         self.context_diagnostics = {}
-        self.context_config = ContextConfig.model_validate(store.read('context-intelligence.json',{})) if store else ContextConfig()
+        self.context_config,self.context_config_error = load_context_config(store) if store else (ContextConfig(),None)
         self.tool_executor = None
 
     def provider(self, config=None):
@@ -88,7 +88,7 @@ class ModelManager:
             warnings.append(f'Context adapted to model limit: {limit} tokens; full stored conversation retained.')
         # Validate runtime context and embedded model instructions before switching.
         summary = {}
-        runtime_reserve = len(metadata.get('system', ''))
+        runtime_reserve = max(len(metadata.get('system', '')),len(metadata.get('system', '').encode('utf-8')))
         try:
             compose_messages(summary, 'Context check', [], config, self.memory, reserve_characters=runtime_reserve)
         except ContextBudgetError as exc:
@@ -156,6 +156,7 @@ class ModelManager:
     def configure_context(self,config):
         if self.store:self.store.write('context-intelligence.json',config.model_dump())
         self.context_config=config
+        self.context_config_error=None
 
     def status(self):
         return {"mode": self.mode, "config": self.config.model_dump(), 'load_state': self.load_state,
@@ -180,7 +181,8 @@ class ModelManager:
                 if isinstance(self.adapter,OllamaProvider) and self.model_metadata is None:
                     self.model_metadata = await self.adapter.capabilities(self.config.model)
                 if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                embedded_size = len((self.model_metadata or {}).get('system',''))
+                native_system=(self.model_metadata or {}).get('system','')
+                embedded_size = max(len(native_system),len(native_system.encode('utf-8')))
                 messages,warnings = compose_messages(summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size,context_config=compiler_settings,diagnostics=self.context_diagnostics)
                 self.context_warnings = warnings
                 async with asyncio.timeout(self.config.timeout_seconds):
@@ -329,6 +331,7 @@ class ConversationService:
             'event_intelligence':self.event_intelligence.snapshot(),
             'context_intelligence':getattr(self.adapter,'context_diagnostics',{}),
             'context_settings':getattr(self.adapter,'context_config',ContextConfig()).model_dump(),
+            'context_error':getattr(self.adapter,'context_config_error',None),
             'narrative':narrative,'narrative_enabled':self.narrative.config.enabled,
             'narrative_epoch':self.narrative.state['epoch'],'narrative_revision':self.narrative.state['revision'],
             'director':{'enabled':config.enabled,'proactive_enabled':config.spontaneous_enabled,

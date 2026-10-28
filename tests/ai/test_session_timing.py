@@ -49,3 +49,15 @@ def test_narrative_view_has_scoped_fresh_timing_without_persisted_updates():
  assert 'captured_at_ms' in text and r.observation.session_id in text
  assert 'Wall-clock session duration and paused duration are unavailable' in text
  assert not history
+
+
+def test_explicit_wall_pause_and_wrong_counter_claims_are_rejected():
+ from companion_ai.fidelity import violations
+ r=Replay();r.step(85,seconds=0);r.state['seconds']=408;r.step(85,seconds=0,status='PAUSED')
+ facts=r.observation.canonical()
+ assert 'unsupported_wall_or_paused_duration' in violations('The session has been running nearly seven minutes in real time.',facts)
+ assert 'unsupported_wall_or_paused_duration' in violations('The paused duration is 20 seconds.',facts)
+ assert 'wrong_running_counter' in violations('The engine counter is 500 seconds.',facts)
+ assert not violations('The active running counter is 408 seconds. Wall-clock and paused durations are unavailable.',facts)
+ r.clock.tick(8)
+ assert 'unavailable_session_timing' in violations('The engine clock is at 408 seconds.',r.observation.canonical())
