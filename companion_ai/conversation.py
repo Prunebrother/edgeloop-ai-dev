@@ -14,6 +14,7 @@ from .models import SpeechPolicy, AIConfig, MemoryConfig
 from .diagnostics import Metrics
 from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, InferenceCompatibilityError, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
 from .context import compose_messages, ContextBudgetError
+from .context_compiler import ContextConfig
 from .fidelity import violations, event_violations, GroundingError
 from .director import ConversationDirector, DirectorConfig, silent_response
 
@@ -45,6 +46,8 @@ class ModelManager:
         self.load_state = 'disabled'
         self.context_warnings = []
         self.model_metadata = None
+        self.context_diagnostics = {}
+        self.context_config = ContextConfig.model_validate(store.read('context-intelligence.json',{})) if store else ContextConfig()
         self.tool_executor = None
 
     def provider(self, config=None):
@@ -129,6 +132,7 @@ class ModelManager:
                     provider.thinking_controls = thinking_support(metadata)
                 self.config = config
                 self.model_metadata = metadata
+                self.context_diagnostics = {}
                 self.context_warnings = warnings
                 self.mode, self.load_state = config.provider, 'ready' if target_loaded else 'unloaded'
                 self.metrics.last_error = None
@@ -172,7 +176,7 @@ class ModelManager:
                     self.model_metadata = await self.adapter.capabilities(self.config.model)
                 if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                 embedded_size = len((self.model_metadata or {}).get('system',''))
-                messages,warnings = compose_messages(summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size)
+                messages,warnings = compose_messages(summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size,context_config=self.context_config,diagnostics=self.context_diagnostics)
                 self.context_warnings = warnings
                 async with asyncio.timeout(self.config.timeout_seconds):
                     try:
@@ -182,7 +186,7 @@ class ModelManager:
                         if isinstance(exc,OutputBudgetExceededError) and on_chunk and not on_reset:raise
                         retry_config=self.config.model_copy(update={'max_tokens':min(4096,self.config.max_tokens*2)})
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                        retry_messages,retry_warnings=compose_messages(summary,prompt,history,retry_config,self.memory,reserve_characters=embedded_size)
+                        retry_messages,retry_warnings=compose_messages(summary,prompt,history,retry_config,self.memory,reserve_characters=embedded_size,context_config=self.context_config,diagnostics=self.context_diagnostics)
                         self.stream_reset_reason='output_budget_retry'
                         if on_reset:on_reset()
                         self.context_warnings=retry_warnings+[f'Retrying once with {retry_config.max_tokens} output tokens after the first budget was exhausted; thinking remains disabled.']
@@ -195,7 +199,7 @@ class ModelManager:
                         if on_chunk and not on_reset:raise GroundingError(problems)
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                         repaired_summary=summary | {'grounding_corrections':problems}
-                        repair_messages,repair_warnings=compose_messages(repaired_summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size)
+                        repair_messages,repair_warnings=compose_messages(repaired_summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size,context_config=self.context_config,diagnostics=self.context_diagnostics)
                         self.stream_reset_reason='grounding_retry'
                         if on_reset:on_reset()
                         self.grounding_attempts=2
@@ -204,6 +208,9 @@ class ModelManager:
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                         remaining=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],(summary.get('trigger_event') or summary.get('derived_grounding')))+event_violations(result,summary.get('trigger_event'))
                         if remaining:raise GroundingError(remaining)
+                if self.metrics.samples:
+                    self.context_diagnostics['actual_prompt_tokens']=self.metrics.samples[-1].get('prompt_tokens')
+                    self.context_diagnostics['estimate_error_tokens']=(self.context_diagnostics.get('estimated_prompt_tokens',0)-(self.metrics.samples[-1].get('prompt_tokens') or 0))
                 self.load_state='ready';self.metrics.last_error=None
                 return result
             except asyncio.CancelledError:
@@ -310,6 +317,7 @@ class ConversationService:
             narrative=narrative | {key:list(self.narrative.state[key]) for key in ('developments','choices','commitments')} | {'recent_updates':self.narrative.state['developments'][-3:]}
         return {'type':'character_state','model':self.responder()['model'],
             'event_intelligence':self.event_intelligence.snapshot(),
+            'context_intelligence':getattr(self.adapter,'context_diagnostics',{}),
             'narrative':narrative,'narrative_enabled':self.narrative.config.enabled,
             'narrative_epoch':self.narrative.state['epoch'],'narrative_revision':self.narrative.state['revision'],
             'director':{'enabled':config.enabled,'proactive_enabled':config.spontaneous_enabled,

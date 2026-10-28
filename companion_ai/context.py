@@ -27,7 +27,7 @@ class ContextBudgetError(ValueError):
             'Runtime context was not truncated.')
 
 
-def compose_messages(summary, prompt, history, config, memory=None, reserve_characters=0):
+def compose_legacy(summary, prompt, history, config, memory=None, reserve_characters=0):
     memory = memory or MemoryConfig()
     user = summary.get('conversation_source', 'user') == 'user'
     grounded = 'canonical_session' in summary
@@ -131,3 +131,15 @@ def compose_messages(summary, prompt, history, config, memory=None, reserve_char
     messages = [{'role': 'system', 'content': instructions}] + retained
     messages.append({'role':'user','content':current_prompt,'origin':'real_user' if user else 'system_event'})
     return messages, warnings
+
+
+def compose_messages(summary, prompt, history, config, memory=None, reserve_characters=0, *, context_config=None, diagnostics=None):
+    """Default compiler; explicit F2.7 fallback for comparison/compatibility."""
+    from .context_compiler import ContextCompiler,ContextConfig
+    settings=context_config or ContextConfig()
+    if settings.enabled and 'canonical_session' in summary:
+        messages,warnings,info=ContextCompiler(settings).compile(summary,prompt,history,config,memory,reserve_characters)
+        if diagnostics is not None:diagnostics.clear();diagnostics.update(info)
+        return messages,warnings
+    if diagnostics is not None:diagnostics.clear();diagnostics.update(mode='f27_fallback',model=config.model)
+    return compose_legacy(summary,prompt,history,config,memory,reserve_characters)

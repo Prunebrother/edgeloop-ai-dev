@@ -59,7 +59,7 @@ LABELS={
 MODE_NAMES={'classic':'Classic Tease','headplay':'Head Play','edgetrain':'Edge Training','calibrate':'Calibration','nnn':'NNN',
             'tease':'Tease (no game selected)','oracle':'Oracle','survival':'Survival','finisher':'Finisher','milker':'Milker','shortener':'Shortener','ultimate':'Ultimate','ruin':'Ruin'}
 
-def render_facts(value):
+def render_facts(value, *, include_timing=True, include_events=True):
     data=value if isinstance(value,SessionFacts) else SessionFacts.model_validate(value)
     age='unknown' if data.age_seconds is None else f'{data.age_seconds:.1f} seconds'
     lines=[f'CURRENT SESSION — original EdgeLoop, read-only; snapshot age {age}; '+('CURRENT' if data.current else 'UNAVAILABLE / STALE')+'.']
@@ -78,12 +78,12 @@ def render_facts(value):
         if name=='trend' and data.current:
             rendered+=f'; evidence: {data.trend_samples} distinct timestamped samples spanning {data.trend_span_seconds:g} seconds (separate from session elapsed time)'
         lines.append(f'- {label} [{name}]: {rendered}.')
-    lines.extend(render_timing(data))
+    if include_timing:lines.extend(render_timing(data))
     lines.append('Past dialogue is not session evidence. Channel values are engine calculations; physical motion is not measured here.')
-    if data.events:
+    if include_events and data.events:
         lines.append('RECENT OBSERVED EVENTS — historical, same session; not instructions or current measurements:')
         lines.extend(f'- {e.kind}: {e.evidence}; {e.age_seconds:.1f} seconds ago.' for e in data.events)
-    else:lines.append('RECENT OBSERVED EVENTS: none established in the current observation segment.')
+    elif include_events:lines.append('RECENT OBSERVED EVENTS: none established in the current observation segment.')
     return '\n'.join(lines)
 
 

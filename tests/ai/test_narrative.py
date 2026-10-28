@@ -56,8 +56,8 @@ def test_narrative_phase_requires_story_or_verified_development():
 def test_context_separates_fiction_from_current_facts_and_budget():
     c,o,s=observation();summary=o.summary()|{'conversation_source':'user','narrative_context':narrative().context()}
     messages,warnings=compose_messages(summary,'What is current BPM?',[],AIConfig())
-    text=messages[-1]['content'];assert 'NARRATIVE CONTEXT' in text and 'CURRENT SESSION' in text
-    assert text.count('NARRATIVE CONTEXT')==1 and '98' in text
+    text=messages[-1]['content'];assert 'PRIMARY FOCUS' in text and 'CURRENT SESSION' in text
+    assert 'NARRATIVE CONTEXT' not in text and '98' in text
     assert 'never override CURRENT SESSION' in messages[0]['content']
 
 async def test_cancel_reset_switch_and_event_identity_do_not_save_partial_story():
@@ -100,7 +100,8 @@ async def test_extended_forty_turn_session_and_transport_thinking_off():
         speech.request(p,user=True);await speech.task
         assert len(speech.history)<=8 and len(json.dumps(speech.narrative.context()))<6500
     assert len(wire)==40 and all(w['think'] is False for _,w in wire)
-    assert all('NARRATIVE CONTEXT' in w['messages'][-1]['content'] for _,w in wire)
+    assert all('PRIMARY FOCUS' in w['messages'][-1]['content'] for _,w in wire)
+    assert all(w['messages'][-1]['content'].count('NARRATIVE CONTEXT')<=1 for _,w in wire)
     assert all('[[expression:' not in r['content'] for r in speech.history)
     assert 'blue envelope' in speech.narrative.context()['premise']
     assert len(speech.history)==8
@@ -169,9 +170,10 @@ def test_optional_story_context_yields_to_current_facts_under_tight_budget():
     # Derive a small remaining budget from the actual prompt, not a tokenizer guess.
     config=AIConfig(max_tokens=512)
     messages,_=compose_messages(summary,'Continue the story.',[],config)
-    base=messages[-1]['content'].split('\n\nCURRENT SESSION',1)[-1]
-    target=len(messages[0]['content'])+len(base)+180
-    reserve=int((config.context_length-config.max_tokens-64)*2.5-target)
+    from companion_ai.context_compiler import ContextConfig,estimate
+    base,_=compose_messages(summary,'Continue the story.',[],config,context_config=ContextConfig(narrative_tokens=0))
+    required=sum(estimate(m['content'])+32 for m in base)
+    reserve=int((config.context_length-config.max_tokens-96-required-8)*2.5)
     messages,warnings=compose_messages(summary,'Continue the story.',[],config,reserve_characters=reserve)
     assert 'CURRENT SESSION' in messages[-1]['content']
     assert 'NARRATIVE CONTEXT' not in messages[-1]['content'] and any('narrative' in w for w in warnings)

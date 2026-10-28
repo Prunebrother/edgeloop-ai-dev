@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+from copy import deepcopy
+import pytest
+from companion_ai.context import compose_messages,compose_legacy,ContextBudgetError
+from companion_ai.context_compiler import ContextCompiler,ContextConfig,estimate
+from companion_ai.models import AIConfig,MemoryConfig
+from tests.fork.grounding_cases import cases
+
+def compile(case=None,prompt='Hello',**updates):
+ case=case or cases()[1];summary=case.summary()|updates
+ messages,warnings,diagnostics=ContextCompiler().compile(summary,prompt,case.history,AIConfig(max_tokens=320),MemoryConfig(max_messages=64))
+ return messages,warnings,diagnostics
+
+@pytest.mark.parametrize('prompt,topic,fields,omitted',[
+ ('Hello','general',['status','hr_source'],['hr','seconds','goal']),
+ ('What is my current BPM?','physiology',['hr','hr_source','trend'],['seconds','goal']),
+ ('Which mode and goal are selected?','configuration',['experience','active_mode','goal'],['hr','seconds']),
+ ('How long has the session been running?','timing',['seconds','pauses'],['hr','goal']),
+ ('Is the Handy connected?','devices',['handy','physical_motion'],['hr','seconds'])])
+def test_primary_focus_selects_authoritative_facts(prompt,topic,fields,omitted):
+ messages,warnings,d=compile(prompt=prompt)
+ assert d['focus']['category']=='answer_user' and d['focus']['topic']==topic
+ assert set(fields)<=set(d['supporting_categories'])
+ assert not set(omitted)&set(d['supporting_categories'])
+ assert messages[-1]['content'].endswith(prompt)
+ assert sum(m['content'].count('CURRENT SESSION —') for m in messages)==1
+
+@pytest.mark.parametrize('name',['idle_no_sensor','active_simulated','active_ble','paused','stopped','restart_counters','stale_connection','hardware_disconnected_active'])
+def test_lifecycle_keeps_unknown_sources_and_current_semantics(name):
+ case=next(c for c in cases() if c.name==name)
+ messages,_,d=compile(case,'What is the current BPM?')
+ text=messages[-1]['content']
+ if not case.observation.hr_current():assert 'Heart rate [hr]: unavailable' in text
+ else:assert str(case.observation.hr)+' BPM' in text
+ assert d['focus']['category']=='answer_user'
+
+def test_user_priority_over_event_and_inference_free_compilation():
+ case=cases()[1];event={'kind':'edge','event_id':'verified','session_id':case.observation.session_id,'significance':'major'}
+ messages,_,d=compile(prompt='Which book should we discuss?',trigger_event=event)
+ assert d['focus']['source']=='real_user' and d['focus']['category']=='answer_user'
+ assert 'Answer the current user message first' in messages[-1]['content']
+
+@pytest.mark.parametrize('reason,event',[('stale_or_unavailable',{'created_at_ms':1}),('wrong_session',{'session_id':'old'}),('already_acknowledged',{'id':'acked'})])
+def test_invalid_events_never_become_primary_focus(reason,event):
+ case=cases()[1];obs={'id':'x','kind':'rapid_rise','category':'derived','session_id':case.observation.session_id}|event
+ _,_,d=compile(conversation_source='event',trigger_event={'kind':'rapid_rise','category':'derived','observation':obs},narrative_context={'event_references':[{'event_id':'acked'}]})
+ assert d['focus']['category']=='context_only' and d['excluded_events'][0]['reason']==reason
+
+def test_budget_never_truncates_current_message_or_changes_stored_history():
+ case=cases()[-1];before=deepcopy(case.history);prompt='Please retain my exact instruction: '+'violet '*200
+ messages,warnings,d=compile(case,prompt)
+ assert messages[-1]['content'].endswith(prompt) and case.history==before
+ assert warnings and d['estimated_prompt_tokens']<=d['budget']['hard_prompt_tokens']
+ with pytest.raises(ContextBudgetError):
+  ContextCompiler().compile(case.summary(),'long '*5000,[],AIConfig(context_length=512,max_tokens=96))
+
+
+def test_estimate_is_not_claimed_as_tokenizer_and_unicode_budget_is_conservative():
+ assert estimate('語'*100)>estimate('a'*100)
+ _,_,d=compile();assert 'not tokenizer-exact' in d['estimate_method']
+ assert 'grounding' in d['budget']['categories'] and 'expression' in d['budget']['categories']
+
+
+def test_explicit_f27_fallback_preserves_baseline_without_touching_default():
+ case=cases()[1];kwargs=(case.summary(),'Hello',[],AIConfig())
+ assert compose_messages(*kwargs,context_config=ContextConfig(enabled=False))==compose_legacy(*kwargs)
+ assert sum(len(m['content']) for m in compose_messages(*kwargs)[0])<sum(len(m['content']) for m in compose_legacy(*kwargs)[0])
+
+@pytest.mark.parametrize('value',[{'history_tokens':-1},{'target_prompt_tokens':9000},{'schema_version':2},{'event_max_age_seconds':999}])
+def test_invalid_budgets_are_rejected(value):
+ with pytest.raises(ValueError):ContextConfig.model_validate(value)

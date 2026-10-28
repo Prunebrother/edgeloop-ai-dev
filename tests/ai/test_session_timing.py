@@ -43,7 +43,7 @@ def test_narrative_view_has_scoped_fresh_timing_without_persisted_updates():
  r=Replay();r.step(85,seconds=0)
  summary=r.observation.summary()|{'conversation_source':'user','narrative_context':{'premise':'A fictional mystery'}}
  history=[]
- messages,_=compose_messages(summary,'Continue our story',history,AIConfig(model='evelyn-narrative-v1:latest'))
+ messages,_=compose_messages(summary,'How long has this session been running?',history,AIConfig(model='evelyn-narrative-v1:latest'))
  text=messages[-1]['content']
  assert 'TIMING: active running counter 0 seconds' in text
  assert 'captured_at_ms' in text and r.observation.session_id in text
