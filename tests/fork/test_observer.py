@@ -221,7 +221,12 @@ def test_observation_staleness_token_expiry_and_oversized_frames_do_not_claim_st
             assert app.state.observation.report==state
             now[0]+=3601
             ws.send_json({'version':1,'type':'list_models'})
-            with pytest.raises(WebSocketDisconnect):ws.receive_json()
+            # A stale notice can already be queued before fake-clock expiry.
+            with pytest.raises(WebSocketDisconnect):
+                for _ in range(4):
+                    pending=ws.receive_json()
+                    assert pending['type'] in {'telemetry_status','speech_cancel'}
+                    if pending['type']=='telemetry_status':assert pending['fresh'] is False
         with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
             with pytest.raises(WebSocketDisconnect):auth(ws)
     with TestClient(create_app(TOKEN,tmp_path/'other')) as client:

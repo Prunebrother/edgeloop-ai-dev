@@ -21,6 +21,7 @@ class Fact(StrictModel):
         return self
 
 class HistoricalEvent(StrictModel):
+    event_id: str | None = Field(default=None,max_length=36)
     kind: str = Field(max_length=40)
     evidence: str = Field(max_length=180)
     session_id: str = Field(max_length=36)

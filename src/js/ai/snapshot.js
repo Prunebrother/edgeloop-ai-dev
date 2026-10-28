@@ -59,10 +59,13 @@ export class Capture {
                 warmup_active:warmupActive,warmup_remaining_seconds:warmupActive?Math.ceil(warmup-elapsed):null,
                 learning_release_count:optional(settings.learning_release_count,0,1000000),
                 settle_outcome:state.settleOutcome==='Premature Release'?'premature_release':null,
+                terminal_outcome:({'Calibration':'calibration_completed','Premature Release':'premature_release','Survival Restart':'survival_restart','Stopped':'manual_stop'})[settings.terminal_outcome]|| (settings.terminal_outcome?'other_stop':null),
                 ease_down_seconds:optional(state.settleSecondsLeft,0,3600),
                 rampdown_seconds:state.sessionStatus==='RAMPDOWN'||state.resumeStatus==='RAMPDOWN'?optional(state.rampdownSecondsLeft,0,3600):null}};
         const kinds=[];
         if(p){
+            if(snapshot.details.terminal_outcome==='calibration_completed'&&p.status!=='IDLE'&&snapshot.status==='IDLE')kinds.push('completion_accepted');
+            if(snapshot.details.terminal_outcome==='survival_restart'&&p.details?.terminal_outcome!=='survival_restart'&&p.status!=='IDLE'&&p.active_mode==='survival')kinds.push('completion_accepted');
             if(snapshot.status!==p.status){
                 if(snapshot.status==='IDLE')kinds.push('stop');
                 else if(snapshot.status==='PAUSED')kinds.push('pause');

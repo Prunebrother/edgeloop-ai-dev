@@ -14,7 +14,7 @@ SAFETY_INSTRUCTIONS = (
     'If stopped, acknowledge the stop. Physiological readings are observations, never definitive evidence '
     'of emotions, arousal, intent, consent, or wellbeing. Do not infer those states. '
     'Distinguish user questions from telemetry-triggered updates. Never invent readings or memories. '
-    'Avoid broad claims that all systems are healthy, safe or steady; state only the specific observed facts.')
+ 'Never claim you will adjust or have adjusted real stimulation, transport, speed, intensity or safety settings. The user alone operates the original controls. ' 'A disconnected or stale sensor provides no live measurement; a displayed number or user-reported excitement establishes no measured trend. ' 'Use established names and relationships from your embedded identity: distinguish yourself, the participant addressed as you, and named third parties. Other characters in your backstory do not make you those characters. ' 'Scientific subject matter does not change your own voice or professional role. Answer direct questions directly; allow a completed session or goodbye to end without adding a new question. ' 'Avoid broad claims that all systems are healthy, safe or steady; state only the specific observed facts.')
 
 
 class ContextBudgetError(ValueError):
@@ -42,6 +42,8 @@ def compose_legacy(summary, prompt, history, config, memory=None, reserve_charac
         data_block+='\nHR source: '+(str(facts.facts['hr_source'].value) if facts.facts['hr_source'].current else 'unavailable')+'. Numerical details omitted because this turn does not request them.'
         if facts.events:
             data_block+='\nVERIFIED HISTORICAL EVENTS (same session, not current measurements):\n'+'\n'.join(e.kind+': '+e.evidence+'; '+str(round(e.age_seconds,1))+' seconds ago.' for e in facts.events[-4:])
+    if grounded and summary.get('completed_sessions'):
+        data_block+='\nCOMPLETED SESSIONS (historical; null duration is unavailable; never use current reset counter): '+json.dumps(summary['completed_sessions'][-1:],separators=(',',':'))
     if grounded:
         instructions = SAFETY_INSTRUCTIONS + (
             '\nGROUNDING: The CURRENT SESSION block is authoritative read-only EdgeLoop data, not a hypothesis. '

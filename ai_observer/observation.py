@@ -22,6 +22,7 @@ class BrowserObservation:
         self.report=None;self.received=None;self.connected=False;self.sequence=-1;self.session_id=None
         self.invalid_sample_stamp=None;self.measurement_segment=0;self.trend_segment_at=self.clock()
         self.samples=deque(maxlen=512);self.retired_sessions=deque(maxlen=64)
+        self.completed_sessions=deque(maxlen=8);self.model_scope=None;self.event_diagnostics=deque(maxlen=32)
         self.events=deque(maxlen=32);self.seen_events=OrderedDict();self.accepted_event_ids=set()
         self.capture_delay=0;self.last_sample=None;self.sample_source=None;self.last_capture=None;self.segment_started=self.clock()
 
@@ -70,15 +71,47 @@ class BrowserObservation:
         self.samples=deque((s for s in self.samples if self.clock()-s[0]<=180),maxlen=512)
         self.accepted_event_ids.clear()
         for event in message.events:
-            if event.id in self.seen_events:continue
+            reason=('duplicate_identity' if event.id in self.seen_events else
+                    'wrong_session' if event.session_id is not None and event.session_id!=self.session_id else
+                    'stale_source_timestamp' if event.at_ms is not None and (captured is None or event.at_ms>captured or captured-event.at_ms>5000) else None)
+            evidence=None if reason else self.event_evidence(event.kind,previous,report,gap)
+            self.event_diagnostics.append({'id':event.id,'kind':event.kind,'session_id':event.session_id,
+                'sequence':message.sequence,'source_at_ms':event.at_ms,'received_at_ms':int(self.wall()*1000),
+                'decision':reason or ('accepted_transition' if evidence else 'unproven_transition')})
+            if reason:continue
             self.seen_events[event.id]=True
             if len(self.seen_events)>256:self.seen_events.popitem(last=False)
-            if event.session_id is not None and event.session_id!=self.session_id:continue
-            if event.at_ms is not None and (captured is None or event.at_ms>captured or captured-event.at_ms>5000):continue
-            evidence=self.event_evidence(event.kind,previous,report,gap)
             if evidence:self.accepted_event_ids.add(event.id)
-            if evidence:self.events.append({'kind':event.kind,'evidence':evidence,'session_id':self.session_id,'sequence':self.sequence,'at_ms':event.at_ms,'received':self.clock()-(max(0,captured-event.at_ms)/1000+self.capture_delay if captured is not None and event.at_ms is not None else 0)})
+            if evidence:self.events.append({'event_id':event.id,'kind':event.kind,'evidence':evidence,'session_id':self.session_id,'sequence':self.sequence,'at_ms':event.at_ms,'received':self.clock()-(max(0,captured-event.at_ms)/1000+self.capture_delay if captured is not None and event.at_ms is not None else 0)})
+        if previous and previous['session_id']==report['session_id'] and previous['status']!='IDLE' and report['status']=='IDLE':
+            terminal=details.get('terminal_outcome')
+            pre_reset=bool(terminal and report['seconds']>=previous['seconds'] and report['edges']>=previous['edges'])
+            final=report if pre_reset else previous
+            final_stamp=(final.get('details') or {}).get('captured_at_ms')
+            complete=bool(pre_reset and captured is not None and not gap)
+            classification=('calibration_completed' if terminal=='calibration_completed' and any(e.kind=='completion_accepted' and e.id in self.accepted_event_ids for e in message.events) else
+                            'accidental_release' if terminal=='premature_release' or any(e.kind=='came_early' and e.id in self.accepted_event_ids for e in message.events) else
+                            'manual_stop' if terminal=='manual_stop' else
+                            'stop_with_protection_observed' if previous['safety']['watchdog_paused'] or previous['safety']['fault'] in {'signal_lost','no_contact'} else 'cancelled_or_unclassified_stop')
+            self.completed_sessions.append({'session_id':self.session_id,'model_scope':self.model_scope,
+                'active_running_seconds':final['seconds'] if complete else None,
+                'last_verified_running_ticks':final['seconds'], 'edges':final['edges'],
+                'experience':final['experience'],'goal':final['goal'],'termination':classification,
+                'final_verified_at_ms':final_stamp,'received_at_ms':int(self.wall()*1000),
+                'protection_observed':previous['safety']['watchdog_paused'] or previous['safety']['fault'] in {'signal_lost','no_contact'},
+                'sensor_available':self.hr_current(),'measurement_source':self.hr_source(),
+                'milestones':[{k:v for k,v in e.items() if k in {'event_id','kind','evidence','sequence','at_ms'}} for e in list(self.events)[-6:]],
+                'completeness':'final_counter_captured' if complete else 'final_duration_unavailable',
+                'confidence':'verified_engine_ticks' if complete else 'partial_observation',
+                'wall_clock_seconds':None,'paused_seconds':None})
         return True
+
+    def completed(self):
+        # Read-only facts shared only with the model observing their termination.
+        return [deepcopy({k:v for k,v in s.items() if k!='model_scope'}) | {
+            'historical':True,'age_seconds':round(max(0,self.wall()-s['received_at_ms']/1000),1),
+            'stale':self.wall()*1000-s['received_at_ms']>86400000}
+            for s in self.completed_sessions if s['model_scope']==self.model_scope][-3:]
 
     @staticmethod
     def event_evidence(kind,p,r,gap):
@@ -88,6 +121,12 @@ class BrowserObservation:
         if kind in {'stop','pause','session_resumed','session_started'}:
             allowed={'stop':r['status']=='IDLE' and p['status']!='IDLE','pause':r['status']=='PAUSED' and p['status'] in {'RUNNING','RAMPDOWN'},'session_resumed':p['status']=='PAUSED' and r['status'] in {'RUNNING','RAMPDOWN'},'session_started':p['status']=='IDLE' and r['status']=='RUNNING'}
             return f"session status changed {p['status']} -> {r['status']}" if allowed[kind] else None
+        if kind=='completion_accepted':
+            outcome=(r.get('details') or {}).get('terminal_outcome')
+            if p['status'] not in {'RUNNING','PAUSED','RAMPDOWN'}:return None
+            if outcome=='calibration_completed' and p['active_mode']=='calibrate' and r['status']=='IDLE':return 'Accepted calibration completion; engine ended the session after the confirmed action (not a physiological diagnosis)'
+            if outcome=='survival_restart' and (p.get('details') or {}).get('terminal_outcome')!='survival_restart' and p['active_mode']=='survival' and r['status']=='RUNNING':return 'Accepted Survival completion; original engine restarted its climb, session counter continues (not session termination)'
+            return None
         if kind=='came_early':
             before=(p.get('details') or {}).get('learning_release_count')
             after=(r.get('details') or {}).get('learning_release_count')
@@ -173,10 +212,11 @@ class BrowserObservation:
         return {'source':'original_edgeloop','read_only':True,'observation_fresh':self.fresh(),
                 'observation_age_seconds':None if self.age() is None else round(self.age(),1),
                 'state':deepcopy(self.report) if self.fresh() else None,'canonical_session':self.canonical(),
+                'completed_sessions':self.completed(),
                 'availability':'current observation' if self.fresh() else 'unavailable; never present prior readings as current'}
 
 class ObserverDirector(ConversationDirector):
     def context(self,snapshot,prompt,events,user,memory_enabled=True):
         result=super().context(snapshot,prompt,events,user,memory_enabled)
         # Shared dialogue pacing remains; only this validated canonical data is model evidence.
-        return result | {key:snapshot[key] for key in ('source','read_only','observation_fresh','observation_age_seconds','state','availability','canonical_session') if key in snapshot}
+        return result | {key:snapshot[key] for key in ('source','read_only','observation_fresh','observation_age_seconds','state','availability','canonical_session','completed_sessions') if key in snapshot}

@@ -2031,6 +2031,7 @@ function restartSurvivalAfterOrgasm() {
     document.getElementById('stallGuardNotice')?.classList.add('hidden');
     updateWarmupBadge();
     updateEngine();
+    syncAiObservation(undefined, 'Survival Restart');
     syncTelemetry();
 }
 
@@ -2129,6 +2130,8 @@ function stopSession(outcome = "Stopped", voiceText = null) {
     } catch (e) {
         console.warn('Session history could not be saved', e);
     } finally {
+        // Read-only final projection AFTER motors stop, BEFORE original counters reset.
+        if (wasActive) syncAiObservation(undefined, outcome);
         resetSessionCounters();
         resetGameState();
         leaveCalibration();
@@ -5192,10 +5195,11 @@ function renderRemoteHostSettings(data) {
     if (holdInput && data.edgeHoldPercent !== undefined) holdInput.value = data.edgeHoldPercent;
 }
 
-function syncAiObservation(readiness = hardwareReadiness()) {
+function syncAiObservation(readiness = null, terminalOutcome = null) {
     if (isRemotePage) return;
     // Optional observation only; failure never changes the original control path.
     try {
+        readiness ||= hardwareReadiness();
         const limits = sanitizeHrLimits(document.getElementById('minHr')?.value,
             document.getElementById('maxHr')?.value, state.lastGoodHrLimits || {});
         const dual = parseInt(document.getElementById('dualMaxHr')?.value, 10);
@@ -5206,7 +5210,7 @@ function syncAiObservation(readiness = hardwareReadiness()) {
             single_max_bpm: limits.invalid.includes('max') ? null : limits.maxHr,
             dual_max_bpm: Number.isFinite(dual) && dual > limits.minHr && dual <= 250 ? dual : null,
             warmup_minutes: advancedSettings.warmupMinutes, hr_live: pulseIsLive(),
-            learning_release_count: advancedSettings.learningProfile?.breakthroughEvents ?? 0 });
+            learning_release_count: advancedSettings.learningProfile?.breakthroughEvents ?? 0, terminal_outcome: terminalOutcome });
     } catch { /* AI is optional; the original session continues independently. */ }
 }
 

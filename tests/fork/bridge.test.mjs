@@ -175,3 +175,24 @@ test('a replaced tab yields ownership without reconnecting',()=>{
  assert.equal(c.superseded,true);assert.equal(c.enabled,false);assert.equal(c.token,'');assert.equal(scheduled.length,0);
  c.connect('ws://127.0.0.1:8768/observe','y'.repeat(43));assert.equal(c.superseded,false);c.disconnect();
 });
+
+test('F281 accepted terminal projection preserves final ticks before reset without inventing successful completion',()=>{
+ const capture=new Capture(),s=raw();capture.project(s,devices);s.sessionStatus='RUNNING';s.activeMode='calibrate';s.gameMode='calibrate';s.sessionSeconds=937;capture.project(s,devices);
+ s.sessionStatus='IDLE';const final=capture.project(s,devices,{terminal_outcome:'Calibration'});
+ assert.equal(final.snapshot.seconds,937);assert.deepEqual(final.events.map(e=>e.kind),['completion_accepted','stop']);
+ s.sessionSeconds=0;s.edges=0;const reset=capture.project(s,devices);assert.equal(reset.snapshot.session_id,final.snapshot.session_id);assert.equal(reset.snapshot.seconds,0);assert.deepEqual(reset.events,[]);
+ s.sessionStatus='RUNNING';s.activeMode='classic';s.gameMode='tease';capture.project(s,devices);s.sessionStatus='IDLE';const manual=capture.project(s,devices,{terminal_outcome:'Stopped'});assert.deepEqual(manual.events.map(e=>e.kind),['stop']);
+});
+
+test('F281 Survival acknowledgment requires a new accepted restart marker; session continues',()=>{
+ const capture=new Capture(),s=raw();s.activeMode='survival';s.gameMode='survival';s.sessionStatus='RUNNING';s.sessionSeconds=90;capture.project(s,devices);
+ let p=capture.project(s,devices,{terminal_outcome:'Survival Restart'});assert.deepEqual(p.events.map(e=>e.kind),['completion_accepted']);assert.equal(p.snapshot.status,'RUNNING');assert.equal(p.snapshot.seconds,90);
+ assert.deepEqual(capture.project(s,devices,{terminal_outcome:'Survival Restart'}).events,[]);
+});
+
+test('F281 terminal observation is sent before a coalesced counter reset',()=>{
+ const {c}=setup(),capture=new Capture(),s=raw();c.observe(capture.project(s,devices));c.connect('ws://127.0.0.1:8768/observe','x'.repeat(32));const ws=c.socket;ws.onopen();ws.receive({type:'ready',version:1,epoch:uuid(),read_only:true});
+ s.sessionStatus='RUNNING';s.sessionSeconds=937;c.observe(capture.project(s,devices));s.sessionStatus='IDLE';c.observe(capture.project(s,devices,{terminal_outcome:'Stopped'}));
+ assert.equal(ws.messages.at(-1).snapshot.seconds,937);assert.equal(ws.messages.at(-1).snapshot.details.terminal_outcome,'manual_stop');
+ s.sessionSeconds=0;c.observe(capture.project(s,devices));assert.equal(c.latest.seconds,0);assert.equal(ws.messages.at(-1).snapshot.seconds,0);assert.equal(ws.messages.at(-2).snapshot.seconds,937);
+});

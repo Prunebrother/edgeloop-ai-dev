@@ -42,10 +42,11 @@ export class ReadOnlyConnection {
         };
     }
     observe({snapshot,events}) {
+        const followsTerminal=Boolean(this.latest?.details?.terminal_outcome&&snapshot.status==='IDLE');
         this.latest=snapshot;
         if(!this.enabled||!this.epoch)return;
         for(const e of events){this.pendingEvents.set(e.kind,e);if(this.pendingEvents.size>16)this.pendingEvents.delete(this.pendingEvents.keys().next().value);}
-        if(events.some(e=>['stop','pause','signal_lost'].includes(e.kind)))this.flush(true);
+        if(followsTerminal||snapshot.details?.terminal_outcome||events.some(e=>['stop','pause','signal_lost','came_early','completion_accepted'].includes(e.kind)))this.flush(true);
         else if(!this.flushTimer)this.flushTimer=this.schedule(()=>{this.flushTimer=null;this.flush();},Math.max(0,1000-(this.now()-this.lastSent)));
     }
     flush(urgent=false) {

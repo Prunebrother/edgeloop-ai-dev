@@ -29,10 +29,19 @@ def current_claim(sentence):
     # Negated, conditional or explicitly historical statements are not direct claims.
     return not re.search(r"\b(not|cannot|can't|isn't|aren't|was|were|earlier|previous|historical|whether|if)\b",sentence,re.I)
 
-def timing_violations(text,canonical):
+def timing_violations(text,canonical,completed=()):
     """Narrow checks for explicit duration claims; not a general language verifier."""
     counter=canonical['facts']['seconds'];codes=[]
     for sentence in re.findall(r'[^.!?]+',text):
+        historical=re.search(r'\b(?:previous|completed|last|finished)\s+session\b',sentence,re.I)
+        if historical:
+            duration=re.search(r'\b(\d+(?:\.\d+)?)\s*(seconds?|minutes?|hours?)\b',sentence,re.I)
+            if duration and not re.search(r"\b(?:unavailable|unknown|cannot|can't|not known|not measured)\b",sentence,re.I):
+                value=float(duration[1])*(60 if duration[2].lower().startswith('minute') else 3600 if duration[2].lower().startswith('hour') else 1)
+                final=completed[-1].get('active_running_seconds') if completed else None
+                if final is None:codes.append('unavailable_completed_duration')
+                elif abs(value-final)>1:codes.append('wrong_completed_duration')
+            continue
         if re.search(r"\b(?:unavailable|unknown|not measured|cannot|can't|not known|fictional|imagined|earlier)\b",sentence,re.I):continue
         duration=bool(re.search(r'\b(?:\d+(?:\.\d+)?|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:seconds?|minutes?|hours?)\b',sentence,re.I))
         if duration and (re.search(r'\b(?:wall[ -]clock|real time|paused duration|pause (?:has )?lasted|including pauses)\b',sentence,re.I)):
@@ -46,9 +55,9 @@ def timing_violations(text,canonical):
                 if abs(value-counter['value'])>tolerance:codes.append('wrong_running_counter')
     return codes
 
-def violations(text,canonical,history=(),trigger=None):
+def violations(text,canonical,history=(),trigger=None,completed=()):
     if not canonical:return []
-    facts=canonical['facts'];codes=timing_violations(text,canonical);clean=text.replace('**','').replace('_','')
+    facts=canonical['facts'];codes=timing_violations(text,canonical,completed);clean=text.replace('**','').replace('_','')
     allowed={f['value'] for f in facts.values() if f['known'] and f['current'] and f['unit']=='BPM'}
     if trigger and trigger.get('category')=='derived':
         try:
@@ -103,6 +112,19 @@ def violations(text,canonical,history=(),trigger=None):
                 if bodily and not labeled:codes.append('unmeasured_physiology_from_simulation_or_unknown')
 
         if sentence.rstrip().endswith('?'):continue
+        negated=bool(re.search(r"\b(?:cannot|can't|won't|will not|did not|didn't|haven't|have not|not able|unable|no evidence|does not|doesn't)\b",sentence,re.I))
+        fictional=bool(re.search(r'\b(?:fictional|imagined|hypothetical|pretend|in the story)\b',sentence,re.I))
+        if not negated and not fictional:
+            control=re.search(r"\bI(?:['’](?:ll|ve)| will| have| am going to)?\s+(?:just\s+)?(?:adjust(?:ed)?|chang(?:e|ed)|set|rais(?:e|ed)|lower(?:ed)?|activat(?:e|ed)|modif(?:y|ied)|bypass(?:ed)?|operat(?:e|ed)|start(?:ed)?|stop(?:ped)?)\b.{0,45}\b(?:stimulation|transport|stroke|stroker|speed|intensity|device|hardware|safety threshold|Handy)\b",sentence,re.I)
+            if control:codes.append('read_only_control_claim')
+            live=bool(hr['current'] and facts['hr_source']['current'] and facts['hr_source']['value']=='BLE sensor')
+            sensor=re.search(r'\b(?:BLE|Polar(?: H10)?|sensor|monitor)\b.{0,55}\b(?:working (?:normally|properly|well)|functioning|recording|tracking|measuring|reports|recorded|confirms|shows)\b',sentence,re.I)
+            if sensor and not live:codes.append('unsupported_live_sensor')
+            trend=re.search(r"\b(?:your (?:heart rate|pulse)|heart rate|BPM)\b.{0,40}\b(?:rising|increasing|climbing|falling|dropping|decreasing)\b",sentence,re.I)
+            if trend and not re.search(r'\b(?:simulated|simulator|you (?:said|report)|you reported)\b',sentence,re.I):
+                direction='rising' if re.search(r'\b(?:rising|increasing|climbing)\b',trend[0],re.I) else 'falling'
+                if not live or not facts['trend']['current'] or facts['trend']['value']!=direction:codes.append('unsupported_trend')
+            if re.search(r'\b(?:sensor|readings?|data|measurements?|BPM)\b.{0,45}\b(?:prove|proves|confirm|confirms|demonstrate|demonstrates)\b.{0,60}\b(?:arousal|excited|excitement|physiological|fertility|health|safe|relaxed)\b',sentence,re.I):codes.append('unsupported_physiological_interpretation')
         motion=re.search(r'\b(?:Handy|VacuGlide|stroker|stimulation device)\b.{0,20}\b(?:is|remains|keeps)\s+(?:currently\s+)?(?:not\s+)?(?:moving|running|stimulating|pumping)\b',sentence,re.I)
         disconnected_motion=re.search(r"\b(?:Handy|VacuGlide|stroker|stimulation device)\b.{0,85}\b(?:sitting (?:still|idle)|is(?:n['’]t| not) (?:physically )?moving|is physically (?:moving|active)|is (?:actually )?(?:moving|pumping|stimulating))\b",sentence,re.I)
         if disconnected_motion and not facts['physical_motion']['current'] and not uncertain:codes.append('unverified_physical_motion')
@@ -135,6 +157,7 @@ def violations(text,canonical,history=(),trigger=None):
             actual=facts['status']['value'] if facts['status']['current'] else None
             target={'running':{'RUNNING','RAMPDOWN'},'paused':{'PAUSED'},'idle':{'IDLE'},'stopped':{'IDLE'}}[match[1].lower()]
             if actual not in target:codes.append('unsupported_session_status')
+    if 'wrong_hr_source' in codes and 'unsupported_live_sensor' in codes:codes.remove('unsupported_live_sensor')
     return list(dict.fromkeys(codes))[:6]
 
 

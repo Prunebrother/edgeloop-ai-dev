@@ -161,7 +161,7 @@ class ConversationDirector:
         self.counts['events_received']+=1
         category='safety_event' if priority>=100 else 'significant_event'
         group=group_for(kind)
-        signature=kind+':'+json.dumps({k:v for k,v in details.items() if k not in {'hr','delta_bpm','ack_id','age_seconds','reason'}},sort_keys=True,separators=(',',':'))
+        signature=kind+':'+json.dumps({k:v for k,v in details.items() if k not in {'hr','delta_bpm','ack_id','age_seconds','reason','received_at_ms','sequence'}},sort_keys=True,separators=(',',':'))
         self.seen={k:v for k,v in self.seen.items() if now-v<=self.config.dedup_seconds}
         if len(self.seen)>=256:self.seen.pop(next(iter(self.seen)))
         previous=self.aggregates.get(kind)
@@ -183,6 +183,7 @@ class ConversationDirector:
         if self.clock()<self.typing_until:return False,'user_typing'
         if not self.config.enabled:return True,'baseline_scheduler'
         if not self.config.spontaneous_enabled:return False,'spontaneous_disabled'
+        if event['kind'] in {'completion_accepted','came_early'}:return True,'verified_completion_action:'+event['kind']
         if event['kind'] in REACTIVE_EVENTS:
             if now<event.get('not_before',0):return False,'selection_settling'
             if now-self.memory['last_user']<self.config.reaction_user_grace_seconds:return False,'user_turn_grace'

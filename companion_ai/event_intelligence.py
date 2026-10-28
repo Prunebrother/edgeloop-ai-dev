@@ -135,7 +135,10 @@ class EventIntelligence:
   self.diagnostics.setdefault(key,{})['last_suppression']=reason
  def decision(self,event_id,decision,cooldown=0):
   for record in reversed(self.history):
-   if record['event']['id']==event_id:record['decision']=decision;record['cooldown_until']=self.clock()+max(0,cooldown);return
+   if record['event']['id']==event_id:
+    if not record.get('stages') or record['stages'][-1]['decision']!=decision:
+     record['stages']=(record.get('stages',[])+[{'decision':decision,'at':self.clock()}])[-12:]
+    record['decision']=decision;record['cooldown_until']=self.clock()+max(0,cooldown);return
  def record(self,event):
   self.history.append({'event':event.model_dump(),'decision':'context_only' if event.significance=='routine' else 'detected'})
   if event.significance!='routine':self.last_significant=self.clock()

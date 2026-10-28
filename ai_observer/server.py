@@ -134,7 +134,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         # Latest-state protocol, not a telemetry backlog. Bound flood processing.
                         now=clock()
                         previous=state.report
-                        urgent=previous and ((message.snapshot.status in {'PAUSED','IDLE'} and message.snapshot.status!=previous['status']) or
+                        urgent=bool(message.snapshot.details and message.snapshot.details.terminal_outcome) or bool(previous and (previous.get('details') or {}).get('terminal_outcome') and message.snapshot.status=='IDLE') or previous and ((message.snapshot.status in {'PAUSED','IDLE'} and message.snapshot.status!=previous['status']) or
                             message.snapshot.safety.signal=='stale' and previous['safety']['signal']!='stale')
                         if now-last_observation<.1 and not urgent:
                             publish({'type':'observation_ack','accepted':False,'reason':'rate_limit'});continue
@@ -158,7 +158,9 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             priority, rank=significance(event.kind,previous,state.report)
                             evidence=next((e for e in reversed(state.events) if e['kind']==event.kind),{})
                             if priority in {'major','critical'}:speech.last_validated_event={'kind':event.kind,'significance':priority,'session_id':state.session_id,'received':clock()}
-                            details={'event_id':event.id,'session_id':state.session_id,'at_ms':event.at_ms,'evidence':evidence.get('evidence'),'significance':priority}
+                            details={'event_id':event.id,'session_id':state.session_id,'at_ms':event.at_ms,'sequence':message.sequence,'received_at_ms':int(time.time()*1000),'evidence':evidence.get('evidence'),'significance':priority}
+                            if event.kind=='completion_accepted':
+                                details.update(label='Accepted original Finished me outcome',meaning=evidence.get('evidence'))
                             if event.kind=='came_early':
                                 details.update(label='Came Early: user-confirmed premature release',meaning='The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.')
                             if event.kind in {'experience_changed','goal_changed'}:
@@ -171,14 +173,20 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             if not eligible or not relevance:
                                 speech.event_intelligence.decision(event.id,'context_only:disabled_or_character_preference')
                                 narrative_priority='routine' if priority!='critical' else priority
-                            accepted_release=any(e.kind=='came_early' and e.id in state.accepted_event_ids for e in message.events)
-                            release_pending=any(e['kind']=='came_early' for e in speech.pending) or (speech.active_event_kind=='came_early' and speech.task is not None and not speech.task.done())
+                            accepted_release=any(e.kind in {'came_early','completion_accepted'} and e.id in state.accepted_event_ids for e in message.events)
+                            release_pending=any(e['kind'] in {'came_early','completion_accepted'} for e in speech.pending) or (speech.active_event_kind in {'came_early','completion_accepted'} and speech.task is not None and not speech.task.done())
                             if event.kind in {'stop','session_resumed'} and (accepted_release or release_pending):
+                                if event.kind=='stop':
+                                    for queued in list(speech.pending):
+                                        if queued['kind'] not in {'came_early','completion_accepted'}:
+                                            speech.pending.remove(queued);speech.event_intelligence.decision(queued.get('event_id'),'discarded:session_ended')
+                                    if speech.active_source=='event' and speech.active_event_kind not in {'came_early','completion_accepted'}:speech.interrupt()
+                                    speech.event_intelligence.decision(event.id,'context_only:completion_transition')
                                 director.observation(event.kind,details,'edgeloop_telemetry');continue
                             if priority=='critical' or event.kind in {'pause','stop'}:
                                 speech.safety(event.kind)
                                 speech.event_intelligence.decision(event.id,'deterministic_safety_notice')
-                            if narrative_priority=='major':speech.enqueue(event.kind,rank,details)
+                            if narrative_priority=='major' and event.kind not in {'stop','pause'}:speech.enqueue(event.kind,rank,details)
                             elif narrative_priority=='routine':
                                 speech.event_intelligence.decision(event.id,'context_only:low_significance' if eligible and relevance else 'context_only:disabled_or_character_preference')
                                 director.observation(event.kind,details,'edgeloop_telemetry')
@@ -186,7 +194,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         speech.process_derived()
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
-                            'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (accepted_release or any(p['kind']=='came_early' for p in speech.pending) or speech.active_event_kind=='came_early' and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
+                            'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (accepted_release or any(p['kind'] in {'came_early','completion_accepted'} for p in speech.pending) or speech.active_event_kind in {'came_early','completion_accepted'} and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
                     elif isinstance(message,UpdateObjective):
                         if message.model!=manager.config.model:
                             publish({'type':'character_menu_error','detail':'The selected model changed. Reopen Story Memory.','model':message.model});continue
@@ -197,7 +205,13 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 queued=ai_queue.get_nowait()
                                 if not isinstance(queued,Chat) or queued.model!=manager.config.model:retained.append(queued)
                             for queued in retained:ai_queue.put_nowait(queued)
-                        except (ValueError,OSError):publish({'type':'character_menu_error','detail':'Fictional objective could not be applied. Check the lifecycle action and avoid operational measurements or instructions.','model':message.model})
+                        except ValidationError as exc:
+                            errors=[{'field':str(e['loc'][-1]),'message':e['msg'].removeprefix('Value error, ')} for e in exc.errors(include_input=False,include_url=False,include_context=False)][:8]
+                            publish({'type':'character_menu_error','code':'objective_validation','detail':'; '.join(e['field']+': '+e['message'] for e in errors),'errors':errors,'model':message.model})
+                        except OSError:
+                            publish({'type':'character_menu_error','code':'objective_persistence','detail':'Story Memory could not be saved. Previous objective retained; check local storage permissions and available space.','model':message.model})
+                        except ValueError as exc:
+                            publish({'type':'character_menu_error','code':'objective_lifecycle','detail':str(exc)[:240],'model':message.model})
                     elif isinstance(message,ConfigureContext):
                         try:
                             manager.configure_context(message.config)

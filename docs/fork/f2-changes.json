@@ -1,13 +1,13 @@
 {
   "src/js/app.js": {
     "base_sha256": "8338a6cfe0bfb29a966a7ffcc69ea1507cd92cfea43e7e515c64bd26a716d88d",
-    "sha256": "e3dcc372bd9280fcedb8a621633eb9cf31c902bfb8776af1d75614e5b32197ec",
-    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged; F2.5.1 projects existing learning-release counter only; original handlers and safety unchanged"
+    "sha256": "26f9efde7aab5c84ade0d5062ce5e8bc38be5191b9eb3b02ddbe97fe8fa98c7a",
+    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged; F2.5.1 projects existing learning-release counter only; original handlers and safety unchanged; F2.8.1 adds post-motor-stop/pre-counter-reset read-only final projection and Survival restart observation only"
   },
   "sw.js": {
     "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
-    "sha256": "69b4e166155ff0bd64d9f201c59fe00c184bf14fdf8584fb1eb2a793977bee55",
-    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only; F2.5.1 cache version only; F2.6 cache version only; F2.6.1 character menu module and cache invalidation; F2.7 event settings module and cache invalidation; F2.8 context tools precache and cache invalidation"
+    "sha256": "de4d8bfaf63ae3aee416bf95e2dd96325517849e5c1388970f948b88db210569",
+    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only; F2.5.1 cache version only; F2.6 cache version only; F2.6.1 character menu module and cache invalidation; F2.7 event settings module and cache invalidation; F2.8 context tools precache and cache invalidation; F2.8.1 cache invalidation only"
   },
   ".gitignore": {
     "base_sha256": "f5dace1690dab0464685a792bf7005b1e43b16c580cd5dfd8f552f362704c81a",

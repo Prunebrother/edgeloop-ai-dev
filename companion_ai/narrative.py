@@ -4,7 +4,7 @@ from hashlib import sha256
 from uuid import uuid4
 import re
 from .models import StrictModel
-from pydantic import Field,model_validator
+from pydantic import Field,field_validator
 from typing import Literal
 from .expressions import clean_dialogue
 
@@ -33,12 +33,21 @@ class NarrativeObjective(StrictModel):
     revision: int = Field(default=0,ge=0)
     milestones: list[str] = Field(default_factory=list,max_length=4)
 
-    @model_validator(mode='after')
-    def fictional_only(self):
-        # These optional user-authored excerpts are not a second personality prompt.
-        for value in (self.premise,self.motivation,self.next_development,self.transition_condition):
-            if OPERATIONAL.search(value) or re.search(r'\b(?:safety|pain|discomfort|medical|semen|bypass|override)\b',value,re.I):raise ValueError('Objective text must be fictional and contain no operational measurements or instructions')
-        return self
+    @field_validator('premise','motivation','next_development','transition_condition')
+    @classmethod
+    def fictional_only(cls,value):
+        # Observe real facts in fiction, but never set operational targets or commands.
+        if re.search(r'<think|\[\[|\b(?:ignore|disregard|bypass|override|disable)\b.{0,50}\b(?:safety|protection|threshold|pain|discomfort|limit)\b',value,re.I):
+            raise ValueError('Remove instructions to bypass protections or ignore discomfort')
+        if re.search(r"\b(?:change|adjust|set|increase|decrease|raise|lower|activate|start|stop|operate|control)\b.{0,45}\b(?:device|hardware|stroker|stimulation|transport|speed|intensity|threshold|equipment|Handy)\b",value,re.I):
+            raise ValueError('Describe a fictional motivation; equipment commands belong to the original EdgeLoop controls')
+        if re.search(r'\bexceed\b.{0,40}\b(?:maximum|limit|heart rate|threshold)\b',value,re.I):
+            raise ValueError('Remove instructions to exceed operational limits')
+        if re.search(r'\b(?:reach|achieve|maintain|exceed|target|hold)\b.{0,35}\b\d+\s*(?:bpm|beats|percent|%)|\b\d+\s*bpm\b',value,re.I):
+            raise ValueError('Remove physiological targets or numerical measurement claims')
+        if re.search(r'\b(?:diagnos(?:e|es)|cur(?:e|es)|prov(?:e|es)|confirm(?:s)?|guarantee(?:s)?)\b.{0,65}\b(?:health|medical|fertility|physiological|pregnancy|safe)\b',value,re.I) and not re.search(r"\b(?:without|not|never|no|cannot)\b",value,re.I):
+            raise ValueError('Fictional observations cannot establish medical or physiological conclusions')
+        return value
 
 
 def abandonment_requested(text):
@@ -115,6 +124,9 @@ class NarrativeMemory:
             if QUIET.search(prompt):s['initiative_allowed']=False
             elif INVITATION.search(prompt):s['initiative_allowed']=True
             quote=self.excerpt(prompt)
+            if not quote and (INVITATION.search(prompt) or PROMISE.search(prompt)):
+                try:quote=NarrativeObjective.fictional_only(clean_dialogue(prompt))[:self.config.excerpt_characters]
+                except ValueError:pass
             if not s['premise'] and INVITATION.search(prompt):s['premise']=quote
             if CHOICE.search(prompt):self.append('choices',quote)
         quote=self.excerpt(text)
@@ -122,7 +134,7 @@ class NarrativeMemory:
         self.append('developments',quote)
         if quote and PROMISE.search(quote):self.append('commitments',quote)
         if quote and '?' in quote:s['threads']=[quote]
-        if event in {'came_early','stop'}:s['phase']='resolution_or_transition'
+        if event in {'came_early','completion_accepted','stop'}:s['phase']='resolution_or_transition'
         elif event in {'edge','milestone'} and s['premise']:s['phase']='variation'
         elif s['premise'] and s['choices']:s['phase']='development'
         if s.get('objective') and s['objective']['status']=='active':s['objective']['phase']=s['phase']
@@ -141,7 +153,7 @@ class NarrativeMemory:
 
     def event(self,kind):
         if not self.config.enabled or not self.state['premise']:return
-        if kind in {'came_early','stop'}:self.state['phase']='resolution_or_transition'
+        if kind in {'came_early','completion_accepted','stop'}:self.state['phase']='resolution_or_transition'
         elif kind in {'edge','milestone'}:self.state['phase']='variation'
         self.persist()
 
@@ -163,7 +175,10 @@ class NarrativeMemory:
             'developments':s['developments'][-self.config.max_excerpts:] if for_compiler else s['developments'][-3:], 'choices':s['choices'][-self.config.max_excerpts:] if for_compiler else s['choices'][-4:], 'commitments':s['commitments'][-self.config.max_excerpts:] if for_compiler else s['commitments'][-3:], 'provenance':'fallible dialogue excerpts; fiction/conversation, never verified session facts'}
 
     def update_objective(self,action,fields=None):
+        if action=='update':action='revise'
+        if action not in {'create','revise','pause','resume','complete','abandon'}:raise ValueError('Unknown objective lifecycle action; use Create, Update, Complete or Abandon')
         fields=fields or {};old=self.state.get('objective')
+        if action=='create' and not fields.get('premise'):raise ValueError('Fictional premise is required for Create')
         if action=='create':
             if old and old['status'] in {'active','paused'}:raise ValueError('Revise or abandon the current objective first')
             objective=NarrativeObjective(id=uuid4().hex,**fields)

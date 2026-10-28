@@ -200,7 +200,7 @@ class ModelManager:
                         result=await collect_reply(self.adapter,LLMRequest(retry_config,tuple(ChatMessage(**m) for m in retry_messages)),chunk,on_expression)
                     # A slow generation must not turn an expired/request-time fact into a live claim.
                     if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                    problems=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],(summary.get('trigger_event') or summary.get('derived_grounding')))+event_violations(result,summary.get('trigger_event'))
+                    problems=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],(summary.get('trigger_event') or summary.get('derived_grounding')),summary.get('completed_sessions',()))+event_violations(result,summary.get('trigger_event'))
                     self.grounding_attempts=1;self.grounding_corrections=problems
                     if problems:
                         if on_chunk and not on_reset:raise GroundingError(problems)
@@ -213,7 +213,7 @@ class ModelManager:
                         self.context_warnings+=['One factual correction requested: '+', '.join(problems)]+repair_warnings
                         result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in repair_messages)),chunk,on_expression)
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                        remaining=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],(summary.get('trigger_event') or summary.get('derived_grounding')))+event_violations(result,summary.get('trigger_event'))
+                        remaining=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],(summary.get('trigger_event') or summary.get('derived_grounding')),summary.get('completed_sessions',()))+event_violations(result,summary.get('trigger_event'))
                         if remaining:raise GroundingError(remaining)
                 if self.metrics.samples:
                     self.context_diagnostics['actual_prompt_tokens']=self.metrics.samples[-1].get('prompt_tokens')
@@ -223,8 +223,6 @@ class ModelManager:
                 return result
             except asyncio.CancelledError:
                 self.load_state='unloaded'
-                raise
-            except asyncio.CancelledError:
                 self.context_diagnostics['request_status']='cancelled'
                 raise
             except (httpx.HTTPError,ValueError,TimeoutError) as exc:
@@ -302,6 +300,7 @@ class ConversationService:
             stored = store.read(self.memory_path(scope), [])
         self.history = deque([dict(m, content=clean_dialogue(m['content'])) if m.get('role')=='assistant' else m for m in (stored or [])], maxlen=memory.max_messages)
         self.active_model_id = scope
+        if hasattr(self.state,'model_scope'):self.state.model_scope=scope
         if hasattr(self,'pending'):
             for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:model_switch')
             self.pending.clear()
@@ -329,6 +328,8 @@ class ConversationService:
             narrative=narrative | {key:list(self.narrative.state[key]) for key in ('developments','choices','commitments')} | {'recent_updates':self.narrative.state['developments'][-3:]}
         return {'type':'character_state','model':self.responder()['model'],
             'event_intelligence':self.event_intelligence.snapshot(),
+            'event_lifecycle':list(getattr(self.state,'event_diagnostics',[]))[-8:],
+            'completed_sessions':self.state.completed() if hasattr(self.state,'completed') else [],
             'context_intelligence':getattr(self.adapter,'context_diagnostics',{}),
             'context_settings':getattr(self.adapter,'context_config',ContextConfig()).model_dump(),
             'context_error':getattr(self.adapter,'context_config_error',None),
@@ -413,12 +414,14 @@ class ConversationService:
     def safety(self, reason):
         self.sync_narrative()
         self.narrative.event(reason)
-        for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:safety_priority')
-        self.pending.clear()
+        retained=[e for e in self.pending if reason=='stop' and e['kind'] in {'came_early','completion_accepted'}]
+        for event in self.pending:
+            if event not in retained:self.event_intelligence.decision(event.get('event_id'),'discarded:safety_priority')
+        self.pending=retained
         self.director.receive(reason, 100, origin='safety_event')
         self.director.last_reason = 'deterministic_safety:' + reason
         self.recent_events.append({"kind": reason, "at": self.clock(), "priority": 100})
-        self.interrupt()
+        if not (reason=='stop' and self.active_event_kind in {'came_early','completion_accepted'}):self.interrupt()
         # Deterministic immediate notice; never wait for a model or rate limiter.
         self.publish({"type": "speech", "id": str(uuid4()), "source": "safety",
                       "text": f"EdgeLoop reports: {reason.replace('_', ' ')}.",
@@ -486,6 +489,9 @@ class ConversationService:
         for event in self.pending:
             if now-event['at']>self.policy.event_ttl_seconds or event.get('category')=='derived' and (event.get('session_id')!=getattr(self.state,'session_id',None) or event.get('narrative_epoch')!=self.narrative.state['epoch']):self.event_intelligence.decision(event.get('event_id'),'discarded:stale_or_scope')
         self.pending = [e for e in self.pending if now-e['at']<=self.policy.event_ttl_seconds and (e.get('category')!='derived' or e.get('session_id')==getattr(self.state,'session_id',None) and e.get('narrative_epoch')==self.narrative.state['epoch'])]
+        for event in list(self.pending):
+            if event['kind'] in {'session_started','session_resumed'} and not self.reaction_current({'trigger_event':event}):
+                self.pending.remove(event);self.event_intelligence.decision(event.get('event_id'),'discarded:superseded_state')
         if getattr(self.adapter, "mode", None) in {"mock", "stopped"}:
             return
         if not self.director.config.spontaneous_enabled:return
@@ -526,7 +532,7 @@ class ConversationService:
             remaining=0
             if detector in self.event_intelligence.config.detectors:
                 remaining=self.event_intelligence.config.detectors[detector].cooldown_seconds-(now-self.event_intelligence.commentary_at.get(detector,float('-inf')))
-                if remaining>0:allowed,reason=False,'detector_commentary_cooldown'
+                if remaining>0 and candidate['kind'] not in {'completion_accepted','came_early'}:allowed,reason=False,'detector_commentary_cooldown'
             self.event_intelligence.decision(candidate.get('event_id'),('respond_now:' if allowed else 'deferred:')+reason,max(0,remaining) if reason=='detector_commentary_cooldown' else max(0,self.director.config.spontaneous_interval_seconds-(now-self.director.last_spoken)) if reason=='spontaneous_frequency' else max(0,self.director.config.category_cooldowns.get('physiology',0)-(now-self.director.last_category.get('physiology',float('-inf')))) if reason=='category_cooldown' else 0)
             if allowed:opportunities.append((candidate,reason))
             elif reason!=self.director.last_reason:
@@ -616,7 +622,10 @@ class ConversationService:
     def reaction_current(self, summary):
         event=summary.get('trigger_event',{})
         report=getattr(self.state,'report',None)
-        if event.get('kind') not in SELECTION_EVENTS or report is None:return True
+        if report is None:return True
+        if event.get('session_id') and getattr(self.state,'session_id',None) is not None and event['session_id']!=self.state.session_id:return False
+        if event.get('kind') in {'session_started','session_resumed'} and report['status'] not in {'RUNNING','RAMPDOWN'}:return False
+        if event.get('kind') not in SELECTION_EVENTS:return True
         return all(report.get(field)==event.get('current_'+field) for field in ('experience','goal') if 'current_'+field in event)
 
     async def _generate(self, request_id, generation, summary, prompt, history, user):
@@ -624,6 +633,7 @@ class ConversationService:
         scope={'reaction_selection':{'session_id':trigger.get('session_id') or summary.get('canonical_session',{}).get('session_id'),'experience':trigger.get('current_experience'),'goal':trigger.get('current_goal')}} if trigger.get('kind') in SELECTION_EVENTS else {}
         def publish(message):self.publish(message | scope)
         try:
+            self.event_intelligence.decision(trigger.get('event_id'),'generation_started')
             source = "user" if user else "event"
             responder = self.responder()
             publish({"type": "response_start", "id": request_id, "source": source, "generation": generation, 'responder': responder})
@@ -662,8 +672,10 @@ class ConversationService:
             else:
                 text = await self.adapter.reply(summary, prompt, history)
             if generation != self.generation or summary.get('narrative_scope')!=self.narrative_scope():
+                self.event_intelligence.decision(trigger.get('event_id'),'discarded:generation_scope_changed')
                 return
             if not self.reaction_current(summary):
+                self.event_intelligence.decision(trigger.get('event_id'),'discarded:superseded_state')
                 self.director.log('selection_superseded')
                 publish({'type':'response_suppressed','id':request_id,'reason':'selection_superseded'})
                 return
@@ -699,7 +711,7 @@ class ConversationService:
                     self.director.log('repetitive_opportunity_suppressed')
                     publish({'type':'response_suppressed','id':request_id,'reason':'repetitive_opportunity'})
                     return
-                if generation != self.generation:return
+                if generation != self.generation or not self.reaction_current(summary):return
                 flush(force=True)
                 if not user:publish({'type':'response_delta','id':request_id,'source':source,'generation':generation,'text':text})
             metadata=getattr(getattr(self.adapter,'adapter',None),'last_expression_metadata',{})

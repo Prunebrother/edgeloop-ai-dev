@@ -54,6 +54,7 @@ class ProjectionDetails(StrictModel):
     warmup_remaining_seconds: int | None = Field(ge=0,le=86400)
     learning_release_count: int | None = Field(default=None,ge=0,le=1000000)
     settle_outcome: Literal['premature_release'] | None = None
+    terminal_outcome: Literal['calibration_completed','premature_release','survival_restart','manual_stop','other_stop'] | None = None
     ease_down_seconds: int | None = Field(ge=0,le=3600)
     rampdown_seconds: int | None = Field(ge=0,le=3600)
 
@@ -92,7 +93,7 @@ class Snapshot(StrictModel):
         return self
 
 EventKind = Literal['session_started','pause','stop','session_resumed','mode_changed','edge',
-                    'signal_lost','signal_restored','no_contact','device_changed','milestone','experience_changed','goal_changed','intensity_changed','threshold_changed','came_early']
+                    'signal_lost','signal_restored','no_contact','device_changed','milestone','experience_changed','goal_changed','intensity_changed','threshold_changed','came_early','completion_accepted']
 class Event(StrictModel):
     id: Identifier
     kind: EventKind
@@ -152,7 +153,7 @@ class UpdateObjective(StrictModel):
     version: Literal[1]
     type: Literal['update_objective']
     model: str = Field(min_length=1,max_length=120)
-    action: Literal['create','revise','pause','resume','complete','abandon']
+    action: Literal['create','update','revise','pause','resume','complete','abandon']
     fields: ObjectiveFields | None = None
 
 class ConfigureContext(StrictModel):
