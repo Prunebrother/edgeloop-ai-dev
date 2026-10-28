@@ -130,7 +130,12 @@ def event_violations(text,event):
             for sentence in re.findall(r'[^.!?]+',text):
                 if re.search(r"\b(?:your|our|my)\s+(?:own\s+)?(?:actual\s+)?(?:heart(?: rate)?|pulse|body)\b",sentence,re.I) and not re.search(r"\b(?:not your|not our|not my|cannot|can't|unmeasured|not measured)\b",sentence,re.I):return ['simulator_is_not_user_physiology']
         for sentence in re.findall(r'[^.!?]+',text):
-            if re.search(r'\b(?:heart|pulse|BPM|spike|rise|fall|drop|increase|decrease|numbers)\b',sentence,re.I) and re.search(r"\b(?:suggests?|suggesting|indicates?|indicating|tells me|means|proves|because)\b.{0,140}\b(?:you|your|yourself)\b",sentence,re.I):return ['unsupported_physiological_interpretation']
+            if re.search(r'\b(?:heart|pulse|BPM|spike|rise|fall|drop|increase|decrease|numbers|readings?|elevation)\b',sentence,re.I) and re.search(r"\b(?:suggests?|suggesting|indicates?|indicating|tells me|means?|proves?|proof|because)\b.{0,140}\b(?:you|your|yourself)\b",sentence,re.I):return ['unsupported_physiological_interpretation']
+        for sentence in re.findall(r'[^.!?]+',text):
+            measurement=re.search(r'\b(?:simulator|simulated|BPM|pulse|heart|elevation|rise|fall|drop|readings|numbers)\b',sentence,re.I)
+            emotion=re.search(r"\b(?:your (?:excitement|nerves|anxiety|arousal|distress)|sudden calm|settled (?:your )?nerves)\b",sentence,re.I)
+            negative=re.search(r"\b(?:not|never|no evidence|cannot|can't|doesn't|does not)\b",sentence,re.I)
+            if (measurement or re.search(r'\b(?:simulator|simulated|BPM|pulse|readings)\b',text,re.I)) and emotion and not negative:return ['unsupported_physiological_interpretation']
         if re.search(r'\b(?:frantic|calm|relaxed|aroused|distressed|excited|nervous)\s+\d{2,3}\b',text,re.I):return ['unsupported_physiological_interpretation']
         if change is not None:
             for match in re.finditer(r'\b(?:rose|increased|fell|decreased|changed|rise|fall|increase|decrease)\s+(?:by|of)\s+([+-]?\d+(?:\.\d+)?)\s*BPM',text,re.I):

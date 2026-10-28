@@ -53,6 +53,28 @@ class Replay:
   for second in range(max(values)+1):self.step(values.get(second),seconds=0 if second==0 else 1)
   return self.events
 
+def lifecycle(config=None):
+ """State/control scenarios use the same validated original-event evidence checks."""
+ from companion_ai.event_policy import significance
+ result={}
+ for name in ('sensor_disconnection','session_pause','session_reset','mode_change','goal_change','validated_milestone','quiet_interval','reconnection_gap'):
+  r=Replay(config)
+  for t in range(8):r.step(85+t)
+  if name=='sensor_disconnection':r.step(source='unavailable')
+  elif name=='session_pause':r.step(100,status='PAUSED',kinds=('pause',))
+  elif name=='session_reset':r.step(100,reset=True)
+  elif name=='mode_change':r.state['experience']='headplay';r.state['active_mode']='headplay';r.step(100,kinds=('experience_changed',))
+  elif name=='goal_change':r.state['goal']='survival';r.state['active_mode']='survival';r.step(100,kinds=('goal_changed',))
+  elif name=='validated_milestone':r.state['edges']+=1;r.step(100,kinds=('edge',))
+  elif name=='quiet_interval':
+   r.step(85,seconds=200)
+   r.detector.quiet(r.observation,0,('replay',0))
+  elif name=='reconnection_gap':r.step(110,seconds=30,reconnect=True)
+  for event in r.observation.events:
+   r.detector.authoritative(event['kind'],{'event_id':str(uuid4()),'at_ms':event['at_ms'],'evidence':event['evidence']},r.observation,significance(event['kind'],None,r.observation.report)[0])
+  result[name]={'events':[record['event'] for record in r.detector.history],'sample_count_after':len(r.observation.samples),'segment':r.observation.measurement_segment}
+ return result
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--compare',action='store_true');p.add_argument('--output',default='/tmp/f27-replay.json');args=p.parse_args()
  result={}
@@ -62,6 +84,7 @@ def main():
  c=EventConfig();c.detectors['rapid_rise'].window_seconds=40.;c.detectors['rapid_fall'].window_seconds=40.
  c.detectors['recovery'].window_seconds=40.;c.detectors['recovery'].hysteresis_bpm=8.;c.detectors['rapid_fall'].hysteresis_bpm=8.
  result['configured_sparse_example']=Replay(c).run(EXAMPLE)
+ result['lifecycle']=lifecycle()
  from pathlib import Path
- Path(args.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({name:{case:len(events) for case,events in cases.items()} if isinstance(cases,dict) else len(cases) for name,cases in result.items()}))
+ Path(args.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({name:{case:len(events) if isinstance(events,list) else len(events['events']) for case,events in cases.items()} if isinstance(cases,dict) else len(cases) for name,cases in result.items()}))
 if __name__=='__main__':main()

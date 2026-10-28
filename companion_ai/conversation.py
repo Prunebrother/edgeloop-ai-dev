@@ -348,11 +348,11 @@ class ConversationService:
         for event in eligible:
             if event is not chosen:self.event_intelligence.decision(event.id,'coalesced:'+chosen.id)
         for old in list(self.pending):
-            if old.get('category')=='derived':
+            if old.get('category')=='derived' and old.get('event_id')!=chosen.id:
                 self.pending.remove(old);self.event_intelligence.decision(old.get('event_id'),'coalesced:'+chosen.id)
         self.enqueue(chosen.kind,40+5*self.event_intelligence.config.relevance(self.responder().get('model'),'physiology'),
             {'event_id':chosen.id,'session_id':chosen.session_id,'category':'derived','observation':chosen.model_dump(),'config_revision':chosen.config_revision,'narrative_epoch':self.narrative.state['epoch']})
-        self.event_intelligence.decision(chosen.id,'queued' if any(e.get('event_id')==chosen.id for e in self.pending) else 'suppressed:proactive_disabled')
+        if any(e.get('event_id')==chosen.id for e in self.pending):self.event_intelligence.decision(chosen.id,'queued')
 
     def reset_narrative(self):
         self.interrupt()
@@ -375,6 +375,7 @@ class ConversationService:
     def safety(self, reason):
         self.sync_narrative()
         self.narrative.event(reason)
+        for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:safety_priority')
         self.pending.clear()
         self.director.receive(reason, 100, origin='safety_event')
         self.director.last_reason = 'deterministic_safety:' + reason
@@ -432,9 +433,11 @@ class ConversationService:
         if len(self.pending) >= self.policy.pending_event_limit:
             lowest = min(self.pending, key=lambda e: (e["priority"], e["at"]))
             if lowest["priority"] > priority:
+                self.event_intelligence.decision(event.get('event_id'),'discarded:queue_priority')
                 self.queue_dropped += 1
                 return
             self.pending.remove(lowest)
+            self.event_intelligence.decision(lowest.get('event_id'),'discarded:queue_capacity')
             self.queue_dropped += 1
         self.pending.append(event)
         self.event_intelligence.decision(event.get('event_id'),'queued')
@@ -626,6 +629,7 @@ class ConversationService:
                 return
             if directed:
                 if silent_response(text) and not user:
+                    self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'context_only:intentional_silence')
                     self.director.counts['intentional_silence'] += 1
                     publish({'type':'response_suppressed','id':request_id,'reason':'intentional_silence'})
                     return
@@ -650,6 +654,7 @@ class ConversationService:
                         publish({'type':'response_start','id':request_id,'source':source,'generation':generation})
                         if user:on_chunk(text)
                 if not user and (score['excessive'] or silent_response(text)):
+                    self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'suppressed:repetitive_opportunity')
                     self.director.counts['responses_suppressed'] += 1
                     self.director.log('repetitive_opportunity_suppressed')
                     publish({'type':'response_suppressed','id':request_id,'reason':'repetitive_opportunity'})
@@ -681,9 +686,10 @@ class ConversationService:
             publish({"type": "speech", "id": request_id, "source": "user" if user else "event",
                 "text": text, "responder": responder, 'expression':expression, 'expression_source':'model' if expression else 'fallback', "speak": self.policy.enabled, "interrupt": user or self.policy.interruption == "interrupt"})
         except asyncio.CancelledError:
-            pass
+            self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'discarded:generation_cancelled')
         except (httpx.HTTPError, ValueError, TypeError, KeyError, TimeoutError) as exc:
             if generation == self.generation:
+                self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'suppressed:grounding_violation' if isinstance(exc,GroundingError) else 'failed:inference_unavailable')
                 publish({"type": "response_cancel", "id": request_id, "generation": generation})
                 publish({"type": "conversation_error", "request_id": request_id,
                               "code": "grounding_violation" if isinstance(exc,GroundingError) else "generation_error",

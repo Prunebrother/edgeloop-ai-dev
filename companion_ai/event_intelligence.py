@@ -91,6 +91,7 @@ def preset(name):
  return c
 
 class DerivedEvent(StrictModel):
+ contract:Literal['edgeloop.narrative-event.v1']='edgeloop.narrative-event.v1'
  id:str
  kind:str
  detector_id:str

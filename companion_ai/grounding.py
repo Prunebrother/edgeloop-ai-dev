@@ -112,5 +112,6 @@ def render_timing(data):
            'Counter advances only on original engine RUNNING clock ticks, freezes otherwise, resets on stop/reset/new start; not precision wall-clock time. Wall-clock session duration and paused duration are unavailable. Do not infer them or a countdown. Use timing for context, not repeated time announcements.']
     if data.current and data.events:
         e=data.events[-1]
-        lines.append(f'Latest validated event: {e.kind}, {e.age_seconds:g} seconds since its source timestamp (historical wall/observer age, not active running duration).')
+        basis='since its source timestamp' if e.at_ms is not None else 'since observer reception; source timestamp unavailable'
+        lines.append(f'Latest validated event: {e.kind}, {e.age_seconds:g} seconds {basis} (historical wall/observer age, not active running duration).')
     return lines

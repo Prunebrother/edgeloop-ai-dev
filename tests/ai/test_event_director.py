@@ -65,7 +65,34 @@ async def test_proactive_disabled_retains_diagnostic_without_pending_replay():
 def test_derived_events_cannot_be_recast_as_feelings_or_personal_simulator_pulse():
  from companion_ai.fidelity import event_violations
  trigger={'category':'derived','observation':{'simulated':True,'change_bpm':18}}
- for text in ["That spike in your heart rate suggests you're feeling the envelope's weight.","The drop in your numbers suggests you're getting nervous.","Your heart decided to take a vacation.","A frantic 115 became a calm 97."]:
+ for text in ["That spike in your heart rate suggests you're feeling the envelope's weight.","The drop in your numbers suggests you're getting nervous.","Your heart decided to take a vacation.","A frantic 115 became a calm 97.","The simulator is whispering your excitement.","That sustained elevation reading must mean you are itching to tear open the envelope.","This simulated spike is proof that you are feeling eager.","The simulated BPM fell. Does this sudden calm mean a walk around the barn?"]:
   assert event_violations(text,trigger)
  assert not event_violations('The simulator endpoint medians increased by 18 BPM. No cause is established.',trigger)
  assert event_violations('The simulator increased by 27 BPM.',trigger)==['incorrect_derived_change']
+
+
+async def test_rejected_model_claim_is_diagnosed_and_never_saved():
+ r,s,wire,frames=await service(text="[[expression:happy]]The simulator is whispering your excitement.")
+ s.director.session_status='RUNNING';s.pump();await s.task
+ assert s.event_intelligence.history[-1]['decision']=='suppressed:grounding_violation'
+ assert not s.history and not any(f['type']=='speech' for f in frames)
+ assert len(wire)==2 and all(body['think'] is False for _,body in wire)
+ await s.close()
+
+
+async def test_overlapping_results_coalesce_and_speech_gates_explain_deferral():
+ from companion_ai.event_intelligence import DerivedEvent
+ r,s,wire,frames=await service()
+ events=[]
+ for i in range(21,40):events.extend(r.step(110))
+ # Replay supplies actual rise and elevation evidence, then schedules a single slot.
+ both=[DerivedEvent.model_validate(row['event']) for row in r.detector.history if row['event']['category']=='derived']
+ assert {'rapid_rise','sustained_elevation'}<={e.kind for e in both}
+ s.process_derived(both)
+ assert len(s.pending)==1 and s.pending[0]['kind']=='rapid_rise'
+ assert any(row['decision'].startswith('coalesced:') for row in r.detector.history)
+ s.last_user=r.clock.mono();s.pump()
+ record=next(row for row in r.detector.history if row['event']['kind']=='rapid_rise')
+ assert record['decision']=='deferred:user_grace' and record['cooldown_until']>r.clock.mono()
+ assert not wire
+ await s.close()
