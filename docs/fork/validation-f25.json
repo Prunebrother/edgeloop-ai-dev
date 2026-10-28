@@ -1,0 +1,34 @@
+{
+  "milestone": "F2.5",
+  "starting_commit": "553af45",
+  "backup_ref": "backup/f25-before-20261028",
+  "upstream_tests": 1057,
+  "python_tests": 225,
+  "bridge_presentation_tests": 24,
+  "dashboard_passed": true,
+  "character_browser_passed": true,
+  "live_browser_passed": true,
+  "live_matrix": {
+    "passed": true,
+    "responses": 38,
+    "completed_responses": 38,
+    "valid_expression_responses": 36,
+    "safe_fallbacks": 0
+  },
+  "thinking_payloads_all_false": true,
+  "quality_limitations": "See F25_IMPLEMENTATION.md; protocol checks are not semantic accuracy.",
+  "user_untracked_work_preserved": "characters/models/daisy-lite/",
+  "engine_pin": {
+    "version": "1.1.3",
+    "commit": "d351e011249079b368ebdc8d46f83b260be7d2a5",
+    "repository": "https://github.com/marshallmims/edgeloop",
+    "license": "AGPL-3.0-only",
+    "unchanged_files": 81,
+    "reviewed_changes": [
+      "src/js/app.js",
+      "sw.js",
+      ".gitignore",
+      "index.html"
+    ]
+  }
+}
