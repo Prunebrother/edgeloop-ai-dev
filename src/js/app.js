@@ -2160,6 +2160,7 @@ resetBtn?.addEventListener('click', () => {
     dispatchHardware(0, 0, 0, 100, true);
     setOrgasmMode(false, { settle: false });
     clearHrSignalPause();
+    syncAiObservation(undefined, 'Cancelled');
     resetSessionCounters();
     resetGameState();
     leaveCalibration();

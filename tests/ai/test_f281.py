@@ -284,3 +284,16 @@ def test_terminal_marker_attached_to_reset_counters_is_not_a_zero_length_summary
  s,_=change(c,o,s,'stop',status='IDLE',seconds=0,edges=0)
  summary=o.completed()[-1]
  assert summary['active_running_seconds'] is None and summary['last_verified_running_ticks']==42
+
+
+def test_explicit_reset_is_cancellation_and_never_successful_completion():
+ c,o,s=observation();s['details'].update(terminal_outcome='cancelled',warmup_active=False)
+ s,_=change(c,o,s,'stop',status='IDLE')
+ assert o.completed()[-1]['termination']=='cancelled'
+ assert o.completed()[-1]['active_running_seconds']==42
+ assert all(e['kind']!='completion_accepted' for e in o.events)
+
+@pytest.mark.parametrize('text', ['In this fictional scene, your pulse is racing.','In the story, the stroker is moving.','You said your pulse has been climbing.'])
+def test_explicit_fiction_and_attributed_user_sensation_are_not_sensor_claims(text):
+ c,o,s=observation()
+ assert not violations(text,o.canonical(),[{'role':'user','content':'My pulse feels as though it is climbing.'}])

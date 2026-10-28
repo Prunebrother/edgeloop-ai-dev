@@ -196,3 +196,8 @@ test('F281 terminal observation is sent before a coalesced counter reset',()=>{
  assert.equal(ws.messages.at(-1).snapshot.seconds,937);assert.equal(ws.messages.at(-1).snapshot.details.terminal_outcome,'manual_stop');
  s.sessionSeconds=0;c.observe(capture.project(s,devices));assert.equal(c.latest.seconds,0);assert.equal(ws.messages.at(-1).snapshot.seconds,0);assert.equal(ws.messages.at(-2).snapshot.seconds,937);
 });
+
+test('F281 reset projects cancellation without manufacturing a completion',()=>{
+ const c=new Capture(),s=raw();c.project(s,devices);s.sessionStatus='RUNNING';s.sessionSeconds=90;c.project(s,devices);s.sessionStatus='IDLE';
+ const p=c.project(s,devices,{terminal_outcome:'Cancelled'});assert.equal(p.snapshot.details.terminal_outcome,'cancelled');assert.deepEqual(p.events.map(e=>e.kind),['stop']);
+});

@@ -59,7 +59,7 @@ export class Capture {
                 warmup_active:warmupActive,warmup_remaining_seconds:warmupActive?Math.ceil(warmup-elapsed):null,
                 learning_release_count:optional(settings.learning_release_count,0,1000000),
                 settle_outcome:state.settleOutcome==='Premature Release'?'premature_release':null,
-                terminal_outcome:({'Calibration':'calibration_completed','Premature Release':'premature_release','Survival Restart':'survival_restart','Stopped':'manual_stop'})[settings.terminal_outcome]|| (settings.terminal_outcome?'other_stop':null),
+                terminal_outcome:({'Calibration':'calibration_completed','Premature Release':'premature_release','Survival Restart':'survival_restart','Stopped':'manual_stop','Cancelled':'cancelled'})[settings.terminal_outcome]|| (settings.terminal_outcome?'other_stop':null),
                 ease_down_seconds:optional(state.settleSecondsLeft,0,3600),
                 rampdown_seconds:state.sessionStatus==='RAMPDOWN'||state.resumeStatus==='RAMPDOWN'?optional(state.rampdownSecondsLeft,0,3600):null}};
         const kinds=[];

@@ -54,7 +54,7 @@ class ProjectionDetails(StrictModel):
     warmup_remaining_seconds: int | None = Field(ge=0,le=86400)
     learning_release_count: int | None = Field(default=None,ge=0,le=1000000)
     settle_outcome: Literal['premature_release'] | None = None
-    terminal_outcome: Literal['calibration_completed','premature_release','survival_restart','manual_stop','other_stop'] | None = None
+    terminal_outcome: Literal['calibration_completed','premature_release','survival_restart','manual_stop','cancelled','other_stop'] | None = None
     ease_down_seconds: int | None = Field(ge=0,le=3600)
     rampdown_seconds: int | None = Field(ge=0,le=3600)
 

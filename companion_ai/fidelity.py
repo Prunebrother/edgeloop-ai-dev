@@ -101,6 +101,8 @@ def violations(text,canonical,history=(),trigger=None,completed=()):
     # person's posture, health or physical pulse. Simulation cannot establish it.
     user_text=' '.join(m.get('content','') for m in history if m.get('role')=='user')
     for sentence in re.findall(r'[^.!?\n]+[.!?\n]?',clean):
+        fictional=bool(re.search(r'\b(?:fictional|imagined|hypothetical|pretend|in the story)\b',sentence,re.I))
+        attributed=bool(re.search(r'\b(?:you (?:said|say|reported|report|describe)|according to you)\b',sentence,re.I) and re.search(r'\b(?:pulse|heart rate|heart)\b',user_text,re.I))
         uncertain=bool(re.search(r"\b(unknown|unavailable|cannot|can't|not known|not measured|not your|not a measurement|whether|if)\b",sentence,re.I))
         if not uncertain and not sentence.rstrip().endswith('?'):
             posture=re.search(r"\byou(?:(?:'re| are)\s+|\s+)(sitting|standing|lying|sit|stand|lie)\b",sentence,re.I)
@@ -109,11 +111,10 @@ def violations(text,canonical,history=(),trigger=None,completed=()):
             if not (facts['hr_source']['current'] and facts['hr_source']['value']=='BLE sensor' and hr['current']):
                 bodily=re.search(r"\b(?:your|our|my)\s+(?:own\s+)?(?:current\s+)?(?:resting\s+)?(?:hearts?(?: rate)?|pulse)\b.{0,80}\b(?:\d{2,3}\s*bpm|racing|climbing|rising|falling|resting|quiet|steady)\b",sentence,re.I)
                 labeled=re.search(r"\byour\s+(?:heart rate|pulse)\b.{0,20}\b(?:simulated|simulator|not physical)\b",sentence,re.I)
-                if bodily and not labeled:codes.append('unmeasured_physiology_from_simulation_or_unknown')
+                if bodily and not labeled and not fictional and not attributed:codes.append('unmeasured_physiology_from_simulation_or_unknown')
 
         if sentence.rstrip().endswith('?'):continue
         negated=bool(re.search(r"\b(?:cannot|can't|won't|will not|did not|didn't|haven't|have not|not able|unable|no evidence|does not|doesn't)\b",sentence,re.I))
-        fictional=bool(re.search(r'\b(?:fictional|imagined|hypothetical|pretend|in the story)\b',sentence,re.I))
         if not negated and not fictional:
             control=re.search(r"\bI(?:['’](?:ll|ve)| will| have| am going to)?\s+(?:just\s+)?(?:adjust(?:ed)?|chang(?:e|ed)|set|rais(?:e|ed)|lower(?:ed)?|activat(?:e|ed)|modif(?:y|ied)|bypass(?:ed)?|operat(?:e|ed)|start(?:ed)?|stop(?:ped)?)\b.{0,45}\b(?:stimulation|transport|stroke|stroker|speed|intensity|device|hardware|safety threshold|Handy)\b",sentence,re.I)
             if control:codes.append('read_only_control_claim')
@@ -121,14 +122,14 @@ def violations(text,canonical,history=(),trigger=None,completed=()):
             sensor=re.search(r'\b(?:BLE|Polar(?: H10)?|sensor|monitor)\b.{0,55}\b(?:working (?:normally|properly|well)|functioning|recording|tracking|measuring|reports|recorded|confirms|shows)\b',sentence,re.I)
             if sensor and not live:codes.append('unsupported_live_sensor')
             trend=re.search(r"\b(?:your (?:heart rate|pulse)|heart rate|BPM)\b.{0,40}\b(?:rising|increasing|climbing|falling|dropping|decreasing)\b",sentence,re.I)
-            if trend and not re.search(r'\b(?:simulated|simulator|you (?:said|report)|you reported)\b',sentence,re.I):
+            if trend and not attributed and not re.search(r'\b(?:simulated|simulator)\b',sentence,re.I):
                 direction='rising' if re.search(r'\b(?:rising|increasing|climbing)\b',trend[0],re.I) else 'falling'
                 if not live or not facts['trend']['current'] or facts['trend']['value']!=direction:codes.append('unsupported_trend')
             if re.search(r'\b(?:sensor|readings?|data|measurements?|BPM)\b.{0,45}\b(?:prove|proves|confirm|confirms|demonstrate|demonstrates)\b.{0,60}\b(?:arousal|excited|excitement|physiological|fertility|health|safe|relaxed)\b',sentence,re.I):codes.append('unsupported_physiological_interpretation')
         motion=re.search(r'\b(?:Handy|VacuGlide|stroker|stimulation device)\b.{0,20}\b(?:is|remains|keeps)\s+(?:currently\s+)?(?:not\s+)?(?:moving|running|stimulating|pumping)\b',sentence,re.I)
         disconnected_motion=re.search(r"\b(?:Handy|VacuGlide|stroker|stimulation device)\b.{0,85}\b(?:sitting (?:still|idle)|is(?:n['’]t| not) (?:physically )?moving|is physically (?:moving|active)|is (?:actually )?(?:moving|pumping|stimulating))\b",sentence,re.I)
-        if disconnected_motion and not facts['physical_motion']['current'] and not uncertain:codes.append('unverified_physical_motion')
-        if motion and not facts['physical_motion']['current'] and not re.search(r"\b(cannot|can't|unknown|unavailable|whether|if|unable)\b",sentence,re.I):codes.append('unverified_physical_motion')
+        if disconnected_motion and not facts['physical_motion']['current'] and not uncertain and not fictional:codes.append('unverified_physical_motion')
+        if motion and not facts['physical_motion']['current'] and not fictional and not re.search(r"\b(cannot|can't|unknown|unavailable|whether|if|unable)\b",sentence,re.I):codes.append('unverified_physical_motion')
         generic_motion=re.search(r'\b(?:the|your|our)\s+(?:machine|hardware|equipment|device)\b.{0,15}\b(?:is|keeps)\s+(?:currently\s+)?(?:humming|moving|running|pumping|stimulating)\b',sentence,re.I)
         if generic_motion and not facts['physical_motion']['current'] and not uncertain and not re.search(r'\b(fictional|imagined|hypothetical|pretend)\b',sentence,re.I):codes.append('unverified_physical_motion')
         for name,label in [('handy','Handy'),('ble','BLE'),('intiface','Intiface'),('tcode','TCode'),('vacuglide','VacuGlide')]:
@@ -151,7 +152,7 @@ def violations(text,canonical,history=(),trigger=None,completed=()):
         if control:codes.append('read_only_control_claim')
         match=re.search(r'\b(?:current heart rate|your heart rate|your pulse|your heart|current bpm)\b[^\d]{0,65}(\d{1,3}(?:\.\d{1,2})?)\s*(?:bpm|beats per minute)',sentence,re.I)
         if match and (reading is None or int(match[1])!=reading) and not re.search(r'ceiling|threshold|maximum|setting',match[0],re.I):codes.append('wrong_current_bpm')
-        if re.search(r'\b(?:heart rate|pulse|bpm)\b.{0,45}\b(?:has been|keeps|continues)\b.{0,20}\b(climbing|rising|increasing|falling|dropping)\b',sentence,re.I) and not facts['trend']['known']:codes.append('unsupported_trend')
+        if re.search(r'\b(?:heart rate|pulse|bpm)\b.{0,45}\b(?:has been|keeps|continues)\b.{0,20}\b(climbing|rising|increasing|falling|dropping)\b',sentence,re.I) and not facts['trend']['known'] and not attributed and not fictional:codes.append('unsupported_trend')
         match=re.search(r'\bsession(?: status)?\b.{0,25}\b(?:is|remains|currently|officially)\s+(?:(?:currently|officially)\s+)?(running|paused|idle|stopped)\b',sentence,re.I)
         if match:
             actual=facts['status']['value'] if facts['status']['current'] else None

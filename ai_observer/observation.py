@@ -91,7 +91,7 @@ class BrowserObservation:
             complete=bool(pre_reset and captured is not None and not gap)
             classification=('calibration_completed' if terminal=='calibration_completed' and any(e.kind=='completion_accepted' and e.id in self.accepted_event_ids for e in message.events) else
                             'accidental_release' if terminal=='premature_release' or any(e.kind=='came_early' and e.id in self.accepted_event_ids for e in message.events) else
-                            'manual_stop' if terminal=='manual_stop' else
+                            'manual_stop' if terminal=='manual_stop' else 'cancelled' if terminal=='cancelled' else
                             'stop_with_protection_observed' if previous['safety']['watchdog_paused'] or previous['safety']['fault'] in {'signal_lost','no_contact'} else 'cancelled_or_unclassified_stop')
             self.completed_sessions.append({'session_id':self.session_id,'model_scope':self.model_scope,
                 'active_running_seconds':final['seconds'] if complete else None,
