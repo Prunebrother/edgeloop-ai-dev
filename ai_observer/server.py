@@ -18,6 +18,7 @@ from pydantic import ValidationError
 from companion_ai.conversation import ModelManager, ConversationService
 from companion_ai.director import ConversationDirector, DirectorConfig
 from companion_ai.llm import thinking_support
+from companion_ai.event_policy import significance
 from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
 from .config import RuntimeConfig, validate_ollama_url
@@ -30,8 +31,10 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
     if not 32<=len(token)<=128: raise ValueError('A 32–128 character pairing token is required')
     state=BrowserObservation(clock)
     store=SettingsStore(data_dir)
-    endpoint=validate_ollama_url(ollama_url) if ollama_url is not None else RuntimeConfig.load().ollama_url
+    runtime_config=RuntimeConfig.load()
+    endpoint=validate_ollama_url(ollama_url) if ollama_url is not None else runtime_config.ollama_url
     manager=ModelManager(endpoint,store=store,transport=transport)
+    manager.config=manager.config.model_copy(update={'thinking':False,'explicit_expressions':runtime_config.explicit_expressions})
     manager.current_summary=state.summary
     director=ObserverDirector(DirectorConfig.model_validate(store.read('director.json',{})),clock=clock)
     queues=set();owner=None;expires=clock()+3600;model_lock=asyncio.Lock()
@@ -45,7 +48,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                 q.put_nowait({'type':'resync_required'})
             else:q.put_nowait(message)
     speech=ConversationService(state,publish,adapter or manager,clock=clock,director=director)
-    speech.policy=SpeechPolicy(event_responses=False) # User chat only in F2; Director retains observations.
+    speech.policy=SpeechPolicy(event_responses=True)
 
     async def interrupt():
         speech.interrupt()
@@ -56,6 +59,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
             await asyncio.sleep(.25)
             if owner and clock()>expires:
                 await owner['ws'].close(code=1008);continue
+            if owner and state.fresh():speech.pump()
             if owner and state.connected and not state.fresh():
                 state.connected=False;speech.pending.clear();speech.interrupt()
                 publish({'type':'telemetry_status','fresh':False})
@@ -133,6 +137,9 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         if not state.accept(message):
                             publish({'type':'observation_ack','accepted':False,'reason':'sequence'});continue
                         last_observation=now
+                        if previous and previous['session_id']!=state.session_id:
+                            speech.pending.clear();speech.recent_events.clear();speech.interrupt()
+                            director.seen.clear();director.aggregates.clear()
                         director.session_status=state.status
                         director.observation('snapshot',{'status':state.status},'edgeloop_telemetry')
                         seen_keys=list(seen)
@@ -144,10 +151,14 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             if event.id in seen:continue
                             seen[event.id]=now
                             if len(seen)>256:seen.pop(next(iter(seen)))
-                            if event.kind in {'pause','stop'} and state.status in {'PAUSED','IDLE'} and previous and state.status!=previous['status']:
+                            priority, rank=significance(event.kind,previous,state.report)
+                            evidence=next((e for e in reversed(state.events) if e['kind']==event.kind),{})
+                            details={'event_id':event.id,'session_id':state.session_id,'at_ms':event.at_ms,'evidence':evidence.get('evidence'),'significance':priority}
+                            if priority=='critical' or event.kind in {'pause','stop'}:
                                 speech.safety(event.kind)
-                            elif event.kind=='signal_lost' and state.status=='PAUSED' and previous and previous['safety']['signal']!='stale':speech.safety('signal_lost')
-                            else:speech.enqueue(event.kind,30 if event.kind=='edge' else 10,{'edge_count':message.snapshot.edges})
+                            if priority=='major':speech.enqueue(event.kind,rank,details)
+                            elif priority=='routine':director.observation(event.kind,details,'edgeloop_telemetry')
+                            publish({'type':'ai_diagnostics','last_event':event.kind,'event_priority':priority,'director_decision':director.last_reason,'thinking':False,'inference_error':manager.metrics.last_error})
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} for e in message.events if e.id in state.accepted_event_ids]})
                     elif isinstance(message,Cancel):
@@ -177,18 +188,17 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             async with model_lock:
                                 presets=store.read('model-presets.json',{})
                                 values=manager.config.model_dump() | presets.get(manager.preset_key(message.selection.model),presets.get(manager.config.provider+':'+message.selection.model,{})) | {'model':message.selection.model}
-                                if message.thinking is not None:values['thinking']=message.thinking
+                                if message.thinking is True:raise ValueError('Thinking must remain OFF')
+                                values['thinking']=False
+                                values['explicit_expressions']=runtime_config.explicit_expressions
                                 # Models without reasoning support remain usable with thinking off.
                                 metadata=await manager.provider(AIConfig.model_validate(values)).capabilities(message.selection.model)
                                 controls=thinking_support(metadata)
                                 supports_thinking=controls['can_enable']
-                                if message.thinking is None:
-                                    if not controls['can_enable']:values['thinking']=False
-                                    elif not controls['can_disable']:values['thinking']=True
                                 if message.selection.context_length is not None:values['context_length']=message.selection.context_length
                                 await manager.select(AIConfig.model_validate(values),message.selection.context_policy,interrupt)
                                 speech.activate_model()
-                                publish({'type':'model_selected','model':manager.config.model,'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'can_disable_thinking':controls['can_disable'],'history':[{k:str(m[k])[:4000] for k in ('role','content')} for m in list(speech.history)[-8:]]})
+                                publish({'type':'model_selected','model':manager.config.model,'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'can_disable_thinking':controls['can_disable'],'history':[{k:str(m[k])[:4000] for k in ('role','content','expression') if m.get(k) is not None} for m in list(speech.history)[-8:]]})
                         except (ValueError,httpx.HTTPError,OSError):publish({'type':'ai_error','detail':'Model settings could not be applied; check model availability and thinking support.', 'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
                     elif isinstance(message,Chat):
                         chat_times[:]=[t for t in chat_times if clock()-t<60]

@@ -111,7 +111,7 @@ def test_accurate_data_director_events_user_chat_and_no_unsolicited_repetition(t
             time.sleep(.11)
             ws.send_json(frame(ready['epoch'],seq=3,state=state,events=[verified]));until(ws,'observation_ack')
             assert sum(e['kind']=='edge' for e in app.state.speech.recent_events)==1
-            assert not app.state.speech.policy.event_responses
+            assert app.state.speech.policy.event_responses
             assert any(o['kind']=='snapshot' for o in app.state.director.recent_observations)
             assert len(app.state.speech.history)==2
             assert all(x['role'] in {'user','assistant'} for x in app.state.speech.history)
@@ -327,28 +327,14 @@ def test_cancel_generation_only_interrupts_output_and_preserves_observation(tmp_
             assert app.state.observation.report==state
 
 
-def test_thinking_switch_is_confirmed_persisted_and_keeps_memory_and_observation(tmp_path):
-    requests=[]
-    def capture(request):
-        if request.url.path=='/api/chat':requests.append(json.loads(request.content))
-        return runtime(request)
-    app=create_app(TOKEN,tmp_path,transport=httpx.MockTransport(capture))
+def test_thinking_on_is_rejected_and_default_remains_off(tmp_path):
+    app=create_app(TOKEN,tmp_path,transport=httpx.MockTransport(runtime))
     with TestClient(app) as client:
         with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
-            epoch=auth(ws)['epoch'];state=snapshot();ws.send_json(frame(epoch,state=state));until(ws,'observation_ack')
-            for thinking in [False,True]:
-                ws.send_json({'version':1,'type':'select_model','selection':{'model':'mira:latest'},'thinking':thinking})
-                selected=until(ws,'model_selected')
-                assert selected['thinking'] is thinking and selected['supports_thinking'] is True
-                if thinking:assert any('Hello' in item['content'] for item in selected['history'])
-                ws.send_json({'version':1,'type':'chat','model':'mira:latest','text':'Hello'})
-                until(ws,'speech')
-                assert requests[-1]['think'] is thinking
-                assert app.state.observation.report==state
-                assert json.loads((tmp_path/'selection.json').read_text())['config']['thinking'] is thinking
-            ws.send_json({'version':1,'type':'select_model','selection':{'model':'mira:latest'},'thinking':'false'})
-            assert until(ws,'protocol_error')
-            assert app.state.models.config.thinking is True
+            auth(ws)
+            ws.send_json({'version':1,'type':'select_model','selection':{'model':'qwen3:8b'},'thinking':True})
+            assert ws.receive_json()['type']=='ai_error'
+            assert app.state.models.config.thinking is False
 
 
 def test_non_thinking_model_selects_without_reasoning_and_rejects_enable(tmp_path):
@@ -438,8 +424,5 @@ def test_required_thinking_cannot_be_silently_disabled(tmp_path):
         with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
             auth(ws)
             ws.send_json({'version':1,'type':'select_model','selection':{'model':'required:latest'}})
-            selected=until(ws,'model_selected')
-            assert selected['thinking'] is True and selected['can_disable_thinking'] is False
-            ws.send_json({'version':1,'type':'select_model','selection':{'model':'required:latest'},'thinking':False})
-            error=ws.receive_json();assert error['type']=='ai_error' and error['active'] is True
-            assert app.state.models.config.thinking is True
+            error=ws.receive_json();assert error['type']=='ai_error'
+            assert app.state.models.config.thinking is False
