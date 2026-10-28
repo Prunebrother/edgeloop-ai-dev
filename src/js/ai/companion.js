@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+import {pairDesktop} from './desktop-pairing.js';
 import {Capture} from './snapshot.js';
 import {ReadOnlyConnection,reactionMatchesLatest} from './connection.js';
 import {resolveArtwork} from './artwork-manifest.js';
@@ -124,8 +125,16 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             if(m.selection_failed&&!m.active){selected=null;thinking=null;supportsThinking=false;}finish();error((m.detail||'AI unavailable')+(m.errors?.length?' · '+m.errors.map(e=>e.path.join('.')+': '+e.code).join(', '):''));activity('error',selected?'Ready · last request failed':'AI unavailable');if(m.type==='ai_error')el('ollama').textContent='Ollama request unavailable';}
     }});
     const menus=mountCharacterMenus(artwork,{send:m=>connection.send(m),onReset:()=>{presentation.cancel();finish();}});
-    el('setup').onsubmit=e=>{e.preventDefault();error('');try{connection.connect(el('url').value,el('token').value);}catch(e){error(e.message);}finally{el('token').value='';}};
-    el('disconnect').onclick=()=>connection.disconnect();
+    el('setup').onsubmit=e=>{e.preventDefault();desktopPairing=false;error('');try{connection.connect(el('url').value,el('token').value);}catch(e){error(e.message);}finally{el('token').value='';}};
+    let desktopPairing=true, pairingBusy=false;
+    const autoPair=async()=>{
+        if(!desktopPairing||pairingBusy||connection.superseded||connection.epoch||connection.socket)return;
+        pairingBusy=true;
+        try{await pairDesktop(connection,()=>desktopPairing);}finally{pairingBusy=false;}
+    };
+    void autoPair();
+    const pairingTimer=setInterval(autoPair,5000);
+    el('disconnect').onclick=()=>{desktopPairing=false;connection.disconnect();};
     el('refresh').onclick=()=>connection.send({version:1,type:'list_models'});
     const selectModel=(model,requestedThinking)=>{
         if(pending||changing)return;
@@ -146,7 +155,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     el('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el('chat').requestSubmit();}};
     // Original idle/paused sessions need no engine ticks. Refresh only the read-only projection.
     const observationTimer=setInterval(()=>{if(connection.epoch){try{refreshObservation();}catch{ /* Optional AI stays isolated. */ }}},1000);
-    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);clearInterval(typingTimer);clearInterval(diagnosticTimer);connection.disconnect();menus.destroy();previewCleanup?.();character.destroy();});
+    window.addEventListener('pagehide',()=>{clearInterval(pairingTimer);desktopPairing=false;clearInterval(observationTimer);clearInterval(typingTimer);clearInterval(diagnosticTimer);connection.disconnect();menus.destroy();previewCleanup?.();character.destroy();});
     const releaseNote=document.createElement('p');releaseNote.dataset.releaseFeedback='';releaseNote.setAttribute('role','status');releaseNote.style.fontSize='11px';releaseNote.hidden=true;document.getElementById('cameEarlyBtn')?.parentElement?.after(releaseNote);
     return (state,devices,settings)=>{
         const previous=capture.previous;const observation=capture.project(state,devices,settings);

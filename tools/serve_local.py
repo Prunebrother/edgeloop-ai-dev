@@ -3,6 +3,7 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 import sys
+import os
 import json
 from urllib.parse import unquote, urlsplit
 
@@ -29,6 +30,28 @@ def public_file(raw, root=ROOT):
     return target if target.is_file() else None
 
 class Handler(SimpleHTTPRequestHandler):
+    def do_POST(self):
+        # Custom header + exact Origin and Host prevent cross-origin pairing and
+        # DNS rebinding. Never expose credentials through GET or offline caches.
+        expected=f'127.0.0.1:{self.server.server_port}'
+        if (self.path!='/ai/pair' or self.headers.get('Host')!=expected or
+                self.headers.get('Origin')!='http://'+expected or
+                self.headers.get('X-EdgeLoop-Pair')!='1'):
+            self.send_error(403);return
+        path=os.environ.get('EDGELOOP_PAIRING_FILE')
+        try:
+            if not path:raise OSError()
+            credentials=json.loads(Path(path).read_text())
+            body=json.dumps(credentials).encode()
+        except (OSError,ValueError):
+            self.send_error(503);return
+        self.send_response(200)
+        self.send_header('Content-Type','application/json')
+        self.send_header('Cache-Control','no-store')
+        self.send_header('Content-Length',str(len(body)))
+        self.send_header('X-Content-Type-Options','nosniff')
+        self.end_headers();self.wfile.write(body)
+
     def send_head(self):
         if public_file(self.path,Path(self.directory)) is None:
             self.send_error(404);return None

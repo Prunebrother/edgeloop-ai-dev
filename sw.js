@@ -6,7 +6,7 @@
 // offline once it has been visited. Bump CACHE_VERSION when the precache list
 // changes; old caches are removed on activate.
 
-const CACHE_VERSION = 'edgeloop-f28-context-v1';
+const CACHE_VERSION = 'edgeloop-desktop-launcher-v1';
 const PRECACHE = [
     './',
     './index.html',
@@ -23,6 +23,7 @@ const PRECACHE = [
     './src/css/companion.css',
     './src/js/ai/companion.js',
     './src/js/ai/connection.js',
+    './src/js/ai/desktop-pairing.js',
     './src/js/ai/snapshot.js',
     './src/js/ai/layout.js',
     './src/js/ai/character.js',

@@ -166,3 +166,12 @@ test('story reset acknowledgement is presentation data and control messages rema
     socket.onmessage({data:JSON.stringify({type:'command',action:'start'})});
     assert.deepEqual(messages,[{type:'narrative_reset',model:'evelyn-narrative-v1:latest'}]);c.disconnect();
 });
+
+
+test('a replaced tab yields ownership without reconnecting',()=>{
+ const scheduled=[];const c=new ReadOnlyConnection({WebSocketImpl:Socket,schedule:fn=>scheduled.push(fn)});
+ c.connect('ws://127.0.0.1:8768/observe','x'.repeat(43));
+ c.socket.onclose({code:4001});
+ assert.equal(c.superseded,true);assert.equal(c.enabled,false);assert.equal(c.token,'');assert.equal(scheduled.length,0);
+ c.connect('ws://127.0.0.1:8768/observe','y'.repeat(43));assert.equal(c.superseded,false);c.disconnect();
+});

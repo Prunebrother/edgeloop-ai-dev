@@ -12,7 +12,7 @@ export class ReadOnlyConnection {
         if(!['ws:','wss:'].includes(parsed.protocol)||!['127.0.0.1','localhost'].includes(parsed.hostname)||
             parsed.username||parsed.password||parsed.search||parsed.hash||parsed.pathname!=='/observe'||token.length<32||token.length>128)
             throw new Error('Use a localhost /observe URL and a valid pairing token');
-        this.disconnect();this.url=parsed.href;this.token=token;this.enabled=true;this.open();
+        this.disconnect();this.superseded=false;this.url=parsed.href;this.token=token;this.enabled=true;this.open();
     }
     open() {
         if(!this.enabled)return;
@@ -36,6 +36,7 @@ export class ReadOnlyConnection {
             if(this.socket!==socket)return;
             this.socket=null;this.epoch=null;this.pendingEvents.clear();
             this.onStatus('AI disconnected; EdgeLoop continues');
+            if(e.code===4001){this.enabled=false;this.token='';this.superseded=true;this.onStatus('AI connected in another EdgeLoop tab');return;}
             if(e.code===1008){this.enabled=false;this.token='';return;}
             if(this.enabled)this.timer=this.schedule(()=>this.open(),Math.min(1000*2**this.retry++,10000));
         };

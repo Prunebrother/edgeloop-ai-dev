@@ -40,11 +40,38 @@ EDGELOOP_OLLAMA_URL=http://127.0.0.1:11434 ./tools/serve-ai.sh
 ./tools/ollama-status.sh --url http://127.0.0.1:11435
 ```
 
-No launcher starts Ollama, downloads/builds models, connects hardware or kills
-an occupied port. Start an intended Ollama server manually only after checking
-that port and its model directory. The main UI continues to operate when AI is
-unavailable. Use the original manual HR simulator and mocked toys for acceptance;
-HR simulation alone intentionally does not satisfy original toy readiness.
+## Desktop Start / Stop
+
+Use **EdgeLoop AI** in the application launcher to start Ollama, the read-only
+observer and the web interface, then open the browser with automatic local pairing.
+Use **Stop EdgeLoop AI** to stop all three services and release Ollama's GPU memory.
+End any active hardware session with EdgeLoop's Stop control first; stopping the
+background services does not send hardware commands or close the browser tab.
+
+Terminal equivalents (after `./tools/install-desktop.sh`):
+
+```bash
+edgeloop-ai start
+edgeloop-ai stop
+edgeloop-ai status
+journalctl --user -u edgeloop-ai-observer -u edgeloop-ai-web -u edgeloop-ai-ollama
+```
+
+The installer creates user systemd units and application entries without enabling
+login startup. Repeated Start/Stop is safe. Start waits for service health and
+reports failures; occupied ports are never killed. The dedicated Ollama service
+uses the existing `~/.ollama/models` store on port 11435, with one resident model.
+No model download/build is performed. Pairing credentials are generated per
+observer process in a private runtime file; only same-origin POST requests from
+the local UI can retrieve them. They are never stored in browser storage or URLs.
+Managed pairing lasts until the observer stops; manual startup retains the one-hour
+key lifetime. Browser reloads and stack restarts reconnect automatically. A newly opened tab
+takes over the AI connection; the previous tab yields without reconnecting. Disconnect
+in the UI disables automatic pairing until the page is reloaded.
+
+The main UI continues to operate when AI is unavailable. Use the original manual
+HR simulator and mocked toys for acceptance; HR simulation alone intentionally
+does not satisfy original toy readiness.
 
 ## Validation
 

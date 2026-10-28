@@ -28,7 +28,7 @@ from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
 
-def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transport=None, clock=time.monotonic, ollama_url=None):
+def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transport=None, clock=time.monotonic, ollama_url=None, pairing_lifetime=3600):
     if not 32<=len(token)<=128: raise ValueError('A 32–128 character pairing token is required')
     state=BrowserObservation(clock)
     store=SettingsStore(data_dir)
@@ -38,7 +38,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
     manager.config=manager.config.model_copy(update={'thinking':False,'explicit_expressions':runtime_config.explicit_expressions})
     manager.current_summary=state.summary
     director=ObserverDirector(DirectorConfig.model_validate(store.read('director.json',{})),clock=clock)
-    queues=set();owner=None;expires=clock()+3600;model_lock=asyncio.Lock()
+    queues=set();owner=None;expires=clock()+pairing_lifetime;model_lock=asyncio.Lock()
     def publish(message):
         # No callback from model output to EdgeLoop. Messages are presentation only.
         if len(json.dumps(message,allow_nan=False).encode())>65536:
@@ -105,7 +105,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
             if owner:
                 if owner['browser_id']!=auth.browser_id:
                     await ws.close(code=1008);return
-                await owner['ws'].close(code=1000)
+                await owner['ws'].close(code=4001)
             identity.update(browser_id=auth.browser_id,epoch=str(uuid4()))
             speech.pending.clear();speech.interrupt()
             owner=identity;queues.add(q);state.begin_epoch()
@@ -322,8 +322,21 @@ def main():
         detail=f'Observer port {config.port} is occupied.' if exc.errno==errno.EADDRINUSE else f'Cannot bind observer port {config.port}: {exc.strerror}.'
         parser.exit(1,detail+' Inspect ss -ltnp or choose EDGELOOP_OBSERVER_PORT. No process was stopped.\n')
     token=secrets.token_urlsafe(32)
-    print('Read-only observer. Pairing token (valid for this process, 1 hour): '+token,flush=True)
-    app=create_app(token,config.data_dir,ollama_url=config.ollama_url)
+    pairing_path=os.environ.get('EDGELOOP_PAIRING_FILE')
+    if pairing_path:
+        # The desktop stack shares credentials through a private runtime file only.
+        path=Path(pairing_path)
+        path.parent.mkdir(mode=0o700,parents=True,exist_ok=True)
+        temporary=path.with_suffix('.tmp')
+        fd=os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
+        with os.fdopen(fd,'w') as stream:
+            json.dump({'token':token,'url':f'ws://127.0.0.1:{config.port}/observe','browser_id':str(uuid4())},stream)
+        temporary.replace(path)
+        print('Desktop pairing enabled for this process; credentials remain private.',flush=True)
+    else:
+        print('Read-only observer. Pairing token (valid for this process, 1 hour): '+token,flush=True)
+    app=create_app(token,config.data_dir,ollama_url=config.ollama_url,
+                   pairing_lifetime=float('inf') if pairing_path else 3600)
     uvicorn.run(app,host='127.0.0.1',port=config.port,workers=1,ws_max_size=16384,access_log=False)
 
 if __name__=='__main__':main()
