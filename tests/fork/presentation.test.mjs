@@ -6,10 +6,10 @@ import {CharacterPresentationController as Controller,classifyDialogue} from '..
 const evelyn='evelyn-lite-v1:latest',daisy='daisy-qwen35:latest';
 const rig=options=>{let time=10000;const views=[];const c=new Controller(v=>views.push({...v}),{now:()=>time,...options});c.connection(true);c.select(evelyn);return {c,views,tick:n=>time+=n};};
 test('canonical identities use exact aliases, not name prefixes or prototype properties',()=>{
-    for(const model of ['evelyn-lite-v1:latest','evelyn-lite-candidate:latest','evelyn-qwen35-stable:latest','evelyn-qwen35:latest'])assert.equal(resolveArtwork(model).id,'evelyn');
-    for(const model of ['daisy-qwen35:latest','daisy-v11:latest'])assert.equal(resolveArtwork(model).id,'daisy');
+    for(const model of ['evelyn-lite-v1:latest','evelyn-lite-candidate:latest','evelyn-qwen35-stable:latest','evelyn-qwen35:latest','evelyn-narrative-v1:latest'])assert.equal(resolveArtwork(model).id,'evelyn');
+    for(const model of ['daisy-qwen35:latest','daisy-v11:latest','daisy-narrative-v1:latest'])assert.equal(resolveArtwork(model).id,'daisy');
     for(const model of ['__proto__','evelyn-some-new-model:latest','qwen3:8b',null])assert.equal(resolveArtwork(model).id,'generic');
-    assert.equal(Object.keys(MODEL_ARTWORK).length,16);
+    assert.equal(Object.keys(MODEL_ARTWORK).length,18);
 });
 test('all twelve prepared expressions have direct assets; missing custom states fall back to neutral',()=>{
     assert.deepEqual(EXPRESSIONS,['neutral','happy','playful','flirty','mischievous','focused','excited','surprised','disappointed','concerned','proud','comforting']);

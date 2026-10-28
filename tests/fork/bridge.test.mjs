@@ -155,3 +155,14 @@ test('a selection reaction cannot update the UI after a newer local engine proje
  assert(!reactionMatchesLatest(old,{...old,session_id:'next'}));
  assert(!reactionMatchesLatest(old,null));assert(reactionMatchesLatest(null,null));
 });
+
+
+test('story reset acknowledgement is presentation data and control messages remain ignored',()=>{
+    let socket;const messages=[];
+    class Socket {constructor(){socket=this;this.readyState=1;this.bufferedAmount=0;}send(){}close(){}}
+    const c=new ReadOnlyConnection({WebSocketImpl:Socket,uuid:()=>"fixture-browser",onMessage:m=>messages.push(m)});
+    c.connect('ws://127.0.0.1:8768/observe','x'.repeat(32));
+    socket.onmessage({data:JSON.stringify({type:'narrative_reset',model:'evelyn-narrative-v1:latest'})});
+    socket.onmessage({data:JSON.stringify({type:'command',action:'start'})});
+    assert.deepEqual(messages,[{type:'narrative_reset',model:'evelyn-narrative-v1:latest'}]);c.disconnect();
+});

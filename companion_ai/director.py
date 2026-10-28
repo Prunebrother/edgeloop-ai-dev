@@ -186,6 +186,7 @@ class ConversationDirector:
             if now-self.memory['last_user']<self.config.reaction_user_grace_seconds:return False,'user_turn_grace'
             if now-self.last_reaction<self.config.reaction_interval_seconds:return False,'reaction_cooldown'
             return True,'verified_action:'+event['kind']
+        if self.memory['consecutive_unsolicited']>=self.config.max_consecutive_unsolicited:return False,'unsolicited_limit'
         if group=='tool':return False,'acknowledgement_already_available'
         if now-self.memory['last_user']<self.config.user_idle_before_spontaneous_seconds:return False,'active_conversation'
         if now-self.last_spoken<self.config.spontaneous_interval_seconds:return False,'spontaneous_frequency'

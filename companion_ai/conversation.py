@@ -549,13 +549,13 @@ class ConversationService:
                 flush(force=True)
                 if not user:publish({'type':'response_delta','id':request_id,'source':source,'generation':generation,'text':text})
             metadata=getattr(getattr(self.adapter,'adapter',None),'last_expression_metadata',{})
-            publish({'type':'ai_diagnostics','id':request_id,'responder':responder,'model_selected_expression':metadata.get('candidate'),'validated_expression':metadata.get('expression'),'expression_valid':metadata.get('valid'),'thinking':False,'inference_error':None,'inference_compatibility':(getattr(self.adapter,'metrics',None).samples[-1].get('thinking_policy_status') if getattr(self.adapter,'metrics',None) and self.adapter.metrics.samples else 'unknown'),'director_decision':self.director.last_reason})
+            publish({'type':'ai_diagnostics','id':request_id,'responder':responder,'model_selected_expression':metadata.get('candidate'),'validated_expression':metadata.get('expression'),'expression_valid':metadata.get('valid'),'thinking':False,'narrative_phase':self.narrative.state['phase'],'narrative_excerpt_count':len(self.narrative.state['developments']),'inference_error':None,'inference_compatibility':(getattr(self.adapter,'metrics',None).samples[-1].get('thinking_policy_status') if getattr(self.adapter,'metrics',None) and self.adapter.metrics.samples else 'unknown'),'director_decision':self.director.last_reason})
             memory = self.memory_config
             if memory.enabled:
                 if user:
-                    self.history.append({'role':'user', 'content':prompt, 'origin':'real_user', 'at':self.clock()})
+                    self.history.append({'role':'user', 'content':prompt, 'origin':'real_user', 'session_id':getattr(self.state,'session_id',None), 'at':self.clock()})
                 self.history.append({'role':'assistant', 'content':text, 'origin':'assistant_dialogue',
-                    'trigger_origin':'real_user' if user else 'system_event', 'expression':expression, 'at':self.clock()})
+                    'trigger_origin':'real_user' if user else 'system_event', 'expression':expression, 'session_id':getattr(self.state,'session_id',None), 'at':self.clock()})
             if summary.get('narrative_scope')==(self.active_model_id,getattr(self.state,'session_id',None)) and memory.enabled:
                 self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False))
             self.director.accepted(text, user)

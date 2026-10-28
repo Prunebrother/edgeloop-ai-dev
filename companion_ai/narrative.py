@@ -17,7 +17,7 @@ class NarrativeConfig(StrictModel):
 OPERATIONAL = re.compile(r'\b(?:bpm|heart|pulse|sensor|device|hardware|handy|telemetry|threshold|session|goal|mode|edge|milestone|climax|orgasm|physiolog|fertility|measurement|percent|reading|paused|running|stopped)\w*\b|\d|<think|\[\[',re.I)
 INVITATION = re.compile(r'\b(?:story|scene|premise|imagine|fiction|narrative)\b',re.I)
 QUIET = re.compile(r"\b(?:stop|disengage|quiet|silence|leave me|no more|do not continue|don.t continue|pause the story)\b",re.I)
-CHOICE = re.compile(r"\b(?:choose|chose|pick|prefer|let.s|decide|instead|agree|yes)\b",re.I)
+CHOICE = re.compile(r"\b(?:choose|chose|pick|prefer|let.s|decide|instead|agree|suggest|propose|yes)\b",re.I)
 PROMISE = re.compile(r"\b(?:I.ll|I will|promise|later|next time|we.ll)\b",re.I)
 
 class NarrativeMemory:

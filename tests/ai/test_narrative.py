@@ -125,3 +125,78 @@ async def test_director_initiative_requires_engagement_and_is_spent_once():
 def test_reset_message_is_read_only_strict_protocol():
     assert Messages.validate_python({'version':1,'type':'reset_narrative'}).type=='reset_narrative'
     with pytest.raises(ValueError):Messages.validate_python({'version':1,'type':'reset_narrative','command':'start'})
+
+
+def test_story_context_omits_irrelevant_numeric_data_but_retains_canonical_checks():
+    from companion_ai.fidelity import violations
+    c,o,s=observation();summary=o.summary()|{'conversation_source':'user','narrative_context':narrative().context()}
+    messages,_=compose_messages(summary,'Imagine a mystery.',[],AIConfig())
+    assert '98' not in messages[-1]['content'] and 'HR source: simulator' in messages[-1]['content']
+    assert o.canonical()['facts']['hr']['value']==98
+    assert 'unmeasured_physiology_from_simulation_or_unknown' in violations('Our hearts are humming at 98 BPM.',o.canonical())
+    assert 'unmeasured_physiology_from_simulation_or_unknown' in violations('My heart is hovering near 98 BPM.',o.canonical())
+    assert not violations('The simulator reports 98 BPM; this is not your actual pulse.',o.canonical())
+
+async def test_freshness_reconnect_reset_and_memory_disabled_block_initiative():
+    c,o,s=observation()
+    class Adapter:
+        config=AIConfig();mode='ollama';memory=MemoryConfig(enabled=False)
+        async def reply(self,*a,**kw):raise AssertionError('No inference expected')
+    d=ObserverDirector(clock=c.mono);d.session_status='RUNNING';speech=ConversationService(o,lambda _:None,Adapter(),clock=c.mono,director=d)
+    speech.narrative.accepted('Imagine a mystery. I choose the garden.','I will keep the key.',True)
+    c.tick(130);speech.pump();assert speech.task is None
+    speech.adapter.memory=MemoryConfig();speech.pump();assert speech.task is None # stale
+    o.begin_epoch();speech.pump();assert speech.task is None
+    old=speech.narrative.session;s['session_id']='11111111-2222-4333-8444-555555555555'
+    s['details']['captured_at_ms']=int(c.wall()*1000);o.accept(Observation.model_validate(frame(s,1)))
+    speech.sync_narrative();assert speech.narrative.session!=old and speech.narrative.context()['premise'] is None
+    await speech.close()
+
+
+def test_previous_session_operational_dialogue_is_omitted_on_story_continuation():
+    c,o,s=observation();summary=o.summary()|{'conversation_source':'user','narrative_context':narrative().context()}
+    history=[{'role':'assistant','content':'The session was at 120 BPM.','session_id':'old'}, {'role':'user','content':'The blue envelope matters.','session_id':'old'}]
+    messages,warnings=compose_messages(summary,'Continue our mystery.',history,AIConfig())
+    assert not any(m['content']=='The session was at 120 BPM.' for m in messages)
+    assert any(m['content']=='The blue envelope matters.' for m in messages)
+    assert warnings
+
+
+def test_optional_story_context_yields_to_current_facts_under_tight_budget():
+    c,o,s=observation();n=narrative();n.accepted('Imagine a mystery.','A blue envelope waits.',True)
+    for char in 'abcdefgh':n.accepted('I choose the garden.',char*175+'.',True)
+    summary=o.summary()|{'conversation_source':'user','narrative_context':n.context()}
+    # Derive a small remaining budget from the actual prompt, not a tokenizer guess.
+    config=AIConfig(max_tokens=512)
+    messages,_=compose_messages(summary,'Continue the story.',[],config)
+    base=messages[-1]['content'].split('\n\nCURRENT SESSION',1)[-1]
+    target=len(messages[0]['content'])+len(base)+180
+    reserve=int((config.context_length-config.max_tokens-64)*2.5-target)
+    messages,warnings=compose_messages(summary,'Continue the story.',[],config,reserve_characters=reserve)
+    assert 'CURRENT SESSION' in messages[-1]['content']
+    assert 'NARRATIVE CONTEXT' not in messages[-1]['content'] and any('narrative' in w for w in warnings)
+    assert n.context()['premise']
+
+
+def test_narrative_cannot_claim_generic_hardware_motion_or_paused_after_stop():
+    from companion_ai.fidelity import violations
+    c,o,s=observation()
+    assert 'unverified_physical_motion' in violations('The machine is humming along.',o.canonical())
+    assert not violations('In the imagined scene, the machine is humming along.',o.canonical())
+    o.report['status']='IDLE'
+    assert 'unsupported_session_status' in violations('With the session officially paused, we can talk.',o.canonical())
+
+
+@pytest.mark.parametrize('reply',['[[expression:focused]]A new clue waits by the window.','[SILENCE]'])
+async def test_initiative_wire_payload_and_silence_spend_one_bounded_opportunity(reply):
+    c,o,s=observation();wire=[];m=ModelManager(transport=runtime(wire,reply));await m.select(AIConfig(model='daisy-narrative-v1:latest'))
+    d=ObserverDirector(DirectorConfig(regenerate_once=False),clock=c.mono);d.session_status='RUNNING'
+    speech=ConversationService(o,lambda _:None,m,clock=c.mono,director=d)
+    speech.narrative.accepted('Imagine a mystery. I choose the garden.','I will keep the key.',True)
+    d.user('Continue our story.');c.tick(121)
+    s['details']['captured_at_ms']=int(c.wall()*1000);s['details']['hr_recorded_at_ms']=int(c.wall()*1000);assert o.accept(Observation.model_validate(frame(s,1)))
+    speech.pump();await speech.task
+    assert len(wire)==1 and wire[0][1]['think'] is False
+    assert 'bounded narrative opportunity' in wire[0][1]['messages'][0]['content']
+    c.tick(121);speech.pump();assert len(wire)==1
+    await speech.close()
