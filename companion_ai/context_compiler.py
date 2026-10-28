@@ -96,29 +96,33 @@ class ContextCompiler:
         if event and not valid_event(event):event=None
         focus=attention(summary,prompt,event)
         # Essential boundaries stay even for ordinary chat; numerical fields are selected.
+        requested={key for key,pattern in TOPICS.items() if re.search(pattern,prompt,re.I)} if focus.source=='real_user' else {focus.topic}
+        if requested&{'physiology','timing','devices','configuration'} and not re.search(r'\b(?:edges?|milestones?|came early)\b',prompt,re.I):requested.discard('milestones')
         selected={'status','hr_source','physical_motion','toy_ready','handy','ble','intiface','tcode','vacuglide'}
-        if focus.topic=='physiology':selected|={'hr','trend','resting_bpm'}
-        if focus.topic=='configuration':selected|={'experience','active_mode','goal'}
-        if focus.topic=='configuration' and re.search(r'threshold|resting|maximum|minimum|ceiling|limit',prompt,re.I):selected|={'resting_bpm','single_max_bpm','dual_max_bpm','effective_max','pullback'}
-        if focus.topic=='configuration' and re.search(r'intensity|calibration|warm',prompt,re.I):selected|={'intensity','calibration_pass','warmup_active','warmup_remaining_seconds'}
-        if focus.topic=='timing':selected|={'seconds','pauses','rampdown_seconds','ease_down_seconds'}
-        if focus.topic=='milestones':selected|={'experience','active_mode','goal','edges'}
+        if 'physiology' in requested:selected|={'hr','trend','resting_bpm'}
+        if 'configuration' in requested:selected|={'experience','active_mode','goal'}
+        if 'configuration' in requested and re.search(r'threshold|resting|maximum|minimum|ceiling|limit',prompt,re.I):selected|={'resting_bpm','single_max_bpm','dual_max_bpm','effective_max','pullback'}
+        if 'configuration' in requested and re.search(r'intensity|calibration|warm',prompt,re.I):selected|={'intensity','calibration_pass','warmup_active','warmup_remaining_seconds'}
+        if 'timing' in requested:selected|={'seconds','pauses','rampdown_seconds','ease_down_seconds'}
+        if 'milestones' in requested:selected|={'experience','active_mode','goal','edges'}
         # The canonical validator/factual guard still has every field, independent of selection.
         facts=render_facts(data.model_copy(update={'facts':{k:v for k,v in data.facts.items() if k in selected},'events':[]}),include_timing='seconds' in selected,include_events=False)
+        facts+='\nSession identity: '+str(data.session_id)+'; captured_at_ms '+str(data.captured_at_ms)+'.'
         facts+='\nHR source: '+(str(data.facts['hr_source'].value) if data.facts['hr_source'].current else 'unavailable')+'.'
         event_items=[]
-        if event:
+        relevant_event=event and (focus.source=='validated_event' or attention(summary|{'conversation_source':'event'},'',event).topic in requested)
+        if relevant_event:
             obs=event.get('observation')
             if obs:
                 event_items.append({k:v for k,v in obs.items() if k not in {'rule','config_revision','contract','detector_id'}})
             else:event_items.append({k:v for k,v in event.items() if k in {'kind','event_id','evidence','previous_experience','current_experience','previous_goal','current_goal','significance'}})
         asks_events=bool(re.search(r'\b(?:changed|happened|recent|earlier|previous|history|before)\b',prompt,re.I))
-        if asks_events or focus.category=='react_event':
+        if asks_events and requested&{'physiology','configuration','milestones','timing'} or focus.category=='react_event':
             for e in reversed(data.events):
                 if len(event_items)>=2:break
                 if e.age_seconds>c.event_max_age_seconds:excluded.append({'id':e.kind,'reason':'stale'});continue
-                if focus.topic=='configuration' and 'changed' not in e.kind:continue
-                if focus.topic=='physiology' and e.kind not in {'signal_lost','signal_restored','threshold_changed'}:continue
+                if 'configuration' in requested and 'changed' not in e.kind:continue
+                if 'physiology' in requested and e.kind not in {'signal_lost','signal_restored','threshold_changed'}:continue
                 if event and e.kind==event.get('kind'):continue
                 event_items.append({'kind':e.kind,'evidence':e.evidence,'age_seconds':e.age_seconds,'historical':True})
         for e in summary.get('derived_observations',[]):
@@ -163,7 +167,8 @@ class ContextCompiler:
             if text in seen:continue
             seen.add(text);scoped.append((i,m))
         # Recent dialogue outranks optional narrative. Latest user instructions get first claim.
-        ranked=sorted(scoped,key=lambda pair:(pair[1].get('role')=='user',pair[0]),reverse=True)
+        query=words(prompt)
+        ranked=sorted(scoped,key=lambda pair:(3*len(query&words(pair[1].get('content','')))+(3 if pair[1].get('role')=='user' else 0)+(5 if pair[1].get('role')=='user' and re.search(r'\b(?:always|never|do not|remember|please)\b',pair[1].get('content',''),re.I) else 0),pair[0]),reverse=True)
         history_used=0
         for i,m in ranked:
             cost=estimate(m.get('content',''))+32

@@ -69,3 +69,36 @@ def test_explicit_f27_fallback_preserves_baseline_without_touching_default():
 @pytest.mark.parametrize('value',[{'history_tokens':-1},{'target_prompt_tokens':9000},{'schema_version':2},{'event_max_age_seconds':999}])
 def test_invalid_budgets_are_rejected(value):
  with pytest.raises(ValueError):ContextConfig.model_validate(value)
+
+
+def test_multi_part_user_query_keeps_each_requested_fact_without_multiple_focuses():
+ _,_,d=compile(prompt='Give the current BPM, maximum setting, selected mode and elapsed seconds.')
+ assert {'hr','single_max_bpm','goal','seconds'}<=set(d['supporting_categories'])
+ assert d['focus']['category']=='answer_user'
+
+
+def test_unrelated_event_is_not_stuffed_into_user_book_discussion():
+ case=cases()[1]
+ messages,_,d=compile(prompt='Let us discuss books.',trigger_event={'kind':'edge','event_id':'edge-book','session_id':case.observation.session_id})
+ assert not d['event_ids'] and 'edge-book' not in messages[-1]['content']
+
+
+def test_relevant_commitment_callback_outranks_unrelated_recent_excerpts():
+ n={'phase':'development','premise':'An observatory mystery.','commitments':['I will bring the violet notebook.'],'developments':['The kitchen smells of bread.','The roses are blooming.'],'choices':['I choose the violet notebook.']}
+ messages,_,d=compile(prompt='What did you promise about the violet notebook?',narrative_context=n)
+ assert 'commitments:0' in d['narrative_references']
+ assert 'violet notebook' in messages[-1]['content']
+
+
+def test_new_topic_omits_story_memory_without_erasing_it():
+ n={'premise':'The blue envelope mystery.','developments':['A hidden map.']};before=deepcopy(n)
+ messages,_,d=compile(prompt='New topic: tell me about music.',narrative_context=n)
+ assert n==before and not d['narrative_references']
+ assert 'blue envelope' not in messages[-1]['content']
+
+
+def test_direct_compiler_client_honors_explicit_epoch_boundary():
+ case=cases()[1];case.history=[{'role':'user','content':'The abandoned blue envelope.','narrative_epoch':'old'},{'role':'user','content':'I prefer jazz.','narrative_epoch':'new'}]
+ messages,_,_=compile(case,prompt='Hello',narrative_epoch='new')
+ assert not any('abandoned' in m['content'] for m in messages)
+ assert any('jazz' in m['content'] for m in messages)

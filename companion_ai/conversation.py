@@ -153,6 +153,10 @@ class ModelManager:
             await self._stop()
         return self.status()
 
+    def configure_context(self,config):
+        if self.store:self.store.write('context-intelligence.json',config.model_dump())
+        self.context_config=config
+
     def status(self):
         return {"mode": self.mode, "config": self.config.model_dump(), 'load_state': self.load_state,
                 'context_warnings': self.context_warnings, 'runtime_error': self.metrics.last_error,
@@ -171,12 +175,13 @@ class ModelManager:
             def chunk(text):
                 self.load_state = 'generating'
                 if on_chunk:on_chunk(text)
+            compiler_settings=self.context_config.model_copy(deep=True)
             try:
                 if isinstance(self.adapter,OllamaProvider) and self.model_metadata is None:
                     self.model_metadata = await self.adapter.capabilities(self.config.model)
                 if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                 embedded_size = len((self.model_metadata or {}).get('system',''))
-                messages,warnings = compose_messages(summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size,context_config=self.context_config,diagnostics=self.context_diagnostics)
+                messages,warnings = compose_messages(summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size,context_config=compiler_settings,diagnostics=self.context_diagnostics)
                 self.context_warnings = warnings
                 async with asyncio.timeout(self.config.timeout_seconds):
                     try:
@@ -186,7 +191,7 @@ class ModelManager:
                         if isinstance(exc,OutputBudgetExceededError) and on_chunk and not on_reset:raise
                         retry_config=self.config.model_copy(update={'max_tokens':min(4096,self.config.max_tokens*2)})
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                        retry_messages,retry_warnings=compose_messages(summary,prompt,history,retry_config,self.memory,reserve_characters=embedded_size,context_config=self.context_config,diagnostics=self.context_diagnostics)
+                        retry_messages,retry_warnings=compose_messages(summary,prompt,history,retry_config,self.memory,reserve_characters=embedded_size,context_config=compiler_settings,diagnostics=self.context_diagnostics)
                         self.stream_reset_reason='output_budget_retry'
                         if on_reset:on_reset()
                         self.context_warnings=retry_warnings+[f'Retrying once with {retry_config.max_tokens} output tokens after the first budget was exhausted; thinking remains disabled.']
@@ -199,7 +204,7 @@ class ModelManager:
                         if on_chunk and not on_reset:raise GroundingError(problems)
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                         repaired_summary=summary | {'grounding_corrections':problems}
-                        repair_messages,repair_warnings=compose_messages(repaired_summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size,context_config=self.context_config,diagnostics=self.context_diagnostics)
+                        repair_messages,repair_warnings=compose_messages(repaired_summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size,context_config=compiler_settings,diagnostics=self.context_diagnostics)
                         self.stream_reset_reason='grounding_retry'
                         if on_reset:on_reset()
                         self.grounding_attempts=2
@@ -211,12 +216,17 @@ class ModelManager:
                 if self.metrics.samples:
                     self.context_diagnostics['actual_prompt_tokens']=self.metrics.samples[-1].get('prompt_tokens')
                     self.context_diagnostics['estimate_error_tokens']=(self.context_diagnostics.get('estimated_prompt_tokens',0)-(self.metrics.samples[-1].get('prompt_tokens') or 0))
+                self.context_diagnostics['request_status']='completed'
                 self.load_state='ready';self.metrics.last_error=None
                 return result
             except asyncio.CancelledError:
                 self.load_state='unloaded'
                 raise
+            except asyncio.CancelledError:
+                self.context_diagnostics['request_status']='cancelled'
+                raise
             except (httpx.HTTPError,ValueError,TimeoutError) as exc:
+                self.context_diagnostics['request_status']='failed'
                 self.load_state='error';self.metrics.last_error=type(exc).__name__+': '+str(exc)[:160]
                 raise
 

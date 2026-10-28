@@ -23,7 +23,7 @@ from companion_ai.event_intelligence import preset
 from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, safe_validation_errors
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
@@ -187,6 +187,11 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
                             'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (accepted_release or any(p['kind']=='came_early' for p in speech.pending) or speech.active_event_kind=='came_early' and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
+                    elif isinstance(message,ConfigureContext):
+                        try:
+                            manager.configure_context(message.config)
+                            publish(speech.character_state() | {'context_saved':True})
+                        except (ValueError,OSError):publish({'type':'character_menu_error','detail':'Context configuration could not be saved; previous settings retained.'})
                     elif isinstance(message,ConversationActivity):
                         if message.model==manager.config.model:director.typing_until=clock()+6 if message.typing else 0
                     elif isinstance(message,ConfigureEvents):
