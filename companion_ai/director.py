@@ -18,6 +18,8 @@ logger = logging.getLogger(__name__)
 class DirectorConfig(StrictModel):
     enabled: bool = True
     spontaneous_enabled: bool = True
+    narrative_initiative_enabled: bool = True
+    max_consecutive_unsolicited: int = Field(default=2, ge=1, le=4)
     selection_debounce_seconds: float = Field(default=2.0, ge=.2, le=10)
     reaction_interval_seconds: float = Field(default=4.0, ge=0, le=60)
     reaction_user_grace_seconds: float = Field(default=2.0, ge=0, le=30)
@@ -123,7 +125,7 @@ class ConversationDirector:
 
     def activate(self, scope):
         self.active_scope=scope
-        self.memory=self.model_states.setdefault(scope,{'topic':None,'topics':deque(maxlen=8),'questions':deque(maxlen=12),'responses':deque(maxlen=24),'event_responses':deque(maxlen=8),'last_user':float('-inf')})
+        self.memory=self.model_states.setdefault(scope,{'topic':None,'topics':deque(maxlen=8),'questions':deque(maxlen=12),'responses':deque(maxlen=24),'event_responses':deque(maxlen=8),'last_user':float('-inf'),'consecutive_unsolicited':0})
 
     def log(self, reason, **details):
         entry={'at':self.clock(),'reason':reason,**details}
@@ -138,6 +140,7 @@ class ConversationDirector:
     def user(self, text):
         self.record('real_user',text,'user')
         self.memory['last_user']=self.clock()
+        self.memory['consecutive_unsolicited']=0
         topic=topic_for(text,self.memory['topic'])
         if topic:
             if topic!=self.memory['topic']:self.memory['topics'].append(topic)
@@ -189,6 +192,16 @@ class ConversationDirector:
         if now-self.last_category.get(group,float('-inf'))<self.config.category_cooldowns.get(group,90):return False,'category_cooldown'
         if self.memory['topic'] not in {None,'session'} and now-self.memory['last_user']<self.config.topic_protection_seconds:return False,'continue_user_topic'
         return True,'conversational_opportunity:'+group
+
+    def narrative_opportunity(self, engaged):
+        now=self.clock()
+        if not (self.config.enabled and self.config.spontaneous_enabled and self.config.narrative_initiative_enabled):return False,'narrative_disabled'
+        if not engaged:return False,'no_welcome_narrative_thread'
+        if self.session_status not in {'RUNNING','RAMPDOWN'}:return False,'narrative_session_inactive'
+        if self.memory['consecutive_unsolicited']>=self.config.max_consecutive_unsolicited:return False,'unsolicited_limit'
+        if now-self.memory['last_user']<self.config.user_idle_before_spontaneous_seconds:return False,'active_conversation'
+        if now-self.last_spoken<self.config.spontaneous_interval_seconds:return False,'spontaneous_frequency'
+        return True,'bounded_narrative_continuation'
 
     def dispatched(self,event,reason):
         if event['kind'] in REACTIVE_EVENTS:self.last_reaction=self.clock()
@@ -253,6 +266,7 @@ class ConversationDirector:
         self.memory['questions'].extend(questions(text))
         item=self.record('assistant_dialogue',text,'assistant',trigger_origin='real_user' if user else self.current_origin)
         if not user:
+            self.memory['consecutive_unsolicited']+=1
             self.memory['event_responses'].append(item)
             self.counts['unsolicited_dialogue_generated']+=1
         self.last_reason='user_turn' if user else self.last_reason

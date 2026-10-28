@@ -6,6 +6,7 @@ import re
 import time
 from uuid import uuid4
 import httpx
+from .narrative import NarrativeMemory, NarrativeConfig
 from .expressions import clean_dialogue
 from .event_policy import SELECTION_EVENTS, REACTIVE_EVENTS
 from .models import SpeechPolicy, AIConfig, MemoryConfig
@@ -37,6 +38,7 @@ class ModelManager:
         self.adapter = None
         self.selected_loaded = False
         self.memory = MemoryConfig.model_validate(store.read('memory-config.json', {})) if store else MemoryConfig()
+        self.narrative_config = NarrativeConfig.model_validate(store.read('narrative-config.json', {})) if store else NarrativeConfig()
         self.lifecycle_lock = asyncio.Lock()
         self.factories = {'ollama': OllamaProvider}
         self.load_state = 'disabled'
@@ -230,6 +232,7 @@ class ConversationService:
         self.history = deque(maxlen=8)
         self.model_histories = {}
         self.active_model_id = None
+        self.narrative = NarrativeMemory(getattr(self.adapter, "narrative_config", None), getattr(self.adapter, "store", None))
         self.activate_model()
         self.generation = 0
         self.pending = []
@@ -276,10 +279,20 @@ class ConversationService:
         self.active_model_id = scope
         if hasattr(self,'pending'):self.pending.clear()
         self.director.activate(scope)
+        self.sync_narrative()
         if not self.director.memory['responses']:
             for record in self.history:
                 if record.get('role') == 'assistant':
                     self.director.memory['responses'].append({'text':record['content'],'at':self.clock()})
+
+    def sync_narrative(self):
+        self.narrative.activate(self.active_model_id, getattr(self.state, 'session_id', None))
+
+    def reset_narrative(self):
+        self.interrupt()
+        self.sync_narrative()
+        self.narrative.reset()
+        self.publish({'type':'narrative_reset','model':self.responder()['model']})
 
     def interrupt(self):
         self.generation += 1
@@ -289,6 +302,8 @@ class ConversationService:
         self.publish({"type": "speech_cancel", "generation": self.generation})
 
     def safety(self, reason):
+        self.sync_narrative()
+        self.narrative.event(reason)
         self.pending.clear()
         self.director.receive(reason, 100, origin='safety_event')
         self.director.last_reason = 'deterministic_safety:' + reason
@@ -321,6 +336,8 @@ class ConversationService:
             self.enqueue(notice, 30 if notice == "edge" else 10)
 
     def enqueue(self, kind, priority, details=None):
+        self.sync_narrative()
+        self.narrative.event(kind)
         if not self.director.receive(kind, priority, details):
             return
         now = self.clock()
@@ -345,6 +362,7 @@ class ConversationService:
         self.pending.append(event)
 
     def pump(self):
+        self.sync_narrative()
         now = self.clock()
         self.pending = [e for e in self.pending if now-e["at"] <= self.policy.event_ttl_seconds]
         if getattr(self.adapter, "mode", None) in {"mock", "stopped"}:
@@ -356,6 +374,15 @@ class ConversationService:
             return
         eligible = [e for e in self.pending if e['kind'] in REACTIVE_EVENTS or (now-self.last_user >= self.policy.user_grace_seconds and now-self.last_event >= self.policy.min_interval_seconds and now-self.event_last_spoken.get(e['kind'],float('-inf')) >= self.policy.per_event_cooldown_seconds)]
         if not eligible:
+            # A timer alone never grants permission: require an engaged story,
+            # a user choice/commitment, no unanswered question and a fresh user turn.
+            allowed, reason = self.director.narrative_opportunity(self.memory_config.enabled and self.narrative.opportunity())
+            if allowed and not self.pending and now >= self.busy_until and getattr(self.state, 'fresh', lambda: True)():
+                event={'kind':'narrative_continuation','priority':0,'at':now,'narrative':True}
+                result=self.request('Continue one established fictional thread briefly, or choose [SILENCE]. This is a conversational opportunity, not a verified EdgeLoop event.',user=False,event=event)
+                if result['accepted']:
+                    self.director.dispatched(event,reason)
+                    self.narrative.state['last_initiative_revision']=self.narrative.state['revision']
             return
         opportunities=[]
         for candidate in eligible:
@@ -380,6 +407,7 @@ class ConversationService:
 
     def request(self, prompt, user=False, event=None):
         self.activate_model()
+        self.sync_narrative()
         now = self.clock()
         if self.closed:
             return {"accepted": False, "reason": "closed"}
@@ -396,6 +424,8 @@ class ConversationService:
         if user:
             self.last_user = now
             self.director.user(prompt)
+            from .narrative import QUIET
+            if QUIET.search(prompt):self.narrative.state['initiative_allowed']=False
         if user and self.director.config.enabled and re.search(r"\b(no need to (?:reply|respond)|just (?:be|stay) quiet|let'?s sit quietly)\b", prompt, re.I):
             request_id=str(uuid4())
             self.director.counts['intentional_silence']+=1
@@ -407,9 +437,9 @@ class ConversationService:
         request_id = str(uuid4())
         generation = self.generation
         compact_events = {}
-        for event in self.recent_events:
-            if now-event['at'] <= self.policy.event_ttl_seconds:
-                compact_events[event['kind']] = event
+        for recent in self.recent_events:
+            if now-recent['at'] <= self.policy.event_ttl_seconds:
+                compact_events[recent['kind']] = recent
         summary = self.state.summary() | {"conversation_source": "user" if user else "event", "recent_events": [
             {k:v for k,v in e.items() if k not in {"at", "ack_id"}} | {"age_seconds": round(now-e["at"], 1)}
             for e in list(compact_events.values())[-6:]]}
@@ -418,7 +448,10 @@ class ConversationService:
         if self.director.config.enabled:
             history = self.director.history(history, memory.max_messages) if memory.enabled else []
             summary = self.director.context(summary, prompt, list(compact_events.values()), user, memory.enabled)
-        if event:summary['trigger_event']={k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm'}}
+        if event and not event.get('narrative'):summary['trigger_event']={k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm'}}
+        summary['narrative_initiative']=bool(event and event.get('narrative'))
+        if memory.enabled:summary['narrative_context']=self.narrative.context()
+        summary['narrative_scope']=(self.active_model_id,self.narrative.session)
         if event and event['kind'] in REACTIVE_EVENTS:
             history=[m for m in history if m.get('trigger_origin') in {None,'real_user'}]
         self.active_event_kind = event['kind'] if event else None
@@ -476,7 +509,7 @@ class ConversationService:
                 flush(force=True)
             else:
                 text = await self.adapter.reply(summary, prompt, history)
-            if generation != self.generation:
+            if generation != self.generation or summary.get('narrative_scope')!=(self.active_model_id,getattr(self.state,'session_id',None)):
                 return
             if not self.reaction_current(summary):
                 self.director.log('selection_superseded')
@@ -523,6 +556,8 @@ class ConversationService:
                     self.history.append({'role':'user', 'content':prompt, 'origin':'real_user', 'at':self.clock()})
                 self.history.append({'role':'assistant', 'content':text, 'origin':'assistant_dialogue',
                     'trigger_origin':'real_user' if user else 'system_event', 'expression':expression, 'at':self.clock()})
+            if summary.get('narrative_scope')==(self.active_model_id,getattr(self.state,'session_id',None)) and memory.enabled:
+                self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False))
             self.director.accepted(text, user)
             store = getattr(self.adapter, 'store', None)
             if store and memory.enabled and memory.persist_between_sessions:

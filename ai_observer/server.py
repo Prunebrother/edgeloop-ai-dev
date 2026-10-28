@@ -22,7 +22,7 @@ from companion_ai.event_policy import significance
 from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, safe_validation_errors
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
@@ -213,6 +213,8 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 publish({'type':'model_selected','model':manager.config.model,'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'can_disable_thinking':controls['can_disable'],'history':[{k:str(m[k])[:4000] for k in ('role','content','expression') if m.get(k) is not None} for m in list(speech.history)[-8:]]})
                         except InferenceCompatibilityError as exc:publish({'type':'ai_error','code':'inference_compatibility','detail':str(exc),'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
                         except (ValueError,httpx.HTTPError,OSError):publish({'type':'ai_error','detail':'Model settings could not be applied; check model availability and thinking support.', 'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
+                    elif isinstance(message,ResetNarrative):
+                        speech.reset_narrative()
                     elif isinstance(message,Chat):
                         chat_times[:]=[t for t in chat_times if clock()-t<60]
                         if len(chat_times)>=12:publish({'type':'ai_error','detail':'Chat rate limit'});continue

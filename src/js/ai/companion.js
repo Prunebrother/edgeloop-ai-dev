@@ -22,6 +22,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
       <button data-latest class="jump-latest" type="button" hidden>Jump to latest ↓</button>
       <p data-error class="chat-error" role="alert" hidden></p><p data-progress role="status" class="chat-progress"></p>
       <form data-chat class="chat-composer"><label for="companion-message">Message your companion</label><textarea id="companion-message" data-text maxlength="2000" rows="3" placeholder="What’s on your mind?" disabled></textarea><div class="composer-actions"><span>Enter to send · Shift+Enter for a new line</span><button data-cancel type="button" hidden>Cancel generation</button><button data-send class="accent-button" type="submit" disabled>Send ↑</button></div></form>
+      <details><summary>Story memory</summary><p>Reset the current model’s story anchors. Conversation and EdgeLoop records are retained.</p><button data-narrative-reset type="button">Reset story memory</button></details>
       <p class="read-only-note">Read-only companion · Session and safety stay with EdgeLoop</p>`;
     const artwork=document.createElement('aside');artwork.id='character-panel';artwork.setAttribute('aria-label','Character artwork');
     const character=new CharacterPresentation(artwork);
@@ -41,6 +42,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     new ResizeObserver(scroll).observe(el('history'));
     const activity=(state,label)=>{const badge=panel.querySelector('[data-activity-state]');badge.dataset.activityState=state;el('activity-label').textContent=label;};
     const controls=()=>{
+        el('narrative-reset').disabled=!paired||!selected||changing;
         el('send').disabled=!selected||pending||changing;el('text').disabled=!selected||changing;
         el('select').disabled=!paired||pending||changing||!discovered.has(el('model').value);el('model').disabled=!paired||pending||changing;
         el('thinking').disabled=!discovered.has(selected)||!selected||!supportsThinking||thinking===true&&!canDisableThinking||thinking===null||pending||changing;
@@ -68,6 +70,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             return;
         }
         if(debug)queueMicrotask(updateDiagnostics);
+        if(m.type==='narrative_reset'){el('progress').textContent='Story memory reset.';return;}
         if(m.type==='ai_diagnostics'){if(m.responder?.model&&m.responder.model!==selected||m.id&&m.id!==presentation.lastRequest?.id)return;Object.assign(diagnostic,m);return;}
         if(m.type==='models'){
             el('model').replaceChildren();for(const entry of m.models.slice(0,128)){const o=document.createElement('option');o.value=entry.name;o.textContent=entry.name;el('model').append(o);}
@@ -120,6 +123,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     }});
     el('setup').onsubmit=e=>{e.preventDefault();error('');try{connection.connect(el('url').value,el('token').value);}catch(e){error(e.message);}finally{el('token').value='';}};
     el('disconnect').onclick=()=>connection.disconnect();
+    el('narrative-reset').onclick=()=>{if(paired&&connection.send({version:1,type:'reset_narrative'})){presentation.cancel();finish();el('progress').textContent='Story memory reset requested.';}};
     el('refresh').onclick=()=>connection.send({version:1,type:'list_models'});
     const selectModel=(model,requestedThinking)=>{
         if(pending||changing)return;

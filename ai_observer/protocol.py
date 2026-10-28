@@ -125,7 +125,11 @@ class Cancel(StrictModel):
     version: Literal[1]
     type: Literal['cancel_generation']
 
-Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel,Field(discriminator='type')])
+class ResetNarrative(StrictModel):
+    version: Literal[1]
+    type: Literal['reset_narrative']
+
+Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative,Field(discriminator='type')])
 
 
 def _schema_paths(node):
