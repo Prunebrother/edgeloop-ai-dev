@@ -58,10 +58,10 @@ export class CharacterPresentationController {
     bounded(set,value){set.add(value);if(set.size>128)set.delete(set.values().next().value);}
     select(model,history=[]) {
         this.cancel();const identity=resolveArtwork(model).id;
-        if(identity!==this.identity)this.expression='neutral';
+        if(identity!==this.identity){this.expression='neutral';this.expressionSource='fallback';}
         this.model=model;this.identity=identity;
         const last=history.filter(m=>m.role==='assistant').at(-1);
-        const tone=last&&(EXPRESSIONS.includes(last.expression)?last.expression:classifyDialogue(last.content));if(tone)this.expression=tone;
+        const tone=last&&(EXPRESSIONS.includes(last.expression)?last.expression:classifyDialogue(last.content));if(tone){this.expression=tone;this.expressionSource=EXPRESSIONS.includes(last.expression)?'memory':'fallback';}
         this.activity=this.connected?'idle':'disconnected';this.chatUntil=this.now()+this.chatHoldMs;this.emit();
     }
     connection(connected){this.connected=Boolean(connected);if(!connected){this.cancel();this.session=null;this.sequence=-1;this.seen.clear();}this.activity=connected?'idle':'disconnected';this.emit();}

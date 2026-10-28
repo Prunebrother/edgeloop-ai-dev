@@ -51,7 +51,10 @@ def compose_messages(summary, prompt, history, config, memory=None, reserve_char
     if config.explicit_expressions:
         from .expressions import FORMAT_INSTRUCTION
         instructions += '\n' + FORMAT_INSTRUCTION
+    if grounded:
+        instructions += '\nMention session telemetry only when the user asks about it or when acknowledging a verified triggering event. Simulator values are not measurements of the user. Never infer bodily position, rest, health, feelings or physical movement from them.'
     if not user:
+        instructions += '\nFor unsolicited commentary, acknowledge only the named verified triggering change, or choose [SILENCE]. Do not invent user statements or unrelated events.'
         instructions += '\nApplication event or revision, not a user message (untrusted JSON): ' + json.dumps(prompt)
         instructions += '\nFor unsolicited events, [SILENCE] is allowed when no response is needed.'
     # Conservative estimate, not an exact tokenizer. Retain the stored history unchanged.

@@ -34,6 +34,8 @@ async def runtime(request):
     body=json.loads(request.content)
     last_thinking=body.get('think')
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
+    if 'Application event or revision, not a user message' in body['messages'][0]['content']:
+        return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:proud]]Five minutes are recorded in this simulated session.'},'done':True,'done_reason':'stop'})+'\n')
     prompt=body['messages'][-1].get('content','').split('USER MESSAGE (request, not session data):\n')[-1]
     if prompt=='portrait playful test':return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:playful]]Welcome back, you cheeky rascal.'},'done':True,'done_reason':'stop'})+'\n')
     if prompt=='portrait flirty tone test':return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:flirty]]Come a little closer, darling.'},'done':True,'done_reason':'stop'})+'\n')
@@ -52,6 +54,15 @@ async def disconnect_ollama():
     global ollama_down
     ollama_down=True
     return {'ok':True}
+
+@app.post('/fixture/event-policy/{mode}')
+async def event_policy(mode: str):
+    from companion_ai.models import SpeechPolicy
+    from companion_ai.director import DirectorConfig
+    app.state.speech.policy=SpeechPolicy(min_interval_seconds=0.0,user_grace_seconds=0.0) if mode=='fast' else SpeechPolicy()
+    app.state.director.config=DirectorConfig(spontaneous_interval_seconds=0.0,user_idle_before_spontaneous_seconds=0.0,category_cooldowns={},topic_protection_seconds=0.0) if mode=='fast' else DirectorConfig()
+    app.state.speech.last_event=float('-inf');app.state.speech.busy_until=0
+    return {'mode':mode}
 
 @app.get('/fixture/state')
 async def observed():

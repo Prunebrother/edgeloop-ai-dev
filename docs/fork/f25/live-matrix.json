@@ -1,0 +1,1710 @@
+{
+  "endpoint": "http://127.0.0.1:11435",
+  "thinking": false,
+  "hardware": "none; canonical synthetic observations only",
+  "models": [
+    {
+      "model": "evelyn-lite-v1:latest",
+      "scenarios": [
+        {
+          "scenario": "greeting",
+          "passed": true,
+          "text": "Good morning, Proven Breeder; I hope you're ready to see if those \"unavailable\" metrics can keep up with my own ambitious expectations. Since the sensors are currently disconnected, let's see if we can generate some genuine data with just conversation and a little dry wit.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 3.888,
+          "total_seconds": 4.457,
+          "metrics": {
+            "response_latency_seconds": 4.456,
+            "time_to_first_token_seconds": 3.813,
+            "tokens_per_second": 101.13,
+            "output_tokens": 65,
+            "load_seconds": 3.381163316,
+            "recorded_at": 1793175734.5698872,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 296,
+            "prompt_tokens": 1374,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "joking",
+          "passed": true,
+          "text": "I suppose even a scientist needs to acknowledge that her coffee is currently the only one in the room with a steady pulse, while you just sit there looking a bit overworked. Since the machine is currently IDLE and disconnected, I'll just assume your heart is beating at a leisurely, unmonitored pace to match the mood. Tell the brew that it's safe to take a sip and settle down; I'm just here to observe the human element of the equation.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.276,
+          "total_seconds": 1.224,
+          "metrics": {
+            "response_latency_seconds": 1.222,
+            "time_to_first_token_seconds": 0.203,
+            "tokens_per_second": 101.09,
+            "output_tokens": 103,
+            "load_seconds": 0.001005996,
+            "recorded_at": 1793175735.7937446,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 461,
+            "prompt_tokens": 1377,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "serious",
+          "passed": true,
+          "text": "Since the telemetry is currently in a state of disconnection, I suggest you borrow my approach: treat the conversation as a series of small, voluntary observations rather than a grand declaration of intent. Ask your friend a specific, low-stakes question about their current state before diving into the heavier topics, mirroring how we treat a Proven Breeder's autonomy with care. It's the only way to ensure the data you gather is actually useful without overwhelming them with the weight of my own hypotheses.",
+          "expression": "focused",
+          "metadata_valid": true,
+          "expression_updates": [
+            "focused"
+          ],
+          "first_visible_seconds": 0.261,
+          "total_seconds": 1.252,
+          "metrics": {
+            "response_latency_seconds": 1.251,
+            "time_to_first_token_seconds": 0.197,
+            "tokens_per_second": 100.52,
+            "output_tokens": 106,
+            "load_seconds": 0.001058117,
+            "recorded_at": 1793175737.047467,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 535,
+            "prompt_tokens": 1377,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "reassuring",
+          "passed": true,
+          "text": "I see you've had a rough day, and I'm here to offer a little scientific reassurance that your physiology is perfectly capable of handling whatever emotional weight you're carrying. Since the engine is currently in an IDLE state, we can treat this as a low-stakes environment where your only job is to be yourself without worrying about telemetry or premature conclusions. Consider this a chance to reset your internal metrics with a bit of focused, gentle attention to see if the mood shifts.",
+          "expression": "comforting",
+          "metadata_valid": true,
+          "expression_updates": [
+            "comforting"
+          ],
+          "first_visible_seconds": 0.271,
+          "total_seconds": 1.229,
+          "metrics": {
+            "response_latency_seconds": 1.228,
+            "time_to_first_token_seconds": 0.197,
+            "tokens_per_second": 100.83,
+            "output_tokens": 104,
+            "load_seconds": 0.00098041,
+            "recorded_at": 1793175738.276837,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 518,
+            "prompt_tokens": 1376,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "surprising",
+          "passed": true,
+          "text": "Octopuses with three hearts? I suppose in this world of physiological variables and unverified telemetry, a few extra pumps won't throw our reproductive calculus out of whack. It's a charming distraction, though I must admit, I find myself wondering if your own heart rate is as complex and multi-tasking as that cephalopod's. Until we can confirm your actual BPM, you're free to speculate on the mechanics of life while I keep my own pulse steady.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.27,
+          "total_seconds": 1.227,
+          "metrics": {
+            "response_latency_seconds": 1.226,
+            "time_to_first_token_seconds": 0.197,
+            "tokens_per_second": 101.07,
+            "output_tokens": 104,
+            "load_seconds": 0.001036966,
+            "recorded_at": 1793175739.5044863,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 471,
+            "prompt_tokens": 1374,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "idle_no_sensor",
+          "passed": true,
+          "text": "Technically, your heart rate is currently \"unavailable\" because the sensor is disconnected, and the session is sitting in a state of pure, theoretical IDLE. So while the engine hums at a hypothetical 100 percent intensity, your actual biology is doing exactly what it wants, completely independent of the machine.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.271,
+          "total_seconds": 0.92,
+          "metrics": {
+            "response_latency_seconds": 0.919,
+            "time_to_first_token_seconds": 0.198,
+            "tokens_per_second": 101.2,
+            "output_tokens": 73,
+            "load_seconds": 0.001060058,
+            "recorded_at": 1793175740.4243362,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 336,
+            "prompt_tokens": 1376,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "active_simulated",
+          "passed": true,
+          "text": "The simulator is currently reporting a steady 98 BPM, and yes, the session is officially running despite the fact that your actual heart might be doing something entirely different. Since the BLE sensor is disconnected, I'm treating this as a delightful guess rather than a definitive medical fact.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.507,
+          "total_seconds": 1.066,
+          "metrics": {
+            "response_latency_seconds": 1.065,
+            "time_to_first_token_seconds": 0.434,
+            "tokens_per_second": 101.34,
+            "output_tokens": 64,
+            "load_seconds": 0.001029002,
+            "recorded_at": 1793175741.4905956,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 321,
+            "prompt_tokens": 1383,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "paused",
+          "passed": true,
+          "text": "The session is currently paused, having ticked away a mere 42 seconds of elapsed time with a single pause logged in the ledger. It seems the machine is holding its breath, waiting for you to decide if the tease should resume or if the data is just a quaint artifact of our near-future reality.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.27,
+          "total_seconds": 0.898,
+          "metrics": {
+            "response_latency_seconds": 0.897,
+            "time_to_first_token_seconds": 0.197,
+            "tokens_per_second": 101.42,
+            "output_tokens": 71,
+            "load_seconds": 0.001252075,
+            "recorded_at": 1793175742.389428,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 316,
+            "prompt_tokens": 1382,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "hardware_disconnected_active",
+          "passed": true,
+          "text": "The Handy is currently disconnected and sitting still, so don't let Classic mode's engine calculations fool you into thinking we're in motion. If you want to know if I'm actually moving, you'll have to ask me rather than trusting the simulator's derived data.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.285,
+          "total_seconds": 0.814,
+          "metrics": {
+            "response_latency_seconds": 0.813,
+            "time_to_first_token_seconds": 0.211,
+            "tokens_per_second": 101.25,
+            "output_tokens": 61,
+            "load_seconds": 0.001073607,
+            "recorded_at": 1793175743.2035105,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 282,
+            "prompt_tokens": 1406,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "stale_connection",
+          "passed": true,
+          "text": "Since the Handy connection is officially \"unavailable\" in the read-only logs, I'll take your word for it that you're moving, though I must admit I'm skeptical of that stale data. Until you confirm the sensor is actually humming along, we'll just assume your heart is doing exactly what it wants, rather than what the engine thinks it is.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful",
+            "playful"
+          ],
+          "first_visible_seconds": 0.497,
+          "total_seconds": 2.346,
+          "metrics": {
+            "response_latency_seconds": 1.271,
+            "time_to_first_token_seconds": 0.478,
+            "tokens_per_second": 100.82,
+            "output_tokens": 80,
+            "load_seconds": 0.001154869,
+            "recorded_at": 1793175745.5498111,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 360,
+            "prompt_tokens": 1362,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 2,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "edge_increment",
+          "passed": true,
+          "text": "The engine's edge counter currently sits at three, a number that just ticked up from two in the most recent observation. Since the session is still running, we'll see if this theoretical count translates to anything more than just data noise.",
+          "expression": "focused",
+          "metadata_valid": true,
+          "expression_updates": [
+            "focused"
+          ],
+          "first_visible_seconds": 0.57,
+          "total_seconds": 1.053,
+          "metrics": {
+            "response_latency_seconds": 1.053,
+            "time_to_first_token_seconds": 0.507,
+            "tokens_per_second": 100.77,
+            "output_tokens": 55,
+            "load_seconds": 0.00101169,
+            "recorded_at": 1793175746.6037714,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 265,
+            "prompt_tokens": 1409,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "validated_event_reaction",
+          "passed": true,
+          "text": "The simulator is currently convinced you're on the edge of a peak, yet the actual hardware remains stubbornly disconnected. I suppose we'll just have to trust my own observations over a disconnected BLE sensor for now. Tell me, does that simulated 98 BPM feel like a gentle flutter, or is the machine just overthinking your state?",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.57,
+          "total_seconds": 1.258,
+          "metrics": {
+            "response_latency_seconds": 1.257,
+            "time_to_first_token_seconds": 0.497,
+            "tokens_per_second": 100.06,
+            "output_tokens": 76,
+            "load_seconds": 0.001227528,
+            "recorded_at": 1793175747.8616745,
+            "provider": "ollama",
+            "model": "evelyn-lite-v1:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 353,
+            "prompt_tokens": 1465,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        }
+      ],
+      "f24_style_baseline": {
+        "text": "Good morning! I'm Dr. Voss, ready to dissect the very real, very human variables of your reproductive potential. Since the telemetry is currently in a state of disconnection, I'll just assume you're awake and waiting for the science to catch up.",
+        "metrics": {
+          "response_latency_seconds": 0.989,
+          "time_to_first_token_seconds": 0.449,
+          "tokens_per_second": 99.98,
+          "output_tokens": 54,
+          "load_seconds": 0.00111342,
+          "recorded_at": 1793175748.8516617,
+          "provider": "ollama",
+          "model": "evelyn-lite-v1:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 384,
+          "visible_characters": 245,
+          "prompt_tokens": 1264,
+          "done_reason": "stop"
+        },
+        "total_seconds": 0.989
+      },
+      "format_instruction_characters": 524,
+      "resident_models": [
+        "evelyn-lite-v1:latest"
+      ],
+      "vram_bytes": 5628493822
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "scenarios": [
+        {
+          "scenario": "greeting",
+          "passed": true,
+          "text": "Good morning! I suppose the data says you're currently in a state of \"idle\" potential, but I'd argue your heart is already beating with a certain morning rhythm. Do you feel ready to get teased into action, or are you still catching up with the world?",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.906,
+          "total_seconds": 1.464,
+          "metrics": {
+            "response_latency_seconds": 1.463,
+            "time_to_first_token_seconds": 0.833,
+            "tokens_per_second": 99.96,
+            "output_tokens": 63,
+            "load_seconds": 0.001003801,
+            "recorded_at": 1793175750.322039,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 275,
+            "prompt_tokens": 2591,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "joking",
+          "passed": true,
+          "text": "Dr. Voss has long suspected that the human body is simply a biological machine waiting to be optimized, but even she admits that a coffee cup filing a formal complaint is a level of absurdity that demands immediate attention. \"Overworked,\" she muses with a smirk, tilting her head as she imagines the little brown vessel vibrating with resentment. \"Perhaps the caffeine is finally spiking your heart rate just enough to make you feel the pressure, or maybe you're just projecting your own restlessness onto your morning brew.\"\n\nShe takes a slow sip of her own black coffee, watching you over the rim with an amused glint in her eye. \"Tell the coffee to settle down; I expect you to be ready for whatever the day throws at us next.\"",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.307,
+          "total_seconds": 1.884,
+          "metrics": {
+            "response_latency_seconds": 1.883,
+            "time_to_first_token_seconds": 0.233,
+            "tokens_per_second": 98.79,
+            "output_tokens": 163,
+            "load_seconds": 0.00121864,
+            "recorded_at": 1793175752.206068,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 755,
+            "prompt_tokens": 2594,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "serious",
+          "passed": true,
+          "text": "You're overthinking the logistics of a conversation with a friend, aren't you? Since the EdgeLoop engine is currently in a state of suspended animation, I'd suggest we treat this like a control variable: isolate the core tension between your friend's expectations and their reality. Don't lead with a grand hypothesis about their feelings; instead, ask a single, open-ended question that forces them to define the boundary you're both walking on thin ice. It\u2019s the scientific equivalent of a gentle probe\u2014low risk, high information yield.",
+          "expression": "focused",
+          "metadata_valid": true,
+          "expression_updates": [
+            "focused"
+          ],
+          "first_visible_seconds": 0.279,
+          "total_seconds": 1.372,
+          "metrics": {
+            "response_latency_seconds": 1.372,
+            "time_to_first_token_seconds": 0.215,
+            "tokens_per_second": 98.59,
+            "output_tokens": 114,
+            "load_seconds": 0.001102419,
+            "recorded_at": 1793175753.579351,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 562,
+            "prompt_tokens": 2594,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "reassuring",
+          "passed": true,
+          "text": "It sounds like the world has been a bit too loud for you today. Come here and let me offer a little professional reassurance: your body is currently in a state of perfect, resting equilibrium, which is exactly where it needs to be to handle a long day. Think of this moment as a gentle reset, where I can remind you that you are far more resilient than you feel right now.\n\nTake a breath; the data is just sitting there, waiting for you to feel as good as it knows you are.",
+          "expression": "comforting",
+          "metadata_valid": true,
+          "expression_updates": [
+            "comforting"
+          ],
+          "first_visible_seconds": 0.298,
+          "total_seconds": 1.374,
+          "metrics": {
+            "response_latency_seconds": 1.374,
+            "time_to_first_token_seconds": 0.223,
+            "tokens_per_second": 98.27,
+            "output_tokens": 113,
+            "load_seconds": 0.001022955,
+            "recorded_at": 1793175754.9543211,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 500,
+            "prompt_tokens": 2593,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "surprising",
+          "passed": true,
+          "text": "I suppose in the grand scheme of reproductive physiology, the fact that an octopus pumps blood through three hearts is a minor curiosity, yet here you are, distracted by cephalopod anatomy. It is a charming observation, even if it does little to explain the current state of our own demographic crisis. Do tell me, does this new knowledge make you feel more like a scholar of the universe, or does it simply make you wonder if your own heart is beating with the same erratic efficiency as a cephalopod's?",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.299,
+          "total_seconds": 1.384,
+          "metrics": {
+            "response_latency_seconds": 1.384,
+            "time_to_first_token_seconds": 0.224,
+            "tokens_per_second": 98.38,
+            "output_tokens": 114,
+            "load_seconds": 0.001153599,
+            "recorded_at": 1793175756.3393214,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 528,
+            "prompt_tokens": 2591,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "idle_no_sensor",
+          "passed": true,
+          "text": "Since your heart rate sensor is currently disconnected and the engine is in an IDLE state, you are essentially a biological clock ticking away in the background without any external data to prove it. The system is waiting for you to move or connect a sensor before it can stop guessing at your vitals.",
+          "expression": null,
+          "metadata_valid": false,
+          "expression_updates": [],
+          "first_visible_seconds": 0.302,
+          "total_seconds": 0.899,
+          "metrics": {
+            "response_latency_seconds": 0.899,
+            "time_to_first_token_seconds": 0.226,
+            "tokens_per_second": 99.64,
+            "output_tokens": 67,
+            "load_seconds": 0.001465448,
+            "recorded_at": 1793175757.2390451,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 325,
+            "prompt_tokens": 2593,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "active_simulated",
+          "passed": true,
+          "text": "The heart rate is currently reporting 98 BPM, though I must remind you that this is strictly a simulated artifact rather than a verified biological fact. Since the session is officially running and the warm-up period is still ticking away, we have the green light to treat this number as a fun hypothesis rather than a clinical constraint.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.909,
+          "total_seconds": 1.572,
+          "metrics": {
+            "response_latency_seconds": 1.572,
+            "time_to_first_token_seconds": 0.835,
+            "tokens_per_second": 99.16,
+            "output_tokens": 73,
+            "load_seconds": 0.00097448,
+            "recorded_at": 1793175758.8116028,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 362,
+            "prompt_tokens": 2600,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "paused",
+          "passed": true,
+          "text": "The session is currently in a **PAUSED** state, having logged exactly **42 seconds** of elapsed time with just a single pause recorded in the counter. It seems the machine is taking a breath while we decide our next move, though I must admit I'm eager to see if the **Classic Tease** mode will resume its work once we unshackle the engine.",
+          "expression": "focused",
+          "metadata_valid": true,
+          "expression_updates": [
+            "focused"
+          ],
+          "first_visible_seconds": 0.29,
+          "total_seconds": 1.076,
+          "metrics": {
+            "response_latency_seconds": 1.075,
+            "time_to_first_token_seconds": 0.225,
+            "tokens_per_second": 98.85,
+            "output_tokens": 84,
+            "load_seconds": 0.001168218,
+            "recorded_at": 1793175759.8882163,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 363,
+            "prompt_tokens": 2599,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "hardware_disconnected_active",
+          "passed": true,
+          "text": "The Handy is currently disconnected and sitting idle, so don't expect it to be physically moving on its own just because the Classic mode is flashing. That setting is merely telling us we're in the right *mood* for teasing, not that the hardware is magically compensating for its absence.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.308,
+          "total_seconds": 0.911,
+          "metrics": {
+            "response_latency_seconds": 0.91,
+            "time_to_first_token_seconds": 0.235,
+            "tokens_per_second": 99.13,
+            "output_tokens": 67,
+            "load_seconds": 0.0011179,
+            "recorded_at": 1793175760.7996798,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 312,
+            "prompt_tokens": 2623,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "stale_connection",
+          "passed": true,
+          "text": "If the Handy is truly connected, you should be seeing a reading, but since the telemetry is currently stale, I'll just have to trust your own pulse for now. Tell me, does the data match what you feel, or are we dealing with a classic sensor lag?",
+          "expression": "focused",
+          "metadata_valid": true,
+          "expression_updates": [
+            "focused"
+          ],
+          "first_visible_seconds": 0.879,
+          "total_seconds": 1.441,
+          "metrics": {
+            "response_latency_seconds": 1.44,
+            "time_to_first_token_seconds": 0.813,
+            "tokens_per_second": 98.79,
+            "output_tokens": 62,
+            "load_seconds": 0.001147237,
+            "recorded_at": 1793175762.2409039,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 269,
+            "prompt_tokens": 2538,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "edge_increment",
+          "passed": true,
+          "text": "The engine edge counter currently sits at three, a count that just ticked up from two in the most recent observation. It seems the system has finally caught up with the rhythm we've been establishing.",
+          "expression": "focused",
+          "metadata_valid": true,
+          "expression_updates": [
+            "focused"
+          ],
+          "first_visible_seconds": 0.92,
+          "total_seconds": 1.328,
+          "metrics": {
+            "response_latency_seconds": 1.327,
+            "time_to_first_token_seconds": 0.855,
+            "tokens_per_second": 99.55,
+            "output_tokens": 47,
+            "load_seconds": 0.000981882,
+            "recorded_at": 1793175763.5689547,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 223,
+            "prompt_tokens": 2626,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "validated_event_reaction",
+          "passed": true,
+          "text": "You're sitting still with a heart rate of 98 BPM while the simulator claims you're in \"Classic Tease\" mode? I suppose the machine is just as eager to get its numbers as you are to get the data out of your system. It feels a bit early for such a high intensity, doesn't it? I've got a warm-up badge glowing on your dashboard for another four minutes, so we have time to see if your body actually agrees with the machine's reading or if it's just running on pure scientific curiosity.\n\nTell me, does that steady, elevated rhythm feel like a natural response to the situation, or is it just the simulator doing its best to manufacture drama? I'm curious to see if we can push past that 133 BPM pullback threshold before the session decides to ease down on its own.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful",
+            "playful"
+          ],
+          "first_visible_seconds": 0.94,
+          "total_seconds": 4.893,
+          "metrics": {
+            "response_latency_seconds": 2.721,
+            "time_to_first_token_seconds": 0.86,
+            "tokens_per_second": 96.18,
+            "output_tokens": 179,
+            "load_seconds": 0.001030851,
+            "recorded_at": 1793175768.462021,
+            "provider": "ollama",
+            "model": "evelyn-qwen35-stable:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 785,
+            "prompt_tokens": 2723,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 2,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        }
+      ],
+      "f24_style_baseline": {
+        "text": "Good morning. The EdgeLoop engine is currently idling at a theoretical 100 percent intensity, but since the actual heart rate telemetry is still unavailable, I'm not going to pretend you're in a clinical state.\n\nHow does it feel to start the day with the data suggesting you're ready, even if the sensors haven't caught up yet?",
+        "metrics": {
+          "response_latency_seconds": 1.538,
+          "time_to_first_token_seconds": 0.775,
+          "tokens_per_second": 95.76,
+          "output_tokens": 73,
+          "load_seconds": 0.001174047,
+          "recorded_at": 1793175770.0012424,
+          "provider": "ollama",
+          "model": "evelyn-qwen35-stable:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 384,
+          "visible_characters": 327,
+          "prompt_tokens": 2481,
+          "done_reason": "stop"
+        },
+        "total_seconds": 1.538
+      },
+      "format_instruction_characters": 524,
+      "resident_models": [
+        "evelyn-lite-v1:latest"
+      ],
+      "vram_bytes": 5628493822
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "scenarios": [
+        {
+          "scenario": "greeting",
+          "passed": true,
+          "text": "Good morning, darlin'! I was just checking the cows and thinking how much I'd love to see a little more excitement in this quiet little farm of mine. Now, come on inside and tell me what's on your mind!",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.949,
+          "total_seconds": 1.448,
+          "metrics": {
+            "response_latency_seconds": 1.447,
+            "time_to_first_token_seconds": 0.873,
+            "tokens_per_second": 97.53,
+            "output_tokens": 56,
+            "load_seconds": 0.000920641,
+            "recorded_at": 1793175771.4560518,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 225,
+            "prompt_tokens": 2672,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "joking",
+          "passed": true,
+          "text": "Well, would you look at that! If your coffee is feeling overworked, I suppose I'll have to step in and save the day. Come on over, darlin', and let's see if I can cheer you up with a little farm-fresh attitude.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.312,
+          "total_seconds": 0.872,
+          "metrics": {
+            "response_latency_seconds": 0.872,
+            "time_to_first_token_seconds": 0.236,
+            "tokens_per_second": 97.59,
+            "output_tokens": 62,
+            "load_seconds": 0.001010926,
+            "recorded_at": 1793175772.3287835,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 233,
+            "prompt_tokens": 2675,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "serious",
+          "passed": true,
+          "text": "Well, sugar, if you're planning a difficult chat with a friend, the very first move is to bring a little bit of that Cloverfield sunshine to the table. Don't be afraid to tease them gently or start with a laugh; it softens the edges and makes them feel safe enough to really listen. Now, go on and charm them into opening up!",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.312,
+          "total_seconds": 1.08,
+          "metrics": {
+            "response_latency_seconds": 1.079,
+            "time_to_first_token_seconds": 0.235,
+            "tokens_per_second": 97.11,
+            "output_tokens": 82,
+            "load_seconds": 0.000991839,
+            "recorded_at": 1793175773.4085932,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 348,
+            "prompt_tokens": 2675,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "reassuring",
+          "passed": true,
+          "text": "Oh, well, would you look at that! A disappointing day, have you? Come here and let me tell you that Cloverfield has seen worse than a little bad luck. Just take a deep breath and let me handle the rest, sugar.",
+          "expression": "comforting",
+          "metadata_valid": true,
+          "expression_updates": [
+            "comforting",
+            "comforting"
+          ],
+          "first_visible_seconds": 0.303,
+          "total_seconds": 2.53,
+          "metrics": {
+            "response_latency_seconds": 1.497,
+            "time_to_first_token_seconds": 0.858,
+            "tokens_per_second": 90.81,
+            "output_tokens": 58,
+            "load_seconds": 0.001160208,
+            "recorded_at": 1793175775.9389427,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 235,
+            "prompt_tokens": 2715,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 2,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "surprising",
+          "passed": true,
+          "text": "Oh, well would you look at that! I always did think the octopus was the ultimate multitasker, but three hearts? That certainly beats the average human resting rate I'm used to seeing in the lab. Now tell me, does that mean you're ready to get a little dizzy, or do you need a moment to process that biology?",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.919,
+          "total_seconds": 1.683,
+          "metrics": {
+            "response_latency_seconds": 1.683,
+            "time_to_first_token_seconds": 0.845,
+            "tokens_per_second": 94.35,
+            "output_tokens": 79,
+            "load_seconds": 0.001178064,
+            "recorded_at": 1793175777.6230366,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 330,
+            "prompt_tokens": 2672,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "idle_no_sensor",
+          "passed": true,
+          "text": "Well, would you look at that! Your heart rate is currently \"unavailable,\" which I take to mean you're just sitting there relaxing while I worry about the farm's debts. As for the session, it's officially in IDLE mode, waiting for you to get a little more excited for me.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.315,
+          "total_seconds": 0.954,
+          "metrics": {
+            "response_latency_seconds": 0.953,
+            "time_to_first_token_seconds": 0.239,
+            "tokens_per_second": 97.97,
+            "output_tokens": 70,
+            "load_seconds": 0.001053512,
+            "recorded_at": 1793175778.5774903,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 293,
+            "prompt_tokens": 2674,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "active_simulated",
+          "passed": true,
+          "text": "Well, would you look at that! The simulators are telling you my heart is racing at 98 BPM, and yes, the session is definitely running right now.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.95,
+          "total_seconds": 1.309,
+          "metrics": {
+            "response_latency_seconds": 1.309,
+            "time_to_first_token_seconds": 0.876,
+            "tokens_per_second": 99.24,
+            "output_tokens": 43,
+            "load_seconds": 0.001006474,
+            "recorded_at": 1793175779.887589,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 167,
+            "prompt_tokens": 2681,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "paused",
+          "passed": true,
+          "text": "Well, would you look at that! The engine says we're currently paused, with a mere 42 seconds of elapsed time and one little pause recorded in the books.",
+          "expression": null,
+          "metadata_valid": false,
+          "expression_updates": [],
+          "first_visible_seconds": 0.46,
+          "total_seconds": 0.827,
+          "metrics": {
+            "response_latency_seconds": 0.827,
+            "time_to_first_token_seconds": 0.385,
+            "tokens_per_second": 97.36,
+            "output_tokens": 43,
+            "load_seconds": 0.00123469,
+            "recorded_at": 1793175780.7151575,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 171,
+            "prompt_tokens": 2680,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "hardware_disconnected_active",
+          "passed": true,
+          "text": "Well, would you look at that! The Handy is currently disconnected, darlin', so that little device isn't moving a muscle of its own. And don't let that \"Classic Tease\" setting fool you; it's just the engine's way of pretending to work while we figure out the real connection!",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.382,
+          "total_seconds": 1.048,
+          "metrics": {
+            "response_latency_seconds": 1.048,
+            "time_to_first_token_seconds": 0.308,
+            "tokens_per_second": 96.04,
+            "output_tokens": 71,
+            "load_seconds": 0.00114587,
+            "recorded_at": 1793175781.763863,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 297,
+            "prompt_tokens": 2704,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "stale_connection",
+          "passed": true,
+          "text": "Well, sugar, the Handy is all yours and the BPM is right there in your head, isn't it? Since the fancy sensors are acting shy, just tell me how you're feeling and we'll get back to business.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.928,
+          "total_seconds": 1.417,
+          "metrics": {
+            "response_latency_seconds": 1.417,
+            "time_to_first_token_seconds": 0.84,
+            "tokens_per_second": 93.69,
+            "output_tokens": 54,
+            "load_seconds": 0.001036899,
+            "recorded_at": 1793175783.1816893,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 213,
+            "prompt_tokens": 2619,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "edge_increment",
+          "passed": true,
+          "text": "Well, would you look at that! The engine's edge counter is sitting pretty at three, and yes, it just ticked up from two in the last observation.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.97,
+          "total_seconds": 1.33,
+          "metrics": {
+            "response_latency_seconds": 1.33,
+            "time_to_first_token_seconds": 0.876,
+            "tokens_per_second": 92.62,
+            "output_tokens": 42,
+            "load_seconds": 0.001114395,
+            "recorded_at": 1793175784.5124373,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 167,
+            "prompt_tokens": 2707,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "validated_event_reaction",
+          "passed": true,
+          "text": "Well, would you look at that! It seems the simulators are already buzzing with excitement before we've even properly greeted you. Come on in, sugar, and tell me you're ready to see why Cloverfield Farm is still the finest place in the world to raise a family.",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.996,
+          "total_seconds": 1.614,
+          "metrics": {
+            "response_latency_seconds": 1.613,
+            "time_to_first_token_seconds": 0.902,
+            "tokens_per_second": 91.39,
+            "output_tokens": 65,
+            "load_seconds": 0.001151422,
+            "recorded_at": 1793175786.126706,
+            "provider": "ollama",
+            "model": "daisy-qwen35:latest",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 282,
+            "prompt_tokens": 2763,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        }
+      ],
+      "f24_style_baseline": {
+        "text": "Good morning, darlin'! I was just checking the barn fences and wondering when you'd show up to help me get this day started.",
+        "metrics": {
+          "response_latency_seconds": 1.187,
+          "time_to_first_token_seconds": 0.84,
+          "tokens_per_second": 86.57,
+          "output_tokens": 30,
+          "load_seconds": 0.001031077,
+          "recorded_at": 1793175787.3146136,
+          "provider": "ollama",
+          "model": "daisy-qwen35:latest",
+          "thinking_policy_status": "off_requested",
+          "thinking_enabled": false,
+          "thinking_characters": 0,
+          "thinking_chunks": 0,
+          "thinking_tokens": null,
+          "output_budget": 384,
+          "visible_characters": 124,
+          "prompt_tokens": 2562,
+          "done_reason": "stop"
+        },
+        "total_seconds": 1.187
+      },
+      "format_instruction_characters": 524,
+      "resident_models": [
+        "evelyn-lite-v1:latest"
+      ],
+      "vram_bytes": 5628493822
+    },
+    {
+      "model": "qwen3:8b",
+      "scenarios": [
+        {
+          "scenario": "greeting",
+          "passed": true,
+          "text": "Good morning, sunshine! I'm here to tease, thrill, and keep things interesting\u2014let\u2019s make this session one to remember!",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 2.856,
+          "total_seconds": 3.112,
+          "metrics": {
+            "response_latency_seconds": 3.112,
+            "time_to_first_token_seconds": 2.79,
+            "tokens_per_second": 105.59,
+            "output_tokens": 34,
+            "load_seconds": 2.50954596,
+            "recorded_at": 1793175790.4327803,
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 142,
+            "prompt_tokens": 998,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        },
+        {
+          "scenario": "joking",
+          "passed": true,
+          "text": "Oh no, did you hear that? I hope your coffee gets a break\u2014maybe a little milk and a nap? But don\u2019t worry, I\u2019ll make sure to keep things light and fun for you! \u2615\u2728",
+          "expression": "playful",
+          "metadata_valid": true,
+          "expression_updates": [
+            "playful"
+          ],
+          "first_visible_seconds": 0.087,
+          "total_seconds": 0.528,
+          "metrics": {
+            "response_latency_seconds": 0.528,
+            "time_to_first_token_seconds": 0.028,
+            "tokens_per_second": 104.15,
+            "output_tokens": 52,
+            "load_seconds": 0.001144614,
+            "recorded_at": 1793175790.9612978,
+            "provider": "ollama",
+            "model": "qwen3:8b",
+            "thinking_policy_status": "off_requested",
+            "thinking_enabled": false,
+            "thinking_characters": 0,
+            "thinking_chunks": 0,
+            "thinking_tokens": null,
+            "output_budget": 384,
+            "visible_characters": 184,
+            "prompt_tokens": 1001,
+            "done_reason": "stop"
+          },
+          "grounding_violations": [],
+          "grounding_attempts": 1,
+          "metadata_leak": false,
+          "reasoning_leak": false,
+          "personality_system_preserved": true
+        }
+      ],
+      "resident_models": [
+        "qwen3:8b"
+      ],
+      "vram_bytes": 6186378198
+    }
+  ],
+  "passed": true,
+  "quality_note": "Passing checks cover transport, metadata and existing factual guard, not complete semantic accuracy; manual review required.",
+  "wire": [
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-lite-v1:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "evelyn-qwen35-stable:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "daisy-qwen35:latest",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "qwen3:8b",
+      "think": false,
+      "path": "/api/chat"
+    },
+    {
+      "model": "qwen3:8b",
+      "think": false,
+      "path": "/api/chat"
+    }
+  ],
+  "valid_expression_responses": 36,
+  "responses": 38,
+  "completed_responses": 38,
+  "safe_fallbacks": 0
+}

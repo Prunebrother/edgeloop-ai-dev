@@ -36,9 +36,16 @@ try{
  assert(await page.locator('.message-assistant').count()===1,'Duplicate conversation message');
  await chat('portrait flirty tone test');await portrait(page,'evelyn','flirty');report.steps.push('Ordinary conversational tone selects Flirty without facial narration');
  await page.locator('[data-text]').fill('long streaming response');await page.locator('[data-text]').press('Enter');await page.waitForFunction(()=>document.querySelector('#character-panel').dataset.activity==='generating');await portrait(page,'evelyn','mischievous');assert(!(await page.locator('[data-history]').textContent()).includes('[[expression:'),'Metadata leaked during streaming');await capture(page,'expression-streaming.png');await page.locator('[data-cancel]').click();await sleep(600);assert(await page.locator('#character-panel').getAttribute('data-activity')==='idle','Cancelled generation still active');
+ await fetch(ai+'/fixture/event-policy/fast',{method:'POST'});
+ await page.evaluate(async()=>{const {state}=await import('/src/js/state.js');state.sessionSeconds=299;});
+ await page.waitForFunction(()=>document.querySelector('[data-history]').textContent.includes('Five minutes are recorded'),null,{timeout:15000});
+ await portrait(page,'evelyn','proud');assert(!(await page.locator('[data-history]').textContent()).includes('[[expression:'),'Event metadata leaked');
+ await page.getByText('Runtime diagnostics · development',{exact:true}).click();await capture(page,'verified-event-diagnostics.png');
+ report.steps.push('Original simulated elapsed counter crosses milestone; validated event reaches Director and model expression');
+ await fetch(ai+'/fixture/event-policy/normal',{method:'POST'});
  await select('daisy-qwen35:latest');await portrait(page,'daisy','neutral');await chat('portrait concerned test');await portrait(page,'daisy','concerned');
  await page.setViewportSize({width:2560,height:1440});await capture(page,'daisy-2560.png');
- await select('evelyn-lite-candidate:latest');await portrait(page,'evelyn','flirty');assert((await page.locator('[data-history]').textContent()).includes('cheeky rascal'),'History did not restore');
+ await select('evelyn-lite-candidate:latest');await portrait(page,'evelyn','proud');assert((await page.locator('[data-history]').textContent()).includes('cheeky rascal'),'History did not restore');
  report.steps.push('Completed reply tone, cancellation, character switching and model history restoration');
  await select('qwen3:8b');assert(await page.locator('#character-panel').getAttribute('data-character')==='generic','Unknown model borrowed named character');assert(await page.locator('#character-panel img').count()===0,'Unknown model retained another portrait');
  await select('daisy-qwen35:latest');await portrait(page,'daisy','concerned');
@@ -69,6 +76,12 @@ try{
   view.setModel('test:tag');view.setModel('other:tag');await new Promise(r=>setTimeout(r,600));const stale=host.dataset.character==='other'&&host.querySelectorAll('img').length===0;
   view.destroy();host.remove();return {fallback,placeholder,stale};
  });assert(Object.values(failures).every(Boolean),'Failed image fallback/revision: '+JSON.stringify(failures));report.steps.push('Image error fallback, total failure placeholder and stale image-load fencing');
+ await preview.evaluate(async()=>{
+  const {CharacterPresentation}=await import('/src/js/ai/character.js');const old=document.querySelector('#character-panel'),host=document.createElement('aside');host.id='character-panel';old.replaceWith(host);
+  const catalog={models:{'fallback:tag':'test'},characters:{test:{name:'Fallback preview',expressions:{neutral:'/Character_Art/Evelyn/Expressions/evelyn_neutral.png',proud:'/src/assets/characters/missing.png'}}}};
+  const view=new CharacterPresentation(host,catalog);view.setState({model:'fallback:tag',expression:'proud',activity:'idle'});
+ });
+ await preview.waitForFunction(()=>document.querySelector('#character-panel').dataset.artworkStatus==='fallback');await capture(preview,'missing-artwork-fallback.png');
  assert(errors.length===0,errors.join('\n'));report.passed=true;
 }catch(error){report.error=String(error);if(page)await page.screenshot({path:path.join(output,'failure.png')}).catch(()=>{});process.exitCode=1;}
 finally{for(const child of children)child.kill();if(browser)await browser.close();await mkdir(output,{recursive:true});await writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({passed:report.passed,steps:report.steps,error:report.error,output}));}

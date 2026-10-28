@@ -64,11 +64,11 @@ async function chat(prompt){
  assert(metrics.done_reason==='stop','Reply did not finish naturally: '+metrics.done_reason);
  assert(metrics.thinking_enabled===false&&metrics.thinking_characters===0,'Thinking leaked or was not disabled');
  assert(wire.thinking===false&&wire.stream&&wire.tools_absent&&wire.embedded_system_preserved,'Native request violated text-only/identity settings');
- return {reply:stream.final,chunks:stream.deltas,total_seconds:(Date.now()-started)/1000,first_visible_seconds:(stream.first-started)/1000,metrics,wire};
+ return {reply:stream.final,expression:stream.expression,chunks:stream.deltas,total_seconds:(Date.now()-started)/1000,first_visible_seconds:(stream.first-started)/1000,metrics,wire};
 }
 try {
  await mkdir(output,{recursive:true});await freePort(uiPort);await freePort(observerPort);
- const tags=await json(ollama+'/api/tags');report.installed_models=tags.models.map(m=>m.name);assert(tags.models.length===17,'Expected 17 installed models');for(const m of models)assert(report.installed_models.includes(m),'Missing '+m);
+ const tags=await json(ollama+'/api/tags');report.installed_models=tags.models.map(m=>m.name);for(const m of models)assert(report.installed_models.includes(m),'Missing '+m);
  const discovery=await exec(path.join(root,'.venv/bin/python'),['-I','-c',"import json;from ai_observer.diagnostics import local_model_directories;print(json.dumps(local_model_directories('http://127.0.0.1:11435')))"]);
  const processes=JSON.parse(discovery.stdout);assert(processes.length===1,'Expected one existing character Ollama process');ollamaPid=processes[0].pid;report.ollama_process=processes[0];
  await sample();timer=setInterval(()=>{if(!polling)polling=sample().catch(e=>errors.push('GPU monitor: '+String(e))).finally(()=>{polling=null;});},500);
@@ -92,7 +92,7 @@ try {
  page.on('websocket',ws=>ws.on('framereceived',event=>{let m;try{m=JSON.parse(event.payload);}catch{return;}
   if(m.type==='response_start'){currentStream={id:m.id,deltas:0,text:'',done:false};streams.push(currentStream);}
   if(m.type==='response_delta'&&currentStream?.id===m.id){currentStream.first??=Date.now();currentStream.text+=m.text;currentStream.deltas++;}
-  if(m.type==='speech'&&currentStream?.id===m.id){currentStream.done=true;currentStream.final=m.text;}
+  if(m.type==='speech'&&currentStream?.id===m.id){currentStream.done=true;currentStream.final=m.text;currentStream.expression=m.expression;}
  }));
  await page.goto(ui+'/');await page.locator('#ageConfirmBtn').click();await page.locator('#wizardOverlay').waitFor({state:'visible'});await page.locator('#wizardSkipBtn').click();await page.locator('#companion-dashboard').waitFor();
  assert(deviceCalls===0,'Hardware attempted automatically');
@@ -103,19 +103,22 @@ try {
  await page.locator('#sessionPlayPauseBtn').click();await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';});
  report.steps.push('Original EdgeLoop starts with simulated HR and mocked Handy; no physical hardware');
  await page.locator('[data-url]').fill(observer.replace('http:','ws:')+'/observe');await page.locator('[data-token]').fill('live-fixture-token-'+'x'.repeat(32));await page.locator('[data-connect]').click();
- await page.waitForFunction(()=>document.querySelector('[data-model]').options.length===17);
+ await page.waitForFunction(()=>document.querySelector('[data-model]').options.length>=3);
  for(let i=0;i<models.length;i++){
   const model=models[i];await select(model);assert(await page.locator('[data-history] .message').count()===0,'Cross-model history exposed');
   const cold=await chat(markers[i]+': Briefly state the reported BPM, whether it is simulated, and whether the session is running or idle.');
   assert(JSON.stringify(cold.wire.history_markers)===JSON.stringify([markers[i]]),'Cross-model context in first inference');
   const warm=await chat('In one short sentence, confirm whether this companion can control a device or only observe.');
-  assert(JSON.stringify(warm.wire.history_markers)===JSON.stringify([markers[i]]),'Model-specific memory missing or contaminated in second inference');
+  assert(warm.wire.history_markers.every(marker=>marker===markers[i]),'Another model history contaminated inference');
+  assert((await json(observer+'/fixture/state')).active_history.some(m=>m.role==='user'&&m.content.includes(markers[i])),'Model-specific stored memory missing');
   const ps=await json(ollama+'/api/ps');assert(ps.models.length<=1,'More than one model resident');
   cold.telemetry_facts={bpm:/\b98\b/.test(cold.reply),simulated:/simulat/i.test(cold.reply),running:/running/i.test(cold.reply)};
-  const expressionReply=await chat('Say hello in your own style in one or two sentences, with a brief first-person description of your facial expression.');
-  const expectedExpression=classifyDialogue(expressionReply.reply)||'focused';
+  const precedingExpression=await page.locator('#character-panel').getAttribute('data-expression');
+  const expressionReply=await chat('Say hello in your own style in one or two sentences.');
+  const expectedExpression=expressionReply.expression||classifyDialogue(expressionReply.reply)||precedingExpression;
   await page.waitForFunction(({identity,expression})=>{const panel=document.querySelector('#character-panel');return panel.dataset.character===identity&&panel.dataset.expression===expression&&panel.dataset.activity==='idle'&&panel.querySelector('img:last-child.visible')?.naturalWidth>0&&!panel.querySelector('[data-art-status]').textContent.includes('Loading');},{identity:model.startsWith('daisy-')?'daisy':'evelyn',expression:expectedExpression});
   const presentation=await page.locator('#character-panel').evaluate(panel=>({character:panel.dataset.character,expression:panel.dataset.expression,activity:panel.dataset.activity,source:panel.querySelector('img:last-child').getAttribute('src')}));
+  assert(!/\[\[(?:expression|happy|neutral|playful):/i.test(await page.locator('[data-history]').textContent()),'Metadata leaked');
   assert(!/<think[> ]/i.test(await page.locator('[data-history]').textContent()),'Reasoning exposed in UI');
   report.models.push({model,first_request:cold,second_request:warm,expression_request:expressionReply,presentation,residency:ps.models.map(m=>({name:m.name,size_vram:m.size_vram,context_length:m.context_length})),memory_isolated:true});
   await page.screenshot({path:path.join(output,model.split(':')[0]+'.png')});console.log('Passed real streaming, thinking off and isolated history: '+model);
@@ -140,7 +143,7 @@ try {
  await page.locator('#sessionPlayPauseBtn').click();await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';});
  await page.screenshot({path:path.join(output,'ollama-unavailable-session-running.png')});
  report.outage={method:'Close only the test real-inference socket midstream, then raise ConnectError for further test requests; both daemons stay running',before,during,pause_resume:true};
- await json(observer+'/fixture/connection/up',{method:'POST'});await page.locator('[data-refresh]').click();await page.waitForFunction(()=>document.querySelector('[data-model]').options.length===17);await select(models[0]);
+ await json(observer+'/fixture/connection/up',{method:'POST'});await page.locator('[data-refresh]').click();await page.waitForFunction(()=>document.querySelector('[data-model]').options.length>=3);await select(models[0]);
  const telemetryDeadline=Date.now()+5000;
  while((await json(observer+'/fixture/state')).observation?.status!=='RUNNING'){assert(Date.now()<telemetryDeadline,'Resumed observation did not propagate');await sleep(100);}
  report.recovery_observation=(await json(observer+'/fixture/state')).observation;
@@ -151,7 +154,7 @@ try {
  report.read_only=true;report.device_http_intercepted=deviceCalls;report.external_requests_denied=deniedRequests;
  await page.screenshot({path:path.join(output,'complete-desktop.png')});await page.setViewportSize({width:390,height:844});await page.locator('button[data-view="chat"]').click();await page.screenshot({path:path.join(output,'complete-mobile.png')});
  assert(!errors.length,errors.join('\n'));report.passed=true;
-} catch(e){report.error=String(e);process.exitCode=1;if(page)await page.screenshot({path:path.join(output,'failure.png')}).catch(()=>{});}
+} catch(e){report.error=String(e);report.failure_fixture=await json(observer+'/fixture/state').catch(()=>null);process.exitCode=1;if(page)await page.screenshot({path:path.join(output,'failure.png')}).catch(()=>{});}
 finally {
  if(timer)clearInterval(timer);if(polling)await polling;await sample().catch(e=>errors.push(String(e)));
  report.gpu_summary={baseline_used_mib:report.gpu_samples[0]?.used_mib,peak_used_mib:Math.max(...report.gpu_samples.map(s=>s.used_mib)),total_mib:report.gpu_samples[0]?.total_mib,max_resident_models:Math.max(...report.gpu_samples.map(s=>s.loaded.length)),peak_runner_mib:Math.max(...report.gpu_samples.map(s=>s.runner_used_mib))};

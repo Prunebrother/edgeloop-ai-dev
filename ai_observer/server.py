@@ -17,7 +17,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import ValidationError
 from companion_ai.conversation import ModelManager, ConversationService
 from companion_ai.director import ConversationDirector, DirectorConfig
-from companion_ai.llm import thinking_support
+from companion_ai.llm import thinking_support, InferenceCompatibilityError
 from companion_ai.event_policy import significance
 from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
@@ -199,6 +199,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 await manager.select(AIConfig.model_validate(values),message.selection.context_policy,interrupt)
                                 speech.activate_model()
                                 publish({'type':'model_selected','model':manager.config.model,'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'can_disable_thinking':controls['can_disable'],'history':[{k:str(m[k])[:4000] for k in ('role','content','expression') if m.get(k) is not None} for m in list(speech.history)[-8:]]})
+                        except InferenceCompatibilityError as exc:publish({'type':'ai_error','code':'inference_compatibility','detail':str(exc),'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
                         except (ValueError,httpx.HTTPError,OSError):publish({'type':'ai_error','detail':'Model settings could not be applied; check model availability and thinking support.', 'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
                     elif isinstance(message,Chat):
                         chat_times[:]=[t for t in chat_times if clock()-t<60]

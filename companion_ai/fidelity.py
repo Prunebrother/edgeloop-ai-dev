@@ -64,7 +64,20 @@ def violations(text,canonical,history=()):
             if re.search(r'\b(earlier|previous|previously|mentioned|said|was|were)\b',prefix,re.I) and n in past_values and not re.search(r'\b(current|currently|now|still)\b',prefix,re.I):continue
             codes.append('unsupported_unitless_bpm');break
 
+    # F2.5 live event acceptance: presentation output is never evidence about a
+    # person's posture, health or physical pulse. Simulation cannot establish it.
+    user_text=' '.join(m.get('content','') for m in history if m.get('role')=='user')
     for sentence in re.findall(r'[^.!?\n]+[.!?\n]?',clean):
+        uncertain=bool(re.search(r"\b(unknown|unavailable|cannot|can't|not known|not measured|not your|not a measurement|whether|if)\b",sentence,re.I))
+        if not uncertain and not sentence.rstrip().endswith('?'):
+            posture=re.search(r"\byou(?:(?:'re| are)\s+|\s+)(sitting|standing|lying|sit|stand|lie)\b",sentence,re.I)
+            if posture and not re.search(r'\b(sit|sitting|sat|stand|standing|stood|lie|lying|lay)\b',user_text,re.I):codes.append('unsupported_user_posture')
+            if re.search(r"\byou(?:'re| are)\s+(?:completely |perfectly )?safe\b",sentence,re.I) and not re.search(r"\bI(?:'m| am) safe\b",user_text,re.I):codes.append('unsupported_user_safety')
+            if not (facts['hr_source']['current'] and facts['hr_source']['value']=='BLE sensor' and hr['current']):
+                bodily=re.search(r"\byour\s+(?:own\s+)?(?:current\s+)?(?:resting\s+)?(?:heart(?: rate)?|pulse)\b.{0,55}\b(?:\d{2,3}\s*bpm|racing|climbing|rising|falling|resting|quiet|steady)\b",sentence,re.I)
+                labeled=re.search(r"\byour\s+(?:heart rate|pulse)\b.{0,20}\b(?:simulated|simulator|not physical)\b",sentence,re.I)
+                if bodily and not labeled:codes.append('unmeasured_physiology_from_simulation_or_unknown')
+
         if sentence.rstrip().endswith('?'):continue
         motion=re.search(r'\b(?:Handy|VacuGlide|stroker|stimulation device)\b.{0,20}\b(?:is|remains|keeps)\s+(?:currently\s+)?(?:not\s+)?(?:moving|running|stimulating|pumping)\b',sentence,re.I)
         if motion and not facts['physical_motion']['current'] and not re.search(r"\b(cannot|can't|unknown|unavailable|whether|if|unable)\b",sentence,re.I):codes.append('unverified_physical_motion')

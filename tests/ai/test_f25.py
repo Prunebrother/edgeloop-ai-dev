@@ -28,7 +28,13 @@ def test_every_chunk_boundary(expression):
     assert parser.expression==expression
 
 @pytest.mark.parametrize('text,expected,expression',[
+    ('A [','A [',None),
+    ('A <','A <',None),
     ('Plain text [a] and [[ordinary]] brackets.','Plain text [a] and [[ordinary]] brackets.',None),
+    ('[[tone:playful]]Hello','Hello',None),
+    ('[[expression=happy]]Hello','Hello',None),
+    ('[[ordinary','[[ordinary',None),
+    ('[['+'prose '*100+']]','[['+'prose '*100+']]',None),
     ('[[happy:98]]Hello','Hello',None),
     ('[[expression:unknown]]Hello','Hello',None),
     ('[[expression:happy]][[expression:proud]]Hello','Hello','happy'),
@@ -152,3 +158,75 @@ def test_observer_reconnect_default_off_and_validated_event_payload(tmp_path):
             assert not app.state.speech.pending
             ws.send_json({'version':1,'type':'chat','model':'brand-new:latest','text':'Hello again'});until(ws,'speech')
     assert wire and all(b['think'] is False for _,b in wire)
+
+
+def test_backend_inference_config_rejects_on_and_can_disable_expressions(tmp_path):
+    from ai_observer.config import RuntimeConfig
+    path=tmp_path/'ai.toml'
+    path.write_text('[inference]\nthinking = true\n')
+    with pytest.raises(ValueError,match='requires'):RuntimeConfig.load({'EDGELOOP_AI_CONFIG':str(path)})
+    path.write_text('[inference]\nthinking = false\nexplicit_expressions = false\n')
+    config=RuntimeConfig.load({'EDGELOOP_AI_CONFIG':str(path)})
+    assert config.thinking is False and config.explicit_expressions is False
+
+
+async def test_routine_events_cannot_queue_in_observer_and_busy_generation_is_not_interrupted(tmp_path):
+    # Direct policy tests complement the full validated websocket milestone test.
+    from companion_ai.director import ConversationDirector
+    director=ConversationDirector(DirectorConfig(spontaneous_interval_seconds=0.0,user_idle_before_spontaneous_seconds=0.0,category_cooldowns={}))
+    class Slow:
+        mode='ollama';streaming=True;config=AIConfig()
+        async def reply(self,*args,on_chunk=None):
+            await asyncio.Event().wait()
+    speech=ConversationService(ObservationFixture(),lambda _:None,Slow(),director=director)
+    speech.policy=SpeechPolicy(min_interval_seconds=0.0,user_grace_seconds=0.0,interruption='interrupt')
+    speech.request('Hello',True);await asyncio.sleep(0)
+    active=speech.task
+    speech.enqueue('milestone',50,{'session_id':'session','significance':'major'})
+    speech.pump()
+    assert speech.task is active and not active.cancelled() and speech.pending
+    speech.adapter.config=AIConfig(model='different:latest');speech.activate_model()
+    assert not speech.pending
+    speech.interrupt();await active;await speech.close()
+
+
+def test_routine_observer_updates_never_trigger_inference(tmp_path):
+    from tests.fork.test_observer import TOKEN,ORIGIN,snapshot,frame,auth,until
+    import time
+    wire=[];app=create_app(TOKEN,tmp_path,transport=runtime(wire))
+    with TestClient(app) as client:
+        with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+            ready=auth(ws);state=snapshot()
+            ws.send_json({'version':1,'type':'select_model','selection':{'model':'brand-new:latest'}});until(ws,'model_selected')
+            ws.send_json(frame(ready['epoch'],state=state));until(ws,'observation_ack')
+            time.sleep(.11);state['intensity']=80
+            event={'id':str(uuid4()),'kind':'intensity_changed','session_id':state['session_id']}
+            ws.send_json(frame(ready['epoch'],1,state,[event]));until(ws,'observation_ack')
+            time.sleep(.3)
+            assert not wire and not app.state.speech.pending
+            assert app.state.director.recent_observations[-1]['kind']=='intensity_changed'
+
+
+@pytest.mark.parametrize('text',[
+    'The simulator is pushing your heart rate to 98 BPM.',
+    "You're standing there while the simulator counts an edge.",
+    'Your pulse is racing with the session.',
+    "You're perfectly safe.",
+])
+def test_live_observed_physical_claims_are_not_established_by_simulation(text):
+    from tests.fork.grounding_cases import cases
+    from companion_ai.fidelity import violations
+    canonical=next(c for c in cases() if c.name=='active_simulated').observation.canonical()
+    assert violations(text,canonical)
+
+@pytest.mark.parametrize('text',[
+    'The simulated reading is 98 BPM.',
+    'Your heart rate is simulated at 98 BPM.',
+    'I cannot determine whether you are standing.',
+    'The verified engine edge counter increased.',
+])
+def test_simulation_labels_uncertainty_and_engine_events_remain_valid(text):
+    from tests.fork.grounding_cases import cases
+    from companion_ai.fidelity import violations
+    canonical=next(c for c in cases() if c.name=='active_simulated').observation.canonical()
+    assert not violations(text,canonical)

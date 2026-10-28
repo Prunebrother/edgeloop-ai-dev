@@ -12,26 +12,43 @@ FORMAT_INSTRUCTION = (
 
 
 class ExpressionStream:
-    """Bounded scanner: headers removed anywhere, only first leading header trusted.
+    """Version 1 scanner; at most 64 envelope characters plus a token prefix.
 
-    Retains at most 64 prefix characters. Oversized envelopes are discarded through
-    closing delimiter/newline. Legacy prose streams as soon as it diverges from a
-    reserved prefix. Inline legacy reasoning is suppressed before presentation.
+    Double-bracket envelopes containing a colon are reserved presentation data.
+    Only the canonical leading expression header is accepted. Malformed envelopes
+    are removed, never translated into another protocol. Ordinary [[prose]] is
+    preserved. Legacy inline reasoning is suppressed independently.
     """
-    tokens = ('[[expression:', '<think>', '</think>') + tuple('[[' + e + ':' for e in EXPRESSIONS)
+    tokens = ('[[', '<think>', '</think>')
 
     def __init__(self, on_expression=None, enabled=True):
         self.pending = ''
         self.mode = 'text'
         self.envelope = ''
         self.tail = ''
+        self.oversized = False
         self.expression = None
         self.valid = None
         self.leading = True
         self.headers = 0
-        self.canonical_header = False
         self.on_expression = on_expression
         self.enabled = enabled
+
+    def _envelope_end(self, closed):
+        content = self.envelope[:-2] if closed else self.envelope.rstrip('\n')
+        reserved = self.oversized or ':' in content or content.startswith('expression')
+        if not reserved:
+            self.leading = False
+            return '[[' + self.envelope
+        self.headers += 1
+        candidate = content.removeprefix('expression:')
+        valid = closed and not self.oversized and content.startswith('expression:') and candidate in EXPRESSIONS
+        if self.headers == 1:
+            self.valid = valid
+            if valid and self.leading and self.enabled:
+                self.expression = candidate
+                if self.on_expression:self.on_expression(candidate)
+        return ''
 
     def feed(self, text):
         output = []
@@ -39,16 +56,15 @@ class ExpressionStream:
             if self.mode == 'metadata':
                 self.tail = (self.tail + char)[-2:]
                 if len(self.envelope) < 64:self.envelope += char
-                else:self.valid = False
+                else:
+                    if ':' not in self.envelope and not self.envelope.startswith('expression'):
+                        output.append('[[' + self.envelope + char)
+                        self.envelope='';self.mode='text';self.leading=False;self.tail=''
+                        continue
+                    self.oversized = True
                 if self.tail == ']]' or char == '\n':
-                    candidate = self.envelope[:-2] if self.tail == ']]' else ''
-                    valid = self.canonical_header and candidate in EXPRESSIONS and self.valid is not False
-                    if self.headers == 1:
-                        self.valid = valid
-                        if valid and self.leading and self.enabled:
-                            self.expression = candidate
-                            if self.on_expression:self.on_expression(candidate)
-                    self.mode = 'text';self.envelope = '';self.tail = ''
+                    output.append(self._envelope_end(self.tail == ']]'))
+                    self.mode = 'text';self.envelope = '';self.tail = '';self.oversized = False
                 continue
             if self.mode == 'reasoning':
                 self.tail = (self.tail + char)[-8:]
@@ -58,9 +74,7 @@ class ExpressionStream:
             self.pending += char
             while self.pending:
                 lower = self.pending.lower()
-                if lower.startswith('[[') and lower in self.tokens:
-                    self.canonical_header = lower == '[[expression:'
-                    self.headers += 1
+                if lower == '[[':
                     self.mode = 'metadata';self.pending = '';self.envelope = '';self.tail = ''
                     break
                 if lower == '<think>':
@@ -75,10 +89,15 @@ class ExpressionStream:
         return ''.join(output)
 
     def finish(self):
-        # A partial reserved prefix must never reach dialogue or memory.
+        # Never release a truncated reserved prefix. Retain ordinary bracket prose.
+        remainder=self.pending if self.pending in {'[','<'} else ''
         self.pending = ''
-        if self.mode == 'metadata':self.valid = False
-        return ''
+        if self.mode == 'metadata':
+            content = self.envelope
+            if not self.oversized and ':' not in content and not 'expression'.startswith(content) and not content.startswith('expression'):
+                return '[[' + content
+            self.valid = False
+        return remainder
 
 
 def clean_dialogue(text):

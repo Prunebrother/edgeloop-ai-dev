@@ -69,7 +69,7 @@ class ModelManager:
         if not controls['can_enable'] and config.thinking:
             raise ValueError('Selected model does not support boolean thinking on')
         if not controls['can_disable'] and not config.thinking:
-            raise ValueError('Selected model does not support boolean thinking off')
+            raise InferenceCompatibilityError(config.model + ' does not support think:false; select a compatible model. No thinking-enabled fallback is permitted.')
         if capabilities and 'completion' not in capabilities:
             raise ValueError('Selected model does not support chat/completion')
         limit = metadata.get('context_length')
@@ -488,7 +488,7 @@ class ConversationService:
                 flush(force=True)
                 if not user:self.publish({'type':'response_delta','id':request_id,'source':source,'generation':generation,'text':text})
             metadata=getattr(getattr(self.adapter,'adapter',None),'last_expression_metadata',{})
-            self.publish({'type':'ai_diagnostics','expression_valid':metadata.get('valid'),'thinking':False,'inference_error':None,'director_decision':self.director.last_reason})
+            self.publish({'type':'ai_diagnostics','expression_valid':metadata.get('valid'),'thinking':False,'inference_error':None,'inference_compatibility':(getattr(self.adapter,'metrics',None).samples[-1].get('thinking_policy_status') if getattr(self.adapter,'metrics',None) and self.adapter.metrics.samples else 'unknown'),'director_decision':self.director.last_reason})
             memory = self.memory_config
             if memory.enabled:
                 if user:

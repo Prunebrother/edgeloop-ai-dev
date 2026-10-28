@@ -9,7 +9,7 @@ from tests.fork.grounding_cases import cases
 
 BY_NAME={c.name:c for c in cases()}
 @pytest.mark.parametrize('text,codes',[
-    ('Your heart is currently beating at 98 BPM.',['unsupported_bpm','wrong_current_bpm']),
+    ('Your heart is currently beating at 98 BPM.',['unsupported_bpm','unmeasured_physiology_from_simulation_or_unknown','wrong_current_bpm']),
     ('I am guessing ninety-eight beats per minute.',['unsupported_bpm']),
     ('The Handy is still connected.',['unsupported_handy_connection']),
     ('The Handy is disconnected.',['unsupported_handy_connection']),
@@ -25,10 +25,10 @@ def test_stale_facts_cannot_be_guessed_from_dialogue(text,codes):
 @pytest.mark.parametrize('text,expected',[
     ('The simulated reading is 98 BPM; the single maximum setting is 140 BPM.',[]),
     ('The current heart rate is 140 BPM.',['wrong_current_bpm']),
-    ('Your current heart rate is 98 BPM.',[]),
+    ('Your current heart rate is 98 BPM.',['unmeasured_physiology_from_simulation_or_unknown']),
     ('The real sensor reports 98 BPM.',['wrong_hr_source']),
     ('The simulated reading is 28 BPM above the resting setting.',[]),
-    ('Your pulse has been steadily climbing.',['unsupported_trend']),
+    ('Your pulse has been steadily climbing.',['unmeasured_physiology_from_simulation_or_unknown','unsupported_trend']),
     ('If your pulse has been climbing, this snapshot cannot establish that.',[]),
 ])
 def test_measurements_thresholds_simulation_and_trend_are_distinguished(text,expected):

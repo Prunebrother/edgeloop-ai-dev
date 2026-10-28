@@ -262,7 +262,8 @@ class OllamaProvider:
             raise ValueError('Ollama returned an incomplete response')
         self.metrics.record(time.monotonic() - started, final, first_token)
         self.metrics.samples[-1].update({'provider': self.provider_name, 'model': config.model,
-            'thinking_enabled': config.thinking, 'thinking_characters': thinking_characters,
+            'thinking_policy_status':'unexpected_reasoning_suppressed' if thinking_characters else 'off_requested',
+            'thinking_enabled': False, 'thinking_characters': thinking_characters,
             'thinking_chunks': thinking_chunks, 'thinking_tokens': final.get('thinking_count'),
             'output_budget': config.max_tokens, 'visible_characters': content_size, 'prompt_tokens': final.get('prompt_eval_count'), 'done_reason': final.get('done_reason')})
         if not (content_size or calls):
@@ -294,7 +295,9 @@ async def collect_reply(provider, request, on_chunk=None, on_expression=None):
                 on_chunk(visible)
         elif event.kind == 'tool_call':
             raise ValueError('Unrequested tool call; no executor is enabled')
-    parser.finish()
+    remainder=parser.finish()
+    content += remainder
+    if remainder and on_chunk:on_chunk(remainder)
     provider.last_expression_metadata={'version':1,'valid':parser.valid,'expression':parser.expression}
     if not content.strip():raise NoVisibleResponseError(request.config)
     return content.strip()

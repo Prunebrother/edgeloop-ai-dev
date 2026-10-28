@@ -26,9 +26,10 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     const artwork=document.createElement('aside');artwork.id='character-panel';artwork.setAttribute('aria-label','Character artwork');
     const character=new CharacterPresentation(artwork);
     const presentation=new CharacterPresentationController(view=>character.setState(view));
-    const diagnostic={thinking:false};
+    const diagnostic={thinking:false};let diagnosticTimer=null;
     const debug=['127.0.0.1','localhost'].includes(location.hostname)&&new URLSearchParams(location.search).get('characterPreview')==='1'?document.createElement('output'):null;
-    if(debug){debug.dataset.aiDiagnostics='';debug.style.cssText='display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;max-height:100px;overflow:auto';const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Runtime diagnostics · development';details.append(summary,debug);artwork.append(details);setInterval(()=>{debug.textContent=JSON.stringify({...diagnostic,model:selected,character:presentation.identity,expression:presentation.expression,expression_source:presentation.expressionSource,activity:presentation.activity,portrait:artwork.querySelector('img:last-child')?.getAttribute('src')||null,fallback:artwork.dataset.artworkStatus==='fallback'});},250);}
+    const updateDiagnostics=()=>{if(debug)debug.textContent=JSON.stringify({...diagnostic,model:selected,character:presentation.identity,expression:presentation.expression,expression_source:presentation.expressionSource,activity:presentation.activity,portrait:artwork.querySelector('img:last-child')?.getAttribute('src')||null,fallback:artwork.dataset.artworkStatus==='fallback'});};
+    if(debug){debug.dataset.aiDiagnostics='';debug.style.cssText='display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;max-height:100px;overflow:auto';const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Runtime diagnostics · development';details.append(summary,debug);artwork.append(details);diagnosticTimer=setInterval(updateDiagnostics,250);}
     const previewCleanup=mountExpressionPreview(artwork,presentation);mountLayout(panel,artwork);
     const el=key=>panel.querySelector(`[data-${key}]`);
     let selected=null,current=null,pending=false,follow=true,paired=false,changing=false,thinking=null,supportsThinking=false,canDisableThinking=true;
@@ -59,8 +60,9 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
         const connected=!!connection.epoch;presentation.connection(connected);paired=connected;panel.dataset.paired=String(connected);el('status').textContent=text;
         el('setup').hidden=connected;el('disconnect').hidden=!connection.enabled;
         for(const key of ['model','select','refresh'])el(key).disabled=!connected;
-        if(!connected){discovered.clear();selected=null;changing=false;thinking=null;supportsThinking=false;finish();el('text').disabled=true;el('send').disabled=true;el('selected').textContent='No active AI connection';el('telemetry').textContent='Telemetry disconnected';el('ollama').textContent='Ollama not checked';}controls();resting();
+        if(!connected){latestGeneration=0;discovered.clear();selected=null;changing=false;thinking=null;supportsThinking=false;finish();el('text').disabled=true;el('send').disabled=true;el('selected').textContent='No active AI connection';el('telemetry').textContent='Telemetry disconnected';el('ollama').textContent='Ollama not checked';}controls();resting();
     },onMessage:m=>{
+        if(debug)queueMicrotask(updateDiagnostics);
         if(m.type==='ai_diagnostics'){Object.assign(diagnostic,m);return;}
         if(m.type==='models'){
             el('model').replaceChildren();for(const entry of m.models.slice(0,128)){const o=document.createElement('option');o.value=entry.name;o.textContent=entry.name;el('model').append(o);}
@@ -129,6 +131,6 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     el('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el('chat').requestSubmit();}};
     // Original idle/paused sessions need no engine ticks. Refresh only the read-only projection.
     const observationTimer=setInterval(()=>{if(connection.epoch){try{refreshObservation();}catch{ /* Optional AI stays isolated. */ }}},1000);
-    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);connection.disconnect();previewCleanup?.();character.destroy();});
+    window.addEventListener('pagehide',()=>{clearInterval(observationTimer);clearInterval(diagnosticTimer);connection.disconnect();previewCleanup?.();character.destroy();});
     return (state,devices,settings)=>connection.observe(capture.project(state,devices,settings));
 }
