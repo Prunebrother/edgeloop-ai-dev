@@ -15,5 +15,7 @@
   "evelyn-v12:latest",
   "evelyn-v12r1:latest",
   "evelyn-world:latest",
-  "qwen3:8b"
+  "qwen3:8b",
+  "celeste-narrative-v1:latest",
+  "celeste-narrative-v2:latest"
 ]

@@ -53,3 +53,22 @@ def test_typing_is_strict_temporary_and_does_not_generate(tmp_path):
    ws.send_json({'version':1,'type':'get_character_state','model':'qwen3:8b'});until(ws,'character_state')
    assert app.state.director.typing_until==c.mono()+6 and not wire
    c.tick(7);assert c.mono()>app.state.director.typing_until
+
+
+def test_celeste_relevance_migrates_old_preferences_and_is_persisted(tmp_path):
+ config=EventConfig().model_dump();config['preferences'].pop('celeste')
+ old=EventConfig.model_validate(config)
+ assert old.preferences['celeste']=={'physiology':1,'session':1,'configuration':1,'story':1}
+ old.preferences['celeste']['physiology']=2
+ assert old.relevance('celeste-narrative-v1:latest','physiology')==2
+ assert old.relevance('celeste-narrative-v2:latest','physiology')==2
+ assert old.relevance('evelyn-narrative-v1:latest','physiology')==1
+ wire=[];app=create_app(TOKEN,tmp_path,transport=runtime(wire))
+ with TestClient(app) as client:
+  with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+   auth(ws);ws.send_json({'version':1,'type':'configure_events','config':old.model_dump()})
+   info=until(ws,'character_state')
+   assert info['event_intelligence']['config']['preferences']['celeste']['physiology']==2
+ restored=create_app(TOKEN,tmp_path,transport=runtime(wire))
+ assert restored.state.speech.event_intelligence.config.relevance('celeste-narrative-v2:latest','physiology')==2
+ assert not wire

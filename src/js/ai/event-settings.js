@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Backend-validated narrative sensitivity controls; no engine or device imports.
+import {CHARACTERS} from './artwork-manifest.js';
 const PHYS=['rapid_rise','rapid_fall','sustained_elevation','recovery','fluctuations','stable'];
 const human=s=>String(s||'Not available').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 const spec={threshold_bpm:['Change / range (BPM)',2,60,.5],window_seconds:['Window (seconds)',5,120,1],duration_seconds:['Minimum duration (seconds)',3,120,1],min_samples:['Minimum distinct samples',5,128,1],cooldown_seconds:['Cooldown (seconds)',5,1800,1],hysteresis_bpm:['Hysteresis (BPM)',1,15,.5],reference_bpm:['Narrative reference (BPM)',35,220,.5],reversals:['Minimum reversals',2,6,1]};
@@ -23,7 +24,7 @@ export function mountEventSettings(dialog,{send}) {
    if(detector.id==='fluctuations')number(d,detector.id+'.reversals',...spec.reversals);
    host.querySelector('[data-detector-controls]').append(d);
   }
-  for(const identity of ['generic','evelyn','daisy']){
+  for(const identity of ['generic',...Object.keys(CHARACTERS)]){
    const section=document.createElement('details'),title=document.createElement('summary');title.textContent=human(identity);section.append(title);
    for(const category of ['physiology','session','configuration','story'])select(section,'preferences.'+identity+'.'+category,human(category),category==='story'?[['0','Context only'],['1','Eligible for initiative']]:[['0','Context only'],['1','Normal'],['2','Greater relevance']]);
    host.querySelector('[data-event-preferences]').append(section);

@@ -1,0 +1,28 @@
+{
+  "python_tests_passed": 375,
+  "focused_javascript_tests_passed": 33,
+  "character_browser_passed": true,
+  "portraits_rendered": 36,
+  "celeste_portraits_rendered": 12,
+  "hardware": "No physical hardware; browser hardware denied/mocked; live inference used synthetic idle observations and temporary memory.",
+  "installed_model_system_matches_sources": true,
+  "models_rebuilt": false,
+  "thinking": false,
+  "acceptance": "User acceptance pending. Live smoke verifies streaming/lifecycle, not overall narrative quality. Literal telemetry keyword checks do not recognize spelled-out numbers; both flags are false. V2 also speculated about anticipation from simulated telemetry; this should be assessed during acceptance. Supplied model prompts were not changed.",
+  "source_sha256": {
+    "Character_Art/Celeste/expressions/celeste_comforting.png": "a071b748bad3d110c709b8b568a57bdf15d78e0b260e03ae85561ba35ebcb0b3",
+    "Character_Art/Celeste/expressions/celeste_concerned.png": "bf4efc99a5395fc3dde326b346f04e42efde444d6adad6522623117282e0f438",
+    "Character_Art/Celeste/expressions/celeste_dissapointed.png": "62e86b588da0f6cd88392ef7aad8062b59615e3c6ce97468a6e8893679d6376b",
+    "Character_Art/Celeste/expressions/celeste_excited.png": "bc14461a25042e7a02b0cb4ecf7c34c0d85a49a7745bf03fcd1f04d5d1ebf350",
+    "Character_Art/Celeste/expressions/celeste_flirty.png": "8a57a48b6dd773f056c058272e9d2560e8b6273a808b5720f21d446362686220",
+    "Character_Art/Celeste/expressions/celeste_focused.png": "96a71d77e7fbb3454b3a9c31ca043e5be42ee219846386cfb64a830433b407ca",
+    "Character_Art/Celeste/expressions/celeste_happy.png": "485811b40c1c08c6864d17202b2d34ed8949ae07a4225b4b14c7e6d6fe9be565",
+    "Character_Art/Celeste/expressions/celeste_mischievous.png": "392d32ec7ddd620857e9b9a4c0785aafa71d5b15a8708ce9fc7808db8daf4b92",
+    "Character_Art/Celeste/expressions/celeste_neutral.png": "63c74b4c83a9ad4c01cb4affc372afdcfccad02adc505d9ccae8812916a6d0ca",
+    "Character_Art/Celeste/expressions/celeste_playful.png": "f3d3660083a707b003923d70c156b656eb39d4590a4c8d03ca34b96dc6028eee",
+    "Character_Art/Celeste/expressions/celeste_proud.png": "3f60caa06b993eddd99a56aea4b57655799ed032eb1a3ab7ae814148bda5de8c",
+    "Character_Art/Celeste/expressions/celeste_surprised.png": "34862a5fd2444375074f89bc1682da32b76012b9de22786e5e5ec4142299fd58",
+    "characters/models/celeste-narrative-v1/Modelfile": "fd4d6c98fadff42d5444259c5b8706e3261dce806663badb3925d5cd7bf74fae",
+    "characters/models/celeste-narrative-v2/Modelfile": "5300be15d4087f18f1981baa3a0d3c7d7cd5cab376886632b679ed0bb6d5cde9"
+  }
+}

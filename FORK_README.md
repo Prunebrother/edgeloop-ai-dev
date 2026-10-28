@@ -93,3 +93,19 @@ temporary data directory, with an already running local Ollama:
 
 See LICENSE and [source attribution](NOTICE_FORK.md). The original upstream
 history/pin and AGPL provenance are retained; model weights are not included.
+
+## Celeste character
+
+Celeste Armand is available as `celeste-narrative-v1:latest` and
+`celeste-narrative-v2:latest`. Both exact model aliases use the twelve uploaded
+Celeste portraits. V2 adds the supplied narrative/scientific/identity discipline;
+the source prompts and artwork are preserved unchanged. Select either installed
+model and press **Switch model** after starting EdgeLoop AI.
+
+Each model retains its own dialogue and Story Memory. Both versions share Celeste's
+character relevance preferences in Director settings, separately from Evelyn and
+Daisy. Thinking remains off. The uploaded `celeste_dissapointed.png` is explicitly
+mapped to the canonical `disappointed` expression without renaming the original.
+
+For artwork-only inspection, open `http://127.0.0.1:8770/?characterPreview=1`, then
+choose Celeste in **Artwork preview · development**. This does not run inference.

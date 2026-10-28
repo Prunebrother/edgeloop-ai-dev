@@ -58,17 +58,17 @@ class EventConfig(StrictModel):
  proactive_interval_seconds: float=Field(default=120.,ge=15,le=1800)
  detectors: dict[str,DetectorRule]=Field(default_factory=defaults)
  # Relevance affects scheduling only, never shared facts or safety notices.
- preferences: dict[str,dict[str,int]]=Field(default_factory=lambda:{'generic':{'physiology':1,'session':1,'configuration':1,'story':1},'evelyn':{'physiology':1,'session':1,'configuration':1,'story':1},'daisy':{'physiology':1,'session':1,'configuration':1,'story':1}})
+ preferences: dict[str,dict[str,int]]=Field(default_factory=lambda:{'generic':{'physiology':1,'session':1,'configuration':1,'story':1},'evelyn':{'physiology':1,'session':1,'configuration':1,'story':1},'daisy':{'physiology':1,'session':1,'configuration':1,'story':1},'celeste':{'physiology':1,'session':1,'configuration':1,'story':1}})
  @model_validator(mode='after')
  def known(self):
   if set(self.detectors)-set(REGISTRY):raise ValueError('Unknown detector')
   self.detectors=defaults()|self.detectors
   if any(self.detectors[k].window_seconds>120 for k in PHYSIOLOGY):raise ValueError('Measurement windows are limited to 120 seconds')
-  if set(self.preferences)-{'generic','evelyn','daisy'}:raise ValueError('Unknown relevance identity')
+  if set(self.preferences)-{'generic','evelyn','daisy','celeste'}:raise ValueError('Unknown relevance identity')
   for prefs in self.preferences.values():
    if prefs.get('story',1)>1:raise ValueError('Story relevance supports 0 (context only) or 1 (eligible)')
    if set(prefs)-{'physiology','session','configuration','story'} or any(type(v)is not int or not 0<=v<=2 for v in prefs.values()):raise ValueError('Relevance must be 0, 1 or 2 in a known category')
-  self.preferences={k:{'physiology':1,'session':1,'configuration':1,'story':1}|self.preferences.get(k,{}) for k in ('generic','evelyn','daisy')}
+  self.preferences={k:{'physiology':1,'session':1,'configuration':1,'story':1}|self.preferences.get(k,{}) for k in ('generic','evelyn','daisy','celeste')}
   return self
 
  def relevance(self,model,category):

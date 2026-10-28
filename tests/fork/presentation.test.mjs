@@ -8,14 +8,15 @@ const rig=options=>{let time=10000;const views=[];const c=new Controller(v=>view
 test('canonical identities use exact aliases, not name prefixes or prototype properties',()=>{
     for(const model of ['evelyn-lite-v1:latest','evelyn-lite-candidate:latest','evelyn-qwen35-stable:latest','evelyn-qwen35:latest','evelyn-narrative-v1:latest'])assert.equal(resolveArtwork(model).id,'evelyn');
     for(const model of ['daisy-qwen35:latest','daisy-v11:latest','daisy-narrative-v1:latest'])assert.equal(resolveArtwork(model).id,'daisy');
-    for(const model of ['__proto__','evelyn-some-new-model:latest','qwen3:8b',null])assert.equal(resolveArtwork(model).id,'generic');
-    assert.equal(Object.keys(MODEL_ARTWORK).length,18);
+    for(const model of ['celeste-narrative-v1:latest','celeste-narrative-v2:latest'])assert.equal(resolveArtwork(model).id,'celeste');
+    for(const model of ['__proto__','celeste-unknown:latest','evelyn-some-new-model:latest','qwen3:8b',null])assert.equal(resolveArtwork(model).id,'generic');
+    assert.equal(Object.keys(MODEL_ARTWORK).length,20);
 });
 test('all twelve prepared expressions have direct assets; missing custom states fall back to neutral',()=>{
     assert.deepEqual(EXPRESSIONS,['neutral','happy','playful','flirty','mischievous','focused','excited','surprised','disappointed','concerned','proud','comforting']);
     assert.deepEqual(ACTIVITIES,['idle','generating','listening','speaking','disconnected']);
     assert.equal(resolveArtwork(evelyn,'happy').src,'/Character_Art/Evelyn/Expressions/evelyn_happy.png');
-    for(const model of [evelyn,daisy])for(const expression of EXPRESSIONS)assert.equal(resolveArtwork(model,expression).candidates[0].expression,expression);
+    for(const model of [evelyn,daisy,'celeste-narrative-v2:latest'])for(const expression of EXPRESSIONS)assert.equal(resolveArtwork(model,expression).candidates[0].expression,expression);
     assert.equal(resolveArtwork(evelyn,'disappointed').src,'/Character_Art/Evelyn/Expressions/evelyn_dissapointed.png');
     assert.equal(resolveArtwork(evelyn,'speaking').expression,'neutral');
     assert.equal(resolveArtwork('unknown').src,null);
