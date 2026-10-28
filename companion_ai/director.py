@@ -97,7 +97,7 @@ def tools_relevant(text):
 
 
 def group_for(kind):
-    if kind.startswith('hr_'):return 'physiology'
+    if kind.startswith('hr_') or kind in {'rapid_rise','rapid_fall','sustained_elevation','recovery','fluctuations','stable'}:return 'physiology'
     if kind=='edge':return 'edge'
     if kind=='command_ack':return 'tool'
     if kind.startswith('device'):return 'device'
@@ -116,6 +116,7 @@ class ConversationDirector:
         self.last_category={}
         self.last_spoken=float('-inf')
         self.last_reaction=float('-inf')
+        self.typing_until=0
         self.last_reason='No speech requested'
         self.model_states={}
         self.active_scope='default'
@@ -179,6 +180,7 @@ class ConversationDirector:
 
     def opportunity(self, event):
         now=self.clock();group=group_for(event['kind'])
+        if self.clock()<self.typing_until:return False,'user_typing'
         if not self.config.enabled:return True,'baseline_scheduler'
         if not self.config.spontaneous_enabled:return False,'spontaneous_disabled'
         if event['kind'] in REACTIVE_EVENTS:
@@ -197,6 +199,7 @@ class ConversationDirector:
     def narrative_opportunity(self, engaged):
         now=self.clock()
         if not (self.config.enabled and self.config.spontaneous_enabled and self.config.narrative_initiative_enabled):return False,'narrative_disabled'
+        if self.clock()<self.typing_until:return False,'user_typing'
         if not engaged:return False,'no_welcome_narrative_thread'
         if self.session_status not in {'RUNNING','RAMPDOWN'}:return False,'narrative_session_inactive'
         if self.memory['consecutive_unsolicited']>=self.config.max_consecutive_unsolicited:return False,'unsolicited_limit'
@@ -253,11 +256,16 @@ class ConversationDirector:
                 names=[str(value),MODE_NAMES.get(value,'')]
                 selection_ack=event.get('kind') in SELECTION_EVENTS and value!=event.get('previous_'+field) and bool(re.search(r'\b(selected|selection|picked|chose|chosen)\b',text,re.I)) and any(name and re.search(r'\b'+re.escape(name)+r'\b',text,re.I) for name in names)
             except (ValueError,TypeError):pass
+        derived_numeric=False
+        if not user and prompt.startswith('Observed application event (not a user request): '):
+            try:derived_numeric=json.loads(prompt.split(': ',1)[1]).get('category')=='derived'
+            except (ValueError,TypeError):pass
+        numeric_requested=numerical_request(prompt) or derived_numeric
         threshold=max(.95,self.config.repetition_threshold) if selection_ack else self.config.repetition_threshold
-        excessive=not permitted and (score['exact_duplicate'] or score['similarity']>=threshold or score['repeated_phrase']>=(.9 if selection_ack else .65) or score['repeated_question']>=.9 or numeric and not numerical_request(prompt))
+        excessive=not permitted and (score['exact_duplicate'] or score['similarity']>=threshold or score['repeated_phrase']>=(.9 if selection_ack else .65) or score['repeated_question']>=.9 or numeric and not numeric_requested)
         device_narration = user and not tools_relevant(prompt) and bool(re.search(r'\b(simulator|telemetry|device|heart.rate|bpm)\b|\bpulse pattern\b',text,re.I))
         excessive = excessive or device_narration
-        score.update(verified_selection_ack=selection_ack,excessive=excessive,unrequested_device_narration=device_narration,unrequested_numeric=numeric and not numerical_request(prompt),permitted_repetition=permitted)
+        score.update(verified_selection_ack=selection_ack,excessive=excessive,unrequested_device_narration=device_narration,unrequested_numeric=numeric and not numeric_requested,permitted_repetition=permitted)
         self.counts['responses_assessed']+=1
         self.log('repetition_assessment',**score)
         return score

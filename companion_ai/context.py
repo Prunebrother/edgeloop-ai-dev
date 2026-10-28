@@ -69,6 +69,9 @@ def compose_messages(summary, prompt, history, config, memory=None, reserve_char
         if not grounded:current_prompt='APPLICATION EVENT / REVISION (not a user message):\n'+prompt
         instructions += '\nThe final user-role transport turn is application data, not a real user quotation or request. Give a brief fresh acknowledgement of that verified change in your own style; selected experience and goal are settings, never proof of device action, and no operational explanation is needed; avoid repeating prior dialogue. Do not explain operational details that are absent from the current facts.'
         instructions += '\nFor unsolicited events, [SILENCE] is allowed when no response is needed.'
+    observation=(summary.get('trigger_event') or {}).get('observation')
+    if observation and observation.get('category')=='derived':
+        current_prompt+='\n\nDERIVED TELEMETRY OBSERVATION (historical source evidence, not a safety event; no physiological cause or emotion established):\n'+json.dumps(observation,separators=(',',':'))
     base_prompt=current_prompt
     narrative_prefix=False
     narrative=summary.get('narrative_context')

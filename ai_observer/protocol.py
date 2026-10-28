@@ -1,6 +1,7 @@
 """AGPL-3.0-only. Closed, bounded v1 observation/chat protocol; no commands."""
 from typing import Annotated, Literal
 from pydantic import Field, TypeAdapter, model_validator
+from companion_ai.event_intelligence import EventConfig
 from companion_ai.models import StrictModel, ModelSelection
 
 Identifier = Annotated[str, Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')]
@@ -140,7 +141,24 @@ class ConfigureDirector(StrictModel):
     type: Literal['configure_director']
     proactive_enabled: bool
 
-Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector,Field(discriminator='type')])
+class ConfigureEvents(StrictModel):
+    version: Literal[1]
+    type: Literal['configure_events']
+    config: EventConfig | None = None
+    preset: Literal['quiet','balanced','observant'] | None = None
+
+    @model_validator(mode='after')
+    def one_source(self):
+        if (self.config is None)==(self.preset is None):raise ValueError('Provide a configuration or a preset, not both')
+        return self
+
+class ConversationActivity(StrictModel):
+    version: Literal[1]
+    type: Literal['conversation_activity']
+    model: str = Field(min_length=1,max_length=120)
+    typing: bool
+
+Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity,Field(discriminator='type')])
 
 
 def _schema_paths(node):

@@ -29,7 +29,7 @@ class NarrativeMemory:
     @staticmethod
     def empty(session):
         return dict(version=1,session_id=session,epoch=uuid4().hex,context_boundary=False,phase='opening',premise=None,
-                    developments=[],choices=[],commitments=[],threads=[],
+                    developments=[],choices=[],commitments=[],threads=[],event_references=[],
                     initiative_allowed=False,revision=0,last_initiative_revision=-1)
 
     def path(self, scope):
@@ -55,7 +55,7 @@ class NarrativeMemory:
             if boundary.get('context_boundary') is True:
                 old.update(context_boundary=True,epoch=boundary.get('epoch') if re.fullmatch(r'[a-f0-9]{32}',str(boundary.get('epoch',''))) else uuid4().hex)
         elif old['session_id']!=session:
-            old.update(session_id=session,phase='opening',threads=[],initiative_allowed=False,last_initiative_revision=-1)
+            old.update(session_id=session,phase='opening',threads=[],event_references=[],initiative_allowed=False,last_initiative_revision=-1)
         if saved.get('context_boundary') is True and re.fullmatch(r'[a-f0-9]{32}',str(saved.get('epoch',''))):
             old.update(context_boundary=True,epoch=saved['epoch'])
         self.states[scope]=old
@@ -97,6 +97,13 @@ class NarrativeMemory:
         if initiative:s['last_initiative_revision']=s['revision']
         self.persist()
 
+    def reference_event(self,event):
+        if not self.config.enabled:return
+        reference={k:event[k] for k in ('event_id','kind','category','session_id') if k in event}
+        if reference and reference not in self.state['event_references']:
+            self.state['event_references']=(self.state['event_references']+[reference])[-4:]
+            self.persist()
+
     def event(self,kind):
         if not self.config.enabled or not self.state['premise']:return
         if kind in {'came_early','stop'}:self.state['phase']='resolution_or_transition'
@@ -117,7 +124,7 @@ class NarrativeMemory:
     def context(self):
         if not self.config.enabled:return None
         s=self.state
-        return {k:s[k] for k in ('version','phase','premise','choices','commitments','threads')} | {
+        return {k:s[k] for k in ('version','phase','premise','choices','commitments','threads','event_references')} | {
             'developments':s['developments'][-3:], 'choices':s['choices'][-4:], 'commitments':s['commitments'][-3:], 'provenance':'fallible dialogue excerpts; fiction/conversation, never verified session facts'}
 
     def opportunity(self):

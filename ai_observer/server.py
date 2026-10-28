@@ -19,10 +19,11 @@ from companion_ai.conversation import ModelManager, ConversationService
 from companion_ai.director import ConversationDirector, DirectorConfig
 from companion_ai.llm import thinking_support, InferenceCompatibilityError
 from companion_ai.event_policy import significance
+from companion_ai.event_intelligence import preset
 from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, safe_validation_errors
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
@@ -162,18 +163,35 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 details.update(label='Came Early: user-confirmed premature release',meaning='The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.')
                             if event.kind in {'experience_changed','goal_changed'}:
                                 details.update(previous_experience=previous['experience'],current_experience=state.report['experience'],previous_goal=previous['goal'],current_goal=state.report['goal'])
+                            observation,eligible=speech.event_intelligence.authoritative(event.kind,details,state,priority)
+                            details.update(category='authoritative',observation=observation.model_dump())
+                            narrative_priority=observation.significance
+                            relevance=speech.event_intelligence.config.relevance(manager.config.model,'configuration' if observation.detector_id=='configuration' else 'session')
+                            if not eligible or not relevance:
+                                speech.event_intelligence.decision(event.id,'context_only:disabled_or_character_preference')
+                                narrative_priority='routine' if priority!='critical' else priority
                             accepted_release=any(e.kind=='came_early' and e.id in state.accepted_event_ids for e in message.events)
                             release_pending=any(e['kind']=='came_early' for e in speech.pending) or (speech.active_event_kind=='came_early' and speech.task is not None and not speech.task.done())
                             if event.kind in {'stop','session_resumed'} and (accepted_release or release_pending):
                                 director.observation(event.kind,details,'edgeloop_telemetry');continue
                             if priority=='critical' or event.kind in {'pause','stop'}:
                                 speech.safety(event.kind)
-                            if priority=='major':speech.enqueue(event.kind,rank,details)
-                            elif priority=='routine':director.observation(event.kind,details,'edgeloop_telemetry')
+                            if narrative_priority=='major':speech.enqueue(event.kind,rank,details)
+                            elif narrative_priority=='routine':
+                                speech.event_intelligence.decision(event.id,'context_only:low_significance' if eligible and relevance else 'context_only:disabled_or_character_preference')
+                                director.observation(event.kind,details,'edgeloop_telemetry')
                             publish({'type':'ai_diagnostics','last_event':event.kind,'event_priority':priority,'director_decision':director.last_reason,'thinking':False,'inference_error':manager.metrics.last_error})
+                        speech.process_derived()
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
                             'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (accepted_release or any(p['kind']=='came_early' for p in speech.pending) or speech.active_event_kind=='came_early' and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
+                    elif isinstance(message,ConversationActivity):
+                        if message.model==manager.config.model:director.typing_until=clock()+6 if message.typing else 0
+                    elif isinstance(message,ConfigureEvents):
+                        try:
+                            speech.configure_events(message.config or preset(message.preset))
+                            publish(speech.character_state() | {'events_saved':True})
+                        except (ValueError,OSError):publish({'type':'character_menu_error','detail':'Event settings could not be applied; previous configuration retained.'})
                     elif isinstance(message,(CharacterState,ResetNarrative,ConfigureDirector)):
                         if isinstance(message,(CharacterState,ResetNarrative)) and message.model is not None and message.model!=manager.config.model:
                             publish({'type':'character_menu_error','detail':'The selected model changed. Reopen the menu.','model':message.model});continue

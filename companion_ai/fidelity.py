@@ -7,7 +7,7 @@ class GroundingError(ValueError):
         self.codes=tuple(codes)
         super().__init__('The model reply conflicted with current EdgeLoop facts after one correction attempt ('+', '.join(codes)+'). No completed reply was saved. Current telemetry may be unavailable; try again.')
 
-NUMERIC_BPM=re.compile(r'\b(\d{1,3})\s*(?:bpm|beats\s*(?:per\s*minute|/\s*min))\b',re.I)
+NUMERIC_BPM=re.compile(r'\b(\d{1,3}(?:\.\d{1,2})?)\s*(?:bpm|beats\s*(?:per\s*minute|/\s*min))\b',re.I)
 # Common whole-BPM word forms, including those seen in actual smoke responses.
 ONES={'zero':0,'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,'eight':8,'nine':9,
       'ten':10,'eleven':11,'twelve':12,'thirteen':13,'fourteen':14,'fifteen':15,'sixteen':16,'seventeen':17,'eighteen':18,'nineteen':19}
@@ -23,16 +23,23 @@ def word_number(text):
 
 def explicit_bpm(text):
     clean=text.replace('**','').replace('_','')
-    return [(m.start(),m.end(),int(m[1])) for m in NUMERIC_BPM.finditer(clean)]+[(m.start(),m.end(),word_number(m[1])) for m in WORDS.finditer(clean)]
+    return [(m.start(),m.end(),float(m[1])) for m in NUMERIC_BPM.finditer(clean)]+[(m.start(),m.end(),word_number(m[1])) for m in WORDS.finditer(clean)]
 
 def current_claim(sentence):
     # Negated, conditional or explicitly historical statements are not direct claims.
     return not re.search(r"\b(not|cannot|can't|isn't|aren't|was|were|earlier|previous|historical|whether|if)\b",sentence,re.I)
 
-def violations(text,canonical,history=()):
+def violations(text,canonical,history=(),trigger=None):
     if not canonical:return []
     facts=canonical['facts'];codes=[];clean=text.replace('**','').replace('_','')
     allowed={f['value'] for f in facts.values() if f['known'] and f['current'] and f['unit']=='BPM'}
+    if trigger and trigger.get('category')=='derived':
+        try:
+            from .event_intelligence import DerivedEvent
+            observation=DerivedEvent.model_validate(trigger['observation'])
+            if observation.category=='derived' and observation.session_id==canonical['session_id']:
+                allowed.update(abs(value) for value in (observation.first_bpm,observation.last_bpm,observation.change_bpm,observation.reference_bpm) if value is not None)
+        except (ValueError,KeyError):pass
     hr=facts['hr'];reading=hr['value'] if hr['known'] and hr['current'] else None
     if reading is not None:
         for name in ['resting_bpm','single_max_bpm','dual_max_bpm','effective_max','pullback']:
@@ -103,7 +110,7 @@ def violations(text,canonical,history=()):
             if value and (not fact['known'] or not fact['current'] or int(value[1])!=fact['value']):codes.append('wrong_'+field)
         control=re.search(r"\bI(?:'ve| have)?\s+(?:just\s+)?(?:set|changed|raised|lowered|started|stopped|paused|resumed|reset|connected|disconnected)\s+(?:your\s+|the\s+|this\s+|our\s+)?(?:intensity|session|Handy|counter|sensor|device|mode)\b",sentence,re.I)
         if control:codes.append('read_only_control_claim')
-        match=re.search(r'\b(?:current heart rate|your heart rate|your pulse|your heart|current bpm)\b[^\d]{0,65}(\d{1,3})\s*(?:bpm|beats per minute)',sentence,re.I)
+        match=re.search(r'\b(?:current heart rate|your heart rate|your pulse|your heart|current bpm)\b[^\d]{0,65}(\d{1,3}(?:\.\d{1,2})?)\s*(?:bpm|beats per minute)',sentence,re.I)
         if match and (reading is None or int(match[1])!=reading) and not re.search(r'ceiling|threshold|maximum|setting',match[0],re.I):codes.append('wrong_current_bpm')
         if re.search(r'\b(?:heart rate|pulse|bpm)\b.{0,45}\b(?:has been|keeps|continues)\b.{0,20}\b(climbing|rising|increasing|falling|dropping)\b',sentence,re.I) and not facts['trend']['known']:codes.append('unsupported_trend')
         match=re.search(r'\bsession(?: status)?\b.{0,25}\b(?:is|remains|currently|officially)\s+(?:(?:currently|officially)\s+)?(running|paused|idle|stopped)\b',sentence,re.I)

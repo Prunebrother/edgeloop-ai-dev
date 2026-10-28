@@ -25,7 +25,7 @@ PHYSIOLOGY=frozenset(list(REGISTRY)[:6])
 class DetectorRule(StrictModel):
  enabled: bool=True
  threshold_bpm: float=Field(default=15.,ge=2,le=60)
- window_seconds: float=Field(default=30.,ge=5,le=120)
+ window_seconds: float=Field(default=30.,ge=5,le=1800)
  duration_seconds: float=Field(default=20.,ge=3,le=120)
  min_samples: int=Field(default=5,ge=5,le=128)
  cooldown_seconds: float=Field(default=120.,ge=5,le=1800)
@@ -47,7 +47,7 @@ def defaults():
   'recovery':{'window_seconds':60.,'duration_seconds':20.,'reference':'recent_measured'},
   'fluctuations':{'window_seconds':90.,'duration_seconds':30.,'threshold_bpm':10.,'hysteresis_bpm':3.,'min_samples':9},
   'stable':{'enabled':False,'threshold_bpm':4.,'hysteresis_bpm':1.,'window_seconds':60.,'duration_seconds':45.,'significance':'routine'},
-  'session_milestone':{},'configuration':{},
+  'session_milestone':{'cooldown_seconds':5.},'configuration':{'cooldown_seconds':5.},
   'quiet':{'window_seconds':120.,'duration_seconds':30.,'significance':'routine'}}.items()}
 
 class EventConfig(StrictModel):
@@ -63,6 +63,7 @@ class EventConfig(StrictModel):
  def known(self):
   if set(self.detectors)-set(REGISTRY):raise ValueError('Unknown detector')
   self.detectors=defaults()|self.detectors
+  if any(self.detectors[k].window_seconds>120 for k in PHYSIOLOGY):raise ValueError('Measurement windows are limited to 120 seconds')
   if set(self.preferences)-{'generic','evelyn','daisy'}:raise ValueError('Unknown relevance identity')
   for prefs in self.preferences.values():
    if set(prefs)-{'physiology','session','configuration','story'} or any(type(v)is not int or not 0<=v<=2 for v in prefs.values()):raise ValueError('Relevance must be 0, 1 or 2 in a known category')
@@ -123,15 +124,15 @@ class EventIntelligence:
  def __init__(self,config=None,clock=None):
   import time
   self.clock=clock or time.monotonic;self.config=config or EventConfig();self.revision=1;self.applied_at=float('-inf')
-  self.history=deque(maxlen=48);self.segment=None;self.latches={};self.last_emit={};self.diagnostics={};self.last_significant=self.clock();self.quiet_key=None;self.error=None
+  self.history=deque(maxlen=48);self.segment=None;self.latches={};self.last_emit={};self.commentary_at={};self.diagnostics={};self.last_significant=self.clock();self.quiet_key=None;self.error=None
  def configure(self,config):
   self.config=config;self.revision+=1;self.applied_at=self.clock();self.latches.clear();self.quiet_key=None
   # Earlier observations remain diagnostic history; only future samples may trigger new rules.
  def reason(self,key,reason):
   self.diagnostics.setdefault(key,{})['last_suppression']=reason
- def decision(self,event_id,decision):
+ def decision(self,event_id,decision,cooldown=0):
   for record in reversed(self.history):
-   if record['event']['id']==event_id:record['decision']=decision;return
+   if record['event']['id']==event_id:record['decision']=decision;record['cooldown_until']=self.clock()+max(0,cooldown);return
  def record(self,event):
   self.history.append({'event':event.model_dump(),'decision':'context_only' if event.significance=='routine' else 'detected'})
   if event.significance!='routine':self.last_significant=self.clock()
@@ -209,7 +210,7 @@ class EventIntelligence:
    if reset:self.latches[key]=False
    if not valid:self.reason(key,'condition_not_met');continue
    if self.latches.get(key):self.reason(key,'hysteresis_latched');continue
-   if now-self.last_emit.get(key,float('-inf'))<rule.cooldown_seconds:self.reason(key,'detector_cooldown');continue
+   if now-max(self.last_emit.get(key,float('-inf')),self.commentary_at.get(key,float('-inf')))<rule.cooldown_seconds:self.reason(key,'detector_cooldown');continue
    event=self.build(key,o,ss,change_bpm=round(delta,2),first_bpm=float(start),last_bpm=float(end),reference_bpm=float(ref) if ref is not None else None,reference_kind=ref_kind)
    self.latches[key]=True;self.last_emit[key]=now;self.diagnostics[key]={'last_detection_at_ms':event.created_at_ms,'last_suppression':None}
    emitted.append(self.record(event))
@@ -217,8 +218,9 @@ class EventIntelligence:
  def authoritative(self,kind,details,o,significance):
   key='configuration' if kind in {'experience_changed','goal_changed','mode_changed','intensity_changed','threshold_changed'} else 'session_milestone'
   rule=self.config.detectors[key];critical=significance=='critical'
-  level='critical' if critical else rule.significance if self.config.enabled and rule.enabled else 'routine'
+  level='critical' if critical else rule.significance if significance=='major' and self.config.enabled and rule.enabled else 'routine'
   event=DerivedEvent(id=details['event_id'],kind=kind,detector_id=key,category='authoritative',source='original_edgeloop',simulated=o.hr_source()=='simulator',session_id=o.session_id,first_at_ms=details.get('at_ms'),last_at_ms=details.get('at_ms'),created_at_ms=int(o.wall()*1000),window_seconds=0,sample_count=0,quality='validated_transition',significance=level,evidence=details.get('evidence') or 'Validated original transition',config_revision=self.revision)
+  self.diagnostics[key]={'last_detection_at_ms':event.created_at_ms,'last_suppression':None}
   self.record(event)
   return event,critical or self.config.enabled and rule.enabled
  def quiet(self,o,last_activity,scope):
@@ -226,12 +228,15 @@ class EventIntelligence:
   if not self.config.enabled or not rule.enabled:self.reason(key,'detector_disabled');return None
   if not o.fresh() or now-max(last_activity,self.last_significant)<rule.window_seconds:self.reason(key,'quiet_interval_not_elapsed');return None
   if scope==self.quiet_key:self.reason(key,'opportunity_already_considered');return None
-  self.quiet_key=scope
+  if now-max(self.last_emit.get(key,float('-inf')),self.commentary_at.get(key,float('-inf')))<rule.cooldown_seconds:self.reason(key,'detector_cooldown');return None
+  self.quiet_key=scope;self.last_emit[key]=now
   event=DerivedEvent(id=sha256(str((scope,self.revision)).encode()).hexdigest()[:24],kind='quiet_interval',detector_id=key,category='scheduling',source='Director clock',simulated=False,session_id=o.session_id,first_at_ms=None,last_at_ms=None,created_at_ms=int(o.wall()*1000),window_seconds=rule.window_seconds,sample_count=0,quality='scheduling_only',significance=rule.significance,evidence='No significant event or conversation during configured interval; availability and willingness are not established.',config_revision=self.revision)
   return self.record(event)
  def snapshot(self):
   now=self.clock()
-  return {'config':self.config.model_dump(),'revision':self.revision,'error':self.error,'detectors':[{'id':key,'name':v[0],'description':v[1],'required_fields':v[2],'minimum_samples':max(self.config.detectors[key].min_samples,9 if key=='fluctuations' else 5) if key in PHYSIOLOGY else 0,**self.diagnostics.get(key,{}),'cooldown_remaining_seconds':round(max(0,self.config.detectors[key].cooldown_seconds-(now-self.last_emit.get(key,float('-inf')))),1)} for key,v in REGISTRY.items()], 'recent_events':deepcopy(list(self.history)[-16:])}
+  records=deepcopy(list(self.history)[-16:])
+  for record in records:record['cooldown_remaining_seconds']=round(max(0,record.pop('cooldown_until',0)-now),1)
+  return {'config':self.config.model_dump(),'revision':self.revision,'error':self.error,'detectors':[{'id':key,'name':v[0],'description':v[1],'required_fields':v[2],'minimum_samples':max(self.config.detectors[key].min_samples,9 if key=='fluctuations' else 5) if key in PHYSIOLOGY else 0,**self.diagnostics.get(key,{}),'cooldown_remaining_seconds':round(max(0,self.config.detectors[key].cooldown_seconds-(now-max(self.last_emit.get(key,float('-inf')),self.commentary_at.get(key,float('-inf'))))),1)} for key,v in REGISTRY.items()], 'recent_events':records}
 
 def load_config(store):
  try:
