@@ -193,3 +193,46 @@ async def test_curator_event_preemption_and_active_session_exclusion():
     service.enqueue('completion_accepted',70,{'event_id':'synthetic'})
     await asyncio.gather(task,return_exceptions=True);assert service.curator.diagnostics['status']=='cancelled'
     await service.close()
+
+
+async def test_wrong_generated_identifier_uses_existing_single_factual_repair(tmp_path):
+    import httpx
+    from companion_ai.conversation import ModelManager
+    n=memory();summary,_,_=fixture('evelyn-narrative-v1')
+    summary|={'narrative_context':n.context(),'narrative_scope':['evelyn']}
+    requests=[]
+    async def handle(request):
+        if request.url.path=='/api/show':return httpx.Response(200,json={'system':'Native character.','capabilities':['completion','thinking']})
+        body=json.loads(request.content);requests.append(body)
+        text='It was RAVEN-22.' if len(requests)==1 else 'It was ORCHID-17.'
+        return httpx.Response(200,text=json.dumps({'message':{'content':text},'done':True,'done_reason':'stop'})+'\n')
+    manager=ModelManager(store=SettingsStore(tmp_path),transport=httpx.MockTransport(handle));manager.mode='ollama';manager.config=AIConfig(model='evelyn-narrative-v1:latest');manager.adapter=manager.provider()
+    result=await manager.reply(summary,'What was the door identifier?',[])
+    assert 'ORCHID-17' in result and len(requests)==2 and all(r['think'] is False for r in requests)
+    assert manager.grounding_attempts==2
+
+
+async def test_curator_setting_is_authenticated_and_does_not_generate(tmp_path):
+    from fastapi.testclient import TestClient
+    from ai_observer.server import create_app
+    from tests.ai.test_character_menus import TOKEN,ORIGIN,auth,until
+    from tests.ai.test_f25 import runtime
+    wire=[];app=create_app(TOKEN,tmp_path,transport=runtime(wire))
+    with TestClient(app) as client:
+        with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
+            auth(ws);ws.send_json({'version':1,'type':'configure_curator','config':{'enabled':True,'interval_turns':8,'timeout_seconds':10}})
+            state=until(ws,'character_state');assert state['memory_curator']['config']['enabled'] and not wire
+            ws.send_json({'version':1,'type':'configure_curator','config':{'enabled':True,'interval_turns':1}})
+            assert until(ws,'protocol_error') and not wire
+    assert MemoryCurator(SettingsStore(tmp_path)).config.enabled
+
+
+def test_curator_source_excerpt_updates_existing_quotation_without_duplication():
+    n=memory();n.accepted('The page says "The truth was hidden in plain sight."','The page may matter.',True)
+    c,p=curator_payload(n)
+    text='The page says "The truth was hidden in plain sight."';source={'id':'f'*32,'text':text,'speaker':'user'};p['sources'].append(source)
+    q={'source_ref':source['id'],'quote':text,'category':'user_fact','importance':5,'action':'retain','justification':'Exact clue copied from a sourced sentence'}
+    before=len(n.state['facts']);c.apply(n,p,json.dumps({'proposals':[q]}))
+    assert len(n.state['facts'])==before
+    r=next(r for r in n.state['facts'] if r['value']=='The truth was hidden in plain sight.')
+    assert r['importance']==5 and r['curator_source_ref']==source['id']

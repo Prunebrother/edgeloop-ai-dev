@@ -3,7 +3,7 @@
 import argparse,asyncio,json,re,statistics,subprocess,sys,tempfile,time,types
 from pathlib import Path
 from companion_ai.narrative import NarrativeMemory
-from companion_ai.context_compiler import ContextCompiler
+from companion_ai.context_compiler import ContextCompiler,estimate
 from companion_ai.memory_curator import MemoryCurator,CuratorConfig,INSTRUCTION
 from companion_ai.models import AIConfig
 from companion_ai.llm import OllamaProvider,LLMRequest,ChatMessage,collect_reply
@@ -21,7 +21,7 @@ def frozen():
     return modules
 
 async def evaluate(live=False):
-    old=frozen();rows=[];live_rows=[]
+    old=frozen();rows=[];live_rows=[];curation_inputs=[]
     for model,hobby in zip(MODELS,HOBBIES):
         summary,history,native=fixture(model)
         for arm in ('A','B','C'):
@@ -36,7 +36,9 @@ async def evaluate(live=False):
                     p=curator.payload(n)
                     # Deterministic proposal fixture measures validation/application, not LLM intelligence.
                     important=[r for r in p['memories'] if 'ORCHID' in r['text'] or hobby in r['text']]
+                    start=time.perf_counter()
                     curator.apply(n,p,json.dumps({'proposals':[{'source_ref':r['id'],'quote':r['text'],'category':r['category'],'importance':5,'action':'retain','justification':'Synthetic sourced importance fixture'} for r in important]}))
+                    curation_inputs.append({'model':model,'estimated_input_tokens':estimate(native+INSTRUCTION+json.dumps(p))+96,'payload_bytes':len(json.dumps(p).encode()),'validation_apply_ms':round((time.perf_counter()-start)*1000,4),'inference_latency_seconds':None})
             for query,expected in [('What was the identifier on the blue laboratory door?','ORCHID-17'),('What is your hobby?',hobby),('Hello there.',None)]:
                 compiler=old['context_compiler'].ContextCompiler() if arm=='A' else ContextCompiler()
                 config=AIConfig(model=model+':latest',thinking=False,max_tokens=256)
@@ -53,7 +55,7 @@ async def evaluate(live=False):
                         text=await collect_reply(provider,LLMRequest(config,tuple(ChatMessage(**m) for m in messages)))
                         live_rows.append({'arm':arm,'model':model,'query':query,'status':'completed','think':False,'exact':expected in text,'synthetic_response':text[:320],'seconds':round(time.perf_counter()-start,3),'metrics':provider.metrics.samples[-1] if provider.metrics.samples else {}})
                     except (httpx.HTTPError,ValueError,TimeoutError) as exc:live_rows.append({'arm':arm,'model':model,'status':'blocked','reason':type(exc).__name__,'think':False})
-    return {'baseline':'4b09888','token_method':'Conservative UTF-8/character estimate, native SYSTEM lengths from source','offline_curator':'Synthetic source-validated proposals, NOT live curation or answer accuracy','rows':rows,'live':live_rows}
+    return {'baseline':'4b09888','token_method':'Conservative UTF-8/character estimate, native SYSTEM lengths from source','offline_curator':'Synthetic source-validated proposals, NOT live curation or answer accuracy','rows':rows,'curation_inputs':curation_inputs,'live':live_rows}
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--live',action='store_true');p.add_argument('--output',required=True);a=p.parse_args()

@@ -327,7 +327,9 @@ class ConversationService:
         if hasattr(self,'pending'):
             for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:model_switch')
             self.pending.clear()
-        if hasattr(self,'curator'):self.curator.cancel()
+        if hasattr(self,'curator'):
+            self.curator.cancel()
+            self.curator.diagnostics={'status':'idle' if self.curator.config.enabled else 'disabled','attempts':0}
         self.director.activate(scope)
         self.sync_narrative()
         self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
@@ -424,6 +426,9 @@ class ConversationService:
         self.interrupt()
         self.sync_narrative()
         self.narrative.reset()
+        for key in list(self.curator.buffers):
+            if key[0]==self.active_model_id:self.curator.buffers.pop(key)
+        self.curator.diagnostics={'status':'idle' if self.curator.config.enabled else 'disabled','attempts':0}
         if hasattr(self.adapter,'context_diagnostics'):self.adapter.context_diagnostics={}
         for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:storyline_reset')
         self.pending.clear()
@@ -434,6 +439,7 @@ class ConversationService:
 
     def maybe_curate(self):
         if self.closed or self.pending or self.task and not self.task.done() or self.state.status!='IDLE':return
+        if self.clock()<self.busy_until or self.clock()-self.last_user<10:return
         if not hasattr(self.adapter,'curate_memory') or self.curator.task and not self.curator.task.done():return
         if self.curator.due(self.narrative):
             self.curator.task=asyncio.create_task(self.curator.run(self))

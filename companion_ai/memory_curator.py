@@ -8,7 +8,7 @@ from uuid import uuid4
 from typing import Literal
 from pydantic import Field
 from .models import StrictModel
-from .narrative_facts import extract,merge,operational_text,CORRECTION,MAX_FACTS
+from .narrative_facts import extract,merge,operational_text,CORRECTION,MAX_FACTS,norm
 from .expressions import clean_dialogue
 from .llm import strict_object
 
@@ -97,6 +97,8 @@ class MemoryCurator:
             candidates=[existing] if existing else extract(source['text'],source['speaker'],narrative.scope,staged['epoch'])
             if not candidates or any(r['category']!=proposal.category for r in candidates):raise ValueError('Unsupported curator category')
             for r in candidates:
+                if not existing:
+                    r=next((stored for stored in staged['facts'] if stored['status']=='active' and stored['slot']==r['slot'] and stored['speaker']==r['speaker'] and norm(stored['value'])==norm(r['value'])),r)
                 if r['status']!='active':continue # LLM cannot reactivate superseded/conflicting records.
                 protected=r['exact'] or r['category'] in {'character_detail','commitment'} or not r['slot'].startswith('detail:') or r['reason']=='explicit_user_correction'
                 if proposal.action=='omit' and protected:
@@ -117,11 +119,12 @@ class MemoryCurator:
     async def run(self,service):
         import httpx
         narrative=service.narrative;payload=self.payload(narrative);start=time.perf_counter()
-        self.diagnostics={'status':'running','attempts':self.diagnostics.get('attempts',0)+1,'epoch':payload['epoch']}
+        diagnostics={'status':'running','attempts':self.diagnostics.get('attempts',0)+1,'epoch':payload['epoch']}
+        self.diagnostics=diagnostics
         try:
             raw,metrics=await service.adapter.curate_memory(payload,self.config.timeout_seconds)
             decisions=self.apply(narrative,payload,raw)
-            self.diagnostics|={'status':'applied','decisions':decisions,'metrics':metrics}
-        except asyncio.CancelledError:self.diagnostics['status']='cancelled';raise
-        except (ValueError,OSError,httpx.HTTPError,TimeoutError) as exc:self.diagnostics|={'status':'rejected','reason':type(exc).__name__}
-        finally:self.diagnostics['elapsed_ms']=round((time.perf_counter()-start)*1000,2)
+            diagnostics|={'status':'applied','decisions':decisions,'metrics':metrics}
+        except asyncio.CancelledError:diagnostics['status']='cancelled';raise
+        except (ValueError,OSError,httpx.HTTPError,TimeoutError) as exc:diagnostics|={'status':'rejected','reason':type(exc).__name__}
+        finally:diagnostics['elapsed_ms']=round((time.perf_counter()-start)*1000,2)
