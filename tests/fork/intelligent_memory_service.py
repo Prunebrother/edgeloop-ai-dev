@@ -54,7 +54,7 @@ class Audit(httpx.AsyncBaseTransport):
                 return httpx.Response(200,json={'system':native,'capabilities':['completion','thinking']})
             if path=='/api/generate':return httpx.Response(200,json={'done':True})
         return await self.inner.handle_async_request(request)
-audit=Audit();app=create_app(TOKEN,directory.name,origins={f'http://127.0.0.1:{UI}'},transport=audit,clock=clock)
+audit=Audit();app=create_app(TOKEN,directory.name,origins={f'http://127.0.0.1:{UI}'},transport=audit,clock=clock,ollama_url='http://127.0.0.1:11435')
 app.state.speech.curator.configure(CuratorConfig(enabled=False,interval_turns=8))
 @app.get('/fixture/audit')
 async def audit_state():

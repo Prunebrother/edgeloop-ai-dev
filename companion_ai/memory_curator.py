@@ -8,7 +8,7 @@ from uuid import uuid4
 from typing import Literal
 from pydantic import Field
 from .models import StrictModel
-from .narrative_facts import extract,merge,operational_text,CORRECTION,MAX_FACTS,norm
+from .narrative_facts import extract,merge,operational_text,CORRECTION,MAX_FACTS,norm,HYPOTHESIS
 from .expressions import clean_dialogue
 from .llm import strict_object
 
@@ -95,17 +95,19 @@ class MemoryCurator:
             used.add(proposal.source_ref)
             existing=next((r for r in staged['facts'] if r['id']==proposal.source_ref or r['text']==source['text'] and r['speaker']==source['speaker']),None)
             candidates=[existing] if existing else extract(source['text'],source['speaker'],narrative.scope,staged['epoch'])
-            if not candidates or any(r['category']!=proposal.category for r in candidates):raise ValueError('Unsupported curator category')
+            def category_allowed(r):
+                return r['category']==proposal.category or (r['category']=='development' and proposal.category=='character_detail' and r['speaker']=='assistant' and r['slot'].startswith('detail:') and bool(re.search(r'\b(?:I|my)\b',r['text'],re.I)) and not HYPOTHESIS.search(r['text']))
+            if not candidates or not all(category_allowed(r) for r in candidates):raise ValueError('Unsupported curator category')
             for r in candidates:
                 if not existing:
                     r=next((stored for stored in staged['facts'] if stored['status']=='active' and stored['slot']==r['slot'] and stored['speaker']==r['speaker'] and norm(stored['value'])==norm(r['value'])),r)
                 if r['status']!='active':continue # LLM cannot reactivate superseded/conflicting records.
-                protected=r['exact'] or r['category'] in {'character_detail','commitment'} or not r['slot'].startswith('detail:') or r['reason']=='explicit_user_correction'
+                protected=proposal.category=='character_detail' or r['exact'] or r['category'] in {'character_detail','commitment'} or not r['slot'].startswith('detail:') or r['reason']=='explicit_user_correction'
                 if proposal.action=='omit' and protected:
                     decisions.append({'source_ref':proposal.source_ref,'decision':'protected_established_fact'});continue
                 if proposal.action=='contradiction':
                     decisions.append({'source_ref':proposal.source_ref,'decision':'contradiction_proposed_no_overwrite'});continue
-                r.update(importance=max(3,proposal.importance) if protected else proposal.importance,curator_omit=proposal.action=='omit',curator_reason=proposal.justification,curator_source_ref=proposal.source_ref)
+                r.update(category=proposal.category,importance=max(3,proposal.importance) if protected else proposal.importance,curator_omit=proposal.action=='omit',curator_reason=proposal.justification,curator_source_ref=proposal.source_ref)
                 if not existing:
                     # The same deterministic merge protects earlier facts and native canon.
                     merge(staged['facts'],[r],source['speaker']=='user' and bool(CORRECTION.search(source['text'])),narrative.canon.get(narrative.scope))

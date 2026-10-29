@@ -236,3 +236,15 @@ def test_curator_source_excerpt_updates_existing_quotation_without_duplication()
     assert len(n.state['facts'])==before
     r=next(r for r in n.state['facts'] if r['value']=='The truth was hidden in plain sight.')
     assert r['importance']==5 and r['curator_source_ref']==source['id']
+
+
+@pytest.mark.parametrize('text,allowed',[('I spend my evenings restoring antique maps.',True),('Perhaps I spend my evenings restoring antique maps.',False),('The curtain crosses the doorway.',False)])
+def test_sourced_curator_can_recognize_personal_details_but_not_promote_theories(text,allowed):
+    n=memory();n.accepted('A visitor waits.',text,True);c,p=curator_payload(n)
+    r=next(r for r in p['memories'] if r['text']==text)
+    q={'source_ref':r['id'],'quote':text,'category':'character_detail','importance':5,'action':'retain','justification':'First-person personal detail from character dialogue'}
+    if allowed:
+        c.apply(n,p,json.dumps({'proposals':[q]}));record=next(r for r in n.state['facts'] if r['text']==text)
+        assert record['category']=='character_detail' and record['speaker']=='assistant' and record['text']==text
+    else:
+        with pytest.raises(ValueError):c.apply(n,p,json.dumps({'proposals':[q]}))

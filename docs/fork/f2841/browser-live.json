@@ -1,0 +1,41 @@
+{
+  "live": true,
+  "physical_hardware": false,
+  "rows": [],
+  "blocked": [
+    {
+      "arm": "A",
+      "phase": "Ollama preflight",
+      "error": "http://127.0.0.1:11435: connect EPERM 127.0.0.1:11435 - Local (undefined:undefined)"
+    },
+    {
+      "arm": "B",
+      "phase": "Ollama preflight",
+      "error": "http://127.0.0.1:11435: connect EPERM 127.0.0.1:11435 - Local (undefined:undefined)"
+    },
+    {
+      "arm": "C",
+      "phase": "Ollama preflight",
+      "error": "http://127.0.0.1:11435: connect EPERM 127.0.0.1:11435 - Local (undefined:undefined)"
+    }
+  ],
+  "failures": [],
+  "screenshots": [],
+  "completed": false,
+  "recall_accuracy": {
+    "A": {
+      "exact": 0,
+      "total": 0
+    },
+    "B": {
+      "exact": 0,
+      "total": 0
+    },
+    "C": {
+      "exact": 0,
+      "total": 0
+    }
+  },
+  "improved_recall_pass": false,
+  "curator_applied_models": 0
+}

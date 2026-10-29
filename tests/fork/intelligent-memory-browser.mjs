@@ -11,7 +11,9 @@ async function port(){return new Promise((resolve,reject)=>{const s=net.createSe
 async function ready(url){for(let i=0;i<100;i++){try{if((await fetch(url)).ok)return;}catch{}await sleep(100);}throw Error('Isolated fixture unavailable');}
 function assert(ok,message){if(!ok)throw Error(message);}
 await mkdir(out,{recursive:true});
-for(const arm of ['A','B','C']){
+let liveReady=true;
+if(live){try{const response=await fetch('http://127.0.0.1:11435/api/tags',{signal:AbortSignal.timeout(3000)});if(!response.ok)throw Error('HTTP '+response.status);const installed=new Set((await response.json()).models.map(m=>m.name));const missing=models.filter(m=>!installed.has(m));if(missing.length)throw Error('Missing installed models: '+missing.join(', '));}catch(e){liveReady=false;for(const arm of ['A','B','C'])report.blocked.push({arm,phase:'Ollama preflight',error:'http://127.0.0.1:11435: '+String(e.cause?.message||e.message).replace(/\b[a-f0-9]{64}\b/g,'[redacted]')});}}
+for(const arm of (liveReady?['A','B','C']:[])){
  const children=[];let browser;
  try{
   const uiPort=await port();let aiPort=await port();while(aiPort===uiPort)aiPort=await port();const ui=`http://127.0.0.1:${uiPort}`,ai=`http://127.0.0.1:${aiPort}`,token=randomBytes(32).toString('hex');
@@ -26,7 +28,7 @@ for(const arm of ['A','B','C']){
   async function reset(){await page.locator('[data-menu-story]').click();await page.locator('[data-start-story]').click();await page.locator('[data-narrative-reset]').click();await page.getByText('New storyline started. Transcript retained.',{exact:true}).waitFor();await closeMenus();}
   await page.goto(ui+'/?characterPreview=1');await page.locator('#ageConfirmBtn').click();await page.locator('#wizardSkipBtn').click();await page.locator('[data-url]').fill(`ws://127.0.0.1:${aiPort}/observe`);await page.locator('[data-token]').fill(token);await page.locator('[data-connect]').click();
   for(let i=0;i<models.length;i++){
-   const model=models[i];await page.waitForFunction(m=>!!document.querySelector(`[data-model] option[value="${m}"]`),model);await page.locator('[data-model]').selectOption(model);await page.locator('[data-select]').click();await page.waitForFunction(m=>document.querySelector('[data-selected]').textContent==='Active: '+m,model);
+   const model=models[i];await page.waitForFunction(m=>!!document.querySelector(`[data-model] option[value="${m}"]`),model);await page.locator('[data-token]').evaluate(el=>{el.value='';});await page.locator('[data-model]').selectOption(model);await page.locator('[data-select]').click();await page.waitForFunction(m=>document.querySelector('[data-selected]').textContent==='Active: '+m,model);
    const selectedState=(await audit()).state;assert((selectedState.narrative.facts||[]).every(r=>r.model_scope.endsWith(model)),'Cross-character memory leakage');
    await page.locator('[data-menu-story]').click();await page.locator('[data-curator-enabled]').setChecked(arm==='C');await page.locator('[data-curator-interval]').fill('8');await page.locator('[data-curator-save]').click();
    for(let n=0;n<30;n++){if((await audit()).state.memory_curator.config.enabled===(arm==='C'))break;await sleep(100);}
@@ -56,7 +58,7 @@ for(const arm of ['A','B','C']){
    await reset();const missing=await chat('What was the identifier on the blue laboratory door?');assert(!/ORCHID-\d+/.test(missing.reply),'Reset leaked or invented old identifier');
   }
   assert(errors.length===0,errors.join('; '));
- }catch(e){const target=/EPERM|EACCES|Isolated fixture unavailable|browserType.launch/.test(String(e.message))?report.blocked:report.failures;target.push({arm,error:String(e.message).slice(0,350)});}finally{await browser?.close();for(const child of children)child.kill('SIGTERM');}
+ }catch(e){const target=/EPERM|EACCES|Isolated fixture unavailable|browserType.launch/.test(String(e.message))?report.blocked:report.failures;target.push({arm,error:String(e.message).replace(/\b[a-f0-9]{64}\b/g,'[redacted]').slice(0,350)});}finally{await browser?.close();for(const child of children)child.kill('SIGTERM');}
 }
 report.completed=report.rows.length===9&&report.blocked.length===0&&report.failures.length===0;
 report.recall_accuracy=Object.fromEntries(['A','B','C'].map(arm=>{const answers=report.rows.filter(r=>r.arm===arm).flatMap(r=>r.recalls);return [arm,{exact:answers.filter(r=>r.exact).length,total:answers.length}];}));

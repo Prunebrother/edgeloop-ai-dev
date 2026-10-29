@@ -1,0 +1,38 @@
+{
+  "live": false,
+  "physical_hardware": false,
+  "rows": [],
+  "blocked": [
+    {
+      "arm": "A",
+      "error": "listen EPERM: operation not permitted 127.0.0.1"
+    },
+    {
+      "arm": "B",
+      "error": "listen EPERM: operation not permitted 127.0.0.1"
+    },
+    {
+      "arm": "C",
+      "error": "listen EPERM: operation not permitted 127.0.0.1"
+    }
+  ],
+  "failures": [],
+  "screenshots": [],
+  "completed": false,
+  "recall_accuracy": {
+    "A": {
+      "exact": 0,
+      "total": 0
+    },
+    "B": {
+      "exact": 0,
+      "total": 0
+    },
+    "C": {
+      "exact": 0,
+      "total": 0
+    }
+  },
+  "improved_recall_pass": false,
+  "curator_applied_models": 0
+}

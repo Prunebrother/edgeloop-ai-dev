@@ -1,0 +1,575 @@
+{
+  "baseline": "4b09888",
+  "token_method": "Conservative UTF-8/character estimate, native SYSTEM lengths from source",
+  "offline_curator": "Synthetic source-validated proposals, NOT live curation or answer accuracy",
+  "rows": [
+    {
+      "arm": "A",
+      "model": "evelyn-narrative-v1",
+      "query": "What was the identifier on the blue laboratory door?",
+      "expected_evidence": "ORCHID-17",
+      "evidence_in_prompt": false,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2838,
+      "compile_median_ms": 0.7167,
+      "memory_size": 16,
+      "memory_bytes": 8561,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "A",
+      "model": "evelyn-narrative-v1",
+      "query": "What is your hobby?",
+      "expected_evidence": "tending an overgrown succulent",
+      "evidence_in_prompt": false,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2825,
+      "compile_median_ms": 0.7079,
+      "memory_size": 16,
+      "memory_bytes": 8561,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "A",
+      "model": "evelyn-narrative-v1",
+      "query": "Hello there.",
+      "expected_evidence": null,
+      "evidence_in_prompt": null,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2822,
+      "compile_median_ms": 0.6913,
+      "memory_size": 16,
+      "memory_bytes": 8561,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "B",
+      "model": "evelyn-narrative-v1",
+      "query": "What was the identifier on the blue laboratory door?",
+      "expected_evidence": "ORCHID-17",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "33338b4a83bc40a6a4b2529b389c4b7c"
+      ],
+      "estimated_prompt_tokens": 3081,
+      "compile_median_ms": 0.7695,
+      "memory_size": 16,
+      "memory_bytes": 9932,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "B",
+      "model": "evelyn-narrative-v1",
+      "query": "What is your hobby?",
+      "expected_evidence": "tending an overgrown succulent",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "e426d99281a045ceac7452b0941f7c4f"
+      ],
+      "estimated_prompt_tokens": 3070,
+      "compile_median_ms": 0.7659,
+      "memory_size": 16,
+      "memory_bytes": 9932,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "B",
+      "model": "evelyn-narrative-v1",
+      "query": "Hello there.",
+      "expected_evidence": null,
+      "evidence_in_prompt": null,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2822,
+      "compile_median_ms": 0.7964,
+      "memory_size": 16,
+      "memory_bytes": 9932,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "C",
+      "model": "evelyn-narrative-v1",
+      "query": "What was the identifier on the blue laboratory door?",
+      "expected_evidence": "ORCHID-17",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "ce38071bebe64f439f1c7a65cdf5168d"
+      ],
+      "estimated_prompt_tokens": 3081,
+      "compile_median_ms": 0.7681,
+      "memory_size": 16,
+      "memory_bytes": 10064,
+      "simulated_curator_triggers": 3
+    },
+    {
+      "arm": "C",
+      "model": "evelyn-narrative-v1",
+      "query": "What is your hobby?",
+      "expected_evidence": "tending an overgrown succulent",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "05b5d996e38f4e77a177f605e9c5d8a6"
+      ],
+      "estimated_prompt_tokens": 3070,
+      "compile_median_ms": 0.7627,
+      "memory_size": 16,
+      "memory_bytes": 10064,
+      "simulated_curator_triggers": 3
+    },
+    {
+      "arm": "C",
+      "model": "evelyn-narrative-v1",
+      "query": "Hello there.",
+      "expected_evidence": null,
+      "evidence_in_prompt": null,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2822,
+      "compile_median_ms": 0.7899,
+      "memory_size": 16,
+      "memory_bytes": 10064,
+      "simulated_curator_triggers": 3
+    },
+    {
+      "arm": "A",
+      "model": "daisy-narrative-v1",
+      "query": "What was the identifier on the blue laboratory door?",
+      "expected_evidence": "ORCHID-17",
+      "evidence_in_prompt": false,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2882,
+      "compile_median_ms": 0.7185,
+      "memory_size": 16,
+      "memory_bytes": 8545,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "A",
+      "model": "daisy-narrative-v1",
+      "query": "What is your hobby?",
+      "expected_evidence": "pressing wildflowers",
+      "evidence_in_prompt": false,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2869,
+      "compile_median_ms": 0.6998,
+      "memory_size": 16,
+      "memory_bytes": 8545,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "A",
+      "model": "daisy-narrative-v1",
+      "query": "Hello there.",
+      "expected_evidence": null,
+      "evidence_in_prompt": null,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2866,
+      "compile_median_ms": 0.6931,
+      "memory_size": 16,
+      "memory_bytes": 8545,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "B",
+      "model": "daisy-narrative-v1",
+      "query": "What was the identifier on the blue laboratory door?",
+      "expected_evidence": "ORCHID-17",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "9ebdbfcb10834ded9e9fe1dfff2d9e95"
+      ],
+      "estimated_prompt_tokens": 3126,
+      "compile_median_ms": 0.7701,
+      "memory_size": 16,
+      "memory_bytes": 9896,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "B",
+      "model": "daisy-narrative-v1",
+      "query": "What is your hobby?",
+      "expected_evidence": "pressing wildflowers",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "c8ac1cff19264dbba2600be54cb95222"
+      ],
+      "estimated_prompt_tokens": 3111,
+      "compile_median_ms": 0.7504,
+      "memory_size": 16,
+      "memory_bytes": 9896,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "B",
+      "model": "daisy-narrative-v1",
+      "query": "Hello there.",
+      "expected_evidence": null,
+      "evidence_in_prompt": null,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2866,
+      "compile_median_ms": 0.7763,
+      "memory_size": 16,
+      "memory_bytes": 9896,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "C",
+      "model": "daisy-narrative-v1",
+      "query": "What was the identifier on the blue laboratory door?",
+      "expected_evidence": "ORCHID-17",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "c42a1dc060d94733b676960856ae67df"
+      ],
+      "estimated_prompt_tokens": 3126,
+      "compile_median_ms": 0.7575,
+      "memory_size": 16,
+      "memory_bytes": 10028,
+      "simulated_curator_triggers": 3
+    },
+    {
+      "arm": "C",
+      "model": "daisy-narrative-v1",
+      "query": "What is your hobby?",
+      "expected_evidence": "pressing wildflowers",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "a8e99df1f7a34af891c0e8a3d4eb7c2a"
+      ],
+      "estimated_prompt_tokens": 3111,
+      "compile_median_ms": 0.747,
+      "memory_size": 16,
+      "memory_bytes": 10028,
+      "simulated_curator_triggers": 3
+    },
+    {
+      "arm": "C",
+      "model": "daisy-narrative-v1",
+      "query": "Hello there.",
+      "expected_evidence": null,
+      "evidence_in_prompt": null,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 2866,
+      "compile_median_ms": 0.8158,
+      "memory_size": 16,
+      "memory_bytes": 10028,
+      "simulated_curator_triggers": 3
+    },
+    {
+      "arm": "A",
+      "model": "celeste-narrative-v2",
+      "query": "What was the identifier on the blue laboratory door?",
+      "expected_evidence": "ORCHID-17",
+      "evidence_in_prompt": false,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 4221,
+      "compile_median_ms": 0.7331,
+      "memory_size": 16,
+      "memory_bytes": 8577,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "A",
+      "model": "celeste-narrative-v2",
+      "query": "What is your hobby?",
+      "expected_evidence": "restoring fountain pens",
+      "evidence_in_prompt": false,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 4208,
+      "compile_median_ms": 0.7055,
+      "memory_size": 16,
+      "memory_bytes": 8577,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "A",
+      "model": "celeste-narrative-v2",
+      "query": "Hello there.",
+      "expected_evidence": null,
+      "evidence_in_prompt": null,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 4205,
+      "compile_median_ms": 0.6823,
+      "memory_size": 16,
+      "memory_bytes": 8577,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "B",
+      "model": "celeste-narrative-v2",
+      "query": "What was the identifier on the blue laboratory door?",
+      "expected_evidence": "ORCHID-17",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "575a3de669674769b44c250bb2f450fb"
+      ],
+      "estimated_prompt_tokens": 4464,
+      "compile_median_ms": 0.7627,
+      "memory_size": 16,
+      "memory_bytes": 9934,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "B",
+      "model": "celeste-narrative-v2",
+      "query": "What is your hobby?",
+      "expected_evidence": "restoring fountain pens",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "e88d5e9843be46e5a1f8c62c1fbdf8a4"
+      ],
+      "estimated_prompt_tokens": 4451,
+      "compile_median_ms": 0.7553,
+      "memory_size": 16,
+      "memory_bytes": 9934,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "B",
+      "model": "celeste-narrative-v2",
+      "query": "Hello there.",
+      "expected_evidence": null,
+      "evidence_in_prompt": null,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 4205,
+      "compile_median_ms": 0.7791,
+      "memory_size": 16,
+      "memory_bytes": 9934,
+      "simulated_curator_triggers": 0
+    },
+    {
+      "arm": "C",
+      "model": "celeste-narrative-v2",
+      "query": "What was the identifier on the blue laboratory door?",
+      "expected_evidence": "ORCHID-17",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "6c5cacba5061491587d9012c4598a66e"
+      ],
+      "estimated_prompt_tokens": 4464,
+      "compile_median_ms": 0.7738,
+      "memory_size": 16,
+      "memory_bytes": 10066,
+      "simulated_curator_triggers": 3
+    },
+    {
+      "arm": "C",
+      "model": "celeste-narrative-v2",
+      "query": "What is your hobby?",
+      "expected_evidence": "restoring fountain pens",
+      "evidence_in_prompt": true,
+      "selected_fact_ids": [
+        "5e77624ceed54cd7b74817f4264a2c0d"
+      ],
+      "estimated_prompt_tokens": 4451,
+      "compile_median_ms": 0.7635,
+      "memory_size": 16,
+      "memory_bytes": 10066,
+      "simulated_curator_triggers": 3
+    },
+    {
+      "arm": "C",
+      "model": "celeste-narrative-v2",
+      "query": "Hello there.",
+      "expected_evidence": null,
+      "evidence_in_prompt": null,
+      "selected_fact_ids": [],
+      "estimated_prompt_tokens": 4205,
+      "compile_median_ms": 0.8041,
+      "memory_size": 16,
+      "memory_bytes": 10066,
+      "simulated_curator_triggers": 3
+    }
+  ],
+  "curation_inputs": [
+    {
+      "model": "evelyn-narrative-v1",
+      "estimated_input_tokens": 3448,
+      "payload_bytes": 4102,
+      "validation_apply_ms": 0.2692,
+      "inference_latency_seconds": null
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "estimated_input_tokens": 3492,
+      "payload_bytes": 4210,
+      "validation_apply_ms": 0.2175,
+      "inference_latency_seconds": null
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "estimated_input_tokens": 3495,
+      "payload_bytes": 4218,
+      "validation_apply_ms": 0.2133,
+      "inference_latency_seconds": null
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "estimated_input_tokens": 3489,
+      "payload_bytes": 4091,
+      "validation_apply_ms": 0.2244,
+      "inference_latency_seconds": null
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "estimated_input_tokens": 3532,
+      "payload_bytes": 4199,
+      "validation_apply_ms": 0.209,
+      "inference_latency_seconds": null
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "estimated_input_tokens": 3535,
+      "payload_bytes": 4207,
+      "validation_apply_ms": 0.2029,
+      "inference_latency_seconds": null
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "estimated_input_tokens": 4830,
+      "payload_bytes": 4096,
+      "validation_apply_ms": 0.2273,
+      "inference_latency_seconds": null
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "estimated_input_tokens": 4873,
+      "payload_bytes": 4204,
+      "validation_apply_ms": 0.214,
+      "inference_latency_seconds": null
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "estimated_input_tokens": 4876,
+      "payload_bytes": 4212,
+      "validation_apply_ms": 0.2029,
+      "inference_latency_seconds": null
+    }
+  ],
+  "live": [
+    {
+      "arm": "A",
+      "model": "evelyn-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "A",
+      "model": "evelyn-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "B",
+      "model": "evelyn-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "B",
+      "model": "evelyn-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "C",
+      "model": "evelyn-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "C",
+      "model": "evelyn-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "A",
+      "model": "daisy-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "A",
+      "model": "daisy-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "B",
+      "model": "daisy-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "B",
+      "model": "daisy-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "C",
+      "model": "daisy-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "C",
+      "model": "daisy-narrative-v1",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "A",
+      "model": "celeste-narrative-v2",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "A",
+      "model": "celeste-narrative-v2",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "B",
+      "model": "celeste-narrative-v2",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "B",
+      "model": "celeste-narrative-v2",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "C",
+      "model": "celeste-narrative-v2",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    },
+    {
+      "arm": "C",
+      "model": "celeste-narrative-v2",
+      "status": "blocked",
+      "reason": "ConnectError",
+      "think": false
+    }
+  ]
+}

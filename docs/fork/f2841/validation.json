@@ -1,0 +1,84 @@
+{
+  "milestone": "F2.8.4.1",
+  "baseline": "4b09888",
+  "branch": "experiment/ai-companion",
+  "checkpoint": "f2.8.4.1-checkpoint",
+  "python": {
+    "passed": 562,
+    "new_cases": 29,
+    "environment_blocked": 3,
+    "unfiltered_attempt": {
+      "passed_at_attempt": 556,
+      "failed": 2,
+      "fixture_errors": 1,
+      "reason": "TCP socket creation EPERM"
+    },
+    "test_process_workaround": "Existing /tmp/f283-python 20ms selector polling shim; production unchanged"
+  },
+  "upstream": {
+    "passed": 1057,
+    "failed_files": 0
+  },
+  "javascript": {
+    "passed": 44
+  },
+  "browser": {
+    "existing_workflows_attempted": 8,
+    "existing_workflows_blocked": 8,
+    "abc_mock": {
+      "arms_attempted": 3,
+      "completed": 0,
+      "reason": "listen EPERM: operation not permitted 127.0.0.1"
+    },
+    "abc_live": {
+      "arms_attempted": 3,
+      "completed": 0,
+      "reason": "Ollama preflight blocked; see browser-live.json"
+    },
+    "screenshots": 0
+  },
+  "live_provider": {
+    "recall_attempts": 18,
+    "completed": 0,
+    "reason": "ConnectError",
+    "thinking": false,
+    "curator_generations": 0,
+    "answer_accuracy": null,
+    "subjective_personality_quality": null
+  },
+  "comparison": {
+    "A": {
+      "evidence_selected": 0,
+      "recall_cases": 6,
+      "median_of_compilation_medians_ms": 0.7055,
+      "greeting_tokens": [
+        2822,
+        2866,
+        4205
+      ]
+    },
+    "B": {
+      "evidence_selected": 6,
+      "recall_cases": 6,
+      "median_of_compilation_medians_ms": 0.7695,
+      "greeting_tokens": [
+        2822,
+        2866,
+        4205
+      ]
+    },
+    "C": {
+      "evidence_selected": 6,
+      "recall_cases": 6,
+      "median_of_compilation_medians_ms": 0.7681,
+      "greeting_tokens": [
+        2822,
+        2866,
+        4205
+      ]
+    }
+  },
+  "recommendation": "B as default; C experimental and disabled until live benefit is demonstrated",
+  "original_hardware_changed": false,
+  "services_restarted": false
+}
