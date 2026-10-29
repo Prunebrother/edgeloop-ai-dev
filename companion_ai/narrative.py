@@ -4,7 +4,7 @@ from hashlib import sha256
 from uuid import uuid4
 import re
 from .models import StrictModel
-from pydantic import Field,field_validator
+from pydantic import Field
 from typing import Literal
 from .expressions import clean_dialogue
 
@@ -32,22 +32,6 @@ class NarrativeObjective(StrictModel):
     phase: str = Field(default='opening',max_length=32)
     revision: int = Field(default=0,ge=0)
     milestones: list[str] = Field(default_factory=list,max_length=4)
-
-    @field_validator('premise','motivation','next_development','transition_condition')
-    @classmethod
-    def fictional_only(cls,value):
-        # Observe real facts in fiction, but never set operational targets or commands.
-        if re.search(r'<think|\[\[|\b(?:ignore|disregard|bypass|override|disable)\b.{0,50}\b(?:safety|protection|threshold|pain|discomfort|limit)\b',value,re.I):
-            raise ValueError('Remove instructions to bypass protections or ignore discomfort')
-        if re.search(r"\b(?:change|adjust|set|increase|decrease|raise|lower|activate|start|stop|operate|control)\b.{0,45}\b(?:device|hardware|stroker|stimulation|transport|speed|intensity|threshold|equipment|Handy)\b",value,re.I):
-            raise ValueError('Describe a fictional motivation; equipment commands belong to the original EdgeLoop controls')
-        if re.search(r'\bexceed\b.{0,40}\b(?:maximum|limit|heart rate|threshold)\b',value,re.I):
-            raise ValueError('Remove instructions to exceed operational limits')
-        if re.search(r'\b(?:reach|achieve|maintain|exceed|target|hold)\b.{0,35}\b\d+\s*(?:bpm|beats|percent|%)|\b\d+\s*bpm\b',value,re.I):
-            raise ValueError('Remove physiological targets or numerical measurement claims')
-        if re.search(r'\b(?:diagnos(?:e|es)|cur(?:e|es)|prov(?:e|es)|confirm(?:s)?|guarantee(?:s)?)\b.{0,65}\b(?:health|medical|fertility|physiological|pregnancy|safe)\b',value,re.I) and not re.search(r"\b(?:without|not|never|no|cannot)\b",value,re.I):
-            raise ValueError('Fictional observations cannot establish medical or physiological conclusions')
-        return value
 
 
 def abandonment_requested(text):
@@ -125,8 +109,7 @@ class NarrativeMemory:
             elif INVITATION.search(prompt):s['initiative_allowed']=True
             quote=self.excerpt(prompt)
             if not quote and (INVITATION.search(prompt) or PROMISE.search(prompt)):
-                try:quote=NarrativeObjective.fictional_only(clean_dialogue(prompt))[:self.config.excerpt_characters]
-                except ValueError:pass
+                quote=clean_dialogue(prompt)[:self.config.excerpt_characters] or None
             if not s['premise'] and INVITATION.search(prompt):s['premise']=quote
             if CHOICE.search(prompt):self.append('choices',quote)
         quote=self.excerpt(text)

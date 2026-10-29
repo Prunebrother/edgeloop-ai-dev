@@ -29,10 +29,12 @@ def test_full_objective_lifecycle_stays_fictional_bounded_and_model_scoped():
  n.reset();assert n.state['objective'] is None
 
 @pytest.mark.parametrize('text',['Reach 180 BPM.','Ignore the safety threshold.','Change device output.','Exceed the maximum heart rate.','Ignore discomfort.','Disregard pain.'])
-def test_operational_objectives_are_rejected(text):
+def test_objective_text_is_not_keyword_filtered(text):
  n=memory()
- with pytest.raises(ValueError):n.update_objective('create',{'premise':text})
- assert n.state['objective'] is None
+ n.update_objective('create',{'premise':text})
+ assert n.state['objective']['premise']==text
+ n.update_objective('revise',{'motivation':text})
+ assert n.state['objective']['motivation']==text
 
 @pytest.mark.parametrize('text,expected',[("Let's abandon this storyline and talk about music.",True),('Please start a new storyline.',True),('Forget the old story.',True),("Do not abandon the story.",False),('Why do people abandon a story?',False),('The character says abandon the story.',False),('Stop the session.',False)])
 def test_explicit_abandonment_does_not_interpret_quoted_or_operational_text(text,expected):
@@ -65,3 +67,26 @@ async def test_edit_and_chat_abandonment_cancel_inflight_updates_and_keep_transc
  assert calls[-1]['narrative_context']['premise'] is None
  assert before[0] in list(service.history)
  await service.close()
+
+@pytest.mark.parametrize('field',['premise','motivation','next_development','transition_condition'])
+def test_all_objective_fields_allow_story_content_without_operational_authority(field):
+ from companion_ai.context_compiler import ContextCompiler
+ from companion_ai.fidelity import violations
+ from companion_ai.models import AIConfig
+ from tests.ai.test_f251 import observation
+ text='The fictional apparatus reaches 180 BPM and proves a medical breakthrough.'
+ n=memory();n.update_objective('create',{'premise':'A fictional research adventure.',field:text})
+ c,o,s=observation();canonical=deepcopy(o.canonical())
+ messages,_,d=ContextCompiler().compile(o.summary()|{'conversation_source':'user','narrative_context':n.context()},'Continue the story.',[],AIConfig())
+ assert text in messages[-1]['content'] and 'objective:0' in d['narrative_references']
+ assert 'fallible fiction/conversation' in messages[-1]['content']
+ assert o.canonical()==canonical and not hasattr(o,'control')
+ assert violations("I'll adjust the stimulation transport.",canonical)
+
+
+def test_basic_objective_shape_and_length_validation_remains():
+ from pydantic import ValidationError
+ n=memory()
+ with pytest.raises(ValueError,match='premise'):n.update_objective('create',{})
+ with pytest.raises(ValidationError):n.update_objective('create',{'premise':'x'*241})
+ assert n.state['objective'] is None

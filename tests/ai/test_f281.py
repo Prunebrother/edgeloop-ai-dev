@@ -4,7 +4,6 @@ from copy import deepcopy
 from pathlib import Path
 from uuid import uuid4
 import pytest
-from pydantic import ValidationError
 from ai_observer.protocol import Observation,Messages
 from companion_ai.conversation import ConversationService
 from companion_ai.context import compose_messages
@@ -122,10 +121,10 @@ def test_journal_objective_lifecycle_plan_context_persistence_and_model_isolatio
  assert 'journal' in str(n.context())
 
 @pytest.mark.parametrize('text,field', [('Adjust the stimulation transport accordingly.','motivation'),('Reach 180 BPM.','next_development'),('The data proves medical health.','premise')])
-def test_objective_field_errors(text,field):
+def test_objective_fields_allow_unrestricted_fictional_content(text,field):
  n=NarrativeMemory();n.activate('e','s')
- with pytest.raises(ValidationError) as error:n.update_objective('create',JOURNAL|{field:text})
- assert error.value.errors()[0]['loc']==(field,) and not n.state['objective']
+ n.update_objective('create',JOURNAL|{field:text})
+ assert n.state['objective'][field]==text
 
 @pytest.mark.parametrize('action',['invalid','delete',''])
 def test_invalid_lifecycle_is_action_specific(action):
@@ -179,7 +178,7 @@ def test_objective_endpoint_contract_refresh_and_diagnostic_errors(tmp_path):
    objective('create',JOURNAL)
    state=until(ws,'character_state');assert state['objective_saved'] and state['narrative']['objective']['premise']==JOURNAL['premise']
    objective('update',{'motivation':'Review voluntary feedback.'});assert until(ws,'character_state')['narrative']['objective']['revision']==1
-   objective('update',{'motivation':'Change the stroker speed.'});err=until(ws,'character_menu_error');assert err['code']=='objective_validation' and err['errors'][0]['field']=='motivation'
+   objective('update',{'motivation':'Change the stroker speed.'});assert until(ws,'character_state')['narrative']['objective']['motivation']=='Change the stroker speed.'
    objective('create',JOURNAL);assert until(ws,'character_menu_error')['code']=='objective_lifecycle'
    objective('invalid');assert until(ws,'protocol_error')['errors']
    objective('complete');assert until(ws,'character_state')['narrative']['objective']['status']=='completed'
