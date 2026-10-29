@@ -45,9 +45,13 @@ def compose_legacy(summary, prompt, history, config, memory=None, reserve_charac
         data_block+='\nHR source: '+(str(facts.facts['hr_source'].value) if facts.facts['hr_source'].current else 'unavailable')+'. Numerical details omitted because this turn does not request them.'
         if facts.events:
             data_block+='\nVERIFIED HISTORICAL EVENTS (same session, not current measurements):\n'+'\n'.join(e.kind+': '+e.evidence+'; '+str(round(e.age_seconds,1))+' seconds ago.' for e in facts.events[-4:])
-    if grounded and summary.get('journal_context'):
+    if grounded and summary.get('journal_access_denied'):
+        data_block+='\nHistorical session access is disabled; do not infer historical measurements or settings from prior dialogue.'
+        from .narrative_facts import operational_text
+        history=[m for m in history if not operational_text(m.get('content',''))]
+    if grounded and summary.get('journal_context') and not summary.get('journal_access_denied'):
         data_block+='\nSESSION JOURNAL (historical verified observations, not current telemetry; null values unknown, simulated HR never physical, engine settings not hardware action): '+json.dumps(summary['journal_context'],separators=(',',':'))
-    if grounded and summary.get('completed_sessions'):
+    if grounded and summary.get('completed_sessions') and not (summary.get('journal_context') or summary.get('journal_access_denied')):
         data_block+='\nCOMPLETED SESSIONS (historical; null duration is unavailable; never use current reset counter): '+json.dumps(summary['completed_sessions'][-1:],separators=(',',':'))
     if grounded:
         instructions = SAFETY_INSTRUCTIONS + (

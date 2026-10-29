@@ -27,7 +27,7 @@ export class ReadOnlyConnection {
                 this.onStatus('Connected · read-only · no AI controls');this.flush();
                 this.send({version:1,type:'list_models'});
             } else if(['ai_diagnostics','response_expression','models','model_selected','response_start','response_delta','speech','speech_cancel','conversation_error',
-                'character_state','character_menu_error','narrative_reset','response_suppressed','response_cancel','observation_ack','telemetry_status','ai_error','protocol_error'].includes(m.type))this.onMessage(m);
+                'session_journal','character_state','character_menu_error','narrative_reset','response_suppressed','response_cancel','observation_ack','telemetry_status','ai_error','protocol_error'].includes(m.type))this.onMessage(m);
             else if(m.type==='resync_required')socket.close();
             // Unrecognized output, including command/action objects, is ignored.
         };

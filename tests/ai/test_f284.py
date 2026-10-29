@@ -166,3 +166,43 @@ def test_corrupt_store_is_preserved(tmp_path):
     j=SessionJournal(SettingsStore(tmp_path));assert j.error and not j.data['recording']
     with pytest.raises(ValueError):j.command('configure',recording=True)
     assert path.read_text()=='{broken'
+
+
+@pytest.mark.parametrize('model',['evelyn','daisy','celeste'])
+def test_privacy_compiler_does_not_leak_ephemeral_history_or_other_models(tmp_path,model):
+    c,o,s,j=setup(tmp_path);stop(c,o,s)
+    scope=SCOPE.replace('evelyn',model)
+    if model!='evelyn':assert j.retrieve('previous session',scope)==[]
+    query='How long was my previous session?'
+    messages,_,_=ContextCompiler().compile(o.summary()|{'journal_access_denied':True},query,[{'role':'assistant','content':'The previous session lasted 42 seconds.'}],AIConfig())
+    output=json.dumps(messages)
+    assert 'Historical session access is disabled' in output
+    assert 'COMPLETED SESSIONS' not in output and 'lasted 42 seconds' not in output
+    assert not j.retrieve('What did the previous fictional page say?',scope)
+
+
+def test_observer_restart_mid_session_marks_missing_start(tmp_path):
+    c,o,s,j=setup(tmp_path);s,_=change(c,o,s,'edge',seconds=50,edges=3)
+    restored=SessionJournal(SettingsStore(tmp_path));new=BrowserObservation(c.mono,c.wall,journal=restored);new.model_scope=SCOPE
+    assert new.accept(Observation.model_validate(frame(s)))
+    stop(c,new,s);r=restored.data['records'][0]
+    assert r['start_at'] is None and r['quality']['incomplete_start']
+    assert r['active_running_seconds']==50 and r['first_observed_at']
+
+
+def test_stale_bpm_not_counted_and_comparison_retains_current_facts(tmp_path):
+    c,o,s,j=setup(tmp_path)
+    s['devices'].update(simulated_hr=False,ble=True,hr_ready=True)
+    s['details']['hr_recorded_at_ms']-=10000
+    s,_=change(c,o,s,'device_changed',hr=200)
+    stop(c,o,s)
+    assert 'BLE sensor' not in j.data['records'][0]['heart_rate']
+    records=j.retrieve("How does today's session compare with the previous one?",SCOPE)
+    _,_,diag=ContextCompiler().compile(o.summary()|{'journal_context':records},"How does today's session compare with the previous one?",[],AIConfig())
+    assert {'seconds','experience','goal','edges'}<=set(diag['supporting_categories'])
+
+
+def test_historical_retrieval_supports_future_untagged_models(tmp_path):
+    from companion_ai.session_journal import model_name
+    assert model_name('ollama:http://127.0.0.1:11435:future-character')=='future-character'
+    assert model_name('ollama:http://[::1]:11435:future-character:v3')=='future-character:v3'

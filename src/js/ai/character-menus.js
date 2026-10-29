@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Read-only presentation and validated companion settings. No engine imports.
+import {mountSessionJournal} from './session-journal.js';
 import {mountContextIntelligence} from './context-intelligence.js';
 import {mountEventSettings} from './event-settings.js';
 // Version gate for presentation snapshots; transcript and memory live elsewhere.
@@ -40,11 +41,12 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
     const director=dialogs.director,story=dialogs.story;
     director.querySelector('.drawer-content').innerHTML='<section class="menu-setting"><h4>Editable setting</h4><label><input type="checkbox" data-proactive> Enable proactive dialogue</label><p>Applies to this companion service. User replies and EdgeLoop safety notices remain independent.</p><button type="button" data-save-director>Save setting</button></section><section><h4>Read-only status</h4><dl data-director-status></dl><p class="menu-help">Cooldowns indicate pacing limits, not a promise of a scheduled reply. Initiative still requires a welcomed story and no unanswered question.</p></section>';
     story.querySelector('.drawer-content').innerHTML='<p class="menu-help">Fictional and conversational context for the selected model. These excerpts are fallible and are not verified EdgeLoop session facts.</p><p data-story-model></p><div data-story-content></div><section class="story-reset"><button type="button" data-start-story>Start New Storyline</button><p>Clears this model’s story context and cancels its pending response. Your transcript and EdgeLoop history are retained.</p><div data-story-confirm role="group" aria-label="Confirm new storyline" hidden><p>Start a new storyline for this model? The previous story will be excluded from future context.</p><button type="button" data-story-keep>Keep current storyline</button><button type="button" data-narrative-reset>Confirm new storyline</button></div></section>';
+    const journal=mountSessionJournal(host,{send});
     const eventSettings=mountEventSettings(director,{send});
     const contextIntelligence=mountContextIntelligence(director,story,{send,getModel:()=>model});
     const human=value=>String(value||'None recorded').replaceAll('_',' ').replace(/^./,s=>s.toUpperCase());
     const notice=(key,text)=>{dialogs[key].querySelector('[data-menu-notice]').textContent=text;};
-    function request(){if(connected&&model)send({version:1,type:'get_character_state',model});}
+    function request(){journal.refresh();if(connected&&model)send({version:1,type:'get_character_state',model});}
     function close(restore=true){
         if(!open)return;dialogs[open].close();toolbar.querySelector('[data-menu-'+open+']').setAttribute('aria-expanded','false');open=null;
         story.querySelector('[data-story-confirm]').hidden=true;if(restore&&opener?.isConnected)opener.focus();
@@ -111,14 +113,15 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
     document.addEventListener('keydown',escape);document.addEventListener('pointerdown',outside);
     const timer=setInterval(()=>{if(open)request();},2000);
     return {
-        scope(next,paired){if(!paired)stateGate.clear();if(next!==model||connected!==paired){close(false);state=null;saving=resetting=dirty=false;for(const key of Object.keys(dialogs))notice(key,'');}model=next;connected=paired;render();},
+        scope(next,paired){journal.scope(next,paired);if(!paired)stateGate.clear();if(next!==model||connected!==paired){close(false);state=null;saving=resetting=dirty=false;for(const key of Object.keys(dialogs))notice(key,'');}model=next;connected=paired;render();},
         receive(message){
+            if(message.type==='session_journal'){journal.receive(message);return;}
             if(message.model&&message.model!==model)return;
             if(message.type==='character_state'){if(!stateGate.accept(message))return;state=message;if(saving&&message.director_saved){saving=dirty=false;notice('director','Saved to the companion service.');}render();}
             else if(message.type==='narrative_reset'){stateGate.reset(message.model,message.narrative_epoch);contextIntelligence.reset();resetting=false;story.querySelector('[data-story-confirm]').hidden=true;if(state)state={...state,narrative:null,narrative_epoch:message.narrative_epoch};notice('story','New storyline started. Transcript retained.');request();render();story.querySelector('[data-start-story]').focus();}
             else if(message.type==='character_menu_error'){saving=resetting=false;notice(open||'director',message.detail);eventSettings.error(message.detail);contextIntelligence.error(message.detail);render();}
         },
         refresh:request,
-        destroy(){clearInterval(timer);document.removeEventListener('keydown',escape);document.removeEventListener('pointerdown',outside);close(false);}
+        destroy(){journal.destroy();clearInterval(timer);document.removeEventListener('keydown',escape);document.removeEventListener('pointerdown',outside);close(false);}
     };
 }

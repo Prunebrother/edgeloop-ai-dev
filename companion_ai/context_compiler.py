@@ -127,6 +127,7 @@ class ContextCompiler:
         # Essential boundaries stay even for ordinary chat; numerical fields are selected.
         requested={key for key,pattern in TOPICS.items() if re.search(pattern,prompt,re.I)} if user_context else {focus.topic}
         if requested&{'physiology','timing','devices','configuration'} and not re.search(r'\b(?:edges?|milestones?|came early)\b',prompt,re.I):requested.discard('milestones')
+        if summary.get('journal_context') and re.search(r'\bcompar',prompt,re.I):requested|={'timing','configuration','milestones'}
         safety=(summary.get('state') or {}).get('safety') or {}
         safety_relevant=data.current and (safety.get('watchdog_paused') or safety.get('no_contact') or safety.get('fault') in {'signal_lost','no_contact'} or event and event.get('significance')=='critical')
         operational=bool(requested&{'physiology','configuration','timing','devices','milestones'} or safety_relevant)
@@ -176,13 +177,16 @@ class ContextCompiler:
         # Director trigger JSON is redundant with validated event evidence. Keep it only on revisions/non-event opportunities.
         current=revision if revision is not None else prompt if focus.source!='validated_event' else 'Respond to the verified triggering evidence above in your established character.'
         parts=[facts,focus_block]
-        completed=summary.get('completed_sessions',[])[-1:]
+        completed=[] if summary.get('journal_context') or summary.get('journal_access_denied') else summary.get('completed_sessions',[])[-1:]
         if completed and ('timing' in requested or event and event.get('kind') in {'completion_accepted','came_early'} or re.search(r'previous session|completed session|last session',prompt,re.I)):
             retained='COMPLETED SESSIONS (historical engine facts, separate from current counter):\n'+dump(completed)
             retained+='\nUse active_running_seconds only when present; null means final duration unavailable. Last verified ticks are a partial observation, not final duration. Never use the reset current counter as a previous duration. Wall-clock and pause durations are unavailable.'
             facts+='\n'+retained
             parts=[facts,focus_block]
-        journal=summary.get('journal_context') or []
+        journal=[] if summary.get('journal_access_denied') else summary.get('journal_context') or []
+        if summary.get('journal_access_denied'):
+            facts+='\nHistorical session access is disabled. Do not use prior transcript or memory to answer historical measurement/settings questions. Explain that Session Journal AI access must be enabled; missing history must not be invented.'
+            parts=[facts,focus_block]
         if journal:
             facts+='\nSESSION JOURNAL (historical verified observations, not current telemetry):\n'+dump(journal)
             facts+='\nNull values are unknown. Duration is verified active running time, not wall time. HR ranges are sampled observations, not physiological outcomes; simulated ranges are never physical measurements. Selected engine settings do not establish hardware action. Do not invent missing records or measurements.'
@@ -212,6 +216,7 @@ class ContextCompiler:
         conflicts=[r['text'] for r in narrative.get('facts',[])[:MAX_FACTS] if r.get('status') in {'conflict','superseded'} and (not epoch or r.get('epoch')==epoch) and (not scope or r.get('model_scope')==scope)]
         for i,m in enumerate(recent):
             text=m.get('content','')
+            if summary.get('journal_access_denied') and operational_text(text):continue
             if m.get('role')=='assistant' and any(t in text for t in conflicts):
                 omissions.append('Conflicting historical narrative claim omitted; transcript retained.');continue
             if fresh_premise:

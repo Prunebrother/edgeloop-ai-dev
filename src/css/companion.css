@@ -159,3 +159,10 @@ body.companion-app {margin:0;padding:0;display:block;height:100dvh;min-height:0;
 
 [data-context-intelligence] input[type=number], [data-objective-editor] input:not([type=checkbox]), [data-objective-editor] select {height:auto;min-height:36px;background:#0a1221;color:#e2e8f0;border:1px solid #46516a;border-radius:7px;padding:7px;font:inherit}
 [data-context-intelligence] summary,[data-objective-editor] summary {cursor:pointer;color:#d3baf4;font-size:12px;padding:8px 0}
+/* F2.8.4: retain the portrait and three columns; scroll only the journal table. */
+.journal-table { overflow-x:auto; max-width:100%; }
+.journal-table table { width:100%; border-collapse:collapse; font-size:.8rem; }
+.journal-table th,.journal-table td { padding:.4rem; text-align:left; border-bottom:1px solid #5556; }
+#session-journal label { display:block; margin:.7rem 0; }
+#session-journal pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.75rem; }
+.character-toolbar { flex-wrap:wrap; }

@@ -95,8 +95,11 @@ class SessionJournal:
         identity = {'model_scope': scope, 'model': model_name(scope) or None, 'companion': companion(scope)}
         if not a['companions'] or a['companions'][-1] != identity:
             if len(a['companions']) < 16: a['companions'].append(identity)
-            else: a['quality']['companion_changes_truncated'] = True
+            else:
+                a['companions']=a['companions'][:15]+[identity]
+                a['quality']['companion_changes_truncated'] = True
         stamp = d.get('captured_at_ms')
+        if not observer.fresh():a['quality']['stale_observation']=True
         if stamp is None: a['quality']['missing_timestamp'] = True
         if previous:
             prior_stamp = (previous.get('details') or {}).get('captured_at_ms')
@@ -149,9 +152,13 @@ class SessionJournal:
                 self.data['recording'] = False
         self.active = None
 
+    @staticmethod
+    def relevant(prompt):
+        return bool(re.search(r'\b(previous|last|historical|history|compare|compared)\b|\bdid we use\b',prompt,re.I) and re.search(r'\b(session|sessions|edges?|HR|heart|bpm|pulse|settings?|configuration|duration|long|experience|goal)\b',prompt,re.I))
+
     def retrieve(self, prompt, scope):
         if not self.data['ai_access'] or self.error: return []
-        if not re.search(r'\b(previous|last|historical|history|compare|compared)\b|\bdid we use\b', prompt, re.I): return []
+        if not self.relevant(prompt): return []
         records = [r for r in self.data['records'] if any(c['model_scope'] == scope for c in r['companions'])]
         # Factual history belongs to the user; another character is shared only when explicitly named.
         named = re.findall(r'\b(Evelyn|Daisy|Celeste)\b', prompt, re.I)
