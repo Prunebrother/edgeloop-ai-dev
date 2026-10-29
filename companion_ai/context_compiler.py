@@ -177,7 +177,7 @@ class ContextCompiler:
         # Director trigger JSON is redundant with validated event evidence. Keep it only on revisions/non-event opportunities.
         current=revision if revision is not None else prompt if focus.source!='validated_event' else 'Respond to the verified triggering evidence above in your established character.'
         parts=[facts,focus_block]
-        completed=[] if summary.get('journal_context') or summary.get('journal_access_denied') else summary.get('completed_sessions',[])[-1:]
+        completed=[] if summary.get('journal_lookup') or summary.get('journal_context') or summary.get('journal_access_denied') else summary.get('completed_sessions',[])[-1:]
         if completed and ('timing' in requested or event and event.get('kind') in {'completion_accepted','came_early'} or re.search(r'previous session|completed session|last session',prompt,re.I)):
             retained='COMPLETED SESSIONS (historical engine facts, separate from current counter):\n'+dump(completed)
             retained+='\nUse active_running_seconds only when present; null means final duration unavailable. Last verified ticks are a partial observation, not final duration. Never use the reset current counter as a previous duration. Wall-clock and pause durations are unavailable.'
@@ -186,6 +186,9 @@ class ContextCompiler:
         journal=[] if summary.get('journal_access_denied') else summary.get('journal_context') or []
         if summary.get('journal_access_denied'):
             facts+='\nHistorical session access is disabled. Do not use prior transcript or memory to answer historical measurement/settings questions. Explain that Session Journal AI access must be enabled; missing history must not be invented.'
+            parts=[facts,focus_block]
+        if summary.get('journal_lookup') and not journal and not summary.get('journal_access_denied'):
+            facts+='\nSESSION JOURNAL: no matching historical record is available for this question and permitted companion scope. State that historical measurements/settings are unavailable; do not substitute a different companion or transcript guesses.'
             parts=[facts,focus_block]
         if journal:
             facts+='\nSESSION JOURNAL (historical verified observations, not current telemetry):\n'+dump(journal)

@@ -206,3 +206,21 @@ def test_historical_retrieval_supports_future_untagged_models(tmp_path):
     from companion_ai.session_journal import model_name
     assert model_name('ollama:http://127.0.0.1:11435:future-character')=='future-character'
     assert model_name('ollama:http://[::1]:11435:future-character:v3')=='future-character:v3'
+
+
+def test_missing_named_history_does_not_substitute_other_completed_session(tmp_path):
+    c,o,s,j=setup(tmp_path);stop(c,o,s)
+    query='Which settings did we use with Celeste last time?'
+    assert j.retrieve(query,SCOPE)==[]
+    messages,_,_=ContextCompiler().compile(o.summary()|{'journal_lookup':True,'journal_context':[]},query,[],AIConfig())
+    output=json.dumps(messages)
+    assert 'no matching historical record' in output and 'COMPLETED SESSIONS' not in output
+
+
+def test_natural_historical_physical_hr_reference_is_not_a_live_claim(tmp_path):
+    c,o,s,j=setup(tmp_path);stop(c,o,s)
+    records=[{'heart_rate':{'BLE sensor':{'minimum':81,'maximum':105,'simulated':False,'samples':3}}}]
+    assert 'unmeasured_physiology_from_simulation_or_unknown' not in violations('Your heart rate in the previous session was 81 BPM.',o.canonical(),journal=records)
+    assert 'unsupported_live_sensor' not in violations('The previous session BLE sensor recorded a minimum of 81 BPM.',o.canonical(),journal=records)
+    assert 'unsupported_live_sensor' in violations('The BLE sensor is working normally.',o.canonical(),journal=records)
+    assert 'unsupported_bpm' in violations('Your heart rate in the previous session was 99 BPM.',o.canonical(),journal=records)

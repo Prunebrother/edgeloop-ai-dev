@@ -51,7 +51,9 @@ def compose_legacy(summary, prompt, history, config, memory=None, reserve_charac
         history=[m for m in history if not operational_text(m.get('content',''))]
     if grounded and summary.get('journal_context') and not summary.get('journal_access_denied'):
         data_block+='\nSESSION JOURNAL (historical verified observations, not current telemetry; null values unknown, simulated HR never physical, engine settings not hardware action): '+json.dumps(summary['journal_context'],separators=(',',':'))
-    if grounded and summary.get('completed_sessions') and not (summary.get('journal_context') or summary.get('journal_access_denied')):
+    if grounded and summary.get('journal_lookup') and not summary.get('journal_context') and not summary.get('journal_access_denied'):
+        data_block+='\nSESSION JOURNAL: no matching historical record is available; do not substitute another companion or guess measurements.'
+    if grounded and summary.get('completed_sessions') and not (summary.get('journal_lookup') or summary.get('journal_context') or summary.get('journal_access_denied')):
         data_block+='\nCOMPLETED SESSIONS (historical; null duration is unavailable; never use current reset counter): '+json.dumps(summary['completed_sessions'][-1:],separators=(',',':'))
     if grounded:
         instructions = SAFETY_INSTRUCTIONS + (

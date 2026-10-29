@@ -205,7 +205,7 @@ class ModelManager:
                         result=await collect_reply(self.adapter,LLMRequest(retry_config,tuple(ChatMessage(**m) for m in retry_messages)),chunk,on_expression)
                     # A slow generation must not turn an expired/request-time fact into a live claim.
                     if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                    problems=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),(() if summary.get('journal_access_denied') else summary.get('journal_context') or summary.get('completed_sessions',())),summary.get('journal_context',()))+event_violations(result,summary.get('trigger_event'))
+                    problems=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',())),summary.get('journal_context',()))+event_violations(result,summary.get('trigger_event'))
                     self.grounding_attempts=1;self.grounding_corrections=problems
                     if problems:
                         if on_chunk and not on_reset:raise GroundingError(problems)
@@ -218,7 +218,7 @@ class ModelManager:
                         self.context_warnings+=['One factual correction requested: '+', '.join(problems)]+repair_warnings
                         result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in repair_messages)),chunk,on_expression)
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                        remaining=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),(() if summary.get('journal_access_denied') else summary.get('journal_context') or summary.get('completed_sessions',())),summary.get('journal_context',()))+event_violations(result,summary.get('trigger_event'))
+                        remaining=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',())),summary.get('journal_context',()))+event_violations(result,summary.get('trigger_event'))
                         if remaining:raise GroundingError(remaining)
                 if self.metrics.samples:
                     self.context_diagnostics['actual_prompt_tokens']=self.metrics.samples[-1].get('prompt_tokens')
@@ -607,6 +607,7 @@ class ConversationService:
             for e in list(compact_events.values())[-6:]]}
         journal=getattr(self.state,'journal',None)
         if user and journal is not None:
+            summary['journal_lookup']=journal.relevant(prompt)
             summary['journal_context']=journal.retrieve(prompt,self.active_model_id)
             summary['journal_access_denied']=journal.relevant(prompt) and (not journal.data['ai_access'] or bool(journal.error))
         memory = self.memory_config
