@@ -1,0 +1,28 @@
+{
+  "baseline": "ff0f1ba plus unrestricted objectives",
+  "stored_but_not_selected": [
+    {
+      "question": "What did the page say?",
+      "stored_details": 2,
+      "selected": [
+        "threads:0",
+        "commitments:0"
+      ],
+      "quote_in_wire_context": false,
+      "collection_in_wire_context": false,
+      "estimated_prompt_tokens": 2793
+    },
+    {
+      "question": "What do you collect?",
+      "stored_details": 2,
+      "selected": [
+        "threads:0",
+        "commitments:0"
+      ],
+      "quote_in_wire_context": false,
+      "collection_in_wire_context": false,
+      "estimated_prompt_tokens": 2792
+    }
+  ],
+  "reset_backend_normal_path": "clears development and changes epoch; reported run lacks per-request trace"
+}
