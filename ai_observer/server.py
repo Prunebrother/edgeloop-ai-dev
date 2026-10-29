@@ -22,16 +22,18 @@ from companion_ai.event_policy import significance
 from companion_ai.event_intelligence import preset
 from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
+from companion_ai.session_journal import SessionJournal
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, safe_validation_errors
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, JournalCommand, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
 
 def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transport=None, clock=time.monotonic, ollama_url=None, pairing_lifetime=3600):
     if not 32<=len(token)<=128: raise ValueError('A 32–128 character pairing token is required')
-    state=BrowserObservation(clock)
     store=SettingsStore(data_dir)
+    journal=SessionJournal(store)
+    state=BrowserObservation(clock,journal=journal)
     runtime_config=RuntimeConfig.load()
     endpoint=validate_ollama_url(ollama_url) if ollama_url is not None else runtime_config.ollama_url
     manager=ModelManager(endpoint,store=store,transport=transport)
@@ -80,7 +82,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
 
     app=FastAPI(title='EdgeLoop read-only AI observer',lifespan=lifespan)
     app.add_middleware(TrustedHostMiddleware,allowed_hosts=['127.0.0.1','localhost','testserver'])
-    app.state.observation=state;app.state.models=manager;app.state.speech=speech;app.state.director=director
+    app.state.journal=journal;app.state.observation=state;app.state.models=manager;app.state.speech=speech;app.state.director=director
     @app.middleware('http')
     async def origin_guard(request:Request,call_next):
         if request.headers.get('origin') not in {None,*origins}:
@@ -195,6 +197,14 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
                             'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (accepted_release or any(p['kind'] in {'came_early','completion_accepted'} for p in speech.pending) or speech.active_event_kind in {'came_early','completion_accepted'} and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
+                    elif isinstance(message,JournalCommand):
+                        try:
+                            if message.action!='get':
+                                speech.interrupt()
+                                journal.command(message.action,**message.model_dump(exclude={'type','version','action'}))
+                            publish({'type':'session_journal','journal':journal.snapshot(message.offset,message.sort,message.descending,message.session_id)})
+                        except (ValueError,OSError):
+                            publish({'type':'session_journal','error':'Journal action could not be saved; previous settings/history retained. Check local storage.','journal':journal.snapshot(message.offset,message.sort,message.descending,message.session_id)})
                     elif isinstance(message,UpdateObjective):
                         if message.model!=manager.config.model:
                             publish({'type':'character_menu_error','detail':'The selected model changed. Reopen Story Memory.','model':message.model});continue

@@ -17,8 +17,9 @@ class Measurement(tuple):
         value=super().__new__(cls,(at,bpm));value.at_ms=at_ms;return value
 
 class BrowserObservation:
-    def __init__(self, clock=time.monotonic, wall=time.time):
+    def __init__(self, clock=time.monotonic, wall=time.time, journal=None):
         self.clock,self.wall=clock,wall
+        self.journal=journal
         self.report=None;self.received=None;self.connected=False;self.sequence=-1;self.session_id=None
         self.invalid_sample_stamp=None;self.measurement_segment=0;self.trend_segment_at=self.clock()
         self.samples=deque(maxlen=512);self.retired_sessions=deque(maxlen=64)
@@ -104,6 +105,9 @@ class BrowserObservation:
                 'completeness':'final_counter_captured' if complete else 'final_duration_unavailable',
                 'confidence':'verified_engine_ticks' if complete else 'partial_observation',
                 'wall_clock_seconds':None,'paused_seconds':None})
+        if self.journal is not None:
+            summaries=list(self.completed_sessions)[-1:] if previous and previous['session_id']==report['session_id'] and previous['status']!='IDLE' and report['status']=='IDLE' else []
+            self.journal.observe(self,previous,summaries)
         return True
 
     def completed(self):

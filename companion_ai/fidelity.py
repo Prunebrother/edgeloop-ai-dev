@@ -55,7 +55,7 @@ def timing_violations(text,canonical,completed=()):
                 if abs(value-counter['value'])>tolerance:codes.append('wrong_running_counter')
     return codes
 
-def violations(text,canonical,history=(),trigger=None,completed=()):
+def violations(text,canonical,history=(),trigger=None,completed=(),journal=()):
     if not canonical:return []
     facts=canonical['facts'];codes=timing_violations(text,canonical,completed);clean=text.replace('**','').replace('_','')
     allowed={f['value'] for f in facts.values() if f['known'] and f['current'] and f['unit']=='BPM'}
@@ -77,7 +77,9 @@ def violations(text,canonical,history=(),trigger=None,completed=()):
     for start,end,n in mentions:
         prefix=re.split(r'[.!?;\n]',clean[:start])[-1]
         historical=bool(re.search(r'\b(earlier|previous|previously|mentioned|said|was|were)\b',prefix,re.I)) and not re.search(r'\b(current|currently|now|still)\b',prefix,re.I)
-        if historical and n in past_values:continue
+        historical=historical or bool(re.search(r'\b(?:last session|historical|journal)\b',prefix,re.I)) and not re.search(r'\b(?:current|currently|now|still)\b',prefix,re.I)
+        journal_values={h[k] for r in journal for h in r.get('heart_rate',{}).values() for k in ('minimum','maximum')}
+        if historical and (n in past_values or n in journal_values):continue
         live_mentions.append((start,end,n))
     if any(n not in allowed for _,_,n in live_mentions):codes.append('unsupported_bpm')
     # Models sometimes omit the unit while guessing a missing pulse (for

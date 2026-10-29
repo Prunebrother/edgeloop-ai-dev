@@ -45,6 +45,8 @@ def compose_legacy(summary, prompt, history, config, memory=None, reserve_charac
         data_block+='\nHR source: '+(str(facts.facts['hr_source'].value) if facts.facts['hr_source'].current else 'unavailable')+'. Numerical details omitted because this turn does not request them.'
         if facts.events:
             data_block+='\nVERIFIED HISTORICAL EVENTS (same session, not current measurements):\n'+'\n'.join(e.kind+': '+e.evidence+'; '+str(round(e.age_seconds,1))+' seconds ago.' for e in facts.events[-4:])
+    if grounded and summary.get('journal_context'):
+        data_block+='\nSESSION JOURNAL (historical verified observations, not current telemetry; null values unknown, simulated HR never physical, engine settings not hardware action): '+json.dumps(summary['journal_context'],separators=(',',':'))
     if grounded and summary.get('completed_sessions'):
         data_block+='\nCOMPLETED SESSIONS (historical; null duration is unavailable; never use current reset counter): '+json.dumps(summary['completed_sessions'][-1:],separators=(',',':'))
     if grounded:

@@ -178,7 +178,26 @@ class ConversationActivity(StrictModel):
     model: str = Field(min_length=1,max_length=120)
     typing: bool
 
-Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext|UpdateObjective,Field(discriminator='type')])
+class JournalCommand(StrictModel):
+    version: Literal[1]
+    type: Literal['session_journal']
+    offset: int = Field(default=0,ge=0,le=100)
+    sort: Literal['date','companion','duration','edges','completion','hr','experience','goal'] = 'date'
+    descending: bool = True
+    action: Literal['get','configure','delete','clear','report_completion']
+    recording: bool | None = None
+    ai_access: bool | None = None
+    session_id: str | None = Field(default=None,min_length=1,max_length=128)
+
+    @model_validator(mode='after')
+    def validate_action(self):
+        if self.action in {'delete','report_completion'} and not self.session_id:
+            raise ValueError('A session ID is required')
+        if self.action!='configure' and (self.recording is not None or self.ai_access is not None):
+            raise ValueError('Privacy settings require configure')
+        return self
+
+Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext|UpdateObjective|JournalCommand,Field(discriminator='type')])
 
 
 def _schema_paths(node):
