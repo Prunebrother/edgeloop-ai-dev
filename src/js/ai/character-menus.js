@@ -10,13 +10,14 @@ export class NarrativeStateGate {
         const old=this.models.get(model)||{retired:new Set()};
         if(old.epoch&&old.epoch!==epoch)old.retired.add(old.epoch);
         while(old.retired.size>16)old.retired.delete(old.retired.values().next().value);
-        this.models.set(model,{epoch,revision:0,sequence:-1,retired:old.retired});
+        this.models.set(model,{epoch,revision:0,sequence:old.sequence??-1,retired:old.retired});
         while(this.models.size>32)this.models.delete(this.models.keys().next().value);
     }
     accept(state){
         const model=state.model,epoch=state.narrative_epoch,old=this.models.get(model);
         if(old?.retired.has(epoch)||old?.epoch&&!epoch)return false;
-        if(old&&old.epoch===epoch&&(Number.isSafeInteger(state.state_sequence)&&state.state_sequence<old.sequence||Number.isSafeInteger(state.narrative_revision)&&state.narrative_revision<old.revision))return false;
+        if(old&&Number.isSafeInteger(state.state_sequence)&&state.state_sequence<old.sequence)return false;
+        if(old&&old.epoch===epoch&&Number.isSafeInteger(state.narrative_revision)&&state.narrative_revision<old.revision)return false;
         if(!old||old.epoch!==epoch)this.reset(model,epoch);
         const current=this.models.get(model);
         current.revision=state.narrative_revision??current.revision;current.sequence=state.state_sequence??current.sequence;return true;

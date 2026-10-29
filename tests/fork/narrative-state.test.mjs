@@ -26,3 +26,8 @@ test('legacy snapshots are accepted only until a versioned epoch is known',()=>{
  assert.equal(gate.accept(state('legacy','active',2)),true);
  assert.equal(gate.accept({model:'legacy'}),false);
 });
+test('monotonic sequence still rejects a stale epoch after the retired-epoch bound',()=>{
+ const gate=new NarrativeStateGate();gate.accept(state('e','oldest',1));
+ for(let i=0;i<24;i++){gate.reset('e','epoch-'+i);gate.accept(state('e','epoch-'+i,i+2));}
+ assert.equal(gate.accept(state('e','oldest',1)),false);
+});
