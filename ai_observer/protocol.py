@@ -3,6 +3,7 @@ from typing import Annotated, Literal
 from pydantic import Field, TypeAdapter, model_validator
 from companion_ai.event_intelligence import EventConfig
 from companion_ai.context_compiler import ContextConfig
+from companion_ai.memory_curator import CuratorConfig
 from companion_ai.models import StrictModel, ModelSelection
 
 Identifier = Annotated[str, Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')]
@@ -178,6 +179,11 @@ class ConversationActivity(StrictModel):
     model: str = Field(min_length=1,max_length=120)
     typing: bool
 
+class ConfigureCurator(StrictModel):
+    version: Literal[1]
+    type: Literal['configure_curator']
+    config: CuratorConfig
+
 class JournalCommand(StrictModel):
     version: Literal[1]
     type: Literal['session_journal']
@@ -197,7 +203,7 @@ class JournalCommand(StrictModel):
             raise ValueError('Privacy settings require configure')
         return self
 
-Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext|UpdateObjective|JournalCommand,Field(discriminator='type')])
+Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext|UpdateObjective|JournalCommand|ConfigureCurator,Field(discriminator='type')])
 
 
 def _schema_paths(node):

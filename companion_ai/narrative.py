@@ -7,7 +7,7 @@ from .models import StrictModel
 from pydantic import Field
 from typing import Literal
 from .expressions import clean_dialogue
-from .narrative_facts import NarrativeFact,extract,merge,operational_text,CORRECTION,native_canon,MAX_FACTS
+from .narrative_facts import NarrativeFact,extract,merge,operational_text,CORRECTION,native_canon,MAX_FACTS,upgrade_fact
 
 class NarrativeConfig(StrictModel):
     enabled: bool = True
@@ -68,7 +68,10 @@ class NarrativeMemory:
             for raw in (saved_facts if isinstance(saved_facts,list) else [])[:MAX_FACTS]:
                 try:record=NarrativeFact.model_validate(raw).model_dump()
                 except ValueError:continue
-                if record['model_scope']==scope and record['epoch']==old['epoch']:old['facts'].append(record)
+                if record['model_scope']==scope and record['epoch']==old['epoch']:
+                    record=upgrade_fact(record)
+                    if record['status']=='active':merge(old['facts'],[record],record['reason']=='explicit_user_correction')
+                    else:old['facts'].append(record)
             if isinstance(saved_facts,list):old['facts_initialized']=True
             for key in ('premise','developments','choices','commitments'):
                 value=saved.get(key)

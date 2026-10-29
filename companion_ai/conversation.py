@@ -158,6 +158,21 @@ class ModelManager:
         self.context_config=config
         self.context_config_error=None
 
+    async def curate_memory(self,payload,timeout):
+        """Same provider and lifecycle lock, no dialogue retry or tools."""
+        from .memory_curator import INSTRUCTION,Proposals
+        from .context_compiler import estimate,dump
+        async with self.lifecycle_lock:
+            if self.mode!='ollama' or self.adapter is None:raise ValueError('No active Ollama character')
+            config=self.config.model_copy(update={'thinking':False,'explicit_expressions':False,'max_tokens':1024})
+            native=(self.model_metadata or {}).get('system','')
+            content=dump(payload)
+            if estimate(native+INSTRUCTION+content)+config.max_tokens+160>config.context_length:
+                raise ValueError('Curator input exceeds existing context limit')
+            async with asyncio.timeout(timeout):
+                text=await collect_reply(self.adapter,LLMRequest(config,(ChatMessage(role='system',content=INSTRUCTION),ChatMessage(role='user',content=content)),response_schema=Proposals.model_json_schema()))
+            return text,dict(self.metrics.samples[-1]) if self.metrics.samples else {}
+
     def status(self):
         return {"mode": self.mode, "config": self.config.model_dump(), 'load_state': self.load_state,
                 'context_warnings': self.context_warnings, 'runtime_error': self.metrics.last_error,
@@ -182,7 +197,7 @@ class ModelManager:
                     self.model_metadata = await self.adapter.capabilities(self.config.model)
                 if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                 native_system=(self.model_metadata or {}).get('system','')
-                from .narrative_facts import native_canon
+                from .narrative_facts import native_canon,recall_violations
                 summary=summary|{'narrative_canon':native_canon(native_system)}
                 revision=summary.get('revision')
                 # Candidate drafts are never evidence of what the user reported.
@@ -205,7 +220,7 @@ class ModelManager:
                         result=await collect_reply(self.adapter,LLMRequest(retry_config,tuple(ChatMessage(**m) for m in retry_messages)),chunk,on_expression)
                     # A slow generation must not turn an expired/request-time fact into a live claim.
                     if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                    problems=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',())),summary.get('journal_context',()))+event_violations(result,summary.get('trigger_event'))
+                    problems=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',())),summary.get('journal_context',()))+event_violations(result,summary.get('trigger_event'))+recall_violations(result,summary,self.context_diagnostics,native_system)
                     self.grounding_attempts=1;self.grounding_corrections=problems
                     if problems:
                         if on_chunk and not on_reset:raise GroundingError(problems)
@@ -218,7 +233,7 @@ class ModelManager:
                         self.context_warnings+=['One factual correction requested: '+', '.join(problems)]+repair_warnings
                         result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in repair_messages)),chunk,on_expression)
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                        remaining=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',())),summary.get('journal_context',()))+event_violations(result,summary.get('trigger_event'))
+                        remaining=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',())),summary.get('journal_context',()))+event_violations(result,summary.get('trigger_event'))+recall_violations(result,summary,self.context_diagnostics,native_system)
                         if remaining:raise GroundingError(remaining)
                 if self.metrics.samples:
                     self.context_diagnostics['actual_prompt_tokens']=self.metrics.samples[-1].get('prompt_tokens')
@@ -262,6 +277,8 @@ class ConversationService:
         self.character_state_sequences = {}
         self.active_model_id = None
         self.narrative = NarrativeMemory(getattr(self.adapter, "narrative_config", None), getattr(self.adapter, "store", None))
+        from .memory_curator import MemoryCurator
+        self.curator=MemoryCurator(store)
         self.activate_model()
         self.generation = 0
         self.pending = []
@@ -310,6 +327,7 @@ class ConversationService:
         if hasattr(self,'pending'):
             for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:model_switch')
             self.pending.clear()
+        if hasattr(self,'curator'):self.curator.cancel()
         self.director.activate(scope)
         self.sync_narrative()
         self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
@@ -339,6 +357,7 @@ class ConversationService:
             'event_intelligence':self.event_intelligence.snapshot(),
             'event_lifecycle':list(getattr(self.state,'event_diagnostics',[]))[-8:],
             'completed_sessions':self.state.completed() if hasattr(self.state,'completed') else [],
+            'memory_curator':self.curator.diagnostics | {'config':self.curator.config.model_dump()},
             'context_intelligence':getattr(self.adapter,'context_diagnostics',{}),
             'context_settings':getattr(self.adapter,'context_config',ContextConfig()).model_dump(),
             'context_error':getattr(self.adapter,'context_config_error',None),
@@ -413,7 +432,15 @@ class ConversationService:
         self.publish({'type':'narrative_reset','model':self.responder()['model'],'narrative_epoch':self.narrative.state['epoch']})
         self.publish(self.character_state())
 
+    def maybe_curate(self):
+        if self.closed or self.pending or self.task and not self.task.done() or self.state.status!='IDLE':return
+        if not hasattr(self.adapter,'curate_memory') or self.curator.task and not self.curator.task.done():return
+        if self.curator.due(self.narrative):
+            self.curator.task=asyncio.create_task(self.curator.run(self))
+            self.tasks.add(self.curator.task);self.curator.task.add_done_callback(self.tasks.discard)
+
     def interrupt(self):
+        self.curator.cancel()
         self.generation += 1
         if self.task and not self.task.done():
             self.task.cancel()
@@ -458,6 +485,7 @@ class ConversationService:
             self.enqueue(notice, 30 if notice == "edge" else 10)
 
     def enqueue(self, kind, priority, details=None):
+        self.curator.cancel()
         self.sync_narrative()
         self.narrative.event(kind)
         if not self.director.receive(kind, priority, details):
@@ -741,6 +769,7 @@ class ConversationService:
             if summary.get('narrative_scope')==self.narrative_scope() and memory.enabled:
                 self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
                 self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False))
+                self.curator.note(self.narrative,prompt,text,user)
                 trigger=summary.get('trigger_event',{})
                 if trigger.get('event_id'):self.narrative.reference_event(trigger)
             self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'acknowledged')

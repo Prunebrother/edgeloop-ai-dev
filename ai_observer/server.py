@@ -24,7 +24,7 @@ from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
 from companion_ai.session_journal import SessionJournal
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, JournalCommand, safe_validation_errors
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, JournalCommand, ConfigureCurator, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
@@ -65,6 +65,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
             if owner and state.fresh():
                 previous_decision=director.last_reason
                 speech.pump()
+                if not model_lock.locked() and owner['ai_queue'].empty() and clock()>=director.typing_until:speech.maybe_curate()
                 if director.last_reason!=previous_decision:publish({'type':'ai_diagnostics','director_decision':director.last_reason,'pending_events':len(speech.pending)})
             if owner and state.connected and not state.fresh():
                 state.connected=False;speech.pending.clear();speech.interrupt()
@@ -108,7 +109,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                 if owner['browser_id']!=auth.browser_id:
                     await ws.close(code=1008);return
                 await owner['ws'].close(code=4001)
-            identity.update(browser_id=auth.browser_id,epoch=str(uuid4()))
+            identity.update(browser_id=auth.browser_id,epoch=str(uuid4()),ai_queue=ai_queue)
             speech.pending.clear();speech.interrupt()
             owner=identity;queues.add(q);state.begin_epoch()
             seen={};last_observation=float('-inf');chat_times=[]
@@ -130,6 +131,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         errors=safe_validation_errors(exc)
                         logging.getLogger(__name__).warning('Rejected read-only message fields=%s',errors)
                         publish({'type':'protocol_error','detail':'Invalid read-only message','errors':errors});continue
+                    if isinstance(message,(Chat,Select,Cancel,ResetNarrative)):speech.curator.cancel()
                     if isinstance(message,Observation):
                         if message.epoch!=identity['epoch']:
                             publish({'type':'observation_ack','accepted':False,'reason':'epoch'});continue
@@ -142,6 +144,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             publish({'type':'observation_ack','accepted':False,'reason':'rate_limit'});continue
                         if not state.accept(message):
                             publish({'type':'observation_ack','accepted':False,'reason':'sequence'});continue
+                        if state.status!='IDLE':speech.curator.cancel()
                         last_observation=now
                         if previous and previous['session_id']!=state.session_id:
                             speech.pending.clear();speech.recent_events.clear();speech.interrupt()
@@ -197,6 +200,11 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
                             'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (accepted_release or any(p['kind'] in {'came_early','completion_accepted'} for p in speech.pending) or speech.active_event_kind in {'came_early','completion_accepted'} and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
+                    elif isinstance(message,ConfigureCurator):
+                        try:
+                            speech.curator.configure(message.config)
+                            publish(speech.character_state())
+                        except (ValueError,OSError):publish({'type':'character_menu_error','detail':'Curator settings could not be saved; previous settings retained.'})
                     elif isinstance(message,JournalCommand):
                         try:
                             if message.action!='get':

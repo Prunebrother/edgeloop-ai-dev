@@ -25,11 +25,35 @@ class NarrativeFact(StrictModel):
     status:Literal['active','superseded','conflict']='active'
     reason:str=Field(default='dialogue',max_length=64)
     source:Literal['dialogue','legacy_excerpt']='dialogue'
+    importance:int=Field(default=2,ge=0,le=5)
+    curator_omit:bool=False
+    curator_source_ref:str | None=Field(default=None,pattern=r'^[a-f0-9]{32}$')
+    curator_reason:str=Field(default='',max_length=120)
 
 HYPOTHESIS=re.compile(r'\b(?:maybe|perhaps|might|could|suspect|hypothes\w*|theor\w*|I think)\b',re.I)
 CORRECTION=re.compile(r"^\s*(?:actually\b|correction\b|no[,!:]|not quite\b|that['’]s wrong\b|to correct\b|remember[: ,])|\b(?:rather than|instead of)\b",re.I)
 QUOTED=re.compile(r'["“]([^"”\n]+)["”]')
-OBJECT=re.compile(r'\b(?:(?P<name>[A-Z][a-z]+)\s+)?(?P<object>page|note|letter|inscription|message|book|sign|clue)\b')
+OBJECT=re.compile(r'\b(?:(?P<name>[A-Z][a-z]+)\s+)?(?P<object>page|note|letter|inscription|message|book|sign|clue|door|gate|crate|locker)\b')
+
+IDENTIFIER=re.compile(r'\b[A-Z][A-Z0-9]{1,}(?:[-_]\d+[A-Z0-9_-]*)\b')
+HOBBY=re.compile(r"\b(?:my|your) (?:personal )?hobb(?:y|ies) (?:is|are|involves?)\s+[^.!?]+|\bI (?:enjoy |like |love )?(?:tend(?:ing)?|care for|caring for|grow(?:ing)?)\b.{0,80}\b(?:succulent|plant|garden|orchid)\w*",re.I)
+
+def identifier_slot(text,cue=''):
+    context=text+' '+cue
+    obj=re.search(r'\b(door|gate|crate|locker|sign|page|note|letter)\b',context,re.I)
+    color=re.search(r'\b(blue|red|green|white|black|violet|yellow)\b',context,re.I)
+    return 'identifier:'+ (obj[1].lower() if obj else 'unscoped')+(':'+color[1].lower() if color else '')
+
+def upgrade_fact(raw):
+    """Reclassify legacy retained excerpts without changing identity/provenance/wording."""
+    r=dict(raw)
+    if r['slot'].startswith('detail:'):
+        code=IDENTIFIER.search(r['text'])
+        if code:r.update(slot=identifier_slot(r['text'],r.get('cue','')),value=code[0],exact=True)
+        elif HOBBY.search(r['text']):
+            r.update(slot='hobby:character' if r['speaker']=='assistant' or re.search(r'\byour hobby',r['text'],re.I) else 'hobby:participant')
+            if r['speaker']=='assistant' and r['category']!='hypothesis':r['category']='character_detail'
+    return r
 
 def norm(text):return ' '.join(re.findall(r'\w+',text.casefold()))
 def terms(text):
@@ -46,7 +70,9 @@ def recall_intent(prompt):
     quote=bool(re.search(r'\b(?:what|which|recall|remember|repeat|exact)\b.*\b(?:page|note|letter|inscription|quotation|quote|wording|clue|words)\b',prompt,re.I))
     collection=bool(re.search(r'\b(?:what|which|recall|remember)\b.*\bcollect\w*\b',prompt,re.I))
     other=bool(re.search(r'\b(?:remember|recall|previously|earlier|you told me|we agreed|did we|did you)\b',prompt,re.I))
-    return 'quotation' if quote else 'collection' if collection else 'detail' if other else None
+    identifier=bool(re.search(r'\b(?:what|which|recall|remember|exact)\b.*\b(?:identifier|code|marked|label|door|gate|locker)\b',prompt,re.I))
+    hobby=bool(re.search(r'\b(?:what|which|recall|remember)\b.*\b(?:hobb\w*|pastime|tend\w*|care for)\b',prompt,re.I))
+    return 'identifier' if identifier else 'hobby' if hobby else 'quotation' if quote else 'collection' if collection else 'detail' if other else None
 
 def quotation_slot(text,cue):
     match=OBJECT.search(text) or OBJECT.search(cue)
@@ -68,15 +94,23 @@ def extract(text,speaker,scope,epoch,cue='',source='dialogue'):
     def add(original,value,slot,exact=False,category=None):
         if not original or len(original)>320 or not value or len(value)>320:return
         if len(slot)>100:slot=slot.split(':',1)[0]+':'+sha256(slot.encode()).hexdigest()[:32]
-        cat=category or ('hypothesis' if HYPOTHESIS.search(original) else 'user_fact' if speaker=='user' else 'character_detail' if slot.startswith(('collection:','relationship:','preference:')) and speaker=='assistant' else 'development')
+        cat=category or ('hypothesis' if HYPOTHESIS.search(original) else 'user_fact' if speaker=='user' else 'character_detail' if slot.startswith(('collection:','relationship:','preference:','hobby:')) and speaker=='assistant' else 'development')
         if re.search(r"\b(?:I['’]ll|I will|promise|we['’]ll|we will)\b",original,re.I) and cat!='hypothesis':cat='commitment'
         records.append(NarrativeFact(id=uuid4().hex,category=cat,speaker=speaker,model_scope=scope,epoch=epoch,text=original,value=value,slot=('hypothesis:'+slot if cat=='hypothesis' else slot),cue=cue[:160],exact=exact,source=source).model_dump())
     for match in QUOTED.finditer(clean):
+        if IDENTIFIER.fullmatch(match[1]):continue
         prefix=clean[max(0,clean.rfind('.',0,match.start())+1):match.start()]
         add(match[0],match[1],quotation_slot(prefix,cue),True,'hypothesis' if HYPOTHESIS.search(prefix) else 'user_fact' if speaker=='user' else 'character_detail' if speaker=='assistant' else 'development')
     for sentence in re.split(r'(?<=[.!?])\s+|\n+',clean):
         sentence=sentence.strip()
-        if not sentence or sentence.endswith('?') or QUOTED.search(sentence) or operational_text(sentence):continue
+        if not sentence or sentence.endswith('?') or operational_text(sentence):continue
+        code=IDENTIFIER.search(sentence)
+        if code:
+            add(sentence,code[0],identifier_slot(sentence,cue),True);continue
+        if HOBBY.search(sentence):
+            target='character' if speaker=='assistant' or re.search(r'\byour hobb',sentence,re.I) else 'participant'
+            add(sentence,sentence,'hobby:'+target,category='character_detail' if speaker=='assistant' else None);continue
+        if QUOTED.search(sentence):continue
         if speaker=='user' and re.match(r"^(?:hello|hi|hey|good (?:morning|evening|night)|thanks|thank you|please|continue|tell me|imagine)\b",sentence,re.I):continue
         match=re.search(r"\b(my|your) (?:favorite|favourite|preferred) ([a-z]+) is (.+?)(?:[.!?]|$)",sentence,re.I)
         if match:
@@ -106,7 +140,12 @@ def merge(records,candidates,correction=False,canon=None):
     for item in candidates:
         if correction and item['speaker']=='user':item['reason']='explicit_user_correction'
         if any(r['status']=='active' and r['slot']==item['slot'] and r['category']==item['category'] and r['speaker']==item['speaker'] and norm(r['value'])==norm(item['value']) for r in records):continue
-        slot=item['slot'];active=[r for r in records if r['status']=='active' and r['slot']==slot and r['category']!='hypothesis']
+        slot=item['slot']
+        if slot.startswith('identifier:'):
+            anchors=[r for r in records if r['status']=='active' and r['slot'].split(':')[:2]==slot.split(':')[:2]]
+            if len(anchors)==1 and (correction or item['speaker']=='assistant' and recall_intent(item['cue'])=='identifier'):
+                item['slot']=slot=anchors[0]['slot']
+        active=[r for r in records if r['status']=='active' and r['slot']==slot and r['category']!='hypothesis']
         if correction and item['speaker']=='user' and slot.startswith('quotation:') and not active:
             quotes=[r for r in records if r['status']=='active' and r['exact'] and r['category']!='hypothesis' and (slot.endswith('unscoped') or r['slot'].endswith(slot.split(':')[-1]))]
             if len(quotes)==1:active=quotes;item['slot']=quotes[0]['slot'];slot=item['slot']
@@ -127,7 +166,7 @@ def merge(records,candidates,correction=False,canon=None):
             else:item.update(status='conflict',reason='contradicts_established_detail')
         records.append(item);decisions.append({'id':item['id'],'category':item['category'],'decision':item['reason'] if item['status']!='active' else 'stored'})
     def priority(r):
-        return (0 if r['status']!='active' else 1 if r['category'] in {'development','hypothesis'} else 2 if r['slot'].startswith('detail:') else 3 if r['speaker']!='user' else 4)
+        return (0 if r['status']!='active' or r.get('curator_omit') else 1 if r['category'] in {'development','hypothesis'} else 2 if r['slot'].startswith('detail:') else 3 if r['speaker']!='user' else 4,r.get('importance',2))
     while len(records)>MAX_FACTS:
         index=min(range(len(records)),key=lambda i:(priority(records[i]),i));old=records.pop(index)
         decisions.append({'id':old['id'],'decision':'retention_limit'})
@@ -146,19 +185,35 @@ def retrieve(narrative,prompt,scope=None,epoch=None,canon=None):
                     records.append(r)
         records=records[-MAX_FACTS:]
     for raw in records[:MAX_FACTS]:
-        try:r=NarrativeFact.model_validate(raw).model_dump()
+        try:r=upgrade_fact(NarrativeFact.model_validate(raw).model_dump())
         except ValueError:continue
         reason='inactive_or_conflicting' if r['status']!='active' else 'wrong_model' if scope and r['model_scope']!=scope else 'wrong_epoch' if epoch and r['epoch']!=epoch else 'native_canon_conflict' if (canon or {}).get(r['slot']) and norm(r['value'])!=norm(canon[r['slot']]) else None
-        overlap=len(query&terms(r['text']+' '+r['cue']+' '+r['slot']))
-        if intent=='quotation':
+        overlap=len(query&terms(r['text']+' '+r['slot']))
+        cue_overlap=len(query&terms(r['cue']))
+        if intent=='identifier':matched=r['slot'].removeprefix('hypothesis:').startswith('identifier:') and bool(overlap)
+        elif intent=='hobby':matched=r['slot'].removeprefix('hypothesis:')==('hobby:participant' if re.search(r'\bmy hobby',prompt,re.I) else 'hobby:character')
+        elif intent=='quotation':
             matched=bool(r['exact'] or r['source']=='legacy_excerpt' and r['category']=='development' and r['slot'].startswith('detail:') or 'collect' in query and r['slot']=='collection:character')
         elif intent=='collection':
             matched=r['slot']=='collection:character' or r['source']=='legacy_excerpt' and r['slot'].startswith('collection:')
-        else:matched=bool(overlap)
+        else:matched=bool(overlap or cue_overlap)
         if not reason and not matched:reason='irrelevant'
+        if not reason and r.get('curator_omit') and not intent:reason='curator_low_value'
         if reason:diagnostics.append({'id':r['id'],'category':r['category'],'speaker':r['speaker'],'reason':reason,'selected':False});continue
         established=r['category'] not in {'hypothesis','development'}
-        score=(100 if intent and established else 10)+(40 if intent=='quotation' and r['exact'] or intent=='collection' and r['slot']=='collection:character' else 0)+overlap*4+(5 if r['speaker']=='user' else 0)+(20 if r['reason']=='explicit_user_correction' else 0)
+        score=(100 if intent and established else 10)+(40 if intent=='quotation' and r['exact'] or intent=='collection' and r['slot']=='collection:character' else 0)+overlap*8+cue_overlap+r.get('importance',2)*2+(5 if r['speaker']=='user' else 0)+(20 if r['reason']=='explicit_user_correction' else 0)
         ranked.append((score,r))
     ranked.sort(key=lambda pair:pair[0],reverse=True)
     return intent,[r for _,r in ranked],diagnostics
+
+
+def recall_violations(text,summary,diagnostics,native=''):
+    """Only explicit replacement identifiers in recall; no general fiction rewriting."""
+    if (diagnostics.get('narrative_recall') or {}).get('intent')!='identifier':return []
+    if re.search(r"\b(?:unknown|unavailable|uncertain|not sure|cannot|can't|could|new identifier)\b",text,re.I):return []
+    selected=set((diagnostics.get('narrative_recall') or {}).get('selected_fact_ids',[]))
+    narrative=summary.get('narrative_context') or {}
+    allowed={m[0] for r in narrative.get('facts',[]) if r['id'] in selected for m in IDENTIFIER.finditer(r['text'])}
+    proposed={m[0] for m in IDENTIFIER.finditer(text)}
+    wrong={code for code in proposed if code not in allowed and code not in native}
+    return ['unsupported_narrative_identifier'] if wrong else []

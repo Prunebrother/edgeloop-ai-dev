@@ -42,6 +42,10 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
     director.querySelector('.drawer-content').innerHTML='<section class="menu-setting"><h4>Editable setting</h4><label><input type="checkbox" data-proactive> Enable proactive dialogue</label><p>Applies to this companion service. User replies and EdgeLoop safety notices remain independent.</p><button type="button" data-save-director>Save setting</button></section><section><h4>Read-only status</h4><dl data-director-status></dl><p class="menu-help">Cooldowns indicate pacing limits, not a promise of a scheduled reply. Initiative still requires a welcomed story and no unanswered question.</p></section>';
     story.querySelector('.drawer-content').innerHTML='<p class="menu-help">Fictional and conversational context for the selected model. These excerpts are fallible and are not verified EdgeLoop session facts.</p><p data-story-model></p><div data-story-content></div><section class="story-reset"><button type="button" data-start-story>Start New Storyline</button><p>Clears this model’s story context and cancels its pending response. Your transcript and EdgeLoop history are retained.</p><div data-story-confirm role="group" aria-label="Confirm new storyline" hidden><p>Start a new storyline for this model? The previous story will be excluded from future context.</p><button type="button" data-story-keep>Keep current storyline</button><button type="button" data-narrative-reset>Confirm new storyline</button></div></section>';
     const journal=mountSessionJournal(host,{send});
+    let curatorDirty=false,curatorWanted=null;
+    const curator=document.createElement('section');curator.innerHTML='<h4>Experimental memory curator</h4><label><input type="checkbox" data-curator-enabled> Use the selected model to curate fictional memory when idle</label><label>Turns between attempts <input type="number" data-curator-interval min="8" max="12" value="10"></label><button type="button" data-curator-save>Save curator setting</button><p>Off by default. Adds a bounded inference after 8–12 replies, only while EdgeLoop is idle. User replies and session events cancel it. The deterministic memory remains active.</p><p data-curator-status role="status"></p>';story.querySelector('.drawer-content').append(curator);
+    curator.oninput=()=>{curatorDirty=true;};
+    curator.querySelector('[data-curator-save]').onclick=()=>{const interval=curator.querySelector('[data-curator-interval]');if(!interval.reportValidity())return;curatorWanted={enabled:curator.querySelector('[data-curator-enabled]').checked,interval_turns:Number(interval.value),timeout_seconds:20};send({version:1,type:'configure_curator',config:curatorWanted});};
     const eventSettings=mountEventSettings(director,{send});
     const contextIntelligence=mountContextIntelligence(director,story,{send,getModel:()=>model});
     const human=value=>String(value||'None recorded').replaceAll('_',' ').replace(/^./,s=>s.toUpperCase());
@@ -65,6 +69,9 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
         const available=connected&&model&&state?.model===model,d=available?state.director:null,n=available?state.narrative:null;
         eventSettings.update(available?state.event_intelligence:null,state?.events_saved===true);
         contextIntelligence.update(available?state:null);
+        const cc=available?state.memory_curator:null;
+        for(const input of curator.querySelectorAll('input,button'))input.disabled=!cc;
+        if(cc){if(curatorWanted&&JSON.stringify(cc.config)===JSON.stringify(curatorWanted)){curatorDirty=false;curatorWanted=null;}if(!curatorDirty&&document.activeElement!==curator.querySelector('[data-curator-enabled]'))curator.querySelector('[data-curator-enabled]').checked=cc.config.enabled;if(!curatorDirty&&document.activeElement!==curator.querySelector('[data-curator-interval]'))curator.querySelector('[data-curator-interval]').value=cc.config.interval_turns;curator.querySelector('[data-curator-status]').textContent=cc.status+' · '+(cc.attempts||0)+' attempts'+(cc.reason?' · '+cc.reason:'');}
         if(state){state.context_saved=false;state.objective_saved=false;}
         if(state?.events_saved)state.events_saved=false;
         const dl=director.querySelector('[data-director-status]');dl.replaceChildren();
@@ -89,7 +96,7 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
         if(n){
         list(body,'Active narrative epoch',[n.epoch||state.narrative_epoch||'Unavailable']);
         const audit=state.context_intelligence?.memory_epoch===n.epoch?state.context_intelligence?.memory_decisions||[]:[];
-        list(body,'Established details and sources',(n.facts||[]).map(f=>{const decision=audit.find(d=>d.id===f.id);return human(f.category)+' · '+f.speaker+' · '+human(f.status)+' · '+f.text+' · '+(decision?(decision.selected?'Selected for current prompt':'Excluded: '+human(decision.reason)):'Not yet evaluated for this prompt');}));
+        list(body,'Established details and sources',(n.facts||[]).map(f=>{const decision=audit.find(d=>d.id===f.id);return human(f.category)+' · importance '+(f.importance??2)+(f.curator_source_ref?' · curated source '+f.curator_source_ref:'')+' · '+f.speaker+' · '+human(f.status)+' · '+f.text+' · '+(decision?(decision.selected?'Selected for current prompt':'Excluded: '+human(decision.reason)):'Not yet evaluated for this prompt');}));
         if(n.objective)list(body,'Fictional objective',[human(n.objective.status)+' · '+n.objective.premise,n.objective.motivation,n.objective.next_development].filter(Boolean));list(body,'Current premise',n.premise?[n.premise]:[],'No premise established.');list(body,'Narrative phase',[human(n.phase)]);list(body,'Story developments',n.developments);list(body,'User choices',n.choices);list(body,'Unresolved threads',n.threads);list(body,'Character commitments',n.commitments);list(body,'Recent narrative updates',n.recent_updates||n.developments?.slice(-3));}
         else list(body,'Story memory',[],available?'Narrative memory is disabled.':'Connect and select a model to view its story.');}
         story.querySelector('[data-start-story]').disabled=!available||resetting;
@@ -113,7 +120,7 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
     document.addEventListener('keydown',escape);document.addEventListener('pointerdown',outside);
     const timer=setInterval(()=>{if(open)request();},2000);
     return {
-        scope(next,paired){journal.scope(next,paired);if(!paired)stateGate.clear();if(next!==model||connected!==paired){close(false);state=null;saving=resetting=dirty=false;for(const key of Object.keys(dialogs))notice(key,'');}model=next;connected=paired;render();},
+        scope(next,paired){if(next!==model||!paired){curatorDirty=false;curatorWanted=null;}journal.scope(next,paired);if(!paired)stateGate.clear();if(next!==model||connected!==paired){close(false);state=null;saving=resetting=dirty=false;for(const key of Object.keys(dialogs))notice(key,'');}model=next;connected=paired;render();},
         receive(message){
             if(message.type==='session_journal'){journal.receive(message);return;}
             if(message.model&&message.model!==model)return;

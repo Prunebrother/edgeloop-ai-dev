@@ -235,7 +235,7 @@ class ContextCompiler:
         ranked=sorted(scoped,key=lambda pair:(active_instruction(pair[1]),(3*len(query&words(pair[1].get('content','')))+(3 if pair[1].get('role')=='user' else 0)+(5 if pair[1].get('role')=='user' and re.search(r'\b(?:always|never|do not|remember|please)\b',pair[1].get('content',''),re.I) else 0),pair[0])),reverse=True)
         candidates=[]
         narrative_allowed=narrative and memory.enabled and not TOPIC_CHANGE.search(prompt) and not abandonment_requested(prompt)
-        if narrative_allowed and intent not in {'quotation','collection'}:
+        if narrative_allowed and intent not in {'quotation','collection','identifier','hobby'}:
             for key,priority in [('commitments',5),('threads',5),('choices',4),('developments',2)]:
                 for i,text in enumerate(narrative.get(key,[])):
                     overlap=len(query&words(text))
