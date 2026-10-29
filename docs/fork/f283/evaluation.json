@@ -1,0 +1,1935 @@
+{
+  "baseline": "ff0f1ba",
+  "physical_hardware": false,
+  "repetitions": 30,
+  "metric": "evidence present in outgoing context, NOT generated-response recall accuracy",
+  "rows": [
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "stored",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2792,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5538,
+      "compile_ms_p95": 0.919,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "stored",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3068,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5856,
+      "compile_ms_p95": 0.5908,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [
+          "aea18819d775497ab54d0d910ce012f4"
+        ],
+        "selected_fact_ids": [
+          "aea18819d775497ab54d0d910ce012f4"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "102c7e68a75f43b59f8fbfbdb7cdbe99",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "aea18819d775497ab54d0d910ce012f4",
+          "category": "user_fact",
+          "speaker": "user",
+          "epoch": "2130be6902f04a2abc61210cacaa7b8d",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "stored",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2791,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5501,
+      "compile_ms_p95": 0.8088,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "stored",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3077,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5915,
+      "compile_ms_p95": 0.6162,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [
+          "5963e40a34144e8c8283ea20796c0e6c"
+        ],
+        "selected_fact_ids": [
+          "5963e40a34144e8c8283ea20796c0e6c"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "1678e419b51545c99298ab88d33b7ecd",
+          "category": "user_fact",
+          "speaker": "user",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "5963e40a34144e8c8283ea20796c0e6c",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "epoch": "504c8c4720cf4c37b27da02f62ed4d85",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "long_detour",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2796,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5318,
+      "compile_ms_p95": 0.8492,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "long_detour",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3068,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.795,
+      "compile_ms_p95": 0.9534,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [
+          "c61a37adcf0243aa9f6814280e9c3f90"
+        ],
+        "selected_fact_ids": [
+          "c61a37adcf0243aa9f6814280e9c3f90"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "724cbe7a97824a628f18dbf2f50797fb",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "83c52b0667114f51a0a649b0259fe94e",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "47c89ea2c6a649b593914c46b46f425c",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "3f319c83b30e4a67a81970997e40bfd7",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "40ef80ff3bd04acc814e0c1806cf8272",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "2259a5178e774a6eaa40616c05527e82",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "bd311bfb02c046fbb23ec7afcb417727",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "aa24d2c058f54cf9b7e7f5eaaf7f2f6e",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "64e35cd9020e4f5e84723354171477d9",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "93668b033cae4e47a04361c221f9646e",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "485b0013aa3d47cc9bd1f4ec2b7bf26d",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "b84c5a2e098a46feb82494a59f195fa9",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "073bab05950645e49a47e76bd0e5dd03",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "264b926939a045ae84a861a5d2030341",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "e4c426e2560943e1bdd3bee77a9b1300",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "c61a37adcf0243aa9f6814280e9c3f90",
+          "category": "user_fact",
+          "speaker": "user",
+          "epoch": "efe4b6cfbec948a7aceeff2fdd5b3af1",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "long_detour",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2795,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5268,
+      "compile_ms_p95": 0.5307,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "long_detour",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3077,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.7912,
+      "compile_ms_p95": 1.0458,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [
+          "568f176ad08e4f8ba84c2011b6ab1492"
+        ],
+        "selected_fact_ids": [
+          "568f176ad08e4f8ba84c2011b6ab1492"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "373f313b3ed046998c3fa49fc13cf2c9",
+          "category": "user_fact",
+          "speaker": "user",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "6ac8a6b9b16a4453a1f01a6f5ba75521",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "80ede938e4864e4c8f7fd93ceec74ff9",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "c1b660b6276d400393652c72f9bd9033",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "4d29b25f4cb94c2b89ecde643d122898",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "1cc78ce93c1447de96bf7a9a8259f9c8",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "6bce0b0314174e50b854dde591c630a0",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "aa033c8a50d04b33ba7120e5ce39454f",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "47d9d9170dce4af98e0d65eba724fa08",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "349ad481c8834e999bb1ce34c1e0d5da",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "70ce79e750df430f9d7b6097681a9d1d",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "ea3fc4cb50974d79bbf9de6a0e397c2e",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "38b7351bbe56462d946392030af591fa",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "f5b61b51a2da4a75912d6e33530f10eb",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "67fbefec98a14d638f32138ea81f724f",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "568f176ad08e4f8ba84c2011b6ab1492",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "epoch": "5e09f269469f4cad8fc3bf95d0b74586",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "contradiction",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2805,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5833,
+      "compile_ms_p95": 0.8533,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "contradiction",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3068,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.6239,
+      "compile_ms_p95": 0.6403,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [
+          "894af1fe79d544c19bdedbd54b899e99"
+        ],
+        "selected_fact_ids": [
+          "894af1fe79d544c19bdedbd54b899e99"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "f1951a534fbe42e9811af22b7cdeec09",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "e5c752a32423490eb33fe270750b3b64",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "6c77c0f3bc594006a71ac1db4120a619",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "894af1fe79d544c19bdedbd54b899e99",
+          "category": "user_fact",
+          "speaker": "user",
+          "epoch": "4084b788017844278e8524225990984d",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "contradiction",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2797,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5803,
+      "compile_ms_p95": 0.8558,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "contradiction",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3077,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.6218,
+      "compile_ms_p95": 0.639,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [
+          "751ce65b5816494e861ff9b0e977c3ad"
+        ],
+        "selected_fact_ids": [
+          "751ce65b5816494e861ff9b0e977c3ad"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "4c098a3ffe4e4000b8a1999f722f6816",
+          "category": "user_fact",
+          "speaker": "user",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "054927f2650243dd9e2f3533640a01f6",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "17111f90b17548c3801f1c28ae9df8d1",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "751ce65b5816494e861ff9b0e977c3ad",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "epoch": "61c1ad17a494485a8fd62d71699eff04",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "missing",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2782,
+      "memory_items": 0,
+      "history_messages": 3,
+      "compile_ms_median": 0.3809,
+      "compile_ms_p95": 0.3869,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "missing",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 2942,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.4455,
+      "compile_ms_p95": 0.4499,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [],
+        "selected_fact_ids": [],
+        "evidence": "unavailable"
+      },
+      "memory_decisions": []
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "missing",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2781,
+      "memory_items": 0,
+      "history_messages": 3,
+      "compile_ms_median": 0.3753,
+      "compile_ms_p95": 0.3816,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "missing",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 2942,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.443,
+      "compile_ms_p95": 0.4464,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [],
+        "selected_fact_ids": [],
+        "evidence": "unavailable"
+      },
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "stored",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2838,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.555,
+      "compile_ms_p95": 0.5668,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "stored",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3114,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5879,
+      "compile_ms_p95": 0.5927,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [
+          "4c0592d6a29345138b02216d7bc14a86"
+        ],
+        "selected_fact_ids": [
+          "4c0592d6a29345138b02216d7bc14a86"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "a0cbdccdee5c422aa31614a6ca56deae",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "4c0592d6a29345138b02216d7bc14a86",
+          "category": "user_fact",
+          "speaker": "user",
+          "epoch": "c7fa5e20ccf34266b7e50fbe6cc7f042",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "stored",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2837,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5521,
+      "compile_ms_p95": 0.5566,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "stored",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3122,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.585,
+      "compile_ms_p95": 0.5912,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [
+          "b777ad6850884deb989522d82740a3c6"
+        ],
+        "selected_fact_ids": [
+          "b777ad6850884deb989522d82740a3c6"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "4673ef98cc9c4dd79f09ff62d8c77b95",
+          "category": "user_fact",
+          "speaker": "user",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "b777ad6850884deb989522d82740a3c6",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "epoch": "d812c1b3e4ca4873974b106150a3b8e2",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "long_detour",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2842,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5305,
+      "compile_ms_p95": 0.5357,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "long_detour",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3114,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.7949,
+      "compile_ms_p95": 0.8095,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [
+          "77739c9cee1a4f84a3ceccf0edfea28a"
+        ],
+        "selected_fact_ids": [
+          "77739c9cee1a4f84a3ceccf0edfea28a"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "65ac7eab17354a5cadc00eec325cfe9c",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "318e879d451943c3aa0ec9d080d3c5ad",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "c2acdb0dea0641cda56e72a0633cdfc2",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "386f6fb5361546b6a6b583d66b6c45b7",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "b9c5cfbe760d46c299b7a8fb93cd2322",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "0dc79133ce144d2bb8cb3e6be2870078",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "155f19f46abb4c22b05c3471fd815527",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "4b1f101cb57a41e0b2d35ccf68df006e",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "1518a15e52b5405bb61393a8b9e24fc2",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "4454cc57d6e7427db051313bfb2a274c",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "47c33b18d59d4c038bc74619c9d5a79c",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "4230eb9048ef416fa6694c2f4a9b3977",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "8c77c21b5c5a4cb3a83bc0821932e329",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "2c40b78e74bc488dbb71bf7c3f0709f1",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "3a1bb17a2fed4532967ddf5063197549",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "77739c9cee1a4f84a3ceccf0edfea28a",
+          "category": "user_fact",
+          "speaker": "user",
+          "epoch": "8bbff6e66c1d406abc46e5ccab597eb5",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "long_detour",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2841,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.527,
+      "compile_ms_p95": 0.5343,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "long_detour",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3122,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.7906,
+      "compile_ms_p95": 0.7957,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [
+          "f29c96a4ee3a48cabfeff2d880de2536"
+        ],
+        "selected_fact_ids": [
+          "f29c96a4ee3a48cabfeff2d880de2536"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "e5472ed499184c1284cbe5dbd161c53b",
+          "category": "user_fact",
+          "speaker": "user",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "9d77d709fced42069e1ee6fbfb7a5544",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "8bef9214fbc84a81b0dc17553e73b747",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "c415d7f23aad43b083e61acc05bac90a",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "e9b2d645c6714ea2a932f6ef4fbee6a6",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "4c691ef957ba43cf9e133c9c4dbc1d52",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "dec4330e15364679890e48372e4a8d85",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "9a0926f607544741af2ea84c3c25633c",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "b29f1546c38d455081a109e2b8b9519e",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "c3f0f0cee5f34e8182b0bea5b30f1f88",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "1a77deb27b9642c39320fd600a5d0211",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "7e8048ec723849be9393d8521f9fbe6e",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "3f08b32d7f1841f9b2550d1e0f6cca81",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "24bd905af1ca48388729781d1e7ac02d",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "c31567fc31494f019dba6ce973f48ac4",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "f29c96a4ee3a48cabfeff2d880de2536",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "epoch": "78b83fad254b4c4a8f7914963690e55a",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "contradiction",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2851,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5829,
+      "compile_ms_p95": 0.5865,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "contradiction",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3114,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.6232,
+      "compile_ms_p95": 0.6283,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [
+          "353adbc281c949dd99147b875d168086"
+        ],
+        "selected_fact_ids": [
+          "353adbc281c949dd99147b875d168086"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "97c6aa8a4cc84e15a2f58cb43cec6204",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "d7d4596d5fb24be79053e10b01001975",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "5de3c8c595804989b1a90129c755959b",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "353adbc281c949dd99147b875d168086",
+          "category": "user_fact",
+          "speaker": "user",
+          "epoch": "76899bb0e55d4b90a88fb1b3256f0209",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "contradiction",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2843,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5784,
+      "compile_ms_p95": 0.5828,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "contradiction",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 3122,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.6216,
+      "compile_ms_p95": 0.6271,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [
+          "96890f71778e4515807f985290ff1d04"
+        ],
+        "selected_fact_ids": [
+          "96890f71778e4515807f985290ff1d04"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "1de693b1274547469dab9870c9027831",
+          "category": "user_fact",
+          "speaker": "user",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "69db3e036c72483f8749e378d7739a74",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "6b18d62bb9de4655993f512934798441",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "96890f71778e4515807f985290ff1d04",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "epoch": "c7a2d057e1cc49a1a2da4a816aa290b8",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "missing",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2770,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.3732,
+      "compile_ms_p95": 0.4158,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "missing",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 2988,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.4394,
+      "compile_ms_p95": 0.4809,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [],
+        "selected_fact_ids": [],
+        "evidence": "unavailable"
+      },
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "missing",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 2769,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.3695,
+      "compile_ms_p95": 0.4087,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "missing",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 2988,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.4319,
+      "compile_ms_p95": 0.4384,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [],
+        "selected_fact_ids": [],
+        "evidence": "unavailable"
+      },
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "stored",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 4176,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5443,
+      "compile_ms_p95": 0.5854,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "stored",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 4452,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5981,
+      "compile_ms_p95": 0.6533,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [
+          "3e7e54ef1edb49b3990f85d32f5bc8be"
+        ],
+        "selected_fact_ids": [
+          "3e7e54ef1edb49b3990f85d32f5bc8be"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "4fb40c5c5fd84c5ab946f0f037cf2488",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "3e7e54ef1edb49b3990f85d32f5bc8be",
+          "category": "user_fact",
+          "speaker": "user",
+          "epoch": "8b9ddf1b9b0f46e2b4e8285e255f415f",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "stored",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 4175,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5762,
+      "compile_ms_p95": 0.6274,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "stored",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 4461,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5846,
+      "compile_ms_p95": 0.592,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [
+          "1e61dcf5347f4ca59ad8081d3526331f"
+        ],
+        "selected_fact_ids": [
+          "1e61dcf5347f4ca59ad8081d3526331f"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "9d90a6b645f843389778f2bc017a309f",
+          "category": "user_fact",
+          "speaker": "user",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "1e61dcf5347f4ca59ad8081d3526331f",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "epoch": "8ca00cbb1b374ebe810f30e32ef8bd00",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "long_detour",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 4180,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5278,
+      "compile_ms_p95": 0.5329,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "long_detour",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 4452,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.9085,
+      "compile_ms_p95": 0.9136,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [
+          "63a9f166d96c4ec395399783572cbc50"
+        ],
+        "selected_fact_ids": [
+          "63a9f166d96c4ec395399783572cbc50"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "2a12893ac71946458e9d22f3927ea56a",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "fdf81eb4e5314627833140200a38274a",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "04c65b32b696424f9074595c83e03ea0",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "ec17cca3a80445c6a90eeaf43f720ec4",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "ce9857cf4c604d91a7c50534e1908241",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "145a836255f94988a3637902b860fafa",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "75c2a52d7a544817a6054f580c3708f9",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "4e110f6561b542e693cb169c5ef0bd09",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "480500c9bbe8477fbd0b7fdb30a045d2",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "58daade310454143b1bcd6706d6103d6",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "910581406c1e475b8501e3b2e456782f",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "e75471e1e4164f44832e2bde3023bc8a",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "955f843077d94435a7d37f48ce4bbb49",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "4c2db1be4cb3494e960ffd0112077a13",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "8134c48dc6ea48eb9fc3c55f78976010",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "63a9f166d96c4ec395399783572cbc50",
+          "category": "user_fact",
+          "speaker": "user",
+          "epoch": "99b384bfa272432db8bca451d94f603c",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "long_detour",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 4179,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5942,
+      "compile_ms_p95": 0.6003,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "long_detour",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 4461,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.7959,
+      "compile_ms_p95": 0.8149,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [
+          "fdaaf07caee04f86aa7718b5c31eac15"
+        ],
+        "selected_fact_ids": [
+          "fdaaf07caee04f86aa7718b5c31eac15"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "92adea9cf6a4460c80b4476f100f9bac",
+          "category": "user_fact",
+          "speaker": "user",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "c71e4da487e449139ac4aafc241a16d6",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "ce16e96957854d77acfafa07e40fa580",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "c4b1e988d3644a90811dcadcad9917ff",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "6444a789f4e34675acb32f50ea723d34",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "1361af18855a4950bc1f8bb97bce663f",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "ca9c042c8ba14c819e55a1333496f80c",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "e4d617d4c4094e1e8bfe4121ae3a9504",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "cf5709eb9c9e4b25bb6053ae9b446935",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "9af76bad02e242da8f75f10b1e18e400",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "c143f70a4eed4347b7f2b1fbae60f611",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "621b64aa0cf949ef830a098fb82129ba",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "97702dcbde2d42b08215cbf648de6ac0",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "55a97305e4374aeebee05c200929cadb",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "0b1bad4585234479b738cc91dc7e73e8",
+          "category": "development",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "fdaaf07caee04f86aa7718b5c31eac15",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "epoch": "879d18aed6054dcc9fc526304aedd73b",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "contradiction",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 4189,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5841,
+      "compile_ms_p95": 0.5883,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "contradiction",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": "The truth was hidden in plain sight.",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 4452,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.6243,
+      "compile_ms_p95": 0.6294,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [
+          "d37edd19f79445d38a76f23be0c19134"
+        ],
+        "selected_fact_ids": [
+          "d37edd19f79445d38a76f23be0c19134"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "3b5a9447e722449b82978d020afad78c",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "2baea552c13241a2a2372a052fcacecb",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "78a4911b0f2f40edbe1b0da0640fcef5",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "d37edd19f79445d38a76f23be0c19134",
+          "category": "user_fact",
+          "speaker": "user",
+          "epoch": "2c2edf58e9f94ea5be9756292e391300",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "contradiction",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 4181,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.5813,
+      "compile_ms_p95": 0.5885,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "contradiction",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": "vintage, slightly dented teapots",
+      "evidence_present": true,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 4461,
+      "memory_items": 1,
+      "history_messages": 2,
+      "compile_ms_median": 0.6235,
+      "compile_ms_p95": 0.6281,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [
+          "fa9a3ab046a4465bb586d60164f9fdad"
+        ],
+        "selected_fact_ids": [
+          "fa9a3ab046a4465bb586d60164f9fdad"
+        ],
+        "evidence": "selected"
+      },
+      "memory_decisions": [
+        {
+          "id": "9fdaa46ffd444d4d87fc5fc23d8ece75",
+          "category": "user_fact",
+          "speaker": "user",
+          "reason": "irrelevant",
+          "selected": false
+        },
+        {
+          "id": "dfa62867349942e1a6a6b199a496b8cf",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "ed791821659541bcbab5979d3ec98bc4",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "reason": "inactive_or_conflicting",
+          "selected": false
+        },
+        {
+          "id": "fa9a3ab046a4465bb586d60164f9fdad",
+          "category": "character_detail",
+          "speaker": "assistant",
+          "epoch": "41a07ba4d918495fae5e628db52b8779",
+          "selected": true,
+          "reason": "selected"
+        }
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "missing",
+      "question": "What did the page say?",
+      "arm": "f282",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 4108,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.3776,
+      "compile_ms_p95": 0.3833,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "missing",
+      "question": "What did the page say?",
+      "arm": "f283",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 4326,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.4457,
+      "compile_ms_p95": 0.454,
+      "recall": {
+        "intent": "quotation",
+        "matched_fact_ids": [],
+        "selected_fact_ids": [],
+        "evidence": "unavailable"
+      },
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "missing",
+      "question": "What do you collect?",
+      "arm": "f282",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": false,
+      "estimated_prompt_tokens": 4107,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.3747,
+      "compile_ms_p95": 0.3809,
+      "recall": null,
+      "memory_decisions": []
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "missing",
+      "question": "What do you collect?",
+      "arm": "f283",
+      "expected": null,
+      "evidence_present": false,
+      "uncertainty_instruction": true,
+      "estimated_prompt_tokens": 4326,
+      "memory_items": 0,
+      "history_messages": 2,
+      "compile_ms_median": 0.4437,
+      "compile_ms_p95": 0.4515,
+      "recall": {
+        "intent": "collection",
+        "matched_fact_ids": [],
+        "selected_fact_ids": [],
+        "evidence": "unavailable"
+      },
+      "memory_decisions": []
+    }
+  ],
+  "provider": {
+    "status": "unavailable",
+    "reason": "ConnectError",
+    "endpoint": "http://127.0.0.1:11435",
+    "generations": 0,
+    "rows": []
+  }
+}

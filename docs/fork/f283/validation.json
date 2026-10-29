@@ -1,0 +1,73 @@
+{
+  "milestone": "F2.8.3",
+  "baseline": "ff0f1ba",
+  "starting_head": "7c190fa",
+  "finding_commit": "5da8472",
+  "implementation_commits": [
+    "14984df8c8a32c31b5d574e6d2ebeb9655cb14d3",
+    "99e08b86b169f6814c415cf4a7af3312805064a7"
+  ],
+  "tag": "f2.8.3-checkpoint",
+  "python": {
+    "passed": 504,
+    "new_cases": 35,
+    "deselected": 3,
+    "reason": "three existing TCP tests fail with EPERM in unfiltered run",
+    "test_only_workaround": "F2.8.1 20ms selector polling shim copied to /tmp/f283-python"
+  },
+  "javascript": {
+    "passed": 42,
+    "new_gate_tests": 5
+  },
+  "upstream": {
+    "passed": 1057,
+    "failed_files": 0
+  },
+  "browser": {
+    "attempted": 7,
+    "passed": 0,
+    "unavailable": 7
+  },
+  "provider": {
+    "status": "unavailable",
+    "reason": "ConnectError",
+    "endpoint": "http://127.0.0.1:11435",
+    "generations": 0,
+    "rows": []
+  },
+  "comparison": {
+    "f282": {
+      "evidence_present": 0,
+      "evidence_cases": 18,
+      "missing_evidence_uncertainty": 0,
+      "compile_median_of_case_medians_ms": 0.5472,
+      "estimated_prompt_min": 2769,
+      "estimated_prompt_max": 4189
+    },
+    "f283": {
+      "evidence_present": 18,
+      "evidence_cases": 18,
+      "missing_evidence_uncertainty": 6,
+      "compile_median_of_case_medians_ms": 0.6099,
+      "estimated_prompt_min": 2942,
+      "estimated_prompt_max": 4461
+    }
+  },
+  "invariants": {
+    "services_restarted": false,
+    "modelfiles_models_artwork_changed": false,
+    "hardware_engine_or_pathways_changed": false,
+    "additional_inference_calls_or_model": false,
+    "thinking": false,
+    "free_form_objectives_preserved": true
+  },
+  "limitations": [
+    "Historical playtest trace unavailable; reproduced code paths are not a forensic claim about that run",
+    "Evidence retrieval coverage is not model response accuracy",
+    "English pattern extraction, limited semantic keys; implicit contradictions and ambiguous references remain imperfect",
+    "Maximum 16 records and 320 characters per exact item; longer precise quotations are not silently truncated into facts",
+    "Legacy attribution unknown; explicit native relationship conflicts derived from actual SYSTEM, no full semantic canon verifier",
+    "Live Ollama tokens/latency/recall and browser acceptance unavailable",
+    "User streaming remains provisional before existing factual validation; narrative record conflict handling does not rewrite generated prose"
+  ]
+}

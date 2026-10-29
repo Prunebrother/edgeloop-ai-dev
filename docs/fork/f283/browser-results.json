@@ -1,0 +1,57 @@
+{
+  "workflows": [
+    {
+      "workflow": "browser.mjs",
+      "exit_code": 1,
+      "passed": false,
+      "error": "Error: browserType.launch: Target page, context or browser has been closed",
+      "seconds": 0.4
+    },
+    {
+      "workflow": "character-browser.mjs",
+      "exit_code": 1,
+      "passed": false,
+      "error": "Error: Fixture did not start",
+      "seconds": 7.34
+    },
+    {
+      "workflow": "event-reliability.mjs",
+      "exit_code": 1,
+      "passed": false,
+      "error": "Error: Fixture unavailable",
+      "seconds": 8.33
+    },
+    {
+      "workflow": "narrative-browser.mjs",
+      "exit_code": 1,
+      "passed": false,
+      "error": "Error: Fixture unavailable",
+      "seconds": 10.34
+    },
+    {
+      "workflow": "character-menus-browser.mjs",
+      "exit_code": 1,
+      "passed": false,
+      "error": "Error: Fixture unavailable",
+      "seconds": 10.34
+    },
+    {
+      "workflow": "event-intelligence-browser.mjs",
+      "exit_code": 1,
+      "passed": false,
+      "error": "Error: Fixture unavailable",
+      "seconds": 10.35
+    },
+    {
+      "workflow": "context-intelligence-browser.mjs",
+      "exit_code": 1,
+      "passed": false,
+      "error": "Error: Fixture unavailable",
+      "seconds": 10.34
+    }
+  ],
+  "unavailable": 7,
+  "passed": 0,
+  "reason": "sandbox socket/Chromium restrictions; no browser acceptance reached",
+  "physical_hardware": false
+}
