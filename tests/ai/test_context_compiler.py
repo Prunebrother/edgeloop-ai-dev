@@ -86,7 +86,7 @@ def test_unrelated_event_is_not_stuffed_into_user_book_discussion():
 def test_relevant_commitment_callback_outranks_unrelated_recent_excerpts():
  n={'phase':'development','premise':'An observatory mystery.','commitments':['I will bring the violet notebook.'],'developments':['The kitchen smells of bread.','The roses are blooming.'],'choices':['I choose the violet notebook.']}
  messages,_,d=compile(prompt='What did you promise about the violet notebook?',narrative_context=n)
- assert 'commitments:0' in d['narrative_references']
+ assert d['narrative_references'] and any(x['selected'] for x in d['memory_decisions'] if x['category']=='commitment')
  assert 'violet notebook' in messages[-1]['content']
 
 

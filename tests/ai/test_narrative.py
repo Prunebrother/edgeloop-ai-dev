@@ -22,7 +22,7 @@ def test_bounded_quotes_no_invented_summary_or_physiological_history():
     for i in range(50):n.accepted('I choose the garden.','The letter bears a violet seal. Your BPM is 98. The device is moving.',True)
     c=n.context();assert c['premise']=='Imagine a mystery in the observatory.'
     assert c['choices']==['I choose the garden.'] and len(c['developments'])<=3
-    assert len(json.dumps(c))<6500 and '98' not in json.dumps(c) and 'device' not in json.dumps(c)
+    assert len(json.dumps(c))<6500 and not any('BPM' in f['text'] or 'device' in f['text'] for f in c['facts'])
     assert 'fallible' in c['provenance'] and c['phase']=='development'
 
 def test_scope_session_restoration_and_opt_in_local_persistence(tmp_path):

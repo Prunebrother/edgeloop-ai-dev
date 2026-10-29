@@ -182,6 +182,8 @@ class ModelManager:
                     self.model_metadata = await self.adapter.capabilities(self.config.model)
                 if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                 native_system=(self.model_metadata or {}).get('system','')
+                from .narrative_facts import native_canon
+                summary=summary|{'narrative_canon':native_canon(native_system)}
                 revision=summary.get('revision')
                 # Candidate drafts are never evidence of what the user reported.
                 grounding_history=history+([{'role':'user','content':revision['original_request']}] if revision and revision['source']=='user' else [] if revision else [{'role':'user','content':prompt}])
@@ -257,6 +259,7 @@ class ConversationService:
         self.tasks = set()
         self.history = deque(maxlen=8)
         self.model_histories = {}
+        self.character_state_sequences = {}
         self.active_model_id = None
         self.narrative = NarrativeMemory(getattr(self.adapter, "narrative_config", None), getattr(self.adapter, "store", None))
         self.activate_model()
@@ -309,6 +312,7 @@ class ConversationService:
             self.pending.clear()
         self.director.activate(scope)
         self.sync_narrative()
+        self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
         if not self.director.memory['responses']:
             for record in self.history:
                 if self.narrative.state['context_boundary'] and record.get('narrative_epoch')!=self.narrative.state['epoch']:continue
@@ -323,13 +327,15 @@ class ConversationService:
 
     def character_state(self):
         self.sync_narrative()
+        sequence=self.character_state_sequences.get(self.active_model_id,0)+1
+        self.character_state_sequences[self.active_model_id]=sequence
         now=self.clock();config=self.director.config
         event=getattr(self,'last_validated_event',None)
         if event and event.get('session_id')!=getattr(self.state,'session_id',None):event=None
         narrative=self.narrative.context()
         if narrative is not None:
             narrative=narrative | {key:list(self.narrative.state[key]) for key in ('developments','choices','commitments')} | {'recent_updates':self.narrative.state['developments'][-3:]}
-        return {'type':'character_state','model':self.responder()['model'],
+        return {'type':'character_state','model':self.responder()['model'],'state_sequence':sequence,
             'event_intelligence':self.event_intelligence.snapshot(),
             'event_lifecycle':list(getattr(self.state,'event_diagnostics',[]))[-8:],
             'completed_sessions':self.state.completed() if hasattr(self.state,'completed') else [],
@@ -580,6 +586,8 @@ class ConversationService:
             from .narrative import QUIET,abandonment_requested
             if abandonment_requested(prompt):self.reset_narrative()
             if QUIET.search(prompt):self.narrative.state['initiative_allowed']=False
+            try:self.narrative.observe_user(prompt)
+            except OSError:self.publish({'type':'character_menu_error','code':'narrative_persistence','model':self.responder()['model'],'detail':'New story details are retained in this process but could not be saved locally.'})
         if user and self.director.config.enabled and re.search(r"\b(no need to (?:reply|respond)|just (?:be|stay) quiet|let'?s sit quietly)\b", prompt, re.I):
             request_id=str(uuid4())
             self.director.counts['intentional_silence']+=1
@@ -726,6 +734,7 @@ class ConversationService:
                 self.history.append({'role':'assistant', 'content':text, 'origin':'assistant_dialogue',
                     'trigger_origin':'real_user' if user else 'system_event', 'expression':expression, 'session_id':getattr(self.state,'session_id',None), 'narrative_epoch':self.narrative.state['epoch'], 'at':self.clock()})
             if summary.get('narrative_scope')==self.narrative_scope() and memory.enabled:
+                self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
                 self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False))
                 trigger=summary.get('trigger_event',{})
                 if trigger.get('event_id'):self.narrative.reference_event(trigger)

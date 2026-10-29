@@ -11,6 +11,7 @@ from .models import StrictModel,MemoryConfig
 from .grounding import SessionFacts,render_facts
 from .expressions import FORMAT_INSTRUCTION
 from .narrative import abandonment_requested
+from .narrative_facts import retrieve,operational_text,MAX_FACTS
 
 class ContextConfig(StrictModel):
     schema_version: Literal[1]=1
@@ -38,7 +39,6 @@ def load_context_config(store):
 def estimate(text):return math.ceil(max(len(text),len(text.encode('utf-8')))/2.5)
 def dump(value):return json.dumps(value,separators=(',',':'),ensure_ascii=False)
 def words(text):return set(re.findall(r'[a-z]{3,}',str(text).casefold()))-set('the and this that with from have will would could should about your our for was are what story please'.split())
-OPERATIONAL=re.compile(r'\b(?:bpm|heart.?rate|pulse|sensor|hardware|device|handy|session|telemetry|threshold|edge counter|pause count|intensity setting)\b',re.I)
 TOPIC_CHANGE=re.compile(r'\b(?:new topic|change (?:the )?subject|something else|another subject)\b',re.I)
 TOPICS={
  'physiology':r'\b(?:bpm|pulse|heart.?rate|trend|measurement|readings?)\b',
@@ -105,6 +105,9 @@ class ContextCompiler:
         data=SessionFacts.model_validate(summary['canonical_session'])
         omissions=[];excluded=[];event=summary.get('trigger_event') or summary.get('derived_grounding')
         narrative=summary.get('narrative_context') or {}
+        scope=(summary.get('narrative_scope') or [narrative.get('model_scope')])[0]
+        epoch=summary.get('narrative_epoch') or narrative.get('epoch')
+        intent,matched_facts,memory_decisions=retrieve(narrative,prompt if user_context else '',scope,epoch,summary.get('narrative_canon')) if memory.enabled else (None,[],[])
         acknowledged={ref.get('event_id') for ref in narrative.get('event_references',[])}
         def valid_event(e):
             if not e:return False
@@ -119,6 +122,8 @@ class ContextCompiler:
             return True
         if event and not valid_event(event):event=None
         focus=attention(summary,prompt,event)
+        if intent:
+            focus=Focus(focus.category,focus.source,focus.topic,focus.instruction+' Recall only supplied established dialogue evidence or native canon; preserve exact quoted wording and source. Hypotheses are tentative. If matching evidence is missing, omitted or ambiguous, acknowledge uncertainty instead of inventing previous dialogue. New fiction must not be presented as prior history. Explicit user corrections supersede dialogue, never immutable native canon.')
         # Essential boundaries stay even for ordinary chat; numerical fields are selected.
         requested={key for key,pattern in TOPICS.items() if re.search(pattern,prompt,re.I)} if user_context else {focus.topic}
         if requested&{'physiology','timing','devices','configuration'} and not re.search(r'\b(?:edges?|milestones?|came early)\b',prompt,re.I):requested.discard('milestones')
@@ -199,13 +204,16 @@ class ContextCompiler:
         fresh_premise=focus.source=='real_user' and focus.topic=='story' and not narrative.get('premise') and bool(re.search(r'\b(?:imagine|fresh|new|premise)\b',prompt,re.I))
         active_instruction=lambda message: message.get('role')=='user' and bool(re.match(r"^\s*(?:please )?(?:always\b|never\b|remember:|do not\b|don't\b)",message.get('content',''),re.I))
         scoped=[];abandon_ack=False
+        conflicts=[r['text'] for r in narrative.get('facts',[])[:MAX_FACTS] if r.get('status') in {'conflict','superseded'} and (not epoch or r.get('epoch')==epoch) and (not scope or r.get('model_scope')==scope)]
         for i,m in enumerate(recent):
             text=m.get('content','')
+            if m.get('role')=='assistant' and any(t in text for t in conflicts):
+                omissions.append('Conflicting historical narrative claim omitted; transcript retained.');continue
             if fresh_premise:
                 if m.get('role')=='user':abandon_ack=abandonment_requested(text)
                 if abandon_ack:
                     omissions.append('Superseded abandonment transition omitted for fresh premise.');continue
-            if not active_instruction(m) and OPERATIONAL.search(text) and (current_query or m.get('session_id')!=data.session_id and not historical_query):
+            if not active_instruction(m) and operational_text(text) and (current_query or m.get('session_id')!=data.session_id and not historical_query):
                 omissions.append('Historical telemetry dialogue omitted from current-session inference; transcript retained.');continue
             if m.get('trigger_origin')=='system_event' and focus.category=='answer_user' and focus.topic not in {'physiology','milestones'}:continue
             if text in seen:continue
@@ -213,7 +221,8 @@ class ContextCompiler:
         query=words(prompt)
         ranked=sorted(scoped,key=lambda pair:(active_instruction(pair[1]),(3*len(query&words(pair[1].get('content','')))+(3 if pair[1].get('role')=='user' else 0)+(5 if pair[1].get('role')=='user' and re.search(r'\b(?:always|never|do not|remember|please)\b',pair[1].get('content',''),re.I) else 0),pair[0])),reverse=True)
         candidates=[]
-        if narrative and memory.enabled and not TOPIC_CHANGE.search(prompt) and not abandonment_requested(prompt):
+        narrative_allowed=narrative and memory.enabled and not TOPIC_CHANGE.search(prompt) and not abandonment_requested(prompt)
+        if narrative_allowed and intent not in {'quotation','collection'}:
             for key,priority in [('commitments',5),('threads',5),('choices',4),('developments',2)]:
                 for i,text in enumerate(narrative.get(key,[])):
                     overlap=len(query&words(text))
@@ -224,12 +233,19 @@ class ContextCompiler:
             if narrative.get('premise') and focus.topic in {'story','general'}:candidates.append((3,'premise',0,narrative['premise']))
             objective=narrative.get('objective')
             if objective and objective.get('status')=='active' and (focus.topic in {'story','general'} or len(query&words(dump(objective)))>=2 or event and event.get('kind') in {'completion_accepted','came_early'}):candidates.append((7,'objective',0,dump(objective)))
+        if narrative_allowed:
+            for i,r in enumerate(matched_facts):
+                text=r['category']+' (speaker='+r['speaker']+', source='+r['source']+', exact='+str(r['exact']).lower()+', slot='+r['slot']+'): '+r['text']
+                candidates.append((1000-i,'fact',i,text))
         candidates=sorted(candidates,reverse=True)
         chosen=[];narrative_items=[];history_used=narrative_used=0
         def assemble():
             content=base
+            if intent:
+                selected=any(item['reference'].startswith('fact:') for item in narrative_items)
+                content=('NARRATIVE RECALL: selected evidence retains source/category; hypotheses are not established facts.' if selected else 'NARRATIVE RECALL: no matching structured memory selected. Use supplied dialogue/native canon only if it establishes the answer; otherwise acknowledge uncertainty.')+'\n'+content
             if narrative_items:
-                content='NARRATIVE CONTEXT (fallible fiction/conversation, not operational evidence):\n'+dump({'phase':narrative.get('phase'),'items':narrative_items})+'\n\n'+base
+                content='NARRATIVE CONTEXT (fallible fiction/conversation, not operational evidence):\n'+dump({'phase':narrative.get('phase'),'epoch':narrative.get('epoch'),'model_scope':narrative.get('model_scope'),'items':narrative_items})+'\n\n'+content
             messages=[{'role':'system','content':system}]+[m for _,m in sorted(chosen)]+[{'role':'user','content':content,'origin':'real_user' if user_context and revision is None else 'system_event'}]
             return messages,sum(estimate(m['content'])+32 for m in messages)
         def add_history(pair,limit,required_directive=False):
@@ -246,8 +262,9 @@ class ContextCompiler:
         def add_narrative(candidate,limit):
             nonlocal narrative_used
             _,key,i,text=candidate
-            if any(text==m['content'] or text in m['content'] for _,m in chosen) or any(text==item['text'] for item in narrative_items):return False
-            item={'reference':key+':'+str(i),'text':text};cost=estimate(dump(item))+8
+            if key=='fact' and any(matched_facts[i]['text']==m['content'] for _,m in chosen):return False
+            if any(text==m['content'] or text in m['content'] for _,m in chosen) or any(text in item['text'] for item in narrative_items):return False
+            item={'reference':'fact:'+matched_facts[i]['id'] if key=='fact' else key+':'+str(i),'text':text};cost=estimate(dump(item))+8
             if narrative_used+cost>c.narrative_tokens:return False
             narrative_items.append(item)
             _,size=assemble()
@@ -265,7 +282,9 @@ class ContextCompiler:
         latest=list(reversed(scoped))[:2]
         if latest and add_history(latest[0],hard):protected_history+=1
         for candidate in candidates:
-            if add_narrative(candidate,hard):protected_narrative=1;break
+            if add_narrative(candidate,hard):
+                protected_narrative+=1
+                if protected_narrative>=(2 if intent else 1):break
         if len(latest)>1 and add_history(latest[1],hard):protected_history+=1
         _,reserved_total=assemble()
         effective=min(hard,max(soft,reserved_total))
@@ -273,7 +292,8 @@ class ContextCompiler:
         for pair in ranked:add_history(pair,effective)
         for candidate in candidates:add_narrative(candidate,effective)
         if len(chosen)<len(recent):omissions.append(str(len(recent)-len(chosen))+' historical messages omitted by relevance/budget; stored conversation retained.')
-        narrative_items[:]=[item for item in narrative_items if not any(item['text'] in m['content'] for _,m in chosen)]
+        fact_text={r['id']:r['text'] for r in matched_facts}
+        narrative_items[:]=[item for item in narrative_items if not any(item['text'] in m['content'] or item['reference'].startswith('fact:') and fact_text[item['reference'].split(':',1)[1]]==m['content'] for _,m in chosen)]
         narrative_used=sum(estimate(dump(item))+8 for item in narrative_items)
         for candidate in candidates:add_narrative(candidate,effective)
         protected_narrative=min(protected_narrative,len(narrative_items))
@@ -282,6 +302,13 @@ class ContextCompiler:
         if total>hard:raise ContextBudgetError(total+embedded+config.max_tokens+96,config.context_length)
         narrative_refs=[item['reference'] for item in narrative_items]
         usage|={'history':history_used,'narrative':narrative_used}
+        selected_fact_ids={ref.split(':',1)[1] for ref in narrative_refs if ref.startswith('fact:')}
+        history_fact_ids={r['id'] for r in matched_facts if any(r['text']==m['content'] and (r['speaker']=='unknown' or r['speaker']==m['role']) for _,m in chosen)}
+        selected_fact_ids|=history_fact_ids
+        memory_decisions += [{'id':r['id'],'category':r['category'],'speaker':r['speaker'],'epoch':r['epoch'],'selected':r['id'] in selected_fact_ids,'reason':'selected_history' if r['id'] in history_fact_ids else 'selected' if r['id'] in selected_fact_ids else 'budget' if narrative_allowed else 'context_disabled_or_topic_change'} for r in matched_facts]
+        selected_records=[r for r in matched_facts if r['id'] in selected_fact_ids]
+        evidence='tentative' if selected_records and all(r['category']=='hypothesis' for r in selected_records) else 'legacy_unattributed' if selected_records and all(r['source']=='legacy_excerpt' for r in selected_records) else 'selected' if selected_records else 'budget_excluded' if matched_facts else 'unavailable'
+        recall={'intent':intent,'matched_fact_ids':[r['id'] for r in matched_facts],'selected_fact_ids':sorted(selected_fact_ids),'evidence':evidence}
         allocation={'policy':'recent_exchange_and_relevant_story','protected_history_messages':protected_history,'protected_story_items':protected_narrative,'retained_history_messages':len(chosen),'retained_story_items':len(narrative_items),'effective_prompt_target_tokens':effective+embedded,'soft_target_extension_tokens':max(0,effective+embedded-c.target_prompt_tokens)}
-        diagnostics={'mode':'compiler','model':config.model,'focus':focus.__dict__,'supporting_categories':sorted(selected),'event_ids':[e.get('id',e.get('event_id',e.get('kind'))) for e in event_items], 'narrative_references':narrative_refs,'excluded_events':excluded[-12:],'estimated_prompt_tokens':total+embedded,'estimate_method':'UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact','budget':{'hard_prompt_tokens':hard+embedded,'soft_target_tokens':c.target_prompt_tokens,'categories':usage},'omissions':list(dict.fromkeys(omissions))[-12:],'compilation_ms':round((time.perf_counter()-start)*1000,3),'allocation':allocation,'objective':({'id':narrative['objective']['id'],'status':narrative['objective']['status']} if narrative.get('objective') else None)}
+        diagnostics={'mode':'compiler','model':config.model,'focus':focus.__dict__,'supporting_categories':sorted(selected),'event_ids':[e.get('id',e.get('event_id',e.get('kind'))) for e in event_items], 'narrative_references':narrative_refs,'excluded_events':excluded[-12:],'estimated_prompt_tokens':total+embedded,'estimate_method':'UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact','budget':{'hard_prompt_tokens':hard+embedded,'soft_target_tokens':c.target_prompt_tokens,'categories':usage},'omissions':list(dict.fromkeys(omissions))[-12:],'compilation_ms':round((time.perf_counter()-start)*1000,3),'allocation':allocation,'narrative_recall':recall,'memory_epoch':epoch,'memory_model_scope':scope,'memory_decisions':memory_decisions[:MAX_FACTS],'objective':({'id':narrative['objective']['id'],'status':narrative['objective']['status']} if narrative.get('objective') else None)}
         return messages,list(dict.fromkeys(omissions)),diagnostics

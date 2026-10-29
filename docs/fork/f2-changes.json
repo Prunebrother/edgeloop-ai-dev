@@ -6,8 +6,8 @@
   },
   "sw.js": {
     "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
-    "sha256": "462559ed765a84f2d259ff2f0cfe56f70a2132e80ed75d59e185ff9ab0bafdbd",
-    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only; F2.5.1 cache version only; F2.6 cache version only; F2.6.1 character menu module and cache invalidation; F2.7 event settings module and cache invalidation; F2.8 context tools precache and cache invalidation; F2.8.1 cache invalidation only; F2.8.2 context diagnostics cache invalidation only; free-form objective guidance cache invalidation only"
+    "sha256": "4f4883e61eed4ebbe90c0d6a90c39bbdc937b98297240f6e758aa0bc1d6a0496",
+    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only; F2.5.1 cache version only; F2.6 cache version only; F2.6.1 character menu module and cache invalidation; F2.7 event settings module and cache invalidation; F2.8 context tools precache and cache invalidation; F2.8.1 cache invalidation only; F2.8.2 context diagnostics cache invalidation only; free-form objective guidance cache invalidation only; F2.8.3 memory diagnostics cache invalidation"
   },
   ".gitignore": {
     "base_sha256": "f5dace1690dab0464685a792bf7005b1e43b16c580cd5dfd8f552f362704c81a",

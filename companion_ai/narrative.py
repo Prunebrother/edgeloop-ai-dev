@@ -7,6 +7,7 @@ from .models import StrictModel
 from pydantic import Field
 from typing import Literal
 from .expressions import clean_dialogue
+from .narrative_facts import NarrativeFact,extract,merge,operational_text,CORRECTION,native_canon,MAX_FACTS
 
 class NarrativeConfig(StrictModel):
     enabled: bool = True
@@ -14,9 +15,8 @@ class NarrativeConfig(StrictModel):
     max_excerpts: int = Field(default=8, ge=2, le=12)
     excerpt_characters: int = Field(default=180, ge=60, le=240)
 
-# Deliberately conservative: operational/physiological sentences stay in canonical
-# facts or ordinary dialogue, never in the story-anchor store.
-OPERATIONAL = re.compile(r'\b(?:bpm|heart|pulse|sensor|device|hardware|handy|telemetry|threshold|session|goal|mode|edge|milestone|climax|orgasm|physiolog|fertility|measurement|percent|reading|paused|running|stopped)\w*\b|\d|<think|\[\[',re.I)
+# Real operational assertions remain outside story anchors; fictional numbers and
+# ordinary narrative wording are permitted by operational_text().
 INVITATION = re.compile(r'\b(?:story|scene|premise|imagine|fiction|narrative)\b',re.I)
 QUIET = re.compile(r"\b(?:stop|disengage|quiet|silence|leave me|no more|do not continue|don.t continue|pause the story)\b",re.I)
 CHOICE = re.compile(r"\b(?:choose|chose|pick|prefer|let.s|decide|instead|agree|suggest|propose|yes)\b",re.I)
@@ -41,13 +41,13 @@ def abandonment_requested(text):
 class NarrativeMemory:
     def __init__(self, config=None, store=None):
         self.config=config or NarrativeConfig(); self.store=store
-        self.states={}; self.scope=None; self.session=None
+        self.states={}; self.scope=None; self.session=None;self.canon={}
 
     @staticmethod
     def empty(session):
-        return dict(version=1,session_id=session,epoch=uuid4().hex,context_boundary=False,phase='opening',premise=None,
+        return dict(version=2,session_id=session,epoch=uuid4().hex,context_boundary=False,phase='opening',premise=None,
                     developments=[],choices=[],commitments=[],threads=[],event_references=[],
-                    objective=None,initiative_allowed=False,revision=0,last_initiative_revision=-1)
+                    facts=[],fact_updates=[],facts_initialized=True,objective=None,initiative_allowed=False,revision=0,last_initiative_revision=-1)
 
     def path(self, scope):
         return 'memory/narrative/'+sha256(scope.encode()).hexdigest()+'.json'
@@ -62,6 +62,14 @@ class NarrativeMemory:
             # Restore only sanitized dialogue excerpts, never operational state,
             # scheduling permission or a previous session identity.
             old=self.empty(session)
+            if re.fullmatch(r'[a-f0-9]{32}',str(saved.get('epoch',''))):old['epoch']=saved['epoch']
+            old['facts_initialized']=False
+            saved_facts=saved.get('facts')
+            for raw in (saved_facts if isinstance(saved_facts,list) else [])[:MAX_FACTS]:
+                try:record=NarrativeFact.model_validate(raw).model_dump()
+                except ValueError:continue
+                if record['model_scope']==scope and record['epoch']==old['epoch']:old['facts'].append(record)
+            if isinstance(saved_facts,list):old['facts_initialized']=True
             for key in ('premise','developments','choices','commitments'):
                 value=saved.get(key)
                 if key=='premise':old[key]=self.excerpt(value or '')
@@ -81,6 +89,12 @@ class NarrativeMemory:
         if saved.get('context_boundary') is True and re.fullmatch(r'[a-f0-9]{32}',str(saved.get('epoch',''))):
             old.update(context_boundary=True,epoch=saved['epoch'])
         old.setdefault('objective',None)
+        old.setdefault('facts',[]);old.setdefault('fact_updates',[])
+        if not old.get('facts_initialized',False):
+            for key in ('developments','choices','commitments'):
+                for text in old.get(key,[]):merge(old['facts'],extract(text,'unknown',scope,old['epoch'],source='legacy_excerpt'))
+            old['facts_initialized']=True
+        old['version']=2
         if old['session_id']!=session:old['objective']=None
         self.states[scope]=old
 
@@ -90,7 +104,7 @@ class NarrativeMemory:
     def excerpt(self,text):
         if not isinstance(text,str):return None
         sentences=re.split(r'(?<=[.!?])\s+|\n+',clean_dialogue(text))
-        safe=[s.strip() for s in sentences if s.strip() and not OPERATIONAL.search(s)]
+        safe=[s.strip() for s in sentences if s.strip() and not operational_text(s)]
         return ' '.join(safe)[:self.config.excerpt_characters] or None
 
     def append(self,key,text):
@@ -100,7 +114,9 @@ class NarrativeMemory:
     def accepted(self,prompt,text,user,event=None,initiative=False):
         if not self.config.enabled:return
         s=self.state
+        if user and abandonment_requested(prompt):return
         if user:
+            self.observe_user(prompt)
             s['revision']+=1
             # A real user turn resolves the last question operationally; we do not
             # claim that its semantic answer has been understood.
@@ -112,7 +128,9 @@ class NarrativeMemory:
                 quote=clean_dialogue(prompt)[:self.config.excerpt_characters] or None
             if not s['premise'] and INVITATION.search(prompt):s['premise']=quote
             if CHOICE.search(prompt):self.append('choices',quote)
-        quote=self.excerpt(text)
+        updates=merge(s['facts'],extract(text,'assistant',self.scope,s['epoch'],prompt if user else ''),canon=self.canon.get(self.scope))
+        s['fact_updates']=(s['fact_updates']+updates)[-8:]
+        quote=None if any(u['decision'] in {'contradicts_established_detail','native_canon_conflict','recall_without_evidence'} for u in updates) else self.excerpt(text)
         if not s['premise'] and user and s['initiative_allowed']:s['premise']=quote
         self.append('developments',quote)
         if quote and PROMISE.search(quote):self.append('commitments',quote)
@@ -123,6 +141,19 @@ class NarrativeMemory:
         if s.get('objective') and s['objective']['status']=='active':s['objective']['phase']=s['phase']
         if initiative:s['last_initiative_revision']=s['revision']
         self.persist()
+
+    def observe_user(self,prompt):
+        if not self.config.enabled or abandonment_requested(prompt):return
+        s=self.state;cue=' '.join(s['threads'][-1:])
+        updates=merge(s['facts'],extract(prompt,'user',self.scope,s['epoch'],cue),bool(CORRECTION.search(prompt)),self.canon.get(self.scope))
+        s['fact_updates']=(s['fact_updates']+updates)[-8:]
+        if updates:self.persist()
+
+    def set_canon(self,text):
+        self.canon[self.scope]=native_canon(text)
+        for record in self.state['facts']:
+            expected=self.canon[self.scope].get(record['slot'])
+            if expected and record['value'].casefold()!=expected:record.update(status='conflict',reason='native_canon_conflict')
 
     def reference_event(self,event):
         if not self.config.enabled:return
@@ -145,17 +176,16 @@ class NarrativeMemory:
             self.store.write(self.path(self.scope),self.state)
 
     def reset(self):
-        self.states[self.scope]=self.empty(self.session)
-        self.state['context_boundary']=True
-        # Overwrite even when persistence is now disabled: explicit reset must
-        # prevent an old opted-in record returning when re-enabled.
-        if self.store:self.store.write(self.path(self.scope),self.state)
+        fresh=self.empty(self.session);fresh['context_boundary']=True
+        # Persist before publishing a new epoch; failure must not claim a reset.
+        if self.store:self.store.write(self.path(self.scope),fresh)
+        self.states[self.scope]=fresh
 
     def context(self, for_compiler=False):
         if not self.config.enabled:return None
         s=self.state
-        return {k:s[k] for k in ('version','phase','premise','choices','commitments','threads','event_references','objective')} | {
-            'developments':s['developments'][-self.config.max_excerpts:] if for_compiler else s['developments'][-3:], 'choices':s['choices'][-self.config.max_excerpts:] if for_compiler else s['choices'][-4:], 'commitments':s['commitments'][-self.config.max_excerpts:] if for_compiler else s['commitments'][-3:], 'provenance':'fallible dialogue excerpts; fiction/conversation, never verified session facts'}
+        return {k:s[k] for k in ('version','phase','premise','choices','commitments','threads','event_references','objective','facts','epoch','fact_updates')} | {
+            'developments':s['developments'][-self.config.max_excerpts:] if for_compiler else s['developments'][-3:], 'choices':s['choices'][-self.config.max_excerpts:] if for_compiler else s['choices'][-4:], 'commitments':s['commitments'][-self.config.max_excerpts:] if for_compiler else s['commitments'][-3:], 'model_scope':self.scope,'provenance':'fallible dialogue excerpts; fiction/conversation, never verified session facts'}
 
     def update_objective(self,action,fields=None):
         if action=='update':action='revise'

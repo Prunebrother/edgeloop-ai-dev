@@ -2,12 +2,33 @@
 // Read-only presentation and validated companion settings. No engine imports.
 import {mountContextIntelligence} from './context-intelligence.js';
 import {mountEventSettings} from './event-settings.js';
+// Version gate for presentation snapshots; transcript and memory live elsewhere.
+export class NarrativeStateGate {
+    constructor(){this.models=new Map();}
+    clear(){this.models.clear();}
+    reset(model,epoch){
+        const old=this.models.get(model)||{retired:new Set()};
+        if(old.epoch&&old.epoch!==epoch)old.retired.add(old.epoch);
+        while(old.retired.size>16)old.retired.delete(old.retired.values().next().value);
+        this.models.set(model,{epoch,revision:0,sequence:-1,retired:old.retired});
+        while(this.models.size>32)this.models.delete(this.models.keys().next().value);
+    }
+    accept(state){
+        const model=state.model,epoch=state.narrative_epoch,old=this.models.get(model);
+        if(old?.retired.has(epoch)||old?.epoch&&!epoch)return false;
+        if(old&&old.epoch===epoch&&(Number.isSafeInteger(state.state_sequence)&&state.state_sequence<old.sequence||Number.isSafeInteger(state.narrative_revision)&&state.narrative_revision<old.revision))return false;
+        if(!old||old.epoch!==epoch)this.reset(model,epoch);
+        const current=this.models.get(model);
+        current.revision=state.narrative_revision??current.revision;current.sequence=state.state_sequence??current.sequence;return true;
+    }
+}
 export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
     const toolbar=document.createElement('nav');toolbar.className='character-toolbar';toolbar.setAttribute('aria-label','Character management');
     toolbar.innerHTML='<button type="button" data-menu-director aria-controls="character-director" aria-expanded="false">Director</button><button type="button" data-menu-story aria-controls="character-story" aria-expanded="false">Story Memory</button>';
     host.querySelector('header').after(toolbar);
     const summary=document.createElement('details');summary.className='story-summary';summary.hidden=true;
     summary.innerHTML='<summary></summary><p></p>';toolbar.after(summary);
+    const stateGate=new NarrativeStateGate();
     const dialogs={};let model=null,connected=false,state=null,opener=null,open=null,saving=false,resetting=false,dirty=false,storyKey=null;
     for(const [key,title] of [['director','Conversation Director'],['story','Story Memory']]){
         const d=document.createElement('dialog');d.id='character-'+key;d.className='character-drawer';d.setAttribute('aria-labelledby',d.id+'-title');
@@ -62,7 +83,11 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
         story.querySelector('[data-story-model]').textContent=model?'Model: '+model:'No model selected';
         const body=story.querySelector('[data-story-content]'),nextStoryKey=JSON.stringify([model,available,n]);
         if(storyKey!==nextStoryKey){storyKey=nextStoryKey;body.replaceChildren();
-        if(n){if(n.objective)list(body,'Fictional objective',[human(n.objective.status)+' · '+n.objective.premise,n.objective.motivation,n.objective.next_development].filter(Boolean));list(body,'Current premise',n.premise?[n.premise]:[],'No premise established.');list(body,'Narrative phase',[human(n.phase)]);list(body,'Story developments',n.developments);list(body,'User choices',n.choices);list(body,'Unresolved threads',n.threads);list(body,'Character commitments',n.commitments);list(body,'Recent narrative updates',n.recent_updates||n.developments?.slice(-3));}
+        if(n){
+        list(body,'Active narrative epoch',[n.epoch||state.narrative_epoch||'Unavailable']);
+        const audit=state.context_intelligence?.memory_epoch===n.epoch?state.context_intelligence?.memory_decisions||[]:[];
+        list(body,'Established details and sources',(n.facts||[]).map(f=>{const decision=audit.find(d=>d.id===f.id);return human(f.category)+' · '+f.speaker+' · '+human(f.status)+' · '+f.text+' · '+(decision?(decision.selected?'Selected for current prompt':'Excluded: '+human(decision.reason)):'Not yet evaluated for this prompt');}));
+        if(n.objective)list(body,'Fictional objective',[human(n.objective.status)+' · '+n.objective.premise,n.objective.motivation,n.objective.next_development].filter(Boolean));list(body,'Current premise',n.premise?[n.premise]:[],'No premise established.');list(body,'Narrative phase',[human(n.phase)]);list(body,'Story developments',n.developments);list(body,'User choices',n.choices);list(body,'Unresolved threads',n.threads);list(body,'Character commitments',n.commitments);list(body,'Recent narrative updates',n.recent_updates||n.developments?.slice(-3));}
         else list(body,'Story memory',[],available?'Narrative memory is disabled.':'Connect and select a model to view its story.');}
         story.querySelector('[data-start-story]').disabled=!available||resetting;
         story.querySelector('[data-narrative-reset]').disabled=!available||resetting;
@@ -85,11 +110,11 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
     document.addEventListener('keydown',escape);document.addEventListener('pointerdown',outside);
     const timer=setInterval(()=>{if(open)request();},2000);
     return {
-        scope(next,paired){if(next!==model||connected!==paired){close(false);state=null;saving=resetting=dirty=false;for(const key of Object.keys(dialogs))notice(key,'');}model=next;connected=paired;render();},
+        scope(next,paired){if(!paired)stateGate.clear();if(next!==model||connected!==paired){close(false);state=null;saving=resetting=dirty=false;for(const key of Object.keys(dialogs))notice(key,'');}model=next;connected=paired;render();},
         receive(message){
             if(message.model&&message.model!==model)return;
-            if(message.type==='character_state'){state=message;if(saving&&message.director_saved){saving=dirty=false;notice('director','Saved to the companion service.');}render();}
-            else if(message.type==='narrative_reset'){contextIntelligence.reset();resetting=false;story.querySelector('[data-story-confirm]').hidden=true;if(state)state={...state,narrative:null,narrative_epoch:message.narrative_epoch};notice('story','New storyline started. Transcript retained.');request();render();story.querySelector('[data-start-story]').focus();}
+            if(message.type==='character_state'){if(!stateGate.accept(message))return;state=message;if(saving&&message.director_saved){saving=dirty=false;notice('director','Saved to the companion service.');}render();}
+            else if(message.type==='narrative_reset'){stateGate.reset(message.model,message.narrative_epoch);contextIntelligence.reset();resetting=false;story.querySelector('[data-story-confirm]').hidden=true;if(state)state={...state,narrative:null,narrative_epoch:message.narrative_epoch};notice('story','New storyline started. Transcript retained.');request();render();story.querySelector('[data-start-story]').focus();}
             else if(message.type==='character_menu_error'){saving=resetting=false;notice(open||'director',message.detail);eventSettings.error(message.detail);contextIntelligence.error(message.detail);render();}
         },
         refresh:request,
