@@ -1,0 +1,55 @@
+{
+  "physical_hardware": false,
+  "unavailable_reason": "Sandbox denies sockets/Chromium IPC; no workflow reached browser acceptance",
+  "workflows": [
+    {
+      "workflow": "browser.mjs",
+      "passed": false,
+      "exit_code": 1,
+      "error": "Error: browserType.launch: Target page, context or browser has been closed",
+      "seconds": 0.67
+    },
+    {
+      "workflow": "character-browser.mjs",
+      "passed": false,
+      "exit_code": 1,
+      "error": "Error: Fixture did not start",
+      "seconds": 7.53
+    },
+    {
+      "workflow": "event-reliability.mjs",
+      "passed": false,
+      "exit_code": 1,
+      "error": "Error: Fixture unavailable",
+      "seconds": 8.47
+    },
+    {
+      "workflow": "narrative-browser.mjs",
+      "passed": false,
+      "exit_code": 1,
+      "error": "Error: Fixture unavailable",
+      "seconds": 10.35
+    },
+    {
+      "workflow": "character-menus-browser.mjs",
+      "passed": false,
+      "exit_code": 1,
+      "error": "Error: Fixture unavailable",
+      "seconds": 10.35
+    },
+    {
+      "workflow": "event-intelligence-browser.mjs",
+      "passed": false,
+      "exit_code": 1,
+      "error": "Error: Fixture unavailable",
+      "seconds": 10.36
+    },
+    {
+      "workflow": "context-intelligence-browser.mjs",
+      "passed": false,
+      "exit_code": 1,
+      "error": "Error: Fixture unavailable",
+      "seconds": 10.34
+    }
+  ]
+}

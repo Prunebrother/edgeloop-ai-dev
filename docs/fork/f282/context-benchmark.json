@@ -1,0 +1,1383 @@
+{
+  "baseline_commit": "1ac5091",
+  "physical_hardware": false,
+  "live": false,
+  "repeats": 30,
+  "rows": [
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "greeting",
+      "arm": "f281",
+      "estimated_prompt_tokens": 2909,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.3619,
+      "compile_ms_p95": 0.6084,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "greeting",
+      "arm": "f282",
+      "estimated_prompt_tokens": 2794,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4958,
+      "compile_ms_p95": 0.5014,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 2800,
+        "soft_target_extension_tokens": 0
+      },
+      "omissions": [
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "long_dialogue",
+      "arm": "f281",
+      "estimated_prompt_tokens": 2919,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.7946,
+      "compile_ms_p95": 0.9409,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "long_dialogue",
+      "arm": "f282",
+      "estimated_prompt_tokens": 3283,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.9314,
+      "compile_ms_p95": 1.0805,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 3283,
+        "soft_target_extension_tokens": 483
+      },
+      "omissions": [
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "callback",
+      "arm": "f281",
+      "estimated_prompt_tokens": 2921,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.3852,
+      "compile_ms_p95": 0.3899,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "callback",
+      "arm": "f282",
+      "estimated_prompt_tokens": 2803,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.5164,
+      "compile_ms_p95": 0.6388,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 2803,
+        "soft_target_extension_tokens": 3
+      },
+      "omissions": [
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "telemetry",
+      "arm": "f281",
+      "estimated_prompt_tokens": 3123,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "ble",
+        "experience",
+        "goal",
+        "handy",
+        "hr",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "resting_bpm",
+        "status",
+        "tcode",
+        "toy_ready",
+        "trend",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.3695,
+      "compile_ms_p95": 0.376,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "telemetry",
+      "arm": "f282",
+      "estimated_prompt_tokens": 3023,
+      "history_messages": 2,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "experience",
+        "goal",
+        "hr",
+        "hr_source",
+        "resting_bpm",
+        "status",
+        "trend"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4135,
+      "compile_ms_p95": 0.4186,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 0,
+        "retained_history_messages": 2,
+        "retained_story_items": 0,
+        "effective_prompt_target_tokens": 3023,
+        "soft_target_extension_tokens": 223
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "completion",
+      "arm": "f281",
+      "estimated_prompt_tokens": 3735,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "ble",
+        "edges",
+        "experience",
+        "goal",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "react_event",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4516,
+      "compile_ms_p95": 0.636,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "completion",
+      "arm": "f282",
+      "estimated_prompt_tokens": 3594,
+      "history_messages": 2,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "edges",
+        "experience",
+        "goal",
+        "status"
+      ],
+      "focus": "react_event",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4911,
+      "compile_ms_p95": 0.4947,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 0,
+        "retained_history_messages": 2,
+        "retained_story_items": 0,
+        "effective_prompt_target_tokens": 3594,
+        "soft_target_extension_tokens": 794
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "revision_user",
+      "arm": "f281",
+      "estimated_prompt_tokens": 2987,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "context_only",
+      "candidate_preserved": true,
+      "compile_ms_median": 0.4219,
+      "compile_ms_p95": 0.426,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "revision_user",
+      "arm": "f282",
+      "estimated_prompt_tokens": 2987,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "revise_reply",
+      "candidate_preserved": true,
+      "compile_ms_median": 0.5373,
+      "compile_ms_p95": 0.7479,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 2987,
+        "soft_target_extension_tokens": 187
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "focus soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "revision_event",
+      "arm": "f281",
+      "estimated_prompt_tokens": 3735,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "ble",
+        "edges",
+        "experience",
+        "goal",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "react_event",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.49,
+      "compile_ms_p95": 0.4948,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "revision_event",
+      "arm": "f282",
+      "estimated_prompt_tokens": 3829,
+      "history_messages": 2,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "edges",
+        "experience",
+        "goal",
+        "status"
+      ],
+      "focus": "revise_reply",
+      "candidate_preserved": true,
+      "compile_ms_median": 0.5264,
+      "compile_ms_p95": 0.7201,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 0,
+        "retained_history_messages": 2,
+        "retained_story_items": 0,
+        "effective_prompt_target_tokens": 3829,
+        "soft_target_extension_tokens": 1029
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "focus soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "greeting",
+      "arm": "f281",
+      "estimated_prompt_tokens": 2954,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.3569,
+      "compile_ms_p95": 0.3627,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "greeting",
+      "arm": "f282",
+      "estimated_prompt_tokens": 2839,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4939,
+      "compile_ms_p95": 0.6825,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 2839,
+        "soft_target_extension_tokens": 39
+      },
+      "omissions": [
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "long_dialogue",
+      "arm": "f281",
+      "estimated_prompt_tokens": 2964,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.781,
+      "compile_ms_p95": 0.7824,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "long_dialogue",
+      "arm": "f282",
+      "estimated_prompt_tokens": 3328,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.9205,
+      "compile_ms_p95": 1.0431,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 3328,
+        "soft_target_extension_tokens": 528
+      },
+      "omissions": [
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "callback",
+      "arm": "f281",
+      "estimated_prompt_tokens": 2966,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4208,
+      "compile_ms_p95": 0.6007,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "callback",
+      "arm": "f282",
+      "estimated_prompt_tokens": 2848,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.5158,
+      "compile_ms_p95": 0.5199,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 2848,
+        "soft_target_extension_tokens": 48
+      },
+      "omissions": [
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "telemetry",
+      "arm": "f281",
+      "estimated_prompt_tokens": 3168,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "ble",
+        "experience",
+        "goal",
+        "handy",
+        "hr",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "resting_bpm",
+        "status",
+        "tcode",
+        "toy_ready",
+        "trend",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.3633,
+      "compile_ms_p95": 0.3694,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "telemetry",
+      "arm": "f282",
+      "estimated_prompt_tokens": 3068,
+      "history_messages": 2,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "experience",
+        "goal",
+        "hr",
+        "hr_source",
+        "resting_bpm",
+        "status",
+        "trend"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4086,
+      "compile_ms_p95": 0.6226,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 0,
+        "retained_history_messages": 2,
+        "retained_story_items": 0,
+        "effective_prompt_target_tokens": 3068,
+        "soft_target_extension_tokens": 268
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "completion",
+      "arm": "f281",
+      "estimated_prompt_tokens": 3780,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "ble",
+        "edges",
+        "experience",
+        "goal",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "react_event",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4464,
+      "compile_ms_p95": 0.4501,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "completion",
+      "arm": "f282",
+      "estimated_prompt_tokens": 3639,
+      "history_messages": 2,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "edges",
+        "experience",
+        "goal",
+        "status"
+      ],
+      "focus": "react_event",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4907,
+      "compile_ms_p95": 0.5511,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 0,
+        "retained_history_messages": 2,
+        "retained_story_items": 0,
+        "effective_prompt_target_tokens": 3639,
+        "soft_target_extension_tokens": 839
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "revision_user",
+      "arm": "f281",
+      "estimated_prompt_tokens": 3032,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "context_only",
+      "candidate_preserved": true,
+      "compile_ms_median": 0.4191,
+      "compile_ms_p95": 0.4231,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "revision_user",
+      "arm": "f282",
+      "estimated_prompt_tokens": 3032,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "revise_reply",
+      "candidate_preserved": true,
+      "compile_ms_median": 0.5364,
+      "compile_ms_p95": 0.5397,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 3032,
+        "soft_target_extension_tokens": 232
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "focus soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "revision_event",
+      "arm": "f281",
+      "estimated_prompt_tokens": 3780,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "ble",
+        "edges",
+        "experience",
+        "goal",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "react_event",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4896,
+      "compile_ms_p95": 0.6079,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "revision_event",
+      "arm": "f282",
+      "estimated_prompt_tokens": 3874,
+      "history_messages": 2,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "edges",
+        "experience",
+        "goal",
+        "status"
+      ],
+      "focus": "revise_reply",
+      "candidate_preserved": true,
+      "compile_ms_median": 0.5244,
+      "compile_ms_p95": 0.5283,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 0,
+        "retained_history_messages": 2,
+        "retained_story_items": 0,
+        "effective_prompt_target_tokens": 3874,
+        "soft_target_extension_tokens": 1074
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "focus soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "greeting",
+      "arm": "f281",
+      "estimated_prompt_tokens": 4292,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.3587,
+      "compile_ms_p95": 0.5626,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "greeting",
+      "arm": "f282",
+      "estimated_prompt_tokens": 4177,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4827,
+      "compile_ms_p95": 0.4881,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 4177,
+        "soft_target_extension_tokens": 1377
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "long_dialogue",
+      "arm": "f281",
+      "estimated_prompt_tokens": 4302,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.7656,
+      "compile_ms_p95": 0.8105,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "long_dialogue",
+      "arm": "f282",
+      "estimated_prompt_tokens": 4666,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.9016,
+      "compile_ms_p95": 0.9092,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 4666,
+        "soft_target_extension_tokens": 1866
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "callback",
+      "arm": "f281",
+      "estimated_prompt_tokens": 4304,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.3716,
+      "compile_ms_p95": 0.4144,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "callback",
+      "arm": "f282",
+      "estimated_prompt_tokens": 4186,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.5077,
+      "compile_ms_p95": 0.5494,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 4186,
+        "soft_target_extension_tokens": 1386
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "telemetry",
+      "arm": "f281",
+      "estimated_prompt_tokens": 4506,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "ble",
+        "experience",
+        "goal",
+        "handy",
+        "hr",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "resting_bpm",
+        "status",
+        "tcode",
+        "toy_ready",
+        "trend",
+        "vacuglide"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.3605,
+      "compile_ms_p95": 0.5784,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "telemetry",
+      "arm": "f282",
+      "estimated_prompt_tokens": 4406,
+      "history_messages": 2,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "experience",
+        "goal",
+        "hr",
+        "hr_source",
+        "resting_bpm",
+        "status",
+        "trend"
+      ],
+      "focus": "answer_user",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4022,
+      "compile_ms_p95": 0.4511,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 0,
+        "retained_history_messages": 2,
+        "retained_story_items": 0,
+        "effective_prompt_target_tokens": 4406,
+        "soft_target_extension_tokens": 1606
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "completion",
+      "arm": "f281",
+      "estimated_prompt_tokens": 5118,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "ble",
+        "edges",
+        "experience",
+        "goal",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "react_event",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4406,
+      "compile_ms_p95": 0.4829,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "completion",
+      "arm": "f282",
+      "estimated_prompt_tokens": 4977,
+      "history_messages": 2,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "edges",
+        "experience",
+        "goal",
+        "status"
+      ],
+      "focus": "react_event",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4824,
+      "compile_ms_p95": 0.6152,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 0,
+        "retained_history_messages": 2,
+        "retained_story_items": 0,
+        "effective_prompt_target_tokens": 4977,
+        "soft_target_extension_tokens": 2177
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "revision_user",
+      "arm": "f281",
+      "estimated_prompt_tokens": 4370,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "ble",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "context_only",
+      "candidate_preserved": true,
+      "compile_ms_median": 0.4119,
+      "compile_ms_p95": 0.4172,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "revision_user",
+      "arm": "f282",
+      "estimated_prompt_tokens": 4370,
+      "history_messages": 2,
+      "story_items": 1,
+      "selected_facts": [
+        "status"
+      ],
+      "focus": "revise_reply",
+      "candidate_preserved": true,
+      "compile_ms_median": 0.5276,
+      "compile_ms_p95": 0.7366,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 1,
+        "retained_history_messages": 2,
+        "retained_story_items": 1,
+        "effective_prompt_target_tokens": 4370,
+        "soft_target_extension_tokens": 1570
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "focus soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "revision_event",
+      "arm": "f281",
+      "estimated_prompt_tokens": 5118,
+      "history_messages": 0,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "ble",
+        "edges",
+        "experience",
+        "goal",
+        "handy",
+        "hr_source",
+        "intiface",
+        "physical_motion",
+        "status",
+        "tcode",
+        "toy_ready",
+        "vacuglide"
+      ],
+      "focus": "react_event",
+      "candidate_preserved": false,
+      "compile_ms_median": 0.4807,
+      "compile_ms_p95": 0.5242,
+      "allocation": null,
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "8 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "revision_event",
+      "arm": "f282",
+      "estimated_prompt_tokens": 5212,
+      "history_messages": 2,
+      "story_items": 0,
+      "selected_facts": [
+        "active_mode",
+        "edges",
+        "experience",
+        "goal",
+        "status"
+      ],
+      "focus": "revise_reply",
+      "candidate_preserved": true,
+      "compile_ms_median": 0.5131,
+      "compile_ms_p95": 0.7453,
+      "allocation": {
+        "policy": "recent_exchange_and_relevant_story",
+        "protected_history_messages": 2,
+        "protected_story_items": 0,
+        "retained_history_messages": 2,
+        "retained_story_items": 0,
+        "effective_prompt_target_tokens": 5212,
+        "soft_target_extension_tokens": 2412
+      },
+      "omissions": [
+        "Soft prompt target exceeded to preserve user message and required grounding/facts.",
+        "grounding soft category limit exceeded: required evidence/instructions preserved.",
+        "facts soft category limit exceeded: required evidence/instructions preserved.",
+        "focus soft category limit exceeded: required evidence/instructions preserved.",
+        "Soft target extended only for recent dialogue/relevant story retention; hard context limit unchanged.",
+        "6 historical messages omitted by relevance/budget; stored conversation retained.",
+        "Optional narrative excerpts omitted by relevance/budget; memory retained."
+      ]
+    }
+  ],
+  "estimates": "UTF-8/character heuristic; not actual provider tokens",
+  "provider": {
+    "endpoint": "http://127.0.0.1:11435",
+    "status": "unavailable",
+    "reason": "ConnectError",
+    "rows": [],
+    "generations": 0
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "milestone": "F2.8.2",
+  "baseline_commit": "1ac5091",
+  "implementation_commit": "5a85202fe13fb5e67ea6f13cf531be79e283fc7f",
+  "branch": "experiment/ai-companion",
+  "checkpoint_tag": "f2.8.2-checkpoint",
+  "python": {
+    "passed": 464,
+    "deselected": 3,
+    "new_cases": 46,
+    "unavailable": [
+      "test_observer_occupied_port_is_actionable_and_does_not_publish_token",
+      "test_ui_occupied_port_is_actionable",
+      "test_pairing_only_available_to_same_origin_post"
+    ],
+    "unavailable_reason": "AF_INET socket creation EPERM; attempted unfiltered suite",
+    "test_process_workaround": "20ms selector polling from F2.8.1 archived shim; no production changes",
+    "warning": "Existing Starlette TestClient deprecation"
+  },
+  "javascript": {
+    "passed": 37,
+    "failed": 0
+  },
+  "upstream": {
+    "passed": 1057,
+    "failed_files": 0
+  },
+  "browser": {
+    "attempted": 7,
+    "passed": 0,
+    "unavailable": 7
+  },
+  "provider": {
+    "endpoint": "http://127.0.0.1:11435",
+    "status": "unavailable",
+    "reason": "ConnectError",
+    "rows": [],
+    "generations": 0
+  },
+  "compilation": {
+    "f281": {
+      "median_of_case_medians_ms": 0.4208,
+      "median_of_case_p95_ms": 0.4948
+    },
+    "f282": {
+      "median_of_case_medians_ms": 0.5131,
+      "median_of_case_p95_ms": 0.6152
+    }
+  },
+  "invariants": {
+    "think": false,
+    "services_restarted": false,
+    "hardware_tested": false,
+    "models_rebuilt": false,
+    "modelfiles_or_sampling_presets_changed": false,
+    "engine_drivers_or_hardware_pathways_changed": false,
+    "context_limit_changed": false,
+    "new_llm_calls_or_retry_allowance": false
+  },
+  "limitations": [
+    "Actual provider tokens, GPU/response latency and subjective narrative quality unavailable",
+    "Character sources used as native persona length proxy; installed metadata not verified",
+    "English keyword history/story filtering deferred",
+    "Whole reserved items may not fit hard/category limits; mandatory input never silently truncated",
+    "Existing user streaming can precede final grounding/repetition repair"
+  ]
+}
