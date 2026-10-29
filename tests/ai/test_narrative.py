@@ -132,7 +132,7 @@ def test_story_context_omits_irrelevant_numeric_data_but_retains_canonical_check
     from companion_ai.fidelity import violations
     c,o,s=observation();summary=o.summary()|{'conversation_source':'user','narrative_context':narrative().context()}
     messages,_=compose_messages(summary,'Imagine a mystery.',[],AIConfig())
-    assert '98 BPM' not in messages[-1]['content'] and 'Heart rate [hr]' not in messages[-1]['content'] and 'HR source: simulator' in messages[-1]['content']
+    assert '98 BPM' not in messages[-1]['content'] and 'Heart rate [hr]' not in messages[-1]['content'] and 'HR source:' not in messages[-1]['content']
     assert o.canonical()['facts']['hr']['value']==98
     assert 'unmeasured_physiology_from_simulation_or_unknown' in violations('Our hearts are humming at 98 BPM.',o.canonical())
     assert 'unmeasured_physiology_from_simulation_or_unknown' in violations('My heart is hovering near 98 BPM.',o.canonical())

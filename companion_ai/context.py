@@ -29,7 +29,10 @@ class ContextBudgetError(ValueError):
 
 def compose_legacy(summary, prompt, history, config, memory=None, reserve_characters=0):
     memory = memory or MemoryConfig()
-    user = summary.get('conversation_source', 'user') == 'user'
+    from .context_compiler import revision_input
+    revision=revision_input(summary)
+    if revision is not None:prompt=revision
+    user = summary['revision']['source']=='user' if revision is not None else summary.get('conversation_source', 'user') == 'user'
     grounded = 'canonical_session' in summary
     focused_event=not user and summary.get('trigger_event',{}).get('kind') in REACTIVE_EVENTS
     data_block = (render_event_facts(summary['canonical_session']) if focused_event else render_facts(summary['canonical_session'])) if grounded else ''

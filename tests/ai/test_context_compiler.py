@@ -12,7 +12,7 @@ def compile(case=None,prompt='Hello',**updates):
  return messages,warnings,diagnostics
 
 @pytest.mark.parametrize('prompt,topic,fields,omitted',[
- ('Hello','general',['status','hr_source'],['hr','seconds','goal']),
+ ('Hello','general',['status'],['hr','hr_source','seconds','goal']),
  ('What is my current BPM?','physiology',['hr','hr_source','trend'],['seconds','goal']),
  ('Which mode and goal are selected?','configuration',['experience','active_mode','goal'],['hr','seconds']),
  ('How long has the session been running?','timing',['seconds','pauses'],['hr','goal']),

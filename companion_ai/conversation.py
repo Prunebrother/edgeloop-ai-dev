@@ -182,6 +182,9 @@ class ModelManager:
                     self.model_metadata = await self.adapter.capabilities(self.config.model)
                 if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                 native_system=(self.model_metadata or {}).get('system','')
+                revision=summary.get('revision')
+                # Candidate drafts are never evidence of what the user reported.
+                grounding_history=history+([{'role':'user','content':revision['original_request']}] if revision and revision['source']=='user' else [] if revision else [{'role':'user','content':prompt}])
                 embedded_size = max(len(native_system),len(native_system.encode('utf-8')))
                 messages,warnings = compose_messages(summary,prompt,history,self.config,self.memory,reserve_characters=embedded_size,context_config=compiler_settings,diagnostics=self.context_diagnostics)
                 self.context_warnings = warnings
@@ -200,7 +203,7 @@ class ModelManager:
                         result=await collect_reply(self.adapter,LLMRequest(retry_config,tuple(ChatMessage(**m) for m in retry_messages)),chunk,on_expression)
                     # A slow generation must not turn an expired/request-time fact into a live claim.
                     if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                    problems=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],(summary.get('trigger_event') or summary.get('derived_grounding')),summary.get('completed_sessions',()))+event_violations(result,summary.get('trigger_event'))
+                    problems=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),summary.get('completed_sessions',()))+event_violations(result,summary.get('trigger_event'))
                     self.grounding_attempts=1;self.grounding_corrections=problems
                     if problems:
                         if on_chunk and not on_reset:raise GroundingError(problems)
@@ -213,7 +216,7 @@ class ModelManager:
                         self.context_warnings+=['One factual correction requested: '+', '.join(problems)]+repair_warnings
                         result=await collect_reply(self.adapter,LLMRequest(self.config,tuple(ChatMessage(**m) for m in repair_messages)),chunk,on_expression)
                         if getattr(self,'current_summary',None):summary=summary | self.current_summary()
-                        remaining=violations(result,summary.get('canonical_session'),history+[{'role':'user','content':prompt}],(summary.get('trigger_event') or summary.get('derived_grounding')),summary.get('completed_sessions',()))+event_violations(result,summary.get('trigger_event'))
+                        remaining=violations(result,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),summary.get('completed_sessions',()))+event_violations(result,summary.get('trigger_event'))
                         if remaining:raise GroundingError(remaining)
                 if self.metrics.samples:
                     self.context_diagnostics['actual_prompt_tokens']=self.metrics.samples[-1].get('prompt_tokens')
@@ -696,7 +699,7 @@ class ConversationService:
                     try:
                         async with asyncio.timeout(self.director.config.max_regeneration_seconds):
                             options = {'on_chunk':on_chunk, **stream_options} if getattr(self.adapter,'streaming',False) else {}
-                            revised = await self.adapter.reply(summary | {'conversation_source':'revision'},revise,history,**options)
+                            revised = await self.adapter.reply(summary | {'conversation_source':'revision','revision':{'source':'user' if user else 'event','original_request':prompt,'candidate_draft':text}},revise,history,**options)
                         text = revised
                         score = self.director.assess(text,user,prompt)
                     except (TimeoutError, ValueError, httpx.HTTPError):
