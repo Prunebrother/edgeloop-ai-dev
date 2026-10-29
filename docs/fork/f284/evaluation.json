@@ -1,0 +1,207 @@
+{
+  "physical_hardware": false,
+  "rows": [
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "Hello there.",
+      "arm": "f283",
+      "estimated_prompt_tokens": 2807,
+      "compile_median_ms": 0.59,
+      "history_retained": 2,
+      "story_retained": 1,
+      "journal_selected": false
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "Hello there.",
+      "arm": "f284",
+      "estimated_prompt_tokens": 2807,
+      "compile_median_ms": 0.5904,
+      "history_retained": 2,
+      "story_retained": 1,
+      "journal_selected": false
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "How long was my previous session?",
+      "arm": "f283",
+      "estimated_prompt_tokens": 3081,
+      "compile_median_ms": 0.4987,
+      "history_retained": 2,
+      "story_retained": 0,
+      "journal_selected": false
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "How long was my previous session?",
+      "arm": "f284",
+      "estimated_prompt_tokens": 3447,
+      "compile_median_ms": 0.5194,
+      "history_retained": 2,
+      "story_retained": 0,
+      "journal_selected": true
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "Which settings did we use last time?",
+      "arm": "f283",
+      "estimated_prompt_tokens": 3060,
+      "compile_median_ms": 0.6436,
+      "history_retained": 2,
+      "story_retained": 2,
+      "journal_selected": false
+    },
+    {
+      "model": "evelyn-narrative-v1",
+      "scenario": "Which settings did we use last time?",
+      "arm": "f284",
+      "estimated_prompt_tokens": 3496,
+      "compile_median_ms": 0.6743,
+      "history_retained": 2,
+      "story_retained": 2,
+      "journal_selected": true
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "Hello there.",
+      "arm": "f283",
+      "estimated_prompt_tokens": 2852,
+      "compile_median_ms": 0.6138,
+      "history_retained": 2,
+      "story_retained": 1,
+      "journal_selected": false
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "Hello there.",
+      "arm": "f284",
+      "estimated_prompt_tokens": 2852,
+      "compile_median_ms": 0.6085,
+      "history_retained": 2,
+      "story_retained": 1,
+      "journal_selected": false
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "How long was my previous session?",
+      "arm": "f283",
+      "estimated_prompt_tokens": 3126,
+      "compile_median_ms": 0.5094,
+      "history_retained": 2,
+      "story_retained": 0,
+      "journal_selected": false
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "How long was my previous session?",
+      "arm": "f284",
+      "estimated_prompt_tokens": 3491,
+      "compile_median_ms": 0.5315,
+      "history_retained": 2,
+      "story_retained": 0,
+      "journal_selected": true
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "Which settings did we use last time?",
+      "arm": "f283",
+      "estimated_prompt_tokens": 3105,
+      "compile_median_ms": 0.649,
+      "history_retained": 2,
+      "story_retained": 2,
+      "journal_selected": false
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "scenario": "Which settings did we use last time?",
+      "arm": "f284",
+      "estimated_prompt_tokens": 3540,
+      "compile_median_ms": 0.6773,
+      "history_retained": 2,
+      "story_retained": 2,
+      "journal_selected": true
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "Hello there.",
+      "arm": "f283",
+      "estimated_prompt_tokens": 4190,
+      "compile_median_ms": 0.6139,
+      "history_retained": 2,
+      "story_retained": 1,
+      "journal_selected": false
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "Hello there.",
+      "arm": "f284",
+      "estimated_prompt_tokens": 4190,
+      "compile_median_ms": 0.6144,
+      "history_retained": 2,
+      "story_retained": 1,
+      "journal_selected": false
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "How long was my previous session?",
+      "arm": "f283",
+      "estimated_prompt_tokens": 4464,
+      "compile_median_ms": 0.5468,
+      "history_retained": 2,
+      "story_retained": 0,
+      "journal_selected": false
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "How long was my previous session?",
+      "arm": "f284",
+      "estimated_prompt_tokens": 4830,
+      "compile_median_ms": 0.5501,
+      "history_retained": 2,
+      "story_retained": 0,
+      "journal_selected": true
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "Which settings did we use last time?",
+      "arm": "f283",
+      "estimated_prompt_tokens": 4443,
+      "compile_median_ms": 0.639,
+      "history_retained": 2,
+      "story_retained": 2,
+      "journal_selected": false
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "scenario": "Which settings did we use last time?",
+      "arm": "f284",
+      "estimated_prompt_tokens": 4880,
+      "compile_median_ms": 0.6649,
+      "history_retained": 2,
+      "story_retained": 2,
+      "journal_selected": true
+    }
+  ],
+  "atomic_write_median_ms": 0.1763,
+  "live": [
+    {
+      "model": "evelyn-narrative-v1",
+      "think": false,
+      "status": "blocked",
+      "reason": "ConnectError"
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "think": false,
+      "status": "blocked",
+      "reason": "ConnectError"
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "think": false,
+      "status": "blocked",
+      "reason": "ConnectError"
+    }
+  ],
+  "token_method": "Conservative UTF-8/character estimate, not provider tokens"
+}

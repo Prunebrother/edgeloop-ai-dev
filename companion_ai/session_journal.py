@@ -65,7 +65,7 @@ class SessionJournal:
         keys={'date':'first_observed_at','duration':'active_running_seconds','edges':'edges','companion':'companion','completion':'completion_status','experience':'experience','goal':'goal','hr':'hr'}
         def value(r):
             if sort=='companion': return r['companions'][-1]['companion'] if r['companions'] else ''
-            if sort=='hr': return r['heart_rate'].get('BLE sensor',{}).get('minimum',-1)
+            if sort=='hr': return min((h['minimum'] for h in r['heart_rate'].values()),default=-1)
             v=r.get(keys.get(sort,'first_observed_at'))
             return v if v is not None else -1 if sort in {'duration','edges'} else ''
         records=sorted(self.data['records'],key=value,reverse=descending)

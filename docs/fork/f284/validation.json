@@ -1,0 +1,48 @@
+{
+  "milestone": "F2.8.4",
+  "starting_head": "2781e8a",
+  "branch": "experiment/ai-companion",
+  "tag": "f2.8.4-checkpoint",
+  "python": {
+    "passed": 533,
+    "new_cases": 29,
+    "environment_blocked": 3,
+    "test_only_workaround": "Existing /tmp/f283-python 20ms selector polling shim; production unchanged"
+  },
+  "javascript": {
+    "passed": 44,
+    "new_cases": 2
+  },
+  "upstream": {
+    "passed": 1057,
+    "failed_files": 0
+  },
+  "browser": {
+    "attempted": 8,
+    "passed": 0,
+    "environment_blocked": 8,
+    "reason": "socket/Chromium sandbox restrictions"
+  },
+  "provider": {
+    "endpoint": "http://127.0.0.1:11435",
+    "attempted_models": 3,
+    "generations": 0,
+    "reason": "ConnectError",
+    "think": false
+  },
+  "performance": {
+    "matched_baseline": "2781e8a",
+    "historical_context_cases": 6,
+    "f283_retrieved": 0,
+    "f284_retrieved": 6,
+    "greeting_prompt_change_tokens": 0,
+    "compile_median_range_ms": [
+      0.4987,
+      0.6773
+    ],
+    "atomic_write_median_ms": 0.1763,
+    "actual_provider_tokens": null
+  },
+  "physical_hardware_tested": false,
+  "active_services_restarted": false
+}
