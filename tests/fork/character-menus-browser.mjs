@@ -2,11 +2,17 @@
 // Real UI and authenticated backend; mocked Ollama, no device connection.
 import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
+import net from 'node:net';
 import {mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 const root=path.resolve(new URL('../..',import.meta.url).pathname),out=process.env.NARRATIVE_BROWSER_REPORT||'/tmp/f261-character-menus';
-const ui='http://127.0.0.1:8850',ai='http://127.0.0.1:8858',children=[],report={passed:false,physical_hardware:false,steps:[],screenshots:[]};let browser,page;
+const uiPort=Number(process.env.EDGELOOP_MENU_UI_PORT||8850),aiPort=Number(process.env.EDGELOOP_MENU_AI_PORT||8858);
+const ui=`http://127.0.0.1:${uiPort}`,ai=`http://127.0.0.1:${aiPort}`,children=[],report={passed:false,physical_hardware:false,steps:[],screenshots:[]};let browser,page;
 const assert=(x,m)=>{if(!x)throw Error(m);},sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function requireFreePort(port){
+ const probe=net.createServer();await new Promise((resolve,reject)=>{probe.once('error',reject);probe.listen(port,'127.0.0.1',resolve);});
+ await new Promise((resolve,reject)=>probe.close(error=>error?reject(error):resolve()));
+}
 async function wait(url){for(let i=0;i<100;i++){try{if((await fetch(url)).ok)return;}catch{}await sleep(100);}throw Error('Fixture unavailable');}
 async function state(){return (await fetch(ai+'/fixture/narrative')).json();}
 async function select(model){await page.locator('[data-model]').selectOption(model);await page.locator('[data-select]').click();await page.waitForFunction(m=>document.querySelector('[data-selected]').textContent==='Active: '+m,model);}
@@ -14,8 +20,10 @@ async function chat(text){await page.locator('[data-text]').fill(text);await pag
 async function shot(name,width,height){await page.setViewportSize({width,height});await page.waitForFunction(()=>document.querySelector('#character-panel').dataset.artworkStatus!=='loading');await page.screenshot({path:path.join(out,name)});report.screenshots.push(name);}
 try{
  await mkdir(out,{recursive:true});
- children.push(spawn('python3',['tools/serve_local.py','8850'],{cwd:root,stdio:'ignore'}));
- children.push(spawn(path.join(root,'.venv/bin/python'),['-m','tests.fork.narrative_browser_service'],{cwd:root,stdio:'ignore',env:{...process.env,EDGELOOP_LIVE_ACCEPTANCE:'0',EDGELOOP_FIXTURE_UI_PORT:'8850',EDGELOOP_FIXTURE_OBSERVER_PORT:'8858'}}));
+ await requireFreePort(uiPort);await requireFreePort(aiPort);
+ const testEnv={...process.env,EDGELOOP_LIVE_ACCEPTANCE:'0',EDGELOOP_FIXTURE_UI_PORT:String(uiPort),EDGELOOP_FIXTURE_OBSERVER_PORT:String(aiPort)};delete testEnv.EDGELOOP_PAIRING_FILE;
+ children.push(spawn('python3',['tools/serve_local.py',String(uiPort)],{cwd:root,stdio:'ignore',env:testEnv}));
+ children.push(spawn(path.join(root,'.venv/bin/python'),['-m','tests.fork.narrative_browser_service'],{cwd:root,stdio:'ignore',env:testEnv}));
  await wait(ui);await wait(ai+'/health');browser=await chromium.launch();const context=await browser.newContext({viewport:{width:1920,height:1080}});
  await context.addInitScript(()=>{const no=()=>Promise.reject(new DOMException('No physical hardware','NotFoundError'));Object.defineProperty(navigator,'bluetooth',{value:{requestDevice:no},configurable:true});Object.defineProperty(navigator,'serial',{value:{requestPort:no,getPorts:async()=>[]},configurable:true});if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia=no;});
  page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(ui+'/?characterPreview=1');await page.locator('#ageConfirmBtn').click();await page.locator('#wizardSkipBtn').click();
@@ -43,6 +51,17 @@ try{
  assert((await state()).requests.length===requestCount,'Disabled event generated commentary');
  await page.locator('[data-proactive]').check();await page.locator('[data-save-director]').click();await page.getByText('Saved to the companion service.',{exact:true}).waitFor();
  await sleep(2200);assert((await state()).requests.length===requestCount,'Re-enabling proactive replayed disabled events');
+ await page.getByLabel('Experimental idle initiative',{exact:true}).check();
+ await page.getByLabel('Initiative interval (seconds)',{exact:true}).fill('50');
+ await page.getByLabel('Idle response cooldown (seconds)',{exact:true}).fill('40');
+ await page.getByLabel('Event reaction cooldown (seconds)',{exact:true}).fill('4');
+ await page.getByLabel('Topic repetition cooldown (seconds)',{exact:true}).fill('180');
+ await page.locator('[data-save-director]').click();await page.getByText('Saved to the companion service.',{exact:true}).waitFor();
+ const pacing=(await (await fetch(ai+'/fixture/context')).json()).director.settings;
+ assert(pacing.experimental_idle_enabled&&pacing.idle_interval_seconds===50&&pacing.topic_cooldown_seconds===180,'Director pacing not applied');
+ assert((await state()).requests.length===requestCount,'Saving initiative settings caused inference');
+ await page.getByLabel('Experimental idle initiative',{exact:true}).uncheck();await page.locator('[data-save-director]').click();await page.getByText('Saved to the companion service.',{exact:true}).waitFor();
+ report.steps.push('Character-scoped idle/event/topic pacing validates and saves without inference');
  await shot('director-1920.png',1920,1080);await page.keyboard.press('Escape');
  await page.locator('[data-menu-story]').click();await page.getByRole('heading',{name:'Current premise',exact:true}).waitFor();
  assert((await page.locator('[data-story-content]').textContent()).includes('blue envelope'),'Story premise not displayed');

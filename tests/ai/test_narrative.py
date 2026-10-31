@@ -112,7 +112,7 @@ async def test_director_initiative_requires_engagement_and_is_spent_once():
     class Adapter:
         config=AIConfig();mode='ollama'
         async def reply(self,summary,prompt,history):calls.append(summary);return 'The violet seal suggests a different path.'
-    d=ObserverDirector(DirectorConfig(regenerate_once=False),clock=c.mono);d.session_status='RUNNING'
+    d=ObserverDirector(DirectorConfig(regenerate_once=False,experimental_idle_enabled=False),clock=c.mono);d.session_status='RUNNING'
     speech=ConversationService(o,lambda _:None,Adapter(),clock=c.mono,director=d)
     speech.narrative.accepted('Imagine a mystery. I choose the garden.','I will keep the key for later.',True)
     d.user('Continue the story.');c.tick(121)
@@ -120,7 +120,7 @@ async def test_director_initiative_requires_engagement_and_is_spent_once():
     speech.pump();await speech.task
     assert len(calls)==1 and calls[0]['narrative_initiative'] and 'trigger_event' not in calls[0]
     c.tick(121);speech.pump();assert len(calls)==1
-    d.memory['consecutive_unsolicited']=2;assert d.narrative_opportunity(True)[1]=='unsolicited_limit'
+    d.memory['consecutive_unsolicited']=d.config.max_consecutive_unsolicited;assert d.narrative_opportunity(True)[1]=='unsolicited_limit'
     await speech.close()
 
 def test_reset_message_is_read_only_strict_protocol():
@@ -192,7 +192,7 @@ def test_narrative_cannot_claim_generic_hardware_motion_or_paused_after_stop():
 @pytest.mark.parametrize('reply',['[[expression:focused]]A new clue waits by the window.','[SILENCE]'])
 async def test_initiative_wire_payload_and_silence_spend_one_bounded_opportunity(reply):
     c,o,s=observation();wire=[];m=ModelManager(transport=runtime(wire,reply));await m.select(AIConfig(model='daisy-narrative-v1:latest'))
-    d=ObserverDirector(DirectorConfig(regenerate_once=False),clock=c.mono);d.session_status='RUNNING'
+    d=ObserverDirector(DirectorConfig(regenerate_once=False,experimental_idle_enabled=False),clock=c.mono);d.session_status='RUNNING'
     speech=ConversationService(o,lambda _:None,m,clock=c.mono,director=d)
     speech.narrative.accepted('Imagine a mystery. I choose the garden.','I will keep the key.',True)
     d.user('Continue our story.');c.tick(121)

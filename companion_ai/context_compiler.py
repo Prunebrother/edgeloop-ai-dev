@@ -12,6 +12,7 @@ from .grounding import SessionFacts,render_facts
 from .expressions import FORMAT_INSTRUCTION
 from .narrative import abandonment_requested
 from .narrative_facts import retrieve,operational_text,MAX_FACTS
+from .fact_semantics import significance,fact_tags
 
 class ContextConfig(StrictModel):
     schema_version: Literal[1]=1
@@ -64,10 +65,21 @@ def attention(summary,prompt,event=None):
         return Focus('revise_reply','revision',original.topic,'Repair the supplied candidate draft for the original '+('user request' if source=='user' else 'application event')+'; preserve its intent and established character. This is not a new event or conversation turn. Request no tools and perform no actions.')
     if summary.get('conversation_source','user')=='user':
         return Focus('answer_user','real_user',topic,'Answer the current user message first; supporting events are optional, not competing subjects.')
+    if summary.get('director_opportunity'):
+        op=summary['director_opportunity'];intent=op['intent']
+        instructions={
+            'narrative_development':'Develop an established unresolved narrative thread; do not replay an acknowledged application event.',
+            'dialogue_follow_up':'Offer a relevant follow-up to the last genuine dialogue, without repeating an unanswered question.',
+            'memory_recall':'Use the selected source-backed memory for a relevant conversational connection; distinguish it from verified session evidence.',
+            'character_curiosity':'Choose a worthwhile new conversational angle in your existing voice. Invent no shared history, telemetry or biography.',
+            'contextual_observation':'Offer an observation about established fictional or conversational context, not an inferred sensor measurement.'}
+        return Focus(intent,'director_opportunity','general' if intent in {'character_curiosity','dialogue_follow_up'} else 'story',instructions[intent]+' This is an optional conversational opportunity, not a verified event or user message. [SILENCE] is allowed.')
     if summary.get('narrative_initiative'):
         n=summary.get('narrative_context') or {}
         category='honor_commitment' if n.get('commitments') else 'continue_thread'
         return Focus(category,'director_opportunity','story','Continue one welcomed unresolved thread or commitment, or choose [SILENCE]; quiet time alone is not permission.')
+    if event and event.get('session_result'):
+        return Focus('session_closing','validated_event','milestones','Offer one brief closing reaction (1–3 sentences) to the supplied final session_result in your established personality. Distinguish user-reported completion from normal stop or unknown outcome. Never invent measurements, achievements or a new question.')
     if event:
         kind=event.get('kind','verified_event')
         topic='physiology' if event.get('category')=='derived' else 'configuration' if kind in {'experience_changed','goal_changed','mode_changed','threshold_changed','intensity_changed'} else 'milestones'
@@ -102,13 +114,21 @@ class ContextCompiler:
         revision=revision_input(summary)
         if revision is not None:prompt=summary['revision']['original_request']
         user_context=summary.get('conversation_source','user')=='user' or revision is not None and summary['revision']['source']=='user'
+        asks_events=bool(user_context and re.search(r'\b(?:changed|happened|recent|earlier|previous|history|before|again|last)\b',prompt,re.I))
         data=SessionFacts.model_validate(summary['canonical_session'])
         omissions=[];excluded=[];event=summary.get('trigger_event') or summary.get('derived_grounding')
         narrative=summary.get('narrative_context') or {}
         scope=(summary.get('narrative_scope') or [narrative.get('model_scope')])[0]
         epoch=summary.get('narrative_epoch') or narrative.get('epoch')
         intent,matched_facts,memory_decisions=retrieve(narrative,prompt if user_context else '',scope,epoch,summary.get('narrative_canon')) if memory.enabled else (None,[],[])
-        acknowledged={ref.get('event_id') for ref in narrative.get('event_references',[])}
+        acknowledged={ref.get('event_id') for ref in narrative.get('event_references',[])} | set((summary.get('director') or {}).get('acknowledged_event_ids',[]))
+        opportunity=summary.get('director_opportunity')
+        if opportunity and opportunity.get('reference_id') and memory.enabled:
+            source=next((r for r in narrative.get('facts',[]) if r.get('id')==opportunity['reference_id']),None)
+            if source:
+                _,matched_facts,memory_decisions=retrieve(narrative,source['text'],scope,epoch,summary.get('narrative_canon'))
+                matched_facts=[r for r in matched_facts if r['id']==source['id']]
+        memory_decisions+=(summary.get('idle_context_exclusions') or {}).get('facts',[])
         def valid_event(e):
             if not e:return False
             obs=e.get('observation',e)
@@ -117,7 +137,7 @@ class ContextCompiler:
             age=e.get('age_seconds')
             if stamp is not None and data.captured_at_ms is not None:
                 age=(data.captured_at_ms-stamp)/1000+(data.age_seconds or 0)
-            reason='stale_or_unavailable' if not data.current or age is not None and not 0<=age<=c.event_max_age_seconds else 'wrong_session' if obs.get('session_id',data.session_id)!=data.session_id else 'already_acknowledged' if event_id and event_id in acknowledged else None
+            reason='stale_or_unavailable' if not data.current or age is not None and not 0<=age<=c.event_max_age_seconds else 'wrong_session' if obs.get('session_id',data.session_id)!=data.session_id else 'already_acknowledged' if event_id and event_id in acknowledged and not asks_events else None
             if reason:excluded.append({'id':event_id,'reason':reason});return False
             return True
         if event and not valid_event(event):event=None
@@ -153,17 +173,14 @@ class ContextCompiler:
             if obs:
                 event_items.append({k:v for k,v in obs.items() if k not in {'rule','config_revision','contract','detector_id'}})
             else:event_items.append({k:v for k,v in event.items() if k in {'kind','event_id','evidence','previous_experience','current_experience','previous_goal','current_goal','significance'}})
-        asks_events=bool(re.search(r'\b(?:changed|happened|recent|earlier|previous|history|before)\b',prompt,re.I))
-        if asks_events and requested&{'physiology','configuration','milestones','timing'} or focus.category=='react_event':
+        if asks_events and user_context and requested&{'physiology','configuration','milestones','timing'}:
             for e in reversed(data.events):
-                if e.event_id and e.event_id in acknowledged:
-                    excluded.append({'id':e.event_id,'reason':'already_acknowledged'});continue
                 if len(event_items)>=2:break
                 if e.age_seconds>c.event_max_age_seconds:excluded.append({'id':e.kind,'reason':'stale'});continue
                 if 'configuration' in requested and 'changed' not in e.kind:continue
                 if 'physiology' in requested and e.kind not in {'signal_lost','signal_restored','threshold_changed'}:continue
                 if event and e.kind==event.get('kind'):continue
-                event_items.append({'event_id':e.event_id,'kind':e.kind,'evidence':e.evidence,'age_seconds':e.age_seconds,'historical':True})
+                event_items.append({'event_id':e.event_id,'kind':e.kind,'evidence':e.evidence,'age_seconds':e.age_seconds,'historical':True,'already_acknowledged':e.event_id in acknowledged})
         for e in summary.get('derived_observations',[]):
             # Diagnostics count excluded stale/acknowledged records without injecting them.
             if e.get('id') not in {v.get('id') for v in event_items}:valid_event(e)
@@ -172,23 +189,36 @@ class ContextCompiler:
         if summary.get('grounding_corrections'):instructions+='\nCORRECTION REQUIRED: '+', '.join(summary['grounding_corrections'])+'. State only supported facts or uncertainty.'
         presentation=FORMAT_INSTRUCTION if config.explicit_expressions else ''
         focus_block='PRIMARY FOCUS: '+dump(focus.__dict__)
+        if opportunity:focus_block+='\nDIRECTOR OPPORTUNITY (scheduling only, not verified telemetry): '+dump(opportunity)
         # User content is preserved exactly, even if it exceeds the soft target.
         current_label='REVISION INPUT (not a new user turn or event):' if revision is not None else 'USER MESSAGE (request, not session data):' if user_context else 'APPLICATION EVENT / REVISION (not a user message):'
         # Director trigger JSON is redundant with validated event evidence. Keep it only on revisions/non-event opportunities.
         current=revision if revision is not None else prompt if focus.source!='validated_event' else 'Respond to the verified triggering evidence above in your established character.'
+        if event and event.get('session_result'):
+            facts+='\nFINAL SESSION RESULT (authoritative engine counters; completion is a user report, not sensor proof; null means unknown): '+dump(event.get('session_result',{}))
         parts=[facts,focus_block]
         completed=[] if summary.get('journal_lookup') or summary.get('journal_context') or summary.get('journal_access_denied') else summary.get('completed_sessions',[])[-1:]
-        if completed and ('timing' in requested or event and event.get('kind') in {'completion_accepted','came_early'} or re.search(r'previous session|completed session|last session',prompt,re.I)):
+        if completed and ('timing' in requested or event and event.get('kind') in {'completion_accepted','came_early','session_ended'} or re.search(r'previous session|completed session|last session',prompt,re.I)):
             retained='COMPLETED SESSIONS (historical engine facts, separate from current counter):\n'+dump(completed)
             retained+='\nUse active_running_seconds only when present; null means final duration unavailable. Last verified ticks are a partial observation, not final duration. Never use the reset current counter as a previous duration. Wall-clock and pause durations are unavailable.'
             facts+='\n'+retained
             parts=[facts,focus_block]
         journal=[] if summary.get('journal_access_denied') else summary.get('journal_context') or []
         if summary.get('journal_access_denied'):
-            facts+='\nHistorical session access is disabled. Do not use prior transcript or memory to answer historical measurement/settings questions. Explain that Session Journal AI access must be enabled; missing history must not be invented.'
+            if summary.get('nova_cross_query'):
+                facts+='\nNova cross-companion history is unavailable or permission-denied. Do not substitute raw records or other characters’ Story Memories.'
+            else:
+                facts+='\nHistorical session access is disabled. Do not use prior transcript or memory to answer historical measurement/settings questions. Explain that Session Journal AI access must be enabled; missing history must not be invented.'
             parts=[facts,focus_block]
-        if summary.get('journal_lookup') and not journal and not summary.get('journal_access_denied'):
+        if summary.get('journal_lookup') and not journal and not summary.get('journal_access_denied') and not summary.get('nova_cross_query'):
             facts+='\nSESSION JOURNAL: no matching historical record is available for this question and permitted companion scope. State that historical measurements/settings are unavailable; do not substitute a different companion or transcript guesses.'
+            parts=[facts,focus_block]
+        if summary.get('nova_cross_query'):
+            aggregate=summary.get('nova_aggregate') or {}
+            if aggregate.get('status')=='authorized_data':
+                facts+='\nNOVA SESSION JOURNAL AGGREGATES (historical, not current, bounded and incomplete; never individual session records):\n'+dump(aggregate)
+            else:
+                facts+='\nNOVA CROSS-COMPANION HISTORY: unavailable or no retained matching records. Never invent measurements or session outcomes.'
             parts=[facts,focus_block]
         if journal:
             facts+='\nSESSION JOURNAL (historical verified observations, not current telemetry):\n'+dump(journal)
@@ -318,10 +348,10 @@ class ContextCompiler:
         selected_fact_ids={ref.split(':',1)[1] for ref in narrative_refs if ref.startswith('fact:')}
         history_fact_ids={r['id'] for r in matched_facts if any(r['text']==m['content'] and (r['speaker']=='unknown' or r['speaker']==m['role']) for _,m in chosen)}
         selected_fact_ids|=history_fact_ids
-        memory_decisions += [{'id':r['id'],'category':r['category'],'speaker':r['speaker'],'epoch':r['epoch'],'selected':r['id'] in selected_fact_ids,'reason':'selected_history' if r['id'] in history_fact_ids else 'selected' if r['id'] in selected_fact_ids else 'budget' if narrative_allowed else 'context_disabled_or_topic_change'} for r in matched_facts]
+        memory_decisions += [{'id':r['id'],'category':r['category'],'speaker':r['speaker'],'epoch':r['epoch'],'significance':significance(r),'semantic_tags':sorted(fact_tags(r)),'selected':r['id'] in selected_fact_ids,'reason':'selected_history' if r['id'] in history_fact_ids else 'selected' if r['id'] in selected_fact_ids else 'budget' if narrative_allowed else 'context_disabled_or_topic_change'} for r in matched_facts]
         selected_records=[r for r in matched_facts if r['id'] in selected_fact_ids]
         evidence='tentative' if selected_records and all(r['category']=='hypothesis' for r in selected_records) else 'legacy_unattributed' if selected_records and all(r['source']=='legacy_excerpt' for r in selected_records) else 'selected' if selected_records else 'budget_excluded' if matched_facts else 'unavailable'
         recall={'intent':intent,'matched_fact_ids':[r['id'] for r in matched_facts],'selected_fact_ids':sorted(selected_fact_ids),'evidence':evidence}
         allocation={'policy':'recent_exchange_and_relevant_story','protected_history_messages':protected_history,'protected_story_items':protected_narrative,'retained_history_messages':len(chosen),'retained_story_items':len(narrative_items),'effective_prompt_target_tokens':effective+embedded,'soft_target_extension_tokens':max(0,effective+embedded-c.target_prompt_tokens)}
-        diagnostics={'mode':'compiler','model':config.model,'focus':focus.__dict__,'supporting_categories':sorted(selected),'event_ids':[e.get('id',e.get('event_id',e.get('kind'))) for e in event_items], 'narrative_references':narrative_refs,'excluded_events':excluded[-12:],'estimated_prompt_tokens':total+embedded,'estimate_method':'UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact','budget':{'hard_prompt_tokens':hard+embedded,'soft_target_tokens':c.target_prompt_tokens,'categories':usage},'omissions':list(dict.fromkeys(omissions))[-12:],'compilation_ms':round((time.perf_counter()-start)*1000,3),'allocation':allocation,'narrative_recall':recall,'journal_session_ids':[r['session_id'] for r in journal],'memory_epoch':epoch,'memory_model_scope':scope,'memory_decisions':memory_decisions[:MAX_FACTS],'objective':({'id':narrative['objective']['id'],'status':narrative['objective']['status']} if narrative.get('objective') else None)}
+        diagnostics={'mode':'compiler','model':config.model,'focus':focus.__dict__,'supporting_categories':sorted(selected),'event_ids':[e.get('id',e.get('event_id',e.get('kind'))) for e in event_items], 'narrative_references':narrative_refs,'excluded_events':excluded[-12:],'estimated_prompt_tokens':total+embedded,'estimate_method':'UTF-8/character heuristic / 2.5 + message framing; not tokenizer-exact','budget':{'hard_prompt_tokens':hard+embedded,'soft_target_tokens':c.target_prompt_tokens,'categories':usage},'omissions':list(dict.fromkeys(omissions))[-12:],'compilation_ms':round((time.perf_counter()-start)*1000,3),'allocation':allocation,'narrative_recall':recall,'journal_session_ids':[r['session_id'] for r in journal],'memory_epoch':epoch,'memory_model_scope':scope,'memory_decisions':memory_decisions[:MAX_FACTS],'idle_context_exclusions':summary.get('idle_context_exclusions'),'objective':({'id':narrative['objective']['id'],'status':narrative['objective']['status']} if narrative.get('objective') else None)}
         return messages,list(dict.fromkeys(omissions)),diagnostics

@@ -250,6 +250,7 @@ def test_completion_e2e_survives_reset_with_identity_significance_stages_and_exp
   body=json.loads(request.content);requests.append(body);return httpx.Response(200,stream=Delayed())
  c=Clock();app=create_app(TOKEN,tmp_path,clock=c.mono,transport=httpx.MockTransport(handler));app.state.observation.wall=c.wall
  s=snapshot(c,active_mode='calibrate',goal='calibrate',seconds=937)
+ s['devices'].update(toy_ready=True,handy=True);s['safety']['fault']='none'
  with TestClient(app) as client:
   with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
    epoch=auth(ws)['epoch'];ws.send_json(dict(version=1,type='select_model',selection={'model':'daisy-narrative-v1:latest'}));until(ws,'model_selected')
@@ -270,11 +271,15 @@ def test_completion_e2e_survives_reset_with_identity_significance_stages_and_exp
    assert len(requests)==1 and requests[0]['think'] is False
 
 
-def test_acknowledged_event_is_excluded_from_supporting_history():
+def test_acknowledged_event_is_only_reused_when_the_user_requests_history():
  c,o,s=observation();s,_=change(c,o,s,'edge',edges=3);event=o.canonical()['events'][-1]
  summary=o.summary()|{'conversation_source':'user','narrative_context':{'event_references':[{'event_id':event['event_id']}]}}
  from companion_ai.context_compiler import ContextCompiler
  messages,warnings,diagnostics=ContextCompiler().compile(summary,'What happened to the edge counter?',[],AIConfig())
+ assert event['event_id'] in diagnostics['event_ids'] and 'already_acknowledged' in str(messages)
+ # The same acknowledged occurrence cannot become a fresh autonomous trigger.
+ summary|={'conversation_source':'event','trigger_event':{'kind':'edge','event_id':event['event_id'],'session_id':o.session_id}}
+ _,_,diagnostics=ContextCompiler().compile(summary,'Observed application event',[],AIConfig())
  assert any(e['id']==event['event_id'] and e['reason']=='already_acknowledged' for e in diagnostics['excluded_events'])
 
 

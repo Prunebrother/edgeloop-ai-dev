@@ -1,5 +1,7 @@
 # F2.8.4.1 — Intelligent memory and reliable recall
 
+Follow-up: [F2.8.4.2 significance-aware memory investigation](F2842_SIGNIFICANT_MEMORY.md) documents the supplied browser regression, the generalized deterministic repair, and the still-blocked live A/B acceptance.
+
 Baseline/starting HEAD: `4b09888` (`f2.8.4-checkpoint`), clean `experiment/ai-companion`. Work stayed on the existing branch. No models, Modelfiles, artwork, installed packages, conversations, journal data, hardware drivers or safety algorithms were changed. No active service was restarted. The service-worker edit only invalidates the public UI cache, with its reviewed manifest hash updated.
 
 **Recommendation: use B, the improved deterministic path.** C, the experimental model-assisted curator, defaults off. The offline comparison demonstrates better evidence retention/selection, not live generated-answer improvement. Browser and Ollama access are blocked in this environment; the live portion of the success criterion remains unverified.
@@ -110,3 +112,75 @@ node --test --test-isolation=none --test-reporter=tap tests/fork/*.test.mjs
 ```
 
 Implementation commits: `637147a`, `06dde83`, followed by the final source-validation/documentation checkpoint. Tag: **`f2.8.4.1-checkpoint`**. Resolve the exact final commit with `git rev-parse f2.8.4.1-checkpoint^{}`.
+
+## Browser runner progress and timeout controls
+
+The runner prints arm, character, named browser step and conversation turn as it advances. The isolated backend emits inference start/completion/cancellation/timeout events with request number, model, curator flag, elapsed time and terminal token counts. Provider request logs contain metadata instead of prompt bodies, and pairing credentials are redacted. Long waits print a heartbeat every ten seconds; recall/correction results are printed as soon as scored. The same structured events are saved in `MEMORY_REPORT/progress.jsonl`.
+
+Timeout settings are milliseconds:
+
+| Environment variable | Default |
+| --- | --- |
+| `MEMORY_ACTION_TIMEOUT_MS` | 20,000 mock; 180,000 live |
+| `MEMORY_OLLAMA_TIMEOUT_MS` | 120,000; maximum 300,000 |
+| `MEMORY_REPLY_TIMEOUT_MS` | mock: action timeout; live: greater of action timeout or Ollama timeout + 30,000 |
+| `MEMORY_HTTP_TIMEOUT_MS` | 5,000 for audit/health/preflight requests |
+| `MEMORY_STARTUP_TIMEOUT_MS` | 10,000 per isolated service |
+| `MEMORY_EVIDENCE_TIMEOUT_MS` | 5,000 per diagnostic capture |
+| `MEMORY_CLEANUP_TIMEOUT_MS` | 5,000 per close/termination stage |
+
+The Ollama inference deadline includes response headers and the complete stream, rather than resetting each time a token arrives. It applies only to this test fixture's requests. Existing curator/Director budgets can cancel a request earlier. Test-local model presets allow the transport deadline to report before the surrounding generation budget; user presets and the Ollama service are untouched. The original bounded curator-setting/result polling counts and fall-through behavior are retained; exhausting those waits saves diagnostics without changing evaluation formulas.
+
+Example:
+
+```sh
+MEMORY_ACTION_TIMEOUT_MS=30000 MEMORY_OLLAMA_TIMEOUT_MS=180000 \
+MEMORY_REPORT=/tmp/memory-progress \
+node tests/fork/intelligent-memory-browser.mjs --live
+```
+
+Failures/timeouts identify the failing browser step, arm, character and turn. Ollama timeouts also identify the inference request and originating browser step. `failure-*.json` contains bounded fixture stdout/stderr, browser errors, a small DOM/status snapshot and the last request/context/memory diagnostics. A token-masked screenshot is saved when a browser page is available. Captures have their own deadlines, so an unresponsive page/backend cannot indefinitely delay cleanup. Full network traces/DOM dumps are deliberately not recorded, since they could retain pairing credentials. Evidence file names are linked from `report.json` and progress output; a failure before Chromium starts naturally has no screenshot.
+
+Cleanup closes the specifically launched Playwright browser server and waits for the UI/backend child processes created by this invocation. It escalates to killing only those owned handles if graceful shutdown times out, including on SIGINT/SIGTERM. It never searches for processes by name, kills a port owner, restarts a service or sends an unload/stop request to the user's Ollama service. No automatic fixture restart is added. Scenarios, synthetic messages, recall scoring and success formulas remain unchanged.
+
+Follow-up verification: six Node tests exercise deadlines, interruption, credential redaction and owned-only cleanup; five Python tests exercise stalled headers/streams, stream preservation/metrics, cancellation and the authenticated fixture pipeline without external Ollama access. Mock residency checks also remain within the fixture instead of querying shared Ollama. Full browser acceptance remains blocked here by loopback `EPERM`; the smoke run confirms visible step reporting and JSON diagnostic capture for that failure, rather than claiming a browser pass.
+
+## Navigation correction: hidden Character management at 1440 px
+
+The saved A/B/C failures in `/tmp/f2841-browser/` all show Evelyn selected, observer connected, activity Ready, no JavaScript error, no open dialog and curator disabled. All three PNGs are **1440×1000**, matching the old runner viewport. `mountCompanion()` mounts Character management on `#character-panel`, not Chat. The real CSS hides that panel at widths up to 1499 px. Consequently `[data-menu-story]` exists inside a hidden ancestor; trying to click it cannot open curator controls. This was responsive navigation failure, not missing Ollama output or a closed curator accordion. The curator is currently a plain section inside the Story Memory drawer; the optional objective editor is a separate accordion.
+
+The primary acceptance viewport is now **1920×1080**. `MEMORY_VIEWPORT_WIDTH` / `MEMORY_VIEWPORT_HEIGHT` allow responsive checks without changing timeouts. The navigation helper uses the actual Character/Chat view controls and scoped accessible drawer buttons. It opens Character first when hidden, opens Story Memory idempotently, scopes curator fields to that drawer, and restores Chat after reset/settings/diagnostics. Below 1500 px it closes the Character overlay before typing; on mobile it selects the Chat tab. It never forces hidden elements, rewrites application CSS or changes layout state through `evaluate()`.
+
+A/B do **not** open curator controls: they verify the isolated backend reports curation disabled and fail if that is not true. C uses the real UI to enable curation and set eight turns, then verifies enabled/interval/timeout values through the fixture audit before the first conversation. All arms still use Story Memory for the required storyline reset and later memory inspection. Full conversation scenarios, models, synthetic prompts and all four scoring formulas remain unchanged.
+
+Errors now distinguish missing, ambiguous, hidden, disabled and obstructed controls. Management diagnostics record actual viewport/breakpoint, dashboard view, target counts, dialog/disclosure state, computed display/visibility, dimensions and hidden ancestors. The helper does not confuse a hidden accessible role with an absent DOM element.
+
+The initial `/ai/pair` **503 is separate**: the static UI probes optional desktop auto-pairing. `serve_local.py` returns 503 when its desktop pairing file is unset, unreadable or invalid. The manual test fixture creates no desktop pairing file; its subsequent explicit WebSocket authentication succeeded in all three captured runs. Manual submission disables further auto-pair attempts. The runner retains/logs this response rather than hiding it, and strips any inherited `EDGELOOP_PAIRING_FILE` from the test UI child so it cannot accidentally auto-pair with the user's real observer. A socket-free handler regression verifies the missing-file 503 behavior.
+
+Run the turn-one gate first (Evelyn, all three arms, actual selected provider):
+
+```sh
+MEMORY_REPORT=/tmp/memory-turn1 node tests/fork/intelligent-memory-browser.mjs --live --setup-only
+```
+
+This mode records `setup_checks` with the reply, provider metrics, request count and latency, and has a separate `setup_completed` result. It does not claim recall acceptance or curator-generation quality after one turn. Then run the unchanged full comparison:
+
+```sh
+MEMORY_REPORT=/tmp/memory-full node tests/fork/intelligent-memory-browser.mjs --live
+```
+
+To repeat setup at the originally failing size:
+
+```sh
+MEMORY_VIEWPORT_WIDTH=1440 MEMORY_VIEWPORT_HEIGHT=1000 \
+MEMORY_REPORT=/tmp/memory-turn1-responsive \
+node tests/fork/intelligent-memory-browser.mjs --live --setup-only
+```
+
+The independent actual-DOM regression uses current `index.html`, layout/menu modules and CSS, synthetic presentation state, and no engine/backend/Ollama. It reproduces the old hidden-button click at 1440 px, tests navigation at 1920, 1440 and 390 px, C control interaction, return-to-Chat, idempotent drawer opening and missing/hidden diagnostics:
+
+```sh
+node tests/fork/memory-navigation-browser.mjs
+```
+
+Current verification: **568 Python tests pass (three existing socket cases deselected), 56 companion JavaScript tests pass**. Six navigation contract tests cover responsive routing, idempotence, missing/hidden elements and authoritative A/B/C configuration checks. The captured screenshots and source were inspected, but a fresh actual-DOM browser pass is environment-blocked: Chromium aborts during launch with `sandbox_host_linux.cc ... shutdown: Operation not permitted`. Mock setup cannot allocate loopback ports (`listen EPERM`); live setup and the full comparison stop at Ollama preflight (`connect EPERM 127.0.0.1:11435`). Thus **turn one and real recall results are not verified in this session**. Reports are in `/tmp/memory-navigation/`, `/tmp/memory-nav-setup/`, `/tmp/memory-nav-live-setup/` and `/tmp/memory-nav-live-full/`; the original user-captured evidence was not overwritten. No memory algorithm, model, product layout or active service changed.

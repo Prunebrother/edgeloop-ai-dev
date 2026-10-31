@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import ValidationError
 from companion_ai.conversation import ModelManager, ConversationService
-from companion_ai.director import ConversationDirector, DirectorConfig
+from companion_ai.director import transition_occurrence, ConversationDirector, DirectorConfig
 from companion_ai.llm import thinking_support, InferenceCompatibilityError
 from companion_ai.event_policy import significance
 from companion_ai.event_intelligence import preset
@@ -37,6 +37,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
     runtime_config=RuntimeConfig.load()
     endpoint=validate_ollama_url(ollama_url) if ollama_url is not None else runtime_config.ollama_url
     manager=ModelManager(endpoint,store=store,transport=transport)
+    manager.verified_journal=journal  # trusted internal reference; no new public endpoint
     manager.config=manager.config.model_copy(update={'thinking':False,'explicit_expressions':runtime_config.explicit_expressions})
     manager.current_summary=state.summary
     director=ObserverDirector(DirectorConfig.model_validate(store.read('director.json',{})),clock=clock)
@@ -64,7 +65,8 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                 await owner['ws'].close(code=1008);continue
             if owner and state.fresh():
                 previous_decision=director.last_reason
-                speech.pump()
+                if not model_lock.locked() and owner['ai_queue'].empty():speech.pump()
+                else:director.deferred('queued_user_or_model_work')
                 if not model_lock.locked() and owner['ai_queue'].empty() and clock()>=director.typing_until:speech.maybe_curate()
                 if director.last_reason!=previous_decision:publish({'type':'ai_diagnostics','director_decision':director.last_reason,'pending_events':len(speech.pending)})
             if owner and state.connected and not state.fresh():
@@ -132,18 +134,20 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         logging.getLogger(__name__).warning('Rejected read-only message fields=%s',errors)
                         publish({'type':'protocol_error','detail':'Invalid read-only message','errors':errors});continue
                     if isinstance(message,(Chat,Select,Cancel,ResetNarrative)):speech.curator.cancel()
+                    if isinstance(message,Chat) and message.model==manager.config.model and speech.active_source=='event' and speech.task and not speech.task.done():speech.interrupt()
                     if isinstance(message,Observation):
                         if message.epoch!=identity['epoch']:
                             publish({'type':'observation_ack','accepted':False,'reason':'epoch'});continue
                         # Latest-state protocol, not a telemetry backlog. Bound flood processing.
                         now=clock()
                         previous=state.report
-                        urgent=bool(message.snapshot.details and message.snapshot.details.terminal_outcome) or bool(previous and (previous.get('details') or {}).get('terminal_outcome') and message.snapshot.status=='IDLE') or previous and ((message.snapshot.status in {'PAUSED','IDLE'} and message.snapshot.status!=previous['status']) or
+                        urgent=bool(message.snapshot.details and (message.snapshot.details.terminal_outcome or message.snapshot.details.completion_reported and not (previous and (previous.get('details') or {}).get('completion_reported')))) or bool(previous and (previous.get('details') or {}).get('terminal_outcome') and message.snapshot.status=='IDLE') or previous and ((message.snapshot.status in {'PAUSED','IDLE'} and message.snapshot.status!=previous['status']) or
                             message.snapshot.safety.signal=='stale' and previous['safety']['signal']!='stale')
                         if now-last_observation<.1 and not urgent:
                             publish({'type':'observation_ack','accepted':False,'reason':'rate_limit'});continue
                         if not state.accept(message):
                             publish({'type':'observation_ack','accepted':False,'reason':'sequence'});continue
+                        if message.snapshot.details and message.snapshot.details.terminal_outcome=='safety_stop' and not any(e.kind=='stop' and e.id in state.accepted_event_ids for e in message.events):speech.safety('emergency_stop')
                         if state.status!='IDLE':speech.curator.cancel()
                         last_observation=now
                         if previous and previous['session_id']!=state.session_id:
@@ -163,7 +167,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             priority, rank=significance(event.kind,previous,state.report)
                             evidence=next((e for e in reversed(state.events) if e['kind']==event.kind),{})
                             if priority in {'major','critical'}:speech.last_validated_event={'kind':event.kind,'significance':priority,'session_id':state.session_id,'received':clock()}
-                            details={'event_id':event.id,'session_id':state.session_id,'at_ms':event.at_ms,'sequence':message.sequence,'received_at_ms':int(time.time()*1000),'evidence':evidence.get('evidence'),'significance':priority}
+                            details={'event_id':event.id,'session_id':state.session_id,'at_ms':event.at_ms,'sequence':message.sequence,'received_at_ms':int(time.time()*1000),'evidence':evidence.get('evidence'),'significance':priority,'occurrence':transition_occurrence(event.kind,previous,state.report,event.at_ms)}
                             if event.kind=='completion_accepted':
                                 details.update(label='Accepted original Finished me outcome',meaning=evidence.get('evidence'))
                             if event.kind=='came_early':
@@ -189,17 +193,26 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                     speech.event_intelligence.decision(event.id,'context_only:completion_transition')
                                 director.observation(event.kind,details,'edgeloop_telemetry');continue
                             if priority=='critical' or event.kind in {'pause','stop'}:
-                                speech.safety(event.kind)
+                                speech.safety('emergency_stop' if message.snapshot.details and message.snapshot.details.terminal_outcome=='safety_stop' else event.kind)
                                 speech.event_intelligence.decision(event.id,'deterministic_safety_notice')
-                            if narrative_priority=='major' and event.kind not in {'stop','pause'}:speech.enqueue(event.kind,rank,details)
+                            if narrative_priority=='major' and event.kind not in {'stop','pause','came_early'} and not (event.kind=='completion_accepted' and state.status=='IDLE'):speech.enqueue(event.kind,rank,details)
                             elif narrative_priority=='routine':
                                 speech.event_intelligence.decision(event.id,'context_only:low_significance' if eligible and relevance else 'context_only:disabled_or_character_preference')
                                 director.observation(event.kind,details,'edgeloop_telemetry')
                             publish({'type':'ai_diagnostics','last_event':event.kind,'event_priority':priority,'director_decision':director.last_reason,'thinking':False,'inference_error':manager.metrics.last_error})
+                        final = next((s for s in reversed(state.completed_sessions) if s['session_id']==state.session_id), None)
+                        closing = bool(previous and previous['session_id']==state.session_id and previous['status']!='IDLE' and state.status=='IDLE' and final and not final['protection_observed'] and not final['device_unready_observed'] and final['termination'] not in {'cancelled','safety_stop','cancelled_or_unclassified_stop'})
+                        if closing:
+                            # Journal persistence has already run inside state.accept; inference is queued only.
+                            completion_event=next((e for e in message.events if e.kind in {'completion_accepted','came_early'} and e.id in state.accepted_event_ids),None)
+                            speech.enqueue(completion_event.kind if completion_event else 'session_ended',70,{'event_id':completion_event.id if completion_event else 'session-ended:'+state.session_id,'session_id':state.session_id,
+                                'at_ms':final['received_at_ms'],'sequence':message.sequence,'category':'authoritative',
+                                'session_result':{k:final.get(k) for k in ('active_running_seconds','last_verified_running_ticks','edges','experience','goal','termination','completion_status','completion_source','completeness')},
+                                'evidence':'Session ended; use only the supplied counters and their completeness. Completion status is explicit user report or unknown, never inferred from measurements.'})
                         speech.process_derived()
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
-                            'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (accepted_release or any(p['kind'] in {'came_early','completion_accepted'} for p in speech.pending) or speech.active_event_kind in {'came_early','completion_accepted'} and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
+                            'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (closing or accepted_release or any(p['kind'] in {'came_early','completion_accepted'} for p in speech.pending) or speech.active_event_kind in {'came_early','completion_accepted'} and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
                     elif isinstance(message,ConfigureCurator):
                         try:
                             speech.curator.configure(message.config)
@@ -243,7 +256,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             publish(speech.character_state() | {'events_saved':True})
                         except (ValueError,OSError):publish({'type':'character_menu_error','detail':'Event settings could not be applied; previous configuration retained.'})
                     elif isinstance(message,(CharacterState,ResetNarrative,ConfigureDirector)):
-                        if isinstance(message,(CharacterState,ResetNarrative)) and message.model is not None and message.model!=manager.config.model:
+                        if isinstance(message,(CharacterState,ResetNarrative,ConfigureDirector)) and message.model is not None and message.model!=manager.config.model:
                             publish({'type':'character_menu_error','detail':'The selected model changed. Reopen the menu.','model':message.model});continue
                         if isinstance(message,ResetNarrative):
                             retained=[]
@@ -254,14 +267,10 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             try:speech.reset_narrative()
                             except (ValueError,OSError):publish({'type':'character_menu_error','model':message.model,'detail':'The new storyline boundary could not be saved. Try again.'})
                         elif isinstance(message,ConfigureDirector):
-                            config=DirectorConfig.model_validate(director.config.model_dump() | {'spontaneous_enabled':message.proactive_enabled})
-                            try:store.write('director.json',config.model_dump())
+                            updates={k:v for k,v in message.model_dump(exclude_none=True).items() if k not in {'type','version','model','proactive_enabled'}} | {'spontaneous_enabled':message.proactive_enabled}
+                            try:speech.configure_director(updates,message.model)
                             except (ValueError,OSError):
                                 publish({'type':'character_menu_error','detail':'Director settings could not be saved.'});continue
-                            director.config=config
-                            if not config.spontaneous_enabled:
-                                speech.pending.clear()
-                                if speech.active_source=='event' and speech.task and not speech.task.done():speech.interrupt()
                             publish(speech.character_state() | {'director_saved':True})
                         else:publish(speech.character_state())
                     elif isinstance(message,Cancel):

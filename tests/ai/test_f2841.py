@@ -168,7 +168,7 @@ def test_legacy_identifier_and_hobby_migrate_without_losing_provenance(tmp_path)
     restored=NarrativeMemory(NarrativeConfig(persist_between_sessions=True),store);restored.activate('evelyn','synthetic')
     for r in restored.state['facts']:assert before[r['id']]==(r['text'],r['speaker'],r['epoch'])
     assert any(r['slot'].startswith('identifier:') for r in restored.state['facts'])
-    assert any(r['slot']=='hobby:character' for r in restored.state['facts'])
+    assert any(r['slot'].startswith(('hobby:character','interest:character:')) for r in restored.state['facts'])
 
 
 def test_hypothesis_does_not_replace_identifier_and_model_isolation():

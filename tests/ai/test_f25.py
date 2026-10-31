@@ -178,11 +178,12 @@ async def test_routine_events_cannot_queue_in_observer_and_busy_generation_is_no
         mode='ollama';streaming=True;config=AIConfig()
         async def reply(self,*args,on_chunk=None):
             await asyncio.Event().wait()
-    speech=ConversationService(ObservationFixture(),lambda _:None,Slow(),director=director)
+    state=ObservationFixture();state.report['status']='RUNNING';state.session_id=state.report['session_id']
+    speech=ConversationService(state,lambda _:None,Slow(),director=director)
     speech.policy=SpeechPolicy(min_interval_seconds=0.0,user_grace_seconds=0.0,interruption='interrupt')
     speech.request('Hello',True);await asyncio.sleep(0)
     active=speech.task
-    speech.enqueue('milestone',50,{'session_id':'session','significance':'major'})
+    speech.enqueue('milestone',50,{'session_id':state.session_id,'significance':'major'})
     speech.pump()
     assert speech.task is active and not active.cancelled() and speech.pending
     speech.adapter.config=AIConfig(model='different:latest');speech.activate_model()

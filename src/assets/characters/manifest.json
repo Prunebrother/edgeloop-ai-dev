@@ -79,6 +79,25 @@
         "proud": "/Character_Art/Celeste/expressions/celeste_proud.png",
         "comforting": "/Character_Art/Celeste/expressions/celeste_comforting.png"
       }
+    },
+    "nova": {
+      "name": "Nova",
+      "fit": "contain",
+      "position": "50% 50%",
+      "expressions": {
+        "neutral": "/Character_Art/Nova/expressions/nova_neutral.png",
+        "happy": "/Character_Art/Nova/expressions/nova_happy.png",
+        "playful": "/Character_Art/Nova/expressions/nova_playful.png",
+        "flirty": "/Character_Art/Nova/expressions/nova_flirty.png",
+        "mischievous": "/Character_Art/Nova/expressions/nova_mischievous.png",
+        "focused": "/Character_Art/Nova/expressions/nova_focused.png",
+        "excited": "/Character_Art/Nova/expressions/nova_excited.png",
+        "surprised": "/Character_Art/Nova/expressions/nova_surprised.png",
+        "disappointed": "/Character_Art/Nova/expressions/nova_dissapointed.png",
+        "concerned": "/Character_Art/Nova/expressions/nova_concerned.png",
+        "proud": "/Character_Art/Nova/expressions/nova_proud.png",
+        "comforting": "/Character_Art/Nova/expressions/nova_comforting.png"
+      }
     }
   },
   "models": {
@@ -101,7 +120,12 @@
     "evelyn-narrative-v1:latest": "evelyn",
     "daisy-narrative-v1:latest": "daisy",
     "celeste-narrative-v1:latest": "celeste",
-    "celeste-narrative-v2:latest": "celeste"
+    "celeste-narrative-v2:latest": "celeste",
+    "nova-narrative-v1:latest": "nova",
+    "nova-narrative-f29-v011:latest": "nova",
+    "evelyn-narrative-f29-v013:latest": "evelyn",
+    "daisy-narrative-f29-v014:latest": "daisy",
+    "celeste-narrative-f29-v012:latest": "celeste"
   },
   "presentation": {
     "session_reactions": {},

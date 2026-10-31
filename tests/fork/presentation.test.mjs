@@ -10,7 +10,7 @@ test('canonical identities use exact aliases, not name prefixes or prototype pro
     for(const model of ['daisy-qwen35:latest','daisy-v11:latest','daisy-narrative-v1:latest'])assert.equal(resolveArtwork(model).id,'daisy');
     for(const model of ['celeste-narrative-v1:latest','celeste-narrative-v2:latest'])assert.equal(resolveArtwork(model).id,'celeste');
     for(const model of ['__proto__','celeste-unknown:latest','evelyn-some-new-model:latest','qwen3:8b',null])assert.equal(resolveArtwork(model).id,'generic');
-    assert.equal(Object.keys(MODEL_ARTWORK).length,20);
+    assert.equal(Object.keys(MODEL_ARTWORK).length,25);
 });
 test('all twelve prepared expressions have direct assets; missing custom states fall back to neutral',()=>{
     assert.deepEqual(EXPRESSIONS,['neutral','happy','playful','flirty','mischievous','focused','excited','surprised','disappointed','concerned','proud','comforting']);
@@ -116,4 +116,15 @@ test('verified ending of accepted Came Early preserves its in-flight acknowledge
  c.sessionEvents([{id:'stop-release',kind:'stop',session_id:'s',preserve_reaction:true}],1,'s');
  assert(c.active);assert(c.complete('release','Take your time.',evelyn));assert.equal(c.expression,'comforting');
  c.userMessage();c.start('ordinary');c.sessionEvents([{id:'stop-other',kind:'stop',session_id:'s'}],2,'s');assert.equal(c.active,null);
+});
+test('Nova exact identity, all supplied expressions and switching isolation',()=>{
+ const model='nova-narrative-v1:latest';
+ assert.equal(resolveArtwork(model).id,'nova');assert.equal(resolveArtwork(model).name,'Nova');
+ for(const expression of EXPRESSIONS){
+  const view=resolveArtwork(model,expression);assert.equal(view.candidates[0].expression,expression);assert(view.src.startsWith('/Character_Art/Nova/expressions/'));
+ }
+ assert.equal(resolveArtwork(model,'excited').src,'/Character_Art/Nova/expressions/nova_excited.png');
+ assert.equal(resolveArtwork(model,'disappointed').src,'/Character_Art/Nova/expressions/nova_dissapointed.png');
+ assert.equal(resolveArtwork('nova-unknown:latest').id,'generic');
+ const {c}=rig();c.userMessage();c.start('old');c.select(model);assert.equal(c.identity,'nova');assert.equal(c.expression,'neutral');assert(!c.complete('old','*I smile warmly.*',evelyn));
 });

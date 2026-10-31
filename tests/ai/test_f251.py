@@ -142,6 +142,7 @@ async def test_deliberate_event_does_not_reinject_old_unsolicited_prose_but_pres
     speech.history.extend([{'role':'user','content':'My name is Sean.'},
         {'role':'assistant','content':'Good morning, Sean.','trigger_origin':'real_user'},
         {'role':'assistant','content':'OLD UNSOLICITED OPERATIONAL STORY','trigger_origin':'system_event'}])
+    o.report['experience']='headplay' # Fresh transition must still match the current selection.
     speech.enqueue('experience_changed',50,{'previous_experience':'classic','current_experience':'headplay','previous_goal':'tease','current_goal':'tease'})
     c.tick(2.1);speech.pump();await speech.task
     assert any(m['content']=='My name is Sean.' for m in received)
@@ -173,6 +174,7 @@ def test_normal_ending_stop_preserves_proven_came_early_generation(tmp_path):
         return httpx.Response(200,stream=Delayed())
     c=Clock();app=create_app(TOKEN,tmp_path,clock=c.mono,transport=httpx.MockTransport(handler));app.state.observation.wall=c.wall
     s=snapshot(c);s['details'].update(learning_release_count=0,settle_outcome=None)
+    s['devices'].update(toy_ready=True,handy=True);s['safety']['fault']='none'
     with TestClient(app) as client:
         with client.websocket_connect('/observe',headers={'Origin':ORIGIN}) as ws:
             ready=auth(ws)
@@ -181,10 +183,12 @@ def test_normal_ending_stop_preserves_proven_came_early_generation(tmp_path):
                 f=frame(s,seq,kinds);f['epoch']=ready['epoch'];ws.send_json(f)
             send(0,[]);until(ws,'observation_ack')
             c.tick(.3);s['details'].update(captured_at_ms=int(c.wall()*1000),learning_release_count=1,settle_outcome='premature_release')
-            send(1,['came_early']);until(ws,'observation_ack');start=until(ws,'response_start')
-            c.tick(.3);s.update(status='IDLE',seconds=0,edges=0);s['details'].update(captured_at_ms=int(c.wall()*1000),settle_outcome=None,warmup_active=False,warmup_remaining_seconds=None,pauses=0)
+            send(1,['came_early']);until(ws,'observation_ack')
+            assert app.state.speech.task is None  # Wait for the captured final result.
+            c.tick(.3);s.update(status='IDLE');s['details'].update(captured_at_ms=int(c.wall()*1000),terminal_outcome='premature_release',settle_outcome=None,warmup_active=False,warmup_remaining_seconds=None,pauses=0)
             send(2,['stop']);ack=until(ws,'observation_ack')
             assert ack['events'][0]['kind']=='stop' and ack['events'][0]['preserve_reaction'] is True
+            start=until(ws,'response_start')
             release.set();speech=until(ws,'speech')
             assert speech['id']==start['id'] and speech['expression']=='comforting' and speech['text']=='Take your time.'
             assert app.state.observation.report['status']=='IDLE'

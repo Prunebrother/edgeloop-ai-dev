@@ -9,7 +9,7 @@ import httpx
 from .event_intelligence import EventIntelligence,EventConfig,load_config,PHYSIOLOGY
 from .narrative import NarrativeMemory, NarrativeConfig
 from .expressions import clean_dialogue
-from .event_policy import SELECTION_EVENTS, REACTIVE_EVENTS
+from .event_policy import SELECTION_EVENTS, REACTIVE_EVENTS, REACTION_EVENTS, LIFECYCLE_EVENTS
 from .models import SpeechPolicy, AIConfig, MemoryConfig
 from .diagnostics import Metrics
 from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, InferenceCompatibilityError, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
@@ -190,12 +190,22 @@ class ModelManager:
             self.selected_loaded = True
             def chunk(text):
                 self.load_state = 'generating'
-                if on_chunk:on_chunk(text)
+                # Do not stream restricted aggregates before the final permission
+                # recheck. The complete response is released only after validation.
+                if not summary.get('nova_cross_query') and on_chunk:on_chunk(text)
             compiler_settings=self.context_config.model_copy(deep=True)
             try:
                 if isinstance(self.adapter,OllamaProvider) and self.model_metadata is None:
                     self.model_metadata = await self.adapter.capabilities(self.config.model)
                 if getattr(self,'current_summary',None):summary=summary | self.current_summary()
+                # Nova cross-companion evidence is built from the current trusted
+                # Journal at inference dispatch, never from a queued snapshot.
+                if summary.get('nova_cross_query'):
+                    from .nova_verified_bridge import summarize_existing_journal
+                    targets=frozenset(summary['nova_cross_query'])
+                    aggregate=summarize_existing_journal(getattr(self,'verified_journal',None),targets)
+                    summary=summary | {'journal_context':[], 'nova_aggregate':aggregate,
+                                       'journal_access_denied':aggregate['status']=='denied'}
                 native_system=(self.model_metadata or {}).get('system','')
                 from .narrative_facts import native_canon,recall_violations
                 summary=summary|{'narrative_canon':native_canon(native_system)}
@@ -238,6 +248,14 @@ class ModelManager:
                 if self.metrics.samples:
                     self.context_diagnostics['actual_prompt_tokens']=self.metrics.samples[-1].get('prompt_tokens')
                     self.context_diagnostics['estimate_error_tokens']=(self.context_diagnostics.get('estimated_prompt_tokens',0)-(self.metrics.samples[-1].get('prompt_tokens') or 0))
+                if summary.get('nova_cross_query'):
+                    # An authorized response cannot be displayed after a concurrent
+                    # permission mutation (server JournalCommand also interrupts).
+                    from .nova_verified_bridge import summarize_existing_journal
+                    fresh=summarize_existing_journal(getattr(self,'verified_journal',None),frozenset(summary['nova_cross_query']))
+                    if fresh != summary['nova_aggregate']:
+                        raise ValueError('Nova Journal permission or authorized evidence changed during inference')
+                    if on_chunk:on_chunk(result)
                 self.context_diagnostics['request_status']='completed'
                 self.load_state='ready';self.metrics.last_error=None
                 return result
@@ -268,6 +286,14 @@ class ConversationService:
         if store and not (store.root/'event-intelligence.json').exists():event_config=event_config.model_copy(update={'proactive_interval_seconds':float(min(1800,max(15,self.director.config.spontaneous_interval_seconds)))})
         self.event_intelligence=EventIntelligence(event_config,clock=clock);self.event_intelligence.error=event_error
         if store:self.director.config=self.director.config.model_copy(update={'spontaneous_interval_seconds':event_config.proactive_interval_seconds})
+        self.director_defaults=self.director.config.model_copy(deep=True)
+        self.director_settings_error=None
+        try:
+            self.director_profiles=store.read('director-models.json',{}) if store else {}
+            if not isinstance(self.director_profiles,dict):raise ValueError('Invalid model pacing settings')
+        except ValueError:
+            self.director_profiles={};self.director_settings_error='Model pacing settings could not be read; defaults are active and the original file is preserved.'
+        self.director_profiles_error=self.director_settings_error
         self.last_event = float("-inf")
         self.busy_until = 0
         self.task = None
@@ -330,6 +356,11 @@ class ConversationService:
         if hasattr(self,'curator'):
             self.curator.cancel()
             self.curator.diagnostics={'status':'idle' if self.curator.config.enabled else 'disabled','attempts':0}
+        self.director_settings_error=self.director_profiles_error
+        try:self.director.config=DirectorConfig.model_validate(self.director_defaults.model_dump() | self.director_profiles.get(sha256(scope.encode()).hexdigest(),{}))
+        except (ValueError,TypeError):
+            self.director.config=self.director_defaults.model_copy(deep=True)
+            self.director_settings_error='Selected model pacing settings are invalid; defaults are active and the original file is preserved.'
         self.director.activate(scope)
         self.sync_narrative()
         self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
@@ -367,7 +398,7 @@ class ConversationService:
             'narrative_epoch':self.narrative.state['epoch'],'narrative_revision':self.narrative.state['revision'],
             'director':{'enabled':config.enabled,'proactive_enabled':config.spontaneous_enabled,
                 'narrative_initiative_enabled':config.narrative_initiative_enabled,
-                'max_consecutive_unsolicited':config.max_consecutive_unsolicited,
+                'max_consecutive_unsolicited':config.max_consecutive_unsolicited,'settings':config.model_dump(),'settings_scope':'selected_model','settings_error':self.director_settings_error,'quiet_requested':self.director.memory['quiet_requested'],'recent_decisions':[{k:r[k] for k in ('at','reason','kind','event_id','intent','topic_key','previous_decision') if k in r} for r in self.director.decisions if r.get('scope')==self.active_model_id][-12:],'initiative_intents':list(self.director.memory['initiative_intents']),
                 'last_decision':self.director.last_reason,
                 'cooldown_seconds':round(max(0,config.spontaneous_interval_seconds-(now-self.director.last_spoken)),1),
                 'reaction_cooldown_seconds':round(max(0,config.reaction_interval_seconds-(now-self.director.last_reaction)),1),
@@ -391,6 +422,28 @@ class ConversationService:
         self.pending.clear()
         self.publish(self.character_state()|{'objective_saved':True})
 
+    def configure_director(self,updates,model=None):
+        if model is not None and self.director_settings_error:raise ValueError(self.director_settings_error)
+        if model is not None and model!=self.responder()['model']:raise ValueError('The selected model changed. Reopen the Director menu.')
+        config=DirectorConfig.model_validate(self.director.config.model_dump() | updates)
+        store=getattr(self.adapter,'store',None)
+        if model is None:
+            defaults=DirectorConfig.model_validate(self.director_defaults.model_dump() | updates)
+            if store:store.write('director.json',defaults.model_dump())
+            self.director_defaults=defaults
+        else:
+            profiles=dict(self.director_profiles);key=sha256(self.active_model_id.encode()).hexdigest()
+            profiles[key]=profiles.get(key,{}) | updates
+            if store:store.write('director-models.json',profiles)
+            self.director_profiles=profiles
+        self.director.config=config
+        self.director.log('pacing_settings_saved',model_specific=model is not None,proactive_enabled=config.spontaneous_enabled,experimental_idle_enabled=config.experimental_idle_enabled)
+        if not config.spontaneous_enabled:
+            self.director.last_reason='proactive_disabled'
+            self.pending.clear()
+            if self.active_source=='event' and self.task and not self.task.done():self.interrupt()
+        elif not config.experimental_idle_enabled and self.active_event_kind=='idle_initiative' and self.task and not self.task.done():self.interrupt()
+
     def configure_events(self,config):
         store=getattr(self.adapter,'store',None)
         if store:store.write('event-intelligence.json',config.model_dump())
@@ -399,6 +452,7 @@ class ConversationService:
         self.pending=[e for e in self.pending if not e.get('observation')]
         self.event_intelligence.configure(config)
         self.director.config=self.director.config.model_copy(update={'spontaneous_interval_seconds':config.proactive_interval_seconds})
+        self.director_defaults=self.director_defaults.model_copy(update={'spontaneous_interval_seconds':config.proactive_interval_seconds})
 
     def process_derived(self,detected=None):
         self.sync_narrative()
@@ -433,6 +487,7 @@ class ConversationService:
         for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:storyline_reset')
         self.pending.clear()
         for key in ('topics','questions','responses','event_responses'):self.director.memory[key].clear()
+        self.director.memory['initiative_topics'].clear();self.director.memory['initiative_intents'].clear()
         self.director.memory.update(topic=None,consecutive_unsolicited=0)
         self.publish({'type':'narrative_reset','model':self.responder()['model'],'narrative_epoch':self.narrative.state['epoch']})
         self.publish(self.character_state())
@@ -456,14 +511,15 @@ class ConversationService:
     def safety(self, reason):
         self.sync_narrative()
         self.narrative.event(reason)
-        retained=[e for e in self.pending if reason=='stop' and e['kind'] in {'came_early','completion_accepted'}]
+        retained=[e for e in self.pending if reason=='stop' and e['kind'] in {'came_early','completion_accepted','session_ended'}]
         for event in self.pending:
-            if event not in retained:self.event_intelligence.decision(event.get('event_id'),'discarded:safety_priority')
+            if event not in retained:
+                self.event_intelligence.decision(event.get('event_id'),'discarded:safety_priority');self.director.mark_event(event,'discarded:safety_priority')
         self.pending=retained
         self.director.receive(reason, 100, origin='safety_event')
         self.director.last_reason = 'deterministic_safety:' + reason
         self.recent_events.append({"kind": reason, "at": self.clock(), "priority": 100})
-        if not (reason=='stop' and self.active_event_kind in {'came_early','completion_accepted'}):self.interrupt()
+        if not (reason=='stop' and self.active_event_kind in {'came_early','completion_accepted','session_ended'}):self.interrupt()
         # Deterministic immediate notice; never wait for a model or rate limiter.
         self.publish({"type": "speech", "id": str(uuid4()), "source": "safety",
                       "text": f"EdgeLoop reports: {reason.replace('_', ' ')}.",
@@ -491,6 +547,7 @@ class ConversationService:
             self.enqueue(notice, 30 if notice == "edge" else 10)
 
     def enqueue(self, kind, priority, details=None):
+        if (kind=='session_ended' or (details or {}).get('session_result')) and (self.closed or not self.policy.enabled or not self.policy.event_responses or self.director.memory['quiet_requested'] or not getattr(self.state,'fresh',lambda:True)()):return
         self.curator.cancel()
         self.sync_narrative()
         self.narrative.event(kind)
@@ -498,7 +555,8 @@ class ConversationService:
             self.event_intelligence.decision((details or {}).get('event_id'),'discarded:duplicate')
             return
         now = self.clock()
-        event = {"kind": kind, "at": now, "priority": priority, **(details or {})}
+        if self.active_event_kind=='idle_initiative' and priority>=50 and self.task and not self.task.done():self.interrupt()
+        event = {"kind": kind, "at": now, "priority": priority,"source_status":getattr(self.state,"status",None),"observer_epoch":getattr(self.state,"connection_epoch",None), **(details or {})}
         self.recent_events.append(event)
         if not self.director.config.spontaneous_enabled:
             self.director.counts['events_suppressed']+=1
@@ -508,6 +566,7 @@ class ConversationService:
         if kind in SELECTION_EVENTS:
             prior=next((e for e in self.pending if e['kind'] in SELECTION_EVENTS),None)
             if prior:
+                self.director.mark_event(prior,'coalesced:selection')
                 for key in ('previous_experience','previous_goal'):event[key]=prior.get(key,event.get(key))
             self.pending=[e for e in self.pending if e['kind'] not in SELECTION_EVENTS]
             event['not_before']=now+self.director.config.selection_debounce_seconds
@@ -530,28 +589,48 @@ class ConversationService:
         self.sync_narrative()
         now = self.clock()
         for event in self.pending:
-            if now-event['at']>self.policy.event_ttl_seconds or event.get('category')=='derived' and (event.get('session_id')!=getattr(self.state,'session_id',None) or event.get('narrative_epoch')!=self.narrative.state['epoch']):self.event_intelligence.decision(event.get('event_id'),'discarded:stale_or_scope')
+            if now-event['at']>self.policy.event_ttl_seconds or event.get('category')=='derived' and (event.get('session_id')!=getattr(self.state,'session_id',None) or event.get('narrative_epoch')!=self.narrative.state['epoch']):self.event_intelligence.decision(event.get('event_id'),'discarded:stale_or_scope');self.director.mark_event(event,'discarded:stale_or_scope');self.director.counts['queue_expired_or_scope']+=1
         self.pending = [e for e in self.pending if now-e['at']<=self.policy.event_ttl_seconds and (e.get('category')!='derived' or e.get('session_id')==getattr(self.state,'session_id',None) and e.get('narrative_epoch')==self.narrative.state['epoch'])]
         for event in list(self.pending):
-            if event['kind'] in {'session_started','session_resumed'} and not self.reaction_current({'trigger_event':event}):
-                self.pending.remove(event);self.event_intelligence.decision(event.get('event_id'),'discarded:superseded_state')
+            if not self.reaction_current({'trigger_event':event}):
+                self.pending.remove(event);self.event_intelligence.decision(event.get('event_id'),'discarded:superseded_state');self.director.mark_event(event,'discarded:superseded_state')
         if getattr(self.adapter, "mode", None) in {"mock", "stopped"}:
             return
-        if not self.director.config.spontaneous_enabled:return
+        if not self.director.config.spontaneous_enabled:
+            self.director.deferred('proactive_disabled');return
         if self.closed or not self.policy.enabled or not self.policy.event_responses or self.state.emergency:
-            return
+            self.director.deferred('closed_or_speech_disabled' if not self.state.emergency else 'authoritative_safety');return
         # Telemetry never supersedes an in-progress user turn, regardless of interruption policy.
         if self.task is not None and not self.task.done():
             for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'deferred:active_generation')
-            return
+            self.director.deferred('active_user_generation' if self.active_source=='user' else 'active_autonomous_generation');return
         eligible=[]
         for candidate in self.pending:
             gates=[('user_grace',self.policy.user_grace_seconds-(now-self.last_user)),
                    ('speech_interval',self.policy.min_interval_seconds-(now-self.last_event)),
                    ('event_kind_cooldown',self.policy.per_event_cooldown_seconds-(now-self.event_last_spoken.get(candidate['kind'],float('-inf'))))]
             blocked=next(((reason,remaining) for reason,remaining in gates if remaining>0),None)
-            if candidate['kind'] in REACTIVE_EVENTS or blocked is None:eligible.append(candidate)
-            else:self.event_intelligence.decision(candidate.get('event_id'),'deferred:'+blocked[0],blocked[1])
+            if candidate['kind'] in REACTION_EVENTS or blocked is None:eligible.append(candidate)
+            else:
+                self.event_intelligence.decision(candidate.get('event_id'),'deferred:'+blocked[0],blocked[1]);self.director.deferred(blocked[0],candidate)
+        if not eligible and self.director.config.experimental_idle_enabled:
+            self.event_intelligence.reason('quiet','experimental_idle_selector_active')
+            n=self.narrative.context(for_compiler=True) if self.memory_config.enabled else None
+            if n:n=n | {'initiative_allowed':self.narrative.state['initiative_allowed']}
+            projection={'narrative_context':n};source_history=list(self.history)
+            if self.narrative.state['context_boundary']:source_history=[m for m in source_history if m.get('narrative_epoch')==self.narrative.state['epoch']]
+            source_history=self.idle_context(projection,source_history);n=projection.get('narrative_context')
+            opportunity,reason=self.director.idle_candidate(n,source_history,getattr(self.state,'session_id',None),self.state.status,getattr(self.state,'fresh',lambda:True)(),self.memory_config.enabled)
+            if self.pending:opportunity=None;reason='significant_event_pending'
+            if now<self.busy_until:opportunity=None;reason='response_busy'
+            if opportunity:
+                event={'kind':'idle_initiative','priority':0,'at':now,'narrative':True,'opportunity':opportunity}
+                result=self.request('Director conversational opportunity (not telemetry or a user request): '+json.dumps(opportunity),user=False,event=event)
+                if result['accepted']:
+                    self.director.idle_dispatched(opportunity);self.director.dispatched(event,reason)
+                else:reason=result['reason'];self.director.deferred(reason)
+            if not opportunity:self.director.deferred(reason)
+            return
         if not eligible:
             # A timer alone never grants permission: require an engaged story,
             # a user choice/commitment, no unanswered question and a fresh user turn.
@@ -560,9 +639,10 @@ class ConversationService:
             if hasattr(self.state,'wall') and hasattr(self.state,'measurement_segment'):
                 quiet=self.event_intelligence.quiet(self.state,max(self.last_user,self.director.last_spoken),(self.active_model_id,self.narrative.state['epoch'],self.narrative.state['revision'],getattr(self.state,'session_id',None)))
                 if quiet and not allowed:self.event_intelligence.decision(quiet.id,'context_only:'+reason)
+            if not allowed or quiet is None:self.director.deferred(reason if not allowed else 'legacy_quiet_gate')
             if allowed and quiet and not self.pending and now >= self.busy_until and getattr(self.state, 'fresh', lambda: True)():
                 event={'kind':'narrative_continuation','priority':0,'at':now,'narrative':True}
-                result=self.request('Continue one established fictional thread briefly, or choose [SILENCE]. This is a conversational opportunity, not a verified EdgeLoop event.',user=False,event=event)
+                result=self.request('Continue one established fictional thread, or choose [SILENCE]. This is a conversational opportunity, not a verified EdgeLoop event.',user=False,event=event)
                 if result['accepted']:
                     self.director.dispatched(event,reason)
                     self.event_intelligence.decision(quiet.id,'scheduled:narrative_initiative')
@@ -575,13 +655,12 @@ class ConversationService:
             remaining=0
             if detector in self.event_intelligence.config.detectors:
                 remaining=self.event_intelligence.config.detectors[detector].cooldown_seconds-(now-self.event_intelligence.commentary_at.get(detector,float('-inf')))
-                if remaining>0 and candidate['kind'] not in {'completion_accepted','came_early'}:allowed,reason=False,'detector_commentary_cooldown'
+                if remaining>0 and candidate['kind'] not in {'completion_accepted','came_early','session_ended'}:allowed,reason=False,'detector_commentary_cooldown'
             self.event_intelligence.decision(candidate.get('event_id'),('respond_now:' if allowed else 'deferred:')+reason,max(0,remaining) if reason=='detector_commentary_cooldown' else max(0,self.director.config.spontaneous_interval_seconds-(now-self.director.last_spoken)) if reason=='spontaneous_frequency' else max(0,self.director.config.category_cooldowns.get('physiology',0)-(now-self.director.last_category.get('physiology',float('-inf')))) if reason=='category_cooldown' else 0)
             if allowed:opportunities.append((candidate,reason))
-            elif reason!=self.director.last_reason:
-                self.director.last_reason=reason;self.director.log(reason,kind=candidate['kind'])
+            else:self.director.deferred(reason,candidate)
         if not opportunities:return
-        event, reason = max(opportunities, key=lambda pair: (pair[0]['priority'], -pair[0]['at']))
+        event, reason = max(opportunities, key=lambda pair: (pair[0]['kind'] in LIFECYCLE_EVENTS,pair[0]['priority'], -pair[0]['at']))
         prompt = 'Observed application event (not a user request): ' + json.dumps({k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm','observation','config_revision','narrative_epoch'}} | {'origin':self.director.current_origin,'current_experience':getattr(self.state,'report',{}).get('experience') if getattr(self.state,'report',None) else event.get('current_experience'),'current_goal':getattr(self.state,'report',{}).get('goal') if getattr(self.state,'report',None) else event.get('current_goal')})
         result = self.request(prompt, user=False, event=event)
         if result["accepted"]:
@@ -604,7 +683,7 @@ class ConversationService:
         now = self.clock()
         if self.closed:
             return {"accepted": False, "reason": "closed"}
-        reactive=event is not None and event['kind'] in REACTIVE_EVENTS
+        reactive=event is not None and event['kind'] in REACTION_EVENTS
         busy = (self.task is not None and not self.task.done()) or (not reactive and now < self.busy_until)
         if not user and (not self.policy.enabled or not self.policy.event_responses or (not reactive and now-self.last_event < self.policy.min_interval_seconds)):
             return {"accepted": False, "reason": "frequency_policy"}
@@ -622,7 +701,9 @@ class ConversationService:
             if QUIET.search(prompt):self.narrative.state['initiative_allowed']=False
             try:self.narrative.observe_user(prompt)
             except OSError:self.publish({'type':'character_menu_error','code':'narrative_persistence','model':self.responder()['model'],'detail':'New story details are retained in this process but could not be saved locally.'})
-        if user and self.director.config.enabled and re.search(r"\b(no need to (?:reply|respond)|just (?:be|stay) quiet|let'?s sit quietly)\b", prompt, re.I):
+        if user and self.director.config.enabled and self.director.last_user_quiet_request:
+            for queued in self.pending:self.director.mark_event(queued,'discarded:user_requested_quiet')
+            self.pending.clear()
             request_id=str(uuid4())
             self.director.counts['intentional_silence']+=1
             self.director.last_reason='user_requested_silence'
@@ -641,16 +722,31 @@ class ConversationService:
             for e in list(compact_events.values())[-6:]]}
         journal=getattr(self.state,'journal',None)
         if user and journal is not None:
-            summary['journal_lookup']=journal.relevant(prompt)
-            summary['journal_context']=journal.retrieve(prompt,self.active_model_id)
-            summary['journal_access_denied']=journal.relevant(prompt) and (not journal.data['ai_access'] or bool(journal.error))
+            from .nova_verified_bridge import requested_cross_companions
+            cross=requested_cross_companions(prompt,self.active_model_id)
+            if cross:
+                # No raw cross-companion rows enter queued model context.
+                summary['nova_cross_query']=sorted(cross)
+                summary['journal_lookup']=True
+                summary['journal_context']=[]
+                summary['journal_access_denied']=True  # revalidated at model dispatch
+            else:
+                summary['journal_lookup']=journal.relevant(prompt)
+                summary['journal_context']=journal.retrieve(prompt,self.active_model_id)
+                summary['journal_access_denied']=journal.relevant(prompt) and (not journal.data['ai_access'] or bool(journal.error))
         memory = self.memory_config
         history = list(self.history) if (user or self.director.config.enabled) and memory.enabled else []
         if self.director.config.enabled:
             history = self.director.history(history, memory.max_messages) if memory.enabled else []
             summary = self.director.context(summary, prompt, list(compact_events.values()), user, memory.enabled)
+        if event and not event.get('narrative'):summary['recent_events']=[]
         if event and not event.get('narrative'):summary['trigger_event']={k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm'}}
+        if event:summary['director_turn']={k:event.get(k) for k in ('kind','session_id','source_status','observer_epoch')} | {'session_id':event.get('session_id',getattr(self.state,'session_id',None)),'observer_epoch':event.get('observer_epoch',getattr(self.state,'connection_epoch',None))}
         summary['narrative_initiative']=bool(event and event.get('narrative'))
+        if event and event.get('opportunity'):
+            summary['director_opportunity']=event['opportunity']
+            summary['recent_events']=[]
+            if 'director' in summary:summary['director']['event_origin']='system_event'
         if memory.enabled:summary['narrative_context']=self.narrative.context(for_compiler=True)
         summary['narrative_scope']=self.narrative_scope()
         summary['derived_observations']=[r['event'] for r in self.event_intelligence.history if r['event']['category']=='derived' and r['event']['session_id']==getattr(self.state,'session_id',None) and 0<=getattr(self.state,'wall',lambda:0)()*1000-r['event']['created_at_ms']<=60000][-3:]
@@ -660,8 +756,9 @@ class ConversationService:
         if self.narrative.state['context_boundary']:
             summary['narrative_epoch']=self.narrative.state['epoch']
             history=[m for m in history if m.get('narrative_epoch')==self.narrative.state['epoch']]
-        if event and event['kind'] in REACTIVE_EVENTS:
+        if event and event['kind'] in REACTION_EVENTS:
             history=[m for m in history if m.get('trigger_origin') in {None,'real_user'}]
+        if summary.get('narrative_initiative'):history=self.idle_context(summary,history)
         self.active_event_kind = event['kind'] if event else None
         self.active_source = "user" if user else "event"
         self.task = asyncio.create_task(self._generate(request_id, generation, summary, prompt, history, user))
@@ -669,10 +766,45 @@ class ConversationService:
         self.task.add_done_callback(self.tasks.discard)
         return {"accepted": True, "request_id": request_id}
 
+    def idle_context(self,summary,history):
+        """Select dialogue/fiction without priming idle turns with event-ack echoes.
+        This is a prompt projection only; transcripts and stored memory are intact.
+        """
+        genuine=[r for r in history if r.get('role')=='user' or r.get('trigger_origin')=='real_user' or r.get('trigger_origin') is None and not r.get('event_id')]
+        selected=[r for r in history if r in genuine or r.get('initiative_intent')]
+        epoch=self.narrative.state['epoch']
+        acknowledgments=[r['content'] for r in self.director.memory['event_responses'] if r.get('event_id') and r.get('narrative_epoch')==epoch and not r.get('initiative_intent')]
+        acknowledgments=[' '.join(a.split()) for a in acknowledgments]
+        dialogue=[' '.join(r['content'].split()) for r in genuine]
+        def event_only(text):
+            text=' '.join(text.split()).strip()
+            return bool(text and any(text in a for a in acknowledgments) and not any(text in content for content in dialogue))
+        n=dict(summary.get('narrative_context') or {});excluded=[];excerpts=0
+        for field in ('developments','commitments','threads'):
+            values=n.get(field,[]);kept=[t for t in values if not event_only(t)];excerpts+=len(values)-len(kept)
+            if field in n:n[field]=kept
+        facts=[]
+        for fact in n.get('facts',[]):
+            if fact.get('speaker')=='assistant' and fact.get('category')=='development' and fact.get('model_scope')==self.active_model_id and fact.get('epoch')==epoch and event_only(fact['text']):
+                excluded.append({'id':fact['id'],'category':fact['category'],'speaker':fact['speaker'],'reason':'event_acknowledgment_not_idle_topic','selected':False})
+            else:facts.append(fact)
+        if 'facts' in n:n['facts']=facts
+        if summary.get('narrative_context') is not None:summary['narrative_context']=n
+        summary['idle_context_exclusions']={'history_rows':len(history)-len(selected),'excerpts':excerpts,'facts':excluded}
+        return selected
+
     def reaction_current(self, summary):
-        event=summary.get('trigger_event',{})
+        event=summary.get('trigger_event') or summary.get('director_turn',{})
         report=getattr(self.state,'report',None)
         if report is None:return True
+        if event.get('observer_epoch') is not None and event['observer_epoch']!=getattr(self.state,'connection_epoch',None):return False
+        if summary.get('narrative_initiative') and report['status'] not in {'RUNNING','RAMPDOWN'}:return False
+        if (event or summary.get('director_opportunity')) and not getattr(self.state,'fresh',lambda:True)():return False
+        if (event.get('kind')=='session_ended' or event.get('session_result')) and (report['status']!='IDLE' or self.director.memory['quiet_requested'] or not self.director.config.spontaneous_enabled or not self.policy.enabled or not self.policy.event_responses or any(report['safety'].get(k) for k in ('watchdog_paused','no_contact')) or report['safety']['fault'] in {'signal_lost','no_contact','device_unready'}):return False
+        if event.get('sequence') is not None and event['sequence']>getattr(self.state,'sequence',event['sequence']):return False
+        opportunity=summary.get('director_opportunity')
+        if opportunity and (report['status'] not in {'RUNNING','RAMPDOWN'} or opportunity.get('session_id')!=getattr(self.state,'session_id',None) or self.director.memory['quiet_requested']):return False
+        if event and event.get('kind') not in {'completion_accepted','came_early','session_ended'} and report['status']=='IDLE' and not (event.get('kind') in SELECTION_EVENTS and event.get('source_status')=='IDLE'):return False
         if event.get('session_id') and getattr(self.state,'session_id',None) is not None and event['session_id']!=self.state.session_id:return False
         if event.get('kind') in {'session_started','session_resumed'} and report['status'] not in {'RUNNING','RAMPDOWN'}:return False
         if event.get('kind') not in SELECTION_EVENTS:return True
@@ -723,19 +855,22 @@ class ConversationService:
                 text = await self.adapter.reply(summary, prompt, history)
             if generation != self.generation or summary.get('narrative_scope')!=self.narrative_scope():
                 self.event_intelligence.decision(trigger.get('event_id'),'discarded:generation_scope_changed')
+                if trigger:self.director.mark_event(trigger,'discarded:generation_scope_changed')
                 return
             if not self.reaction_current(summary):
                 self.event_intelligence.decision(trigger.get('event_id'),'discarded:superseded_state')
                 self.director.log('selection_superseded')
+                if trigger:self.director.mark_event(trigger,'discarded:superseded_state')
                 publish({'type':'response_suppressed','id':request_id,'reason':'selection_superseded'})
                 return
             if directed:
                 if silent_response(text) and not user:
                     self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'context_only:intentional_silence')
                     self.director.counts['intentional_silence'] += 1
+                    if trigger:self.director.mark_event(trigger,'suppressed:intentional_silence')
                     publish({'type':'response_suppressed','id':request_id,'reason':'intentional_silence'})
                     return
-                score = self.director.assess(text,user,prompt)
+                score = self.director.assess(text,user,prompt,summary.get('director_opportunity'))
                 can_retry = score['excessive'] and self.director.config.regenerate_once
                 if can_retry:
                     self.director.counts['regenerations'] += 1
@@ -748,7 +883,7 @@ class ConversationService:
                             options = {'on_chunk':on_chunk, **stream_options} if getattr(self.adapter,'streaming',False) else {}
                             revised = await self.adapter.reply(summary | {'conversation_source':'revision','revision':{'source':'user' if user else 'event','original_request':prompt,'candidate_draft':text}},revise,history,**options)
                         text = revised
-                        score = self.director.assess(text,user,prompt)
+                        score = self.director.assess(text,user,prompt,summary.get('director_opportunity'))
                     except (TimeoutError, ValueError, httpx.HTTPError):
                         self.director.log('regeneration_failed')
                         buffered = ''
@@ -758,6 +893,7 @@ class ConversationService:
                 if not user and (score['excessive'] or silent_response(text)):
                     self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'suppressed:repetitive_opportunity')
                     self.director.counts['responses_suppressed'] += 1
+                    if trigger:self.director.mark_event(trigger,'suppressed:repetition')
                     self.director.log('repetitive_opportunity_suppressed')
                     publish({'type':'response_suppressed','id':request_id,'reason':'repetitive_opportunity'})
                     return
@@ -771,7 +907,7 @@ class ConversationService:
                 if user:
                     self.history.append({'role':'user', 'content':prompt, 'origin':'real_user', 'session_id':getattr(self.state,'session_id',None), 'narrative_epoch':self.narrative.state['epoch'], 'at':self.clock()})
                 self.history.append({'role':'assistant', 'content':text, 'origin':'assistant_dialogue',
-                    'trigger_origin':'real_user' if user else 'system_event', 'expression':expression, 'session_id':getattr(self.state,'session_id',None), 'narrative_epoch':self.narrative.state['epoch'], 'at':self.clock()})
+                    'trigger_origin':'real_user' if user else 'system_event','event_id':trigger.get('event_id'),'initiative_intent':(summary.get('director_opportunity') or {}).get('intent') or ('legacy_narrative' if summary.get('narrative_initiative') else None), 'expression':expression, 'session_id':getattr(self.state,'session_id',None), 'narrative_epoch':self.narrative.state['epoch'], 'at':self.clock()})
             if summary.get('narrative_scope')==self.narrative_scope() and memory.enabled:
                 self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
                 self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False))
@@ -779,7 +915,9 @@ class ConversationService:
                 trigger=summary.get('trigger_event',{})
                 if trigger.get('event_id'):self.narrative.reference_event(trigger)
             self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'acknowledged')
-            self.director.accepted(text, user)
+            if summary.get('director_opportunity'):self.director.memory['last_idle_finished']=self.clock()
+            if trigger:self.director.mark_event(trigger,'acknowledged')
+            self.director.accepted(text,user,trigger,(summary.get('director_opportunity') or {}).get('intent') or ('legacy_narrative' if summary.get('narrative_initiative') else None))
             if self.director.memory['event_responses']:
                 self.director.memory['event_responses'][-1]['narrative_epoch']=self.narrative.state['epoch']
             self.publish(self.character_state())
@@ -790,9 +928,11 @@ class ConversationService:
             publish({"type": "speech", "id": request_id, "source": "user" if user else "event",
                 "text": text, "responder": responder, 'expression':expression, 'expression_source':'model' if expression else 'fallback', "speak": self.policy.enabled, "interrupt": user or self.policy.interruption == "interrupt"})
         except asyncio.CancelledError:
+            if trigger:self.director.mark_event(trigger,'cancelled')
             self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'discarded:generation_cancelled')
         except (httpx.HTTPError, ValueError, TypeError, KeyError, TimeoutError) as exc:
             if generation == self.generation:
+                if trigger:self.director.mark_event(trigger,'failed_or_unsupported')
                 self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'suppressed:grounding_violation' if isinstance(exc,GroundingError) else 'failed:inference_unavailable')
                 publish({"type": "response_cancel", "id": request_id, "generation": generation})
                 publish({"type": "conversation_error", "request_id": request_id,

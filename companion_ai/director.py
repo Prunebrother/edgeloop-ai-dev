@@ -1,15 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 """CPU-only conversation policy. No provider, character or device-controller imports."""
-from collections import Counter, deque
+from collections import Counter, deque, OrderedDict
 from difflib import SequenceMatcher
 import json
+from hashlib import sha256
 import logging
 import re
 import time
 from typing import Annotated, Literal
 from pydantic import Field
 from .models import StrictModel
-from .event_policy import REACTIVE_EVENTS, SELECTION_EVENTS
+from .fact_semantics import significance as memory_significance
+from .event_policy import REACTIVE_EVENTS, SELECTION_EVENTS, REACTION_EVENTS
 
 Origin = Literal['real_user', 'assistant_dialogue', 'edgeloop_telemetry', 'simulated_telemetry', 'tool_result', 'safety_event', 'system_event']
 Category = Literal['observation', 'significant_event', 'conversational_opportunity', 'safety_event']
@@ -19,7 +21,11 @@ class DirectorConfig(StrictModel):
     enabled: bool = True
     spontaneous_enabled: bool = True
     narrative_initiative_enabled: bool = True
-    max_consecutive_unsolicited: int = Field(default=2, ge=1, le=4)
+    experimental_idle_enabled: bool = True
+    idle_interval_seconds: float = Field(default=20., ge=15, le=1800)
+    idle_response_cooldown_seconds: float = Field(default=15., ge=0, le=1800)
+    topic_cooldown_seconds: float = Field(default=60., ge=0, le=3600)
+    max_consecutive_unsolicited: int = Field(default=50, ge=1, le=50)
     selection_debounce_seconds: float = Field(default=2.0, ge=.2, le=10)
     reaction_interval_seconds: float = Field(default=4.0, ge=0, le=60)
     reaction_user_grace_seconds: float = Field(default=2.0, ge=0, le=30)
@@ -103,6 +109,17 @@ def group_for(kind):
     if kind.startswith('device'):return 'device'
     return 'session'
 
+def transition_occurrence(kind,previous,current,source_at=None):
+    """Index only already-validated original transitions, never detect an event."""
+    if not previous or not current:return None
+    if kind=='edge':return {'family':'edge','counter':current['edges']}
+    if kind=='milestone':return {'family':'elapsed_milestone','boundary':current['seconds']//300}
+    stamp=source_at if source_at is not None else (current.get('details') or {}).get('captured_at_ms')
+    if stamp is None:return None
+    if kind in SELECTION_EVENTS or kind=='mode_changed':
+        return {'family':'selection','at_ms':stamp,'previous':{k:previous.get(k) for k in ('experience','goal')},'current':{k:current.get(k) for k in ('experience','goal')}}
+    return {'family':kind,'at_ms':stamp}
+
 class ConversationDirector:
     def __init__(self, config=None, clock=time.monotonic):
         self.config=config or DirectorConfig()
@@ -113,25 +130,38 @@ class ConversationDirector:
         self.recent_observations=deque(maxlen=32)
         self.aggregates={}
         self.seen={}
+        self.occurrences=OrderedDict()
         self.last_category={}
         self.last_spoken=float('-inf')
         self.last_reaction=float('-inf')
+        self.last_event_dispatch=float('-inf')
         self.typing_until=0
         self.last_reason='No speech requested'
         self.model_states={}
         self.active_scope='default'
+        self.quiet_all_models=False
+        self.last_user_quiet_request=False
         self.activate('default')
         self.session_status='IDLE'
         self.current_origin='simulated_telemetry'
 
     def activate(self, scope):
         self.active_scope=scope
-        self.memory=self.model_states.setdefault(scope,{'topic':None,'topics':deque(maxlen=8),'questions':deque(maxlen=12),'responses':deque(maxlen=24),'event_responses':deque(maxlen=8),'last_user':float('-inf'),'consecutive_unsolicited':0})
+        self.memory=self.model_states.setdefault(scope,{'topic':None,'topics':deque(maxlen=8),'questions':deque(maxlen=12),'responses':deque(maxlen=24),'event_responses':deque(maxlen=8),'last_user':float('-inf'),'consecutive_unsolicited':0,'quiet_requested':False,'initiative_topics':OrderedDict(),'initiative_intents':deque(maxlen=12),'last_idle_attempt':float('-inf'),'last_idle_finished':float('-inf'),'activated_at':self.clock(),'initiative_session':None})
+
+        self.memory['quiet_requested']=self.quiet_all_models
 
     def log(self, reason, **details):
-        entry={'at':self.clock(),'reason':reason,**details}
+        entry={'at':self.clock(),'reason':reason,'scope':self.active_scope,**details}
         self.decisions.append(entry)
         logger.info('conversation_director %s',json.dumps(entry,separators=(',',':')))
+
+    def deferred(self,reason,event=None):
+        # Count reason transitions, not every 250-ms poll. Never log dialogue.
+        if self.last_reason!=reason:
+            self.counts['deferral_transitions:'+reason]+=1
+            self.log(reason,kind=(event or {}).get('kind'),event_id=(event or {}).get('event_id'))
+        self.last_reason=reason
 
     def record(self, origin, content, role='system', **metadata):
         entry={'origin':origin,'role':role,'content':content,'at':self.clock(),'scope':self.active_scope,**metadata}
@@ -142,6 +172,15 @@ class ConversationDirector:
         self.record('real_user',text,'user')
         self.memory['last_user']=self.clock()
         self.memory['consecutive_unsolicited']=0
+        self.last_user_quiet_request=False
+        # A direct reply is still permitted while autonomous conversation is muted.
+        request=re.sub(r"^\s*(?:okay|ok|thanks|thank you)[,.!]?\s+",'',text,flags=re.I)
+        prefix=r"^\s*(?:(?:please|let['’]?s|can we|could we|can you|could you)\s+)?"
+        if re.search(prefix+r"(?:you can (?:talk|speak)(?: again)?|resume (?:our |the )?conversation|feel free to (?:talk|speak)|do not (?:be|stay) quiet|don't (?:be|stay) quiet)\b",request,re.I):
+            self.memory['quiet_requested']=self.quiet_all_models=False
+        elif re.search(prefix+r"(?:no need to (?:reply|respond)|do not (?:reply|respond)|don't (?:reply|respond)|(?:be|stay|sit) quiet(?:ly)?|silence please|stop talking|stop (?:the )?conversation|give (?:me|us) a break|take a break|I (?:need|want) (?:a break|some quiet|silence)|leave me alone|goodbye|good night|pause the story|stop the story)\b",request,re.I):
+            self.memory['quiet_requested']=self.quiet_all_models=True
+            self.last_user_quiet_request=True
         topic=topic_for(text,self.memory['topic'])
         if topic:
             if topic!=self.memory['topic']:self.memory['topics'].append(topic)
@@ -156,9 +195,35 @@ class ConversationDirector:
         # Rolling samples remain data and never enter user dialogue.
         self.recent_observations.append({'kind':kind,'at':self.clock(),'origin':origin})
 
+    def identity_keys(self,kind,details):
+        sid=details.get('session_id');keys=[]
+        if details.get('event_id'):keys.append(('id',sid,details['event_id']))
+        occurrence=details.get('occurrence')
+        if occurrence is not None:keys.append(('transition',sid,json.dumps(occurrence,sort_keys=True,separators=(',',':'))))
+        elif details.get('at_ms') is not None:
+            keys.append(('source',sid,kind,details['at_ms']))
+        return [sha256(json.dumps(key,separators=(',',':')).encode()).hexdigest()[:32] for key in keys]
+
+    def mark_event(self,event,decision):
+        for key in self.identity_keys(event['kind'],event):
+            if key in self.occurrences:self.occurrences[key]['decision']=decision
+        self.log(decision,kind=event['kind'],event_id=event.get('event_id'),session_id=event.get('session_id'))
+
+    def acknowledged_ids(self):
+        return list(dict.fromkeys(r['event_id'] for r in self.occurrences.values() if r.get('event_id') and r['decision']=='acknowledged'))[-256:]
+
     def receive(self, kind, priority, details=None, origin=None):
         now=self.clock();details=details or {};origin=origin or ('tool_result' if kind=='command_ack' else self.current_origin)
         self.counts['events_received']+=1
+        keys=self.identity_keys(kind,details)
+        duplicate=next((self.occurrences[k] for k in keys if k in self.occurrences),None)
+        if keys and duplicate and priority<100:
+            self.counts['events_suppressed']+=1;self.counts['duplicate_occurrences']+=1
+            self.log('duplicate_occurrence',kind=kind,event_id=details.get('event_id'),previous_decision=duplicate['decision'])
+            return False
+        for key in keys:
+            self.occurrences[key]={'event_id':details.get('event_id'),'kind':kind,'session_id':details.get('session_id'),'decision':'received','at':now}
+            if len(self.occurrences)>1024:self.occurrences.popitem(last=False)
         category='safety_event' if priority>=100 else 'significant_event'
         group=group_for(kind)
         signature=kind+':'+json.dumps({k:v for k,v in details.items() if k not in {'hr','delta_bpm','ack_id','age_seconds','reason','received_at_ms','sequence'}},sort_keys=True,separators=(',',':'))
@@ -180,19 +245,21 @@ class ConversationDirector:
 
     def opportunity(self, event):
         now=self.clock();group=group_for(event['kind'])
+        if self.memory['quiet_requested']:return False,'user_requested_quiet'
         if self.clock()<self.typing_until:return False,'user_typing'
         if not self.config.enabled:return True,'baseline_scheduler'
         if not self.config.spontaneous_enabled:return False,'spontaneous_disabled'
-        if event['kind'] in {'completion_accepted','came_early'}:return True,'verified_completion_action:'+event['kind']
-        if event['kind'] in REACTIVE_EVENTS:
+        if event['kind'] in {'completion_accepted','came_early','session_ended'}:return True,'verified_completion_action:'+event['kind']
+        if event['kind'] in REACTION_EVENTS:
             if now<event.get('not_before',0):return False,'selection_settling'
             if now-self.memory['last_user']<self.config.reaction_user_grace_seconds:return False,'user_turn_grace'
             if now-self.last_reaction<self.config.reaction_interval_seconds:return False,'reaction_cooldown'
-            return True,'verified_action:'+event['kind']
-        if self.memory['consecutive_unsolicited']>=self.config.max_consecutive_unsolicited:return False,'unsolicited_limit'
+            return True,('verified_lifecycle:' if event['kind'] not in SELECTION_EVENTS else 'verified_action:')+event['kind']
+        if self.memory['consecutive_unsolicited']>=self.config.max_consecutive_unsolicited and event.get('priority',0)<50 and event.get('category')!='derived':return False,'unsolicited_limit'
         if group=='tool':return False,'acknowledgement_already_available'
         if now-self.memory['last_user']<self.config.user_idle_before_spontaneous_seconds:return False,'active_conversation'
-        if now-self.last_spoken<self.config.spontaneous_interval_seconds:return False,'spontaneous_frequency'
+        if now-self.last_reaction<self.config.reaction_interval_seconds:return False,'reaction_cooldown'
+        if now-self.last_event_dispatch<self.config.spontaneous_interval_seconds:return False,'spontaneous_frequency'
         if now-self.last_category.get(group,float('-inf'))<self.config.category_cooldowns.get(group,90):return False,'category_cooldown'
         if self.memory['topic'] not in {None,'session'} and now-self.memory['last_user']<self.config.topic_protection_seconds:return False,'continue_user_topic'
         return True,'conversational_opportunity:'+group
@@ -200,17 +267,73 @@ class ConversationDirector:
     def narrative_opportunity(self, engaged):
         now=self.clock()
         if not (self.config.enabled and self.config.spontaneous_enabled and self.config.narrative_initiative_enabled):return False,'narrative_disabled'
+        if self.memory['quiet_requested']:return False,'user_requested_quiet'
         if self.clock()<self.typing_until:return False,'user_typing'
         if not engaged:return False,'no_welcome_narrative_thread'
         if self.session_status not in {'RUNNING','RAMPDOWN'}:return False,'narrative_session_inactive'
         if self.memory['consecutive_unsolicited']>=self.config.max_consecutive_unsolicited:return False,'unsolicited_limit'
         if now-self.memory['last_user']<self.config.user_idle_before_spontaneous_seconds:return False,'active_conversation'
+        if now-self.last_reaction<self.config.reaction_interval_seconds:return False,'reaction_cooldown'
         if now-self.last_spoken<self.config.spontaneous_interval_seconds:return False,'spontaneous_frequency'
         return True,'bounded_narrative_continuation'
 
+    def idle_candidate(self,narrative,history,session_id,session_status,fresh,memory_enabled=True):
+        now=self.clock();m=self.memory;c=self.config
+        if m['initiative_session']!=session_id:
+            m['last_idle_attempt']=max(m['last_idle_attempt'],m['activated_at'] if m['initiative_session'] is None else now)
+            m['initiative_session']=session_id
+        if session_status not in {'RUNNING','RAMPDOWN'}:m['last_idle_attempt']=now
+        reason=None
+        if not (c.enabled and c.spontaneous_enabled and c.experimental_idle_enabled):reason='experimental_idle_disabled'
+        elif m['quiet_requested']:reason='user_requested_quiet'
+        elif session_status not in {'RUNNING','RAMPDOWN'}:reason='stopped_or_paused_session'
+        elif not fresh:reason='unavailable_observation'
+        elif now<self.typing_until:reason='user_typing'
+        elif m['consecutive_unsolicited']>=c.max_consecutive_unsolicited:reason='unsolicited_limit'
+        elif now-m['last_user']<c.user_idle_before_spontaneous_seconds:reason='active_conversation'
+        elif now-max(m['last_idle_attempt'],m['last_user'],self.last_spoken)<c.idle_interval_seconds:reason='idle_interval'
+        elif now-m['last_idle_finished']<c.idle_response_cooldown_seconds:reason='idle_response_cooldown'
+        if reason:return None,reason
+        n=narrative or {};candidates=[]
+        fingerprint=lambda text:sha256(text.encode()).hexdigest()[:16]
+        if memory_enabled:
+            if c.narrative_initiative_enabled and n.get('initiative_allowed',False) and n.get('premise') and (n.get('objective') or n.get('choices') or n.get('commitments')):
+                refs=n.get('threads') or n.get('commitments') or [n['premise']]
+                for ref in refs[-2:]:candidates.append(('narrative_development','thread:'+fingerprint(ref),None))
+            users=[r for r in history if r.get('role')=='user' and r.get('narrative_epoch',n.get('epoch'))==n.get('epoch')]
+            if users and self.memory['topic']!='session':candidates.append(('dialogue_follow_up','dialogue:'+fingerprint(users[-1]['content']),None))
+            for fact in n.get('facts',[])[:16]:
+                if fact.get('status')=='active' and fact.get('category')!='hypothesis' and fact.get('speaker') in {'user','assistant'} and max(fact.get('importance',2),memory_significance(fact))>=3 and fact.get('epoch')==n.get('epoch') and fact.get('model_scope')==self.active_scope:
+                    candidates.append(('memory_recall','memory:'+fact['id'],fact['id']))
+            if n.get('premise'):candidates.append(('contextual_observation','context:'+fingerprint(n['premise']),None))
+        # Enabling this experimental setting explicitly permits a new conversational
+        # angle without inventing an event, a shared past, or a character biography.
+        candidates.append(('character_curiosity','curiosity',None))
+        eligible=[]
+        for intent,topic,reference in candidates:
+            remaining=c.topic_cooldown_seconds-(now-m['initiative_topics'].get(topic,float('-inf')))
+            if remaining>0:
+                self.counts['topic_candidates_suppressed']+=1
+                continue
+            used=list(m['initiative_intents']);recency=len(used)-1-used[::-1].index(intent) if intent in used else -1
+            eligible.append((recency,intent,topic,reference))
+        if not eligible:return None,'topic_cooldown'
+        _,intent,topic,reference=min(eligible,key=lambda row:row[0])
+        return {'intent':intent,'topic_key':topic,'reference_id':reference,'session_id':session_id,'reason':'fresh_idle_opportunity'},'fresh_idle_opportunity'
+
+    def idle_dispatched(self,opportunity):
+        m=self.memory;now=self.clock();m['last_idle_attempt']=now
+        m['initiative_topics'][opportunity['topic_key']]=now
+        if len(m['initiative_topics'])>32:m['initiative_topics'].popitem(last=False)
+        m['initiative_intents'].append(opportunity['intent'])
+        self.counts['initiative_dispatched:'+opportunity['intent']]+=1
+        self.log('idle_scheduled',**{k:v for k,v in opportunity.items() if k!='reason'},candidate_reason=opportunity.get('reason'))
+
     def dispatched(self,event,reason):
-        if event['kind'] in REACTIVE_EVENTS:self.last_reaction=self.clock()
-        self.last_spoken=self.clock();self.last_category[group_for(event['kind'])]=self.clock()
+        if not event.get('narrative'):
+            self.last_reaction=self.last_event_dispatch=self.clock();self.last_category[group_for(event['kind'])]=self.clock()
+        self.mark_event(event,'dispatched')
+        self.last_spoken=self.clock()
         self.last_reason=reason
         self.counts['opportunities_dispatched']+=1
         self.counts['conversational_opportunities']+=1
@@ -235,7 +358,7 @@ class ConversationDirector:
         state.update(conversation_source='user' if user else 'event',recent_events=relevant_events,
             director={'enabled':True,'topic':self.memory['topic'] if memory_enabled else topic_for(prompt),'recent_subjects':list(self.memory['topics'])[-4:] if memory_enabled else [],
                 'recent_questions':list(self.memory['questions'])[-3:] if memory_enabled else [], 'numerical_telemetry_requested':numeric,
-                'event_origin':self.current_origin})
+                'event_origin':self.current_origin,'acknowledged_event_ids':self.acknowledged_ids()})
         return state
 
     def history(self, base, limit):
@@ -243,7 +366,7 @@ class ConversationDirector:
         extra=[m for m in self.memory['event_responses'] if not any(x.get('content')==m['content'] for x in base)][-2:]
         return sorted([*base,*extra],key=lambda m:m.get('at',0))[-limit:]
 
-    def assess(self,text,user=False,prompt=''):
+    def assess(self,text,user=False,prompt='',opportunity=None):
         score=repetition(text,[r['text'] for r in self.memory['responses']])
         numeric=bool(re.search(r'\b\d{2,3}\s*(?:bpm|beats per minute)\b',text,re.I))
         permitted=user and (numerical_request(prompt) or bool(re.search(r'\b(repeat|again|exactly|nickname|your name)\b',prompt,re.I)))
@@ -266,15 +389,15 @@ class ConversationDirector:
         excessive=not permitted and (score['exact_duplicate'] or score['similarity']>=threshold or score['repeated_phrase']>=(.9 if selection_ack else .65) or score['repeated_question']>=.9 or numeric and not numeric_requested)
         device_narration = user and not tools_relevant(prompt) and bool(re.search(r'\b(simulator|telemetry|device|heart.rate|bpm)\b|\bpulse pattern\b',text,re.I))
         excessive = excessive or device_narration
-        score.update(verified_selection_ack=selection_ack,excessive=excessive,unrequested_device_narration=device_narration,unrequested_numeric=numeric and not numeric_requested,permitted_repetition=permitted)
+        score.update(autonomous_intent=opportunity.get('intent') if opportunity else None,verified_selection_ack=selection_ack,excessive=excessive,unrequested_device_narration=device_narration,unrequested_numeric=numeric and not numeric_requested,permitted_repetition=permitted)
         self.counts['responses_assessed']+=1
         self.log('repetition_assessment',**score)
         return score
 
-    def accepted(self,text,user):
+    def accepted(self,text,user,event=None,initiative=None):
         self.memory['responses'].append({'text':text,'at':self.clock()})
         self.memory['questions'].extend(questions(text))
-        item=self.record('assistant_dialogue',text,'assistant',trigger_origin='real_user' if user else self.current_origin)
+        item=self.record('assistant_dialogue',text,'assistant',trigger_origin='real_user' if user else self.current_origin,event_id=(event or {}).get('event_id'),event_kind=(event or {}).get('kind'),initiative_intent=initiative)
         if not user:
             self.memory['consecutive_unsolicited']+=1
             self.memory['event_responses'].append(item)
@@ -282,7 +405,7 @@ class ConversationDirector:
         self.last_reason='user_turn' if user else self.last_reason
 
     def status(self):
-        return {'config':self.config.model_dump(),'counts':dict(self.counts),'events_received':self.counts['events_received'],
+        return {'config':self.config.model_dump(),'occurrence_keys_retained':len(self.occurrences),'initiative_topics_retained':len(self.memory['initiative_topics']),'recent_initiative_intents':list(self.memory['initiative_intents']),'quiet_requested':self.memory['quiet_requested'],'counts':dict(self.counts),'events_received':self.counts['events_received'],
             'events_suppressed':self.counts['events_suppressed'],'significant_events_retained':self.counts['significant_events_retained'],
             'unsolicited_dialogue_generated':self.counts['unsolicited_dialogue_generated'],'most_recent_reason_for_speaking':self.last_reason,
             'current_topic':self.memory['topic'],'recent_subjects':list(self.memory['topics']),'recent_questions':list(self.memory['questions']),

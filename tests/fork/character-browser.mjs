@@ -60,6 +60,14 @@ try{
  assert(await page.locator('[data-emergency]').isVisible(),'Celeste hides emergency stop');
  await page.setViewportSize({width:1920,height:1080});
  report.steps.push('Both Celeste versions select with distinct identity and model-driven expression; desktop/mobile portraits fit');
+ await select('nova-narrative-v1:latest');await portrait(page,'nova','neutral');
+ assert(!(await page.locator('[data-history]').textContent()).includes('Celeste v1 private note'),'Nova received Celeste history');
+ assert(await page.locator('[data-name]').textContent()==='Nova','Nova chat identity missing');
+ await chat('portrait concerned test');await portrait(page,'nova','concerned');await capture(page,'nova-1920.png');
+ await page.setViewportSize({width:390,height:844});await page.locator('button[data-view=character]').click();await capture(page,'nova-390.png');
+ assert(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)),'Nova mobile overflow');
+ assert(await page.locator('[data-emergency]').isVisible(),'Nova hides emergency stop');await page.setViewportSize({width:1920,height:1080});
+ report.steps.push('Nova model selection, expression, isolated history and desktop/mobile portrait');
  await select('qwen3:8b');assert(await page.locator('#character-panel').getAttribute('data-character')==='generic','Unknown model borrowed named character');assert(await page.locator('#character-panel img').count()===0,'Unknown model retained another portrait');
  await select('daisy-qwen35:latest');await portrait(page,'daisy','concerned');
  await page.setViewportSize({width:1366,height:768});await page.locator('button[data-view=character]').click();await capture(page,'daisy-1366.png');
@@ -71,14 +79,14 @@ try{
  // Separate local-only preview: all twelve states without AI/model requests.
  const preview=await context.newPage();preview.on('pageerror',e=>errors.push(e.message));await boot(preview,ui+'/?characterPreview=1',true);await preview.locator('.character-preview summary').click();
  const expressions=await preview.locator('[data-preview-expression] option').evaluateAll(nodes=>nodes.map(n=>n.value));assert(expressions.length===12,'Preview lacks twelve states');
- for(const character of ['evelyn','daisy','celeste']){
+ for(const character of ['evelyn','daisy','celeste','nova']){
   await preview.locator('[data-preview-character]').selectOption(character);
-  for(const expression of expressions){await preview.locator('[data-preview-expression]').selectOption(expression);await portrait(preview,character,expression);assert(await preview.locator('[data-art-status]').textContent()==='','Prepared expression fell back: '+character+'/'+expression);assert((await preview.locator('[data-preview-result]').textContent()).includes('Intended portrait'),'Preview did not label intended artwork');report.rendered_portraits.push(await preview.locator('#character-panel').evaluate(host=>({character:host.dataset.character,requested:host.dataset.expression,rendered:host.dataset.renderedExpression,status:host.dataset.artworkStatus,source:host.querySelector('img:last-child').getAttribute('src'),width:host.querySelector('img:last-child').naturalWidth,height:host.querySelector('img:last-child').naturalHeight})));const count=await preview.locator('#character-panel img').count();report.max_image_layers=Math.max(report.max_image_layers,count);assert(count<=2,'Unbounded decoded image layers');}
+  for(const expression of expressions){await preview.locator('[data-preview-expression]').selectOption(expression);await portrait(preview,character,expression);assert((await preview.locator('#character-panel').getAttribute('data-artwork-status'))==='intended','Unexpected portrait resolution: '+character+'/'+expression);assert((await preview.locator('[data-preview-result]').textContent()).includes('Intended portrait'),'Preview did not label artwork resolution');report.rendered_portraits.push(await preview.locator('#character-panel').evaluate(host=>({character:host.dataset.character,requested:host.dataset.expression,rendered:host.dataset.renderedExpression,status:host.dataset.artworkStatus,source:host.querySelector('img:last-child').getAttribute('src'),width:host.querySelector('img:last-child').naturalWidth,height:host.querySelector('img:last-child').naturalHeight})));const count=await preview.locator('#character-panel img').count();report.max_image_layers=Math.max(report.max_image_layers,count);assert(count<=2,'Unbounded decoded image layers');}
  }
  await preview.locator('[data-preview-character]').selectOption('evelyn');await preview.locator('[data-preview-expression]').selectOption('proud');await portrait(preview,'evelyn','proud');await capture(preview,'evelyn-proud-preview.png');
  await preview.locator('[data-preview-character]').selectOption('daisy');await preview.locator('[data-preview-expression]').selectOption('happy');await portrait(preview,'daisy','happy');await preview.setViewportSize({width:1920,height:1080});await capture(preview,'daisy-happy-1920.png');
  assert(await preview.locator('[data-selected]').textContent()==='No AI model active','Preview changed model selection');
- report.steps.push('All 36 prepared character/expression portraits load directly without fallback; no model inference');
+ report.steps.push('All 48 supplied character/expression portraits load directly; no model inference');
  // Force expression failure, neutral fallback, total failure, and stale in-flight identity changes.
  const failures=await preview.evaluate(async()=>{
   const {CharacterPresentation}=await import('/src/js/ai/character.js');const host=document.createElement('aside');document.body.append(host);
