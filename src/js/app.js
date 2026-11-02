@@ -2238,6 +2238,7 @@ function redrawChart() {
 
 // 1-Second Master Clock
 setInterval(() => {
+    rollNnnDay();
     if (isRemotePage) {
         renderRemoteClock();
         return;
@@ -2718,11 +2719,34 @@ const sessionLimitsWriter = createWriteCoalescer({ write: () => persistSettings(
 window.addEventListener('pagehide', () => { sessionLimitsWriter.flush(); });
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') sessionLimitsWriter.flush();
+    else rollNnnDay();
     paintFocusLost();
 });
 
 // The blur event runs before document.hasFocus() flips, so the paint waits
-// one turn. Clicking the veil focuses the window, which hides it.
+// one turn. The note sits on top of the page and does not cover it, so a
+// shared window can stay readable. Don't show this again turns it off.
+const FOCUS_WARNING_KEY = 'edgeloop_focus_warning';
+
+function focusWarningOn() {
+    return safeParse(FOCUS_WARNING_KEY, true) !== false;
+}
+
+function setFocusWarning(on) {
+    safeSet(FOCUS_WARNING_KEY, Boolean(on));
+    paintFocusWarningToggle();
+    paintFocusLost();
+}
+
+function paintFocusWarningToggle() {
+    const box = document.getElementById('focusWarningToggle');
+    if (box) box.checked = focusWarningOn();
+}
+
+// Held from the press until the click has finished, so hiding the banner
+// cannot drop that click onto the card underneath.
+let focusDismissHold = false;
+
 function paintFocusLost() {
     const overlay = document.getElementById('focusLostOverlay');
     if (!overlay) return;
@@ -2732,19 +2756,58 @@ function paintFocusLost() {
         hasFocus: typeof document.hasFocus === 'function' ? document.hasFocus() : true,
         visibilityState: document.visibilityState
     });
-    overlay.classList.toggle('hidden', inFront);
+    const show = focusDismissHold || (!inFront && focusWarningOn());
+    overlay.classList.toggle('hidden', !show);
 }
 
+let focusHideTimer = 0;
+
 function scheduleFocusLostPaint() {
-    setTimeout(paintFocusLost, 0);
+    clearTimeout(focusHideTimer);
+    const inFront = pageIsInFront({
+        hasFocus: typeof document.hasFocus === 'function' ? document.hasFocus() : true,
+        visibilityState: document.visibilityState
+    });
+    if (!inFront) {
+        paintFocusLost();
+        return;
+    }
+    focusHideTimer = setTimeout(paintFocusLost, 400);
 }
 
 window.addEventListener('blur', scheduleFocusLostPaint);
 window.addEventListener('focus', scheduleFocusLostPaint);
-document.getElementById('focusLostOverlay')?.addEventListener('click', () => {
-    window.focus();
-    scheduleFocusLostPaint();
+document.getElementById('focusLostCard')?.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    clearTimeout(focusHideTimer);
+    focusDismissHold = true;
+    const btn = event.target.closest ? event.target.closest('#focusLostDismiss') : null;
+    if (btn && typeof btn.setPointerCapture === 'function') {
+        try { btn.setPointerCapture(event.pointerId); } catch (e) { /* already released */ }
+    }
+    if (!btn) return;
+    safeSet(FOCUS_WARNING_KEY, false);
+    paintFocusWarningToggle();
+}, true);
+function releaseFocusDismiss(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    if (!focusDismissHold) return;
+    setTimeout(() => {
+        focusDismissHold = false;
+        paintFocusLost();
+    }, 0);
+}
+document.getElementById('focusLostDismiss')?.addEventListener('pointerup', releaseFocusDismiss);
+document.getElementById('focusLostDismiss')?.addEventListener('pointercancel', releaseFocusDismiss);
+document.getElementById('focusLostDismiss')?.addEventListener('click', releaseFocusDismiss);
+document.getElementById('focusWarningToggle')?.addEventListener('change', (event) => {
+    setFocusWarning(event.target.checked === true);
 });
+paintFocusWarningToggle();
 scheduleFocusLostPaint();
 
 function persistSessionLimits(immediate = false) {
@@ -3243,6 +3306,21 @@ const padWasDown = new Map();
 
 function saveNnn() {
     safeSet(NNN_STORAGE_KEY, JSON.stringify(nnnState));
+}
+
+// Midnight, or coming back to a tab that stayed open, starts the new day.
+// catchUpNnn is what a reload already did. Same-day calls leave the quota.
+function rollNnnDay() {
+    const next = catchUpNnn(nnnState);
+    if (next.lastOpened === nnnState.lastOpened
+        && next.edgesToday === nnnState.edgesToday
+        && next.quotaToday === nnnState.quotaToday
+        && next.finished === nnnState.finished
+        && next.holdSeconds === nnnState.holdSeconds
+        && next.outcome === nnnState.outcome) return;
+    nnnState = next;
+    saveNnn();
+    paintNnn();
 }
 
 function paintNnn() {

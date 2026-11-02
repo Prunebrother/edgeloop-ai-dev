@@ -4,6 +4,11 @@ All notable changes to EdgeLoop are documented here. Entries are grouped by
 the area of the app they touch; forum reports that prompted a change are
 credited by username.
 
+## 1.1.4.33
+
+- **The focus warning can stay off.** Don't show this again on the note, and Focused window warning under Guards. The note sits on top and leaves the page readable, so a shared window can keep showing the session.
+- **No Nut November rolls to the next day while the page is open.** Yesterday's count clears at midnight, and when you come back to the tab. A reload is not required.
+
 ## 1.1.4.32
 
 - **The page says when it is not the focused window.** The screen blurs and a banner stays up until you click back. Space and the other keys are going to the other window, and toy updates can slow down while the page is in the background.
