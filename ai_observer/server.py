@@ -164,6 +164,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             if event.id in seen:continue
                             seen[event.id]=now
                             if len(seen)>256:seen.pop(next(iter(seen)))
+                            speech.deck_event(event.kind,event.id)
                             priority, rank=significance(event.kind,previous,state.report)
                             evidence=next((e for e in reversed(state.events) if e['kind']==event.kind),{})
                             if priority in {'major','critical'}:speech.last_validated_event={'kind':event.kind,'significance':priority,'session_id':state.session_id,'received':clock()}
