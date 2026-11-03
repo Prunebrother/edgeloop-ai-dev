@@ -23,10 +23,11 @@ def test_both_arms_stay_within_the_harness_limits(result, arm):
     assert row['user_preempted_a_generating_turn']
 
 
-def test_flag_off_keeps_the_legacy_scheduler(result):
+def test_flag_off_has_no_proactive_scheduler(result):
+    # The legacy idle selector and event reactions are retired: with the deck off nothing is unsolicited.
     row = result['off']
-    assert row['legacy_idle_turns'] > 0 and row['first_unsolicited'] == 'session_started'
-    assert row['legacy_reactions_by_kind']['edge'] == 1
+    assert row['legacy_idle_turns'] == 0 and row['first_unsolicited'] is None
+    assert not row['legacy_reactions_by_kind'].get('edge')
     assert not [turn for turn in row['turn_log'] if turn['lane'] or turn['card']]
 
 

@@ -11,10 +11,15 @@
 session values are simulated and shouldn't be described that way. A heart-rate card keeps its own label
 instead. The flag is never inferred, so it can't relabel a real session.
 
-With the flag off, `pump()`, the legacy idle selector, legacy event reactions and their prompts are unchanged,
-no Arrival is armed and no definition or history is read. The Director's fidelity checks are scoped to card turns
-(`violations(..., card=True)`), so user turns and legacy reactions keep the checks they had before the deck, whether
-the flag is on or off. `tests/ai/test_premerge_corrections.py` pins the examples.
+Director 2.0 is the only proactive dialogue scheduler. The legacy idle selector, narrative continuation and
+legacy event reactions are retired. With the flag off, a model keeps ordinary conversation, safety notices and the
+acknowledgement of the user's own experience or goal selection, but has no other unsolicited commentary: events
+still go through detection, Event Intelligence, the occurrence ledger, Story Memory and recent context, and are
+recorded as `context_only:no_card_dealer`. No Arrival is armed and no definition or history is read. Saved Director
+settings that still contain the retired pacing fields (`experimental_idle_enabled`, `idle_interval_seconds`, …)
+load normally and those fields are ignored. The Director's fidelity checks are scoped to card turns
+(`violations(..., card=True)`), so user turns and selection acknowledgements keep the checks they had before the
+deck. `tests/ai/test_premerge_corrections.py` pins the examples.
 
 ## Starter cards (`config/event-deck.json`)
 
@@ -348,7 +353,7 @@ The deck owns unsolicited commentary, so one occurrence can't get both a reactio
 still go through detection, Event Intelligence, the occurrence ledger and recent context, and are
 recorded as `context_only:deck_owned`. Verified events with an ID can trigger cards.
 
-The one retained legacy reaction acknowledges the user's own selection (`experience_changed`,
+The one retained reaction outside the deck acknowledges the user's own selection (`experience_changed`,
 `goal_changed`), unless a card subscribes to that event. Safety notices are unaffected.
 
 ## Faults
@@ -376,9 +381,7 @@ live latency or audio playback.
 
 ## Known test issues, unrelated to the deck
 
-- **Three baseline failures:** `tests/ai/test_event_director.py::test_context_only_or_disabled_never_generates[routine|irrelevant|disabled]`.
-  The test assumes idle initiative is off, but it now defaults to on. All three pass with idle
-  disabled. They are unchanged.
-- **Intermittent failure, about 1.8% of runs:** `tests/ai/test_director.py::test_event_turn_receives_completed_user_history_and_no_numerical_prompt`
-  asserts that `'119'` is absent from a summary containing random UUID hex. Every observed failure (55
-  in 3000 runs) was an ID containing "119". It is a test flaw, also unchanged.
+- The three former baseline failures in `test_context_only_or_disabled_never_generates` pass now that idle
+  initiative is retired.
+- The intermittent `'119'` UUID flaw in `test_event_turn_receives_completed_user_history_and_no_numerical_prompt`
+  is gone: that test now checks that a telemetry event without the deck is recorded but never spoken.

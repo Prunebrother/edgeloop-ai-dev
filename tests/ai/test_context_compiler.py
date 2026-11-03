@@ -157,7 +157,9 @@ async def test_event_arriving_mid_generation_cannot_replace_user_focus():
  for bpm in range(85,111):service.process_derived(r.step(bpm))
  service.pump()
  assert manager.context_diagnostics['focus']['category']=='answer_user'
- assert any(row['decision']=='deferred:active_generation' for row in r.detector.history)
+ # With no deck, the derived event is recorded as context only; it never competes with the user's turn.
+ assert any(row['decision']=='context_only:no_card_dealer' for row in r.detector.history)
+ assert not any(row['decision']=='deferred:active_generation' for row in r.detector.history) and not service.pending
  assert len(calls)==1 and calls[0]['think'] is False
  release.set();await service.task
  assert manager.context_diagnostics['focus']['category']=='answer_user' and len(calls)==1

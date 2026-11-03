@@ -145,11 +145,7 @@ class ConfigureDirector(StrictModel):
     type: Literal['configure_director']
     proactive_enabled: bool
     model: str | None = Field(default=None,min_length=1,max_length=120)
-    experimental_idle_enabled: bool | None = None
-    idle_interval_seconds: float | None = Field(default=None,ge=15,le=1800)
-    idle_response_cooldown_seconds: float | None = Field(default=None,ge=0,le=1800)
     reaction_interval_seconds: float | None = Field(default=None,ge=0,le=60)
-    topic_cooldown_seconds: float | None = Field(default=None,ge=0,le=3600)
     max_consecutive_unsolicited: int | None = Field(default=None,ge=1,le=50)
 
 class ObjectiveFields(StrictModel):

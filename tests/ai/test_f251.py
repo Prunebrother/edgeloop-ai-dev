@@ -158,7 +158,7 @@ def test_came_early_is_not_an_early_arrival():
     assert not event_violations('You arrived early.',{'kind':'goal_changed'})
 
 
-def test_normal_ending_stop_preserves_proven_came_early_generation(tmp_path):
+def test_came_early_without_the_deck_is_recorded_and_stop_has_no_reaction_to_preserve(tmp_path):
     import threading
     from tests.fork.test_observer import TOKEN,ORIGIN,auth,until
     release=threading.Event()
@@ -187,10 +187,10 @@ def test_normal_ending_stop_preserves_proven_came_early_generation(tmp_path):
             assert app.state.speech.task is None  # Wait for the captured final result.
             c.tick(.3);s.update(status='IDLE');s['details'].update(captured_at_ms=int(c.wall()*1000),terminal_outcome='premature_release',settle_outcome=None,warmup_active=False,warmup_remaining_seconds=None,pauses=0)
             send(2,['stop']);ack=until(ws,'observation_ack')
+            # A normal ending still marks the stop as preserving a reaction; without a deck there is none to keep.
             assert ack['events'][0]['kind']=='stop' and ack['events'][0]['preserve_reaction'] is True
-            start=until(ws,'response_start')
-            release.set();speech=until(ws,'speech')
-            assert speech['id']==start['id'] and speech['expression']=='comforting' and speech['text']=='Take your time.'
+            release.set();speech=app.state.speech
+            assert speech.task is None and not speech.pending and 'session_ended' in [e['kind'] for e in speech.recent_events]
             assert app.state.observation.report['status']=='IDLE'
 
 async def test_selection_changed_during_generation_cannot_publish_or_save_an_obsolete_reaction():

@@ -52,15 +52,10 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
             <label class="director-toggle"><input type="checkbox" data-proactive checked> Enable proactive dialogue</label>
             <p data-director-scope>Connect and select a model to configure conversation pacing.</p>
             <div data-director-pacing>
-                <label class="director-toggle"><input type="checkbox" data-idle-enabled checked> Experimental idle initiative</label>
-                <p id="director-idle-help">Allow the companion to start a conversation when idle. Enabled by default with a 20-second initiative interval. Quiet requests and stopped sessions suppress initiative.</p>
-                <label class="director-number">Initiative interval (seconds)<input type="number" data-director-field="idle_interval_seconds" min="15" max="1800" value="20" step="1" aria-describedby="director-idle-help"></label>
                 <details data-director-advanced>
                     <summary>Advanced pacing</summary>
-                    <p>Minimum waits between replies and repeated topics. Other speech, detector and category cooldowns still apply. Response length is unchanged.</p>
-                    <label class="director-number">Idle response cooldown (seconds)<input type="number" data-director-field="idle_response_cooldown_seconds" min="0" max="1800" value="15" step="1"></label>
-                    <label class="director-number">Event reaction cooldown (seconds)<input type="number" data-director-field="reaction_interval_seconds" min="0" max="60" value="4" step="1"></label>
-                    <label class="director-number">Topic repetition cooldown (seconds)<input type="number" data-director-field="topic_cooldown_seconds" min="0" max="3600" value="60" step="1"></label>
+                    <p>Proactive dialogue comes only from Director 2.0 cards for models that have it enabled. Response length is unchanged.</p>
+                    <label class="director-number">Selection reaction cooldown (seconds)<input type="number" data-director-field="reaction_interval_seconds" min="0" max="60" value="4" step="1"></label>
                     <label class="director-number">Maximum consecutive unsolicited replies<input type="number" data-director-field="max_consecutive_unsolicited" min="1" max="50" value="50" step="1"></label>
                 </details>
             </div>
@@ -78,20 +73,11 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
     const decisionText=value=>({
         user_requested_quiet:'You requested quiet.',
         user_typing:'Waiting while you type.',
-        stopped_or_paused_session:'Idle initiative waits for a running session.',
-        narrative_session_inactive:'Story initiative waits for a running session.',
         unavailable_observation:'Waiting for a fresh session observation.',
         unsolicited_limit:'Waiting for your reply before more unsolicited dialogue.',
         active_conversation:'Giving the current conversation time.',
-        idle_interval:'Waiting for the initiative interval to pass.',
-        idle_response_cooldown:'Waiting after the last idle response.',
         reaction_cooldown:'Waiting between event reactions.',
-        spontaneous_frequency:'Waiting between proactive replies.',
-        category_cooldown:'Waiting before commenting on this category again.',
-        continue_user_topic:'Keeping the focus on your current topic.',
-        experimental_idle_disabled:'Experimental idle initiative is off.',
         spontaneous_disabled:'Proactive dialogue is off.',
-        no_welcome_narrative_thread:'No welcomed story thread to continue.'
     })[value]||human(value);
     const notice=(key,text)=>{dialogs[key].querySelector('[data-menu-notice]').textContent=text;};
     function request(){journal.refresh();if(connected&&model)send({version:1,type:'get_character_state',model});}
@@ -126,7 +112,7 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
         director.querySelector('[data-save-director]').disabled=!d||saving;
         director.querySelector('[data-director-scope]').textContent=d?.settings?'Settings apply to the selected model. User replies and EdgeLoop safety notices remain independent.':'The existing proactive toggle applies to this running service. Load the updated observer for model-scoped pacing controls.';
         const pacing=director.querySelector('[data-director-pacing]');pacing.hidden=!d?.settings;
-        for(const input of pacing.querySelectorAll('input')){input.disabled=!d?.settings||saving;if(!saving&&!dirty&&d?.settings){if(input.matches('[data-idle-enabled]'))input.checked=d.settings.experimental_idle_enabled;else input.value=d.settings[input.dataset.directorField];}}
+        for(const input of pacing.querySelectorAll('input')){input.disabled=!d?.settings||saving;if(!saving&&!dirty&&d?.settings){input.value=d.settings[input.dataset.directorField];}}
         if(d){
             field(diagnostics,'Director',d.enabled?'Enabled':'Disabled · baseline scheduler');
             field(diagnostics,'Proactive dialogue',d.proactive_enabled?'Enabled':'Disabled');
@@ -136,11 +122,9 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
             const decisions=(d.recent_decisions||[]).slice(-5).reverse();
             if(!decisions.length)field(diagnostics,'Recent decisions','None yet');
             for(const [index,v] of decisions.entries())field(diagnostics,index===0?'Latest decision':'Earlier decision',[human(v.reason),v.intent,v.kind,v.event_id,v.topic_key].filter(Boolean).join(' · '));
-            field(diagnostics,'Story initiative',d.narrative_initiative_enabled?'Welcomed story only · up to '+d.max_consecutive_unsolicited+' consecutive unsolicited replies':'Disabled');
             field(diagnostics,'Recent significant event',d.last_event?human(d.last_event.kind)+' · '+d.last_event.age_seconds+'s ago':'None recorded in this session');
             field(diagnostics,'Event significance',d.last_event?human(d.last_event.significance):'Not available');
             field(dl,'Last reported decision',decisionText(d.last_decision));
-            field(diagnostics,'Response cooldown',d.cooldown_seconds>0?d.cooldown_seconds+'s remaining':'No frequency cooldown');
             field(diagnostics,'Selection reaction cooldown',d.reaction_cooldown_seconds>0?d.reaction_cooldown_seconds+'s remaining':'No reaction cooldown');
             field(diagnostics,'Pending commentary',d.pending.length?d.pending.map(e=>human(e.kind)).join(', '):'None');
             field(diagnostics,'Suppressed since service start',String(d.suppressed_count));field(diagnostics,'Active response',d.active_response?human(d.active_response):'None');
@@ -164,7 +148,7 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
     director.querySelector('[data-director-pacing]').oninput=()=>{dirty=true;notice('director','Unsaved change');};
     director.querySelector('[data-save-director]').onclick=()=>{
         const value=director.querySelector('[data-proactive]').checked;
-        const settings={};if(state?.director?.settings){settings.model=model;settings.experimental_idle_enabled=director.querySelector('[data-idle-enabled]').checked;for(const input of director.querySelectorAll('[data-director-field]')){if(!input.validity.valid){const advanced=input.closest('details');if(advanced)advanced.open=true;input.reportValidity();return;}settings[input.dataset.directorField]=Number(input.value);}}
+        const settings={};if(state?.director?.settings){settings.model=model;for(const input of director.querySelectorAll('[data-director-field]')){if(!input.validity.valid){const advanced=input.closest('details');if(advanced)advanced.open=true;input.reportValidity();return;}settings[input.dataset.directorField]=Number(input.value);}}
         if(send({version:1,type:'configure_director',proactive_enabled:value,...settings})){saving=true;notice('director','Saving…');render();}
     };
     story.querySelector('[data-start-story]').onclick=()=>{story.querySelector('[data-story-confirm]').hidden=false;story.querySelector('[data-story-keep]').focus();};

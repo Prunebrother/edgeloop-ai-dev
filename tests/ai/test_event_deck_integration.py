@@ -80,19 +80,19 @@ def finish(r,s,kind='session_ended'):
  s.enqueue(kind,70,{'event_id':'end:'+r.observation.session_id,'session_id':r.observation.session_id,'category':'authoritative','at_ms':int(r.clock.wall()*1000),'session_result':RESULT,'evidence':'Session ended.'})
 
 
-# Flag off: the existing Director
+# Flag off: no proactive scheduler. Conversation continues; nothing is unsolicited.
 
-async def test_disabled_deck_leaves_the_legacy_idle_selector_in_charge():
- r,s,a,_=rig(deck=False)
+async def test_disabled_deck_means_no_unsolicited_dialogue_but_conversation_continues():
+ r,s,a,frames=rig(deck=False)
  assert s.deck() is None and DeckSettings().enabled is False
- tick(r,40);s.pump();assert s.active_event_kind=='idle_initiative'
- await s.task
- assert 'deck_card' not in a.calls[0][0] and 'event_deck' not in s.character_state()
+ tick(r,40);s.pump();assert s.task is None and not a.calls
+ assert s.request('Are you there?',user=True)['accepted'];await s.task
+ assert 'deck_card' not in a.calls[0][0] and 'event_deck' not in s.character_state() and speeches(frames)[-1]['source']=='user'
 
-async def test_disabled_deck_keeps_the_legacy_floor_and_session_start_reaction():
+async def test_disabled_deck_records_session_start_as_context_only_and_keeps_the_floor():
  r,s,a,_=rig(deck=False)
  s.enqueue('session_started',50,{'event_id':'e1','session_id':r.observation.session_id})
- assert [e['kind'] for e in s.pending]==['session_started']
+ assert s.pending==[] and s.recent_events[-1]['kind']=='session_started'
  s.pending.clear();s.last_event=r.clock.mono()
  assert s.request('Legacy turn',user=False,event={'kind':'idle_initiative','priority':0,'at':0,'narrative':True})=={'accepted':False,'reason':'frequency_policy'}
 
@@ -102,9 +102,10 @@ def test_disabled_deck_never_reads_the_definition_file(monkeypatch):
  assert s.deck() is None
  s.deck_event('edge','occ')
 
-async def test_disabled_deck_finish_uses_the_legacy_closing_queue():
- r,s,_,_=rig(deck=False);finish(r,s)
- assert [e['kind'] for e in s.pending]==['session_ended']
+async def test_disabled_deck_finish_is_recorded_but_not_spoken():
+ r,s,a,_=rig(deck=False);finish(r,s);s.pump()
+ assert s.pending==[] and s.task is None and not a.calls
+ assert s.recent_events[-1]['kind']=='session_ended' and 'session_result' not in s.recent_events[-1]
 
 
 # Flag on: scheduling
@@ -815,10 +816,11 @@ async def test_acknowledging_the_users_selection_survives_unless_a_card_covers_i
  r,s,a,_=rig(sequences=[mission(event_kinds=['experience_changed'])]);s.enqueue('experience_changed',50,selection|{'session_id':r.observation.session_id})
  assert s.pending==[] and s.deck().snapshot()['active_sequences']==['m1']
 
-async def test_flag_off_keeps_legacy_event_reactions():
+async def test_flag_off_records_events_without_reactions():
  r,s,a,_=rig(deck=False)
  s.enqueue('edge',50,{'event_id':'e1','session_id':r.observation.session_id,'category':'authoritative','at_ms':int(r.clock.wall()*1000)})
- assert [e['kind'] for e in s.pending]==['edge']
+ assert s.pending==[] and s.recent_events[-1]['kind']=='edge'
+ s.pump();assert s.task is None and not a.calls
 
 
 # Hardening: faults
@@ -843,8 +845,7 @@ async def test_a_fault_is_per_model_and_outlasts_reactivation():
  r,s,a,_=rig();s.deck().next_play=broken;s.pump();assert s.deck_error
  a.config=AIConfig(model='evelyn-narrative-v1:latest');s.activate_model()
  assert s.deck_error is None and s.deck() is None
- tick(r,40);s.pump();assert s.active_event_kind=='idle_initiative'
- await s.task
+ tick(r,40);s.pump();assert s.task is None
  a.config=AIConfig(model=MODEL);s.activate_model();assert s.deck_error
  tick(r,60);count=len(a.calls);s.pump();assert len(a.calls)==count
 

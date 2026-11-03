@@ -74,11 +74,8 @@ def final_session(tmp_path,*,reported=False,outcome='manual_stop',muted=False,qu
    if protect:s['safety'].update(signal='stale',fault='signal_lost',watchdog_paused=True)
    s['status']='IDLE';s['details']['terminal_outcome']=outcome
    send(ws,epoch,1,s,'stop')
-   if not (muted or quiet or protect or outcome=='safety_stop'):
-    for _ in range(50):
-     if a.calls:break
-     time.sleep(.02)
-    assert a.calls, {'pending':speech.pending,'reason':speech.director.last_reason,'completed':list(app.state.observation.completed_sessions),'report':app.state.observation.report}
+   # Without a deck no closing reaction is generated in any case; Director 2.0's Closing card owns it.
+   time.sleep(.05)
    # Repeated terminal/reset frames cannot enqueue another closing turn.
    s['seconds']=s['edges']=0;send(ws,epoch,2,s,'stop');time.sleep(.35)
    assert len(app.state.journal.data['records'])==1
@@ -86,18 +83,14 @@ def final_session(tmp_path,*,reported=False,outcome='manual_stop',muted=False,qu
 
 @pytest.mark.parametrize('reported',[False,True])
 @pytest.mark.parametrize('outcome',['manual_stop','other_stop'])
-def test_one_closing_reaction_bypasses_cooldowns_uses_final_facts_and_keeps_privacy(tmp_path,reported,outcome):
+def test_final_result_is_recorded_without_a_legacy_reaction_and_closing_prompt_keeps_facts_and_privacy(tmp_path,reported,outcome):
  a,app=final_session(tmp_path,reported=reported,outcome=outcome)
- assert len(a.calls)==1
- summary,prompt,_=a.calls[0];event=summary['trigger_event'];result=event['session_result']
- assert event['kind']=='session_ended' and result['active_running_seconds']==321 and result['edges']==7
+ assert not a.calls
+ # The final result is still recorded with its facts; Director 2.0's Closing card speaks it (see test_event_deck_integration).
+ result=app.state.speech.director.aggregates['session_ended']['session_result']
+ assert result['active_running_seconds']==321 and result['edges']==7
  assert result['experience']=='headplay' and result['completion_status']==('user_reported' if reported else 'unknown')
- assert not summary.get('journal_context') and not app.state.journal.data['ai_access']
- for compiler in (True,False):
-  messages,_=compose_messages(summary,prompt,[],AIConfig(),context_config=ContextConfig(enabled=compiler))
-  text=json.dumps(messages,ensure_ascii=False)
-  assert '321' in text and ('session_result' in text or 'FINAL SESSION RESULT' in text)
-  assert result['completion_status'] in text and '1–3 sentences' in text
+ assert not app.state.journal.data['ai_access'] and not app.state.speech.pending
 
 @pytest.mark.parametrize('kwargs',[{'muted':True},{'quiet':True},{'protect':True},{'outcome':'safety_stop'}])
 def test_no_closing_reaction_for_muted_quiet_or_safety_stop(tmp_path,kwargs):
@@ -123,7 +116,7 @@ async def test_safety_or_disconnect_cancels_closing_generation(interruption):
  await s.close()
 
 
-def test_emergency_after_termination_cancels_inflight_closing_reply(tmp_path):
+def test_emergency_after_termination_interrupts_and_no_closing_reply_starts_without_the_deck(tmp_path):
  import asyncio,threading
  from tests.fork.grounding_cases import Clock,snapshot as detailed_snapshot
  release=threading.Event();frames=[]
@@ -144,10 +137,10 @@ def test_emergency_after_termination_cancels_inflight_closing_reply(tmp_path):
     s['details'].update(hr_recorded_at_ms=None,warmup_active=False)
     s['hr']=None;s=send(ws,epoch,0,s)
     s['status']='IDLE';s['details']['terminal_outcome']='manual_stop'
-    s=send(ws,epoch,1,s,'stop');until(ws,'response_start')
-    # No new stop transition exists once already IDLE; the explicit marker must still interrupt.
+    s=send(ws,epoch,1,s,'stop')
+    # Without a deck no closing reply starts, and an emergency marker afterwards still interrupts.
     s['details']['terminal_outcome']='safety_stop';send(ws,epoch,2,s)
     release.set();time.sleep(.05)
-    assert any(f['type']=='speech_cancel' for f in frames)
-    assert not any(f['type']=='speech' and f.get('source')=='event' for f in frames)
+    assert not a.calls and any(f['type']=='speech_cancel' for f in frames)
+    assert not any(f['type'] in ('response_start','speech') and f.get('source')=='event' for f in frames)
  finally:release.set()

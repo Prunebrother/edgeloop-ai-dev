@@ -67,21 +67,10 @@ def attention(summary,prompt,event=None):
         return Focus('revise_reply','revision',original.topic,'Repair the supplied candidate draft for the original '+('user request' if source=='user' else 'application event')+'; preserve its intent and established character. This is not a new event or conversation turn. Request no tools and perform no actions.')
     if summary.get('conversation_source','user')=='user':
         return Focus('answer_user','real_user',topic,'Answer the current user message first; supporting events are optional, not competing subjects.')
-    if summary.get('director_opportunity'):
+    # Only Director 2.0 cards schedule an opportunity; the legacy idle intents are retired.
+    if (summary.get('director_opportunity') or {}).get('card_id'):
         op=summary['director_opportunity'];intent=op['intent']
-        if op.get('card_id'):
-            return Focus(intent,'director_opportunity',op.get('focus_topic','general'),op['brief']+' This is an optional conversational opportunity, not a verified event or user message. Invent no shared history, telemetry or biography. [SILENCE] is allowed.')
-        instructions={
-            'narrative_development':'Develop an established unresolved narrative thread; do not replay an acknowledged application event.',
-            'dialogue_follow_up':'Offer a relevant follow-up to the last genuine dialogue, without repeating an unanswered question.',
-            'memory_recall':'Use the selected source-backed memory for a relevant conversational connection; distinguish it from verified session evidence.',
-            'character_curiosity':'Choose a worthwhile new conversational angle in your existing voice. Invent no shared history, telemetry or biography.',
-            'contextual_observation':'Offer an observation about established fictional or conversational context, not an inferred sensor measurement.'}
-        return Focus(intent,'director_opportunity','general' if intent in {'character_curiosity','dialogue_follow_up'} else 'story',instructions[intent]+' This is an optional conversational opportunity, not a verified event or user message. [SILENCE] is allowed.')
-    if summary.get('narrative_initiative'):
-        n=summary.get('narrative_context') or {}
-        category='honor_commitment' if n.get('commitments') else 'continue_thread'
-        return Focus(category,'director_opportunity','story','Continue one welcomed unresolved thread or commitment, or choose [SILENCE]; quiet time alone is not permission.')
+        return Focus(intent,'director_opportunity',op.get('focus_topic','general'),op['brief']+' This is an optional conversational opportunity, not a verified event or user message. Invent no shared history, telemetry or biography. [SILENCE] is allowed.')
     if event and event.get('session_result'):
         return Focus('session_closing','validated_event','milestones','Offer one brief closing reaction (1–3 sentences) to the supplied final session_result in your established personality. Distinguish user-reported completion from normal stop or unknown outcome. Never invent measurements, achievements or a new question.')
     if event:

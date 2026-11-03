@@ -11,7 +11,7 @@ import httpx
 from .event_intelligence import EventIntelligence,EventConfig,load_config,PHYSIOLOGY
 from .narrative import NarrativeMemory, NarrativeConfig
 from .expressions import clean_dialogue
-from .event_policy import SELECTION_EVENTS, REACTIVE_EVENTS, REACTION_EVENTS, LIFECYCLE_EVENTS
+from .event_policy import SELECTION_EVENTS, REACTION_EVENTS
 from .models import SpeechPolicy, AIConfig, MemoryConfig
 from .diagnostics import Metrics
 from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, InferenceCompatibilityError, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
@@ -329,9 +329,7 @@ class ConversationService:
         self.director = director or ConversationDirector(DirectorConfig(enabled=False), clock=clock)
         store=getattr(self.adapter,'store',None)
         event_config,event_error=load_config(store) if store else (EventConfig(),None)
-        if store and not (store.root/'event-intelligence.json').exists():event_config=event_config.model_copy(update={'proactive_interval_seconds':float(min(1800,max(15,self.director.config.spontaneous_interval_seconds)))})
         self.event_intelligence=EventIntelligence(event_config,clock=clock);self.event_intelligence.error=event_error
-        if store:self.director.config=self.director.config.model_copy(update={'spontaneous_interval_seconds':event_config.proactive_interval_seconds})
         self.director_defaults=self.director.config.model_copy(deep=True)
         self.director_settings_error=None
         try:
@@ -749,10 +747,8 @@ class ConversationService:
             'narrative':narrative,'narrative_enabled':self.narrative.config.enabled,
             'narrative_epoch':self.narrative.state['epoch'],'narrative_revision':self.narrative.state['revision'],
             'director':{'enabled':config.enabled,'proactive_enabled':config.spontaneous_enabled,
-                'narrative_initiative_enabled':config.narrative_initiative_enabled,
                 'max_consecutive_unsolicited':config.max_consecutive_unsolicited,'settings':config.model_dump(),'settings_scope':'selected_model','settings_error':self.director_settings_error,'quiet_requested':self.director.memory['quiet_requested'],'recent_decisions':[{k:r[k] for k in ('at','reason','kind','event_id','intent','topic_key','previous_decision') if k in r} for r in self.director.decisions if r.get('scope')==self.active_model_id][-12:],'initiative_intents':list(self.director.memory['initiative_intents']),
                 'last_decision':self.director.last_reason,
-                'cooldown_seconds':round(max(0,config.spontaneous_interval_seconds-(now-self.director.last_spoken)),1),
                 'reaction_cooldown_seconds':round(max(0,config.reaction_interval_seconds-(now-self.director.last_reaction)),1),
                 'pending':[{'kind':e['kind'],'priority':e['priority']} for e in self.pending],
                 'suppressed_count':self.director.counts['events_suppressed']+self.director.counts['responses_suppressed'],
@@ -789,12 +785,11 @@ class ConversationService:
             if store:store.write('director-models.json',profiles)
             self.director_profiles=profiles
         self.director.config=config
-        self.director.log('pacing_settings_saved',model_specific=model is not None,proactive_enabled=config.spontaneous_enabled,experimental_idle_enabled=config.experimental_idle_enabled)
+        self.director.log('pacing_settings_saved',model_specific=model is not None,proactive_enabled=config.spontaneous_enabled)
         if not config.spontaneous_enabled:
             self.director.last_reason='proactive_disabled'
             self.pending.clear()
             if self.active_source=='event' and self.task and not self.task.done():self.interrupt()
-        elif not config.experimental_idle_enabled and self.active_event_kind=='idle_initiative' and self.task and not self.task.done():self.interrupt()
 
     def configure_events(self,config):
         store=getattr(self.adapter,'store',None)
@@ -803,8 +798,6 @@ class ConversationService:
             if event.get('observation'):self.event_intelligence.decision(event.get('event_id'),'discarded:configuration_changed')
         self.pending=[e for e in self.pending if not e.get('observation')]
         self.event_intelligence.configure(config)
-        self.director.config=self.director.config.model_copy(update={'spontaneous_interval_seconds':config.proactive_interval_seconds})
-        self.director_defaults=self.director_defaults.model_copy(update={'spontaneous_interval_seconds':config.proactive_interval_seconds})
 
     def process_derived(self,detected=None):
         self.sync_narrative()
@@ -907,12 +900,12 @@ class ConversationService:
             self.deck_context_only(kind,priority,details,'context_only:deck_fault');return
         if deck and (details or {}).get('session_result'):
             self.deck_finish(deck,kind,details);return
-        if deck and (kind not in SELECTION_EVENTS or deck.subscribes(kind)):
-            # The deck owns unsolicited commentary, so one occurrence can't get a reaction and a
-            # card. Only acknowledging the user's own selection stays, unless a card covers it.
-            if (details or {}).get('event_id'):self.deck_event(kind,details['event_id'])
-            self.deck_context_only(kind,priority,details,'context_only:deck_owned');return
-        if (kind=='session_ended' or (details or {}).get('session_result')) and (self.closed or not self.policy.enabled or not self.policy.event_responses or self.director.memory['quiet_requested'] or not getattr(self.state,'fresh',lambda:True)()):return
+        if kind not in SELECTION_EVENTS or deck and deck.subscribes(kind):
+            # The deck is the only proactive scheduler: with it off there is no unsolicited commentary.
+            # Detection, the occurrence ledger, Story Memory and recent context continue either way.
+            # Only acknowledging the user's own selection is spoken here, unless a card covers it.
+            if deck and (details or {}).get('event_id'):self.deck_event(kind,details['event_id'])
+            self.deck_context_only(kind,priority,details,'context_only:deck_owned' if deck else 'context_only:no_card_dealer');return
         self.curator.cancel()
         self.sync_narrative()
         self.narrative.event(kind)
@@ -920,7 +913,6 @@ class ConversationService:
             self.event_intelligence.decision((details or {}).get('event_id'),'discarded:duplicate')
             return
         now = self.clock()
-        if self.active_event_kind=='idle_initiative' and priority>=50 and self.task and not self.task.done():self.interrupt()
         event = {"kind": kind, "at": now, "priority": priority,"source_status":getattr(self.state,"status",None),"observer_epoch":getattr(self.state,"connection_epoch",None), **(details or {})}
         self.recent_events.append(event)
         if not self.director.config.spontaneous_enabled:
@@ -979,74 +971,21 @@ class ConversationService:
             self.director.deferred('active_user_generation' if self.active_source=='user' else 'active_autonomous_generation');return
         if deck and self.pump_arrival(now):return
         if deck and (self.pump_deck(deck,now,triggered_only=True) or self.deck_error):return
-        eligible=[]
-        for candidate in self.pending:
-            gates=[('user_grace',self.policy.user_grace_seconds-(now-self.last_user)),
-                   ('speech_interval',self.policy.min_interval_seconds-(now-self.last_event)),
-                   ('event_kind_cooldown',self.policy.per_event_cooldown_seconds-(now-self.event_last_spoken.get(candidate['kind'],float('-inf'))))]
-            blocked=next(((reason,remaining) for reason,remaining in gates if remaining>0),None)
-            if candidate['kind'] in REACTION_EVENTS or blocked is None:eligible.append(candidate)
-            else:
-                self.event_intelligence.decision(candidate.get('event_id'),'deferred:'+blocked[0],blocked[1]);self.director.deferred(blocked[0],candidate)
-        if not eligible and deck:
-            self.pump_deck(deck,now);return
-        if not eligible and self.director.config.experimental_idle_enabled:
-            self.event_intelligence.reason('quiet','experimental_idle_selector_active')
-            n=self.narrative.context(for_compiler=True) if self.memory_config.enabled else None
-            if n:n=n | {'initiative_allowed':self.narrative.state['initiative_allowed']}
-            projection={'narrative_context':n};source_history=list(self.history)
-            if self.narrative.state['context_boundary']:source_history=[m for m in source_history if m.get('narrative_epoch')==self.narrative.state['epoch']]
-            source_history=self.idle_context(projection,source_history);n=projection.get('narrative_context')
-            opportunity,reason=self.director.idle_candidate(n,source_history,getattr(self.state,'session_id',None),self.state.status,getattr(self.state,'fresh',lambda:True)(),self.memory_config.enabled)
-            if self.pending:opportunity=None;reason='significant_event_pending'
-            if now<self.busy_until:opportunity=None;reason='response_busy'
-            if opportunity:
-                event={'kind':'idle_initiative','priority':0,'at':now,'narrative':True,'opportunity':opportunity}
-                result=self.request('Director conversational opportunity (not telemetry or a user request): '+json.dumps(opportunity),user=False,event=event)
-                if result['accepted']:
-                    self.director.idle_dispatched(opportunity);self.director.dispatched(event,reason)
-                else:reason=result['reason'];self.director.deferred(reason)
-            if not opportunity:self.director.deferred(reason)
-            return
-        if not eligible:
-            # A timer alone never grants permission: require an engaged story,
-            # a user choice/commitment, no unanswered question and a fresh user turn.
-            allowed, reason = self.director.narrative_opportunity(self.memory_config.enabled and self.narrative.opportunity() and self.event_intelligence.config.relevance(self.responder().get('model'),'story')>0)
-            quiet=None
-            if hasattr(self.state,'wall') and hasattr(self.state,'measurement_segment'):
-                quiet=self.event_intelligence.quiet(self.state,max(self.last_user,self.director.last_spoken),(self.active_model_id,self.narrative.state['epoch'],self.narrative.state['revision'],getattr(self.state,'session_id',None)))
-                if quiet and not allowed:self.event_intelligence.decision(quiet.id,'context_only:'+reason)
-            if not allowed or quiet is None:self.director.deferred(reason if not allowed else 'legacy_quiet_gate')
-            if allowed and quiet and not self.pending and now >= self.busy_until and getattr(self.state, 'fresh', lambda: True)():
-                event={'kind':'narrative_continuation','priority':0,'at':now,'narrative':True}
-                result=self.request('Continue one established fictional thread, or choose [SILENCE]. This is a conversational opportunity, not a verified EdgeLoop event.',user=False,event=event)
-                if result['accepted']:
-                    self.director.dispatched(event,reason)
-                    self.event_intelligence.decision(quiet.id,'scheduled:narrative_initiative')
-                    self.narrative.state['last_initiative_revision']=self.narrative.state['revision']
-            return
         opportunities=[]
-        for candidate in eligible:
+        for candidate in self.pending:
             allowed, reason = self.director.opportunity(candidate)
-            detector=candidate.get('observation',{}).get('detector_id')
-            remaining=0
-            if detector in self.event_intelligence.config.detectors:
-                remaining=self.event_intelligence.config.detectors[detector].cooldown_seconds-(now-self.event_intelligence.commentary_at.get(detector,float('-inf')))
-                if remaining>0 and candidate['kind'] not in {'completion_accepted','came_early','session_ended'}:allowed,reason=False,'detector_commentary_cooldown'
-            self.event_intelligence.decision(candidate.get('event_id'),('respond_now:' if allowed else 'deferred:')+reason,max(0,remaining) if reason=='detector_commentary_cooldown' else max(0,self.director.config.spontaneous_interval_seconds-(now-self.director.last_spoken)) if reason=='spontaneous_frequency' else max(0,self.director.config.category_cooldowns.get('physiology',0)-(now-self.director.last_category.get('physiology',float('-inf')))) if reason=='category_cooldown' else 0)
+            self.event_intelligence.decision(candidate.get('event_id'),('respond_now:' if allowed else 'deferred:')+reason)
             if allowed:opportunities.append((candidate,reason))
             else:self.director.deferred(reason,candidate)
         if not opportunities:
             if deck:self.pump_deck(deck,now)
             return
-        event, reason = max(opportunities, key=lambda pair: (pair[0]['kind'] in LIFECYCLE_EVENTS,pair[0]['priority'], -pair[0]['at']))
+        event, reason = max(opportunities, key=lambda pair: (pair[0]['priority'], -pair[0]['at']))
         prompt = 'Observed application event (not a user request): ' + json.dumps({k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm','observation','config_revision','narrative_epoch'}} | {'origin':self.director.current_origin,'current_experience':getattr(self.state,'report',{}).get('experience') if getattr(self.state,'report',None) else event.get('current_experience'),'current_goal':getattr(self.state,'report',{}).get('goal') if getattr(self.state,'report',None) else event.get('current_goal')})
         result = self.request(prompt, user=False, event=event)
         if result["accepted"]:
             self.director.dispatched(event, reason)
             self.event_intelligence.decision(event.get('event_id'),'scheduled:'+reason)
-            detector=event.get('observation',{}).get('detector_id')
-            if detector:self.event_intelligence.commentary_at[detector]=now
             self.pending.remove(event)
             self.event_last_spoken[event["kind"]] = now
 
@@ -1339,9 +1278,8 @@ class ConversationService:
                 trigger=summary.get('trigger_event',{})
                 if trigger.get('event_id'):self.narrative.reference_event(trigger)
             self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'acknowledged')
-            if summary.get('director_opportunity'):self.director.memory['last_idle_finished']=self.clock()
             if trigger:self.director.mark_event(trigger,'acknowledged')
-            self.director.accepted(text,user,trigger,(summary.get('director_opportunity') or {}).get('intent') or ('legacy_narrative' if summary.get('narrative_initiative') else None))
+            self.director.accepted(text,user,trigger,(summary.get('director_opportunity') or {}).get('intent'))
             if card and card['lane'] not in {'normal','narrative'}:self.director.memory['consecutive_unsolicited']=max(0,self.director.memory['consecutive_unsolicited']-1)
             if self.director.memory['event_responses']:
                 self.director.memory['event_responses'][-1]['narrative_epoch']=self.narrative.state['epoch']
