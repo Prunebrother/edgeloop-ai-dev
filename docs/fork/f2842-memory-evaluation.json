@@ -1,0 +1,116 @@
+{
+  "kind": "Matched synthetic source extraction, retention and prompt evidence; not live generated answers",
+  "baseline": "710b81e",
+  "curator_enabled": false,
+  "detours": 40,
+  "summary": {
+    "checkpoint_B": {
+      "after_establishment": {
+        "evidence_selected": 21,
+        "verbatim_in_prompt": 30,
+        "source_retained": 39,
+        "outcomes": {
+          "selected": 21,
+          "unmatched": 18
+        },
+        "median_estimated_prompt_tokens": 3138,
+        "total": 39,
+        "median_compile_ms": 0.4678,
+        "max_estimated_prompt_tokens": 4549
+      },
+      "after_detours": {
+        "evidence_selected": 0,
+        "verbatim_in_prompt": 0,
+        "source_retained": 3,
+        "outcomes": {
+          "evicted": 36,
+          "unmatched": 3
+        },
+        "median_estimated_prompt_tokens": 3102,
+        "total": 39,
+        "median_compile_ms": 0.8611,
+        "max_estimated_prompt_tokens": 4490
+      },
+      "after_correction": {
+        "evidence_selected": 15,
+        "verbatim_in_prompt": 15,
+        "source_retained": 0,
+        "outcomes": {
+          "selected": 15,
+          "unmatched": 15
+        },
+        "median_estimated_prompt_tokens": 2940.0,
+        "total": 30,
+        "median_compile_ms": 0.866,
+        "max_estimated_prompt_tokens": 4507
+      }
+    },
+    "fixed_B": {
+      "after_establishment": {
+        "evidence_selected": 39,
+        "verbatim_in_prompt": 39,
+        "source_retained": 39,
+        "outcomes": {
+          "selected": 39
+        },
+        "median_estimated_prompt_tokens": 3134,
+        "total": 39,
+        "median_compile_ms": 0.729,
+        "max_estimated_prompt_tokens": 4498
+      },
+      "after_detours": {
+        "evidence_selected": 39,
+        "verbatim_in_prompt": 39,
+        "source_retained": 39,
+        "outcomes": {
+          "selected": 39
+        },
+        "median_estimated_prompt_tokens": 3156,
+        "total": 39,
+        "median_compile_ms": 2.6722,
+        "max_estimated_prompt_tokens": 4523
+      },
+      "after_correction": {
+        "evidence_selected": 30,
+        "verbatim_in_prompt": 30,
+        "source_retained": 0,
+        "outcomes": {
+          "selected": 30
+        },
+        "median_estimated_prompt_tokens": 3155.0,
+        "total": 30,
+        "median_compile_ms": 2.6334,
+        "max_estimated_prompt_tokens": 4500
+      }
+    }
+  },
+  "ordinary_greetings": [
+    {
+      "model": "evelyn-narrative-v1",
+      "messages_identical": true,
+      "baseline_estimated_tokens": 2776,
+      "fixed_estimated_tokens": 2776
+    },
+    {
+      "model": "daisy-narrative-v1",
+      "messages_identical": true,
+      "baseline_estimated_tokens": 2764,
+      "fixed_estimated_tokens": 2764
+    },
+    {
+      "model": "celeste-narrative-v2",
+      "messages_identical": true,
+      "baseline_estimated_tokens": 4102,
+      "fixed_estimated_tokens": 4102
+    }
+  ],
+  "validation": {
+    "python_passed": 658,
+    "python_socket_cases_environment_blocked": 3,
+    "javascript_passed": 61,
+    "upstream_passed": 1057,
+    "live_AB": "blocked before generation: connect EPERM 127.0.0.1:11435",
+    "new_live_conversations": 0
+  },
+  "note": "Synthetic retrieval/context measurements only; not generated-answer accuracy. Runtime limits and native personas unchanged."
+}
