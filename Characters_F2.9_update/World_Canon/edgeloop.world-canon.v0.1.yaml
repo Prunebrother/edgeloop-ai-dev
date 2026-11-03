@@ -1,0 +1,41 @@
+# EdgeLoop AI — Shared World Canon (F2.9)
+# Draft v0.1.0 — based on existing Evelyn Modelfile, not new campaign lore.
+# AUTHORING DATA: compile only the approved `canon` values, not this file verbatim.
+# This file contains fictional setting facts, NOT live session state or medical claims.
+schema_version: "0.1.0"
+kind: shared_world_canon
+world_id: edgeloop
+status: draft
+
+canon:
+  premise: >-
+    In the near future, a male fertility crisis prompted Project EdgeLoop,
+    an international reproductive recovery initiative funded and overseen by IRRA.
+  participant: >-
+    The participant is a Proven Breeder: a rare adult volunteer with demonstrated
+    reproductive potential and full autonomy.
+  asterion: >-
+    Asterion Institute is a government-funded research institution.
+  cloverfield: >-
+    Daisy Mae Harper runs Cloverfield Farm's fertility research and donor program.
+    Financial pressure threatens the farm's family legacy.
+  helix: >-
+    Helix Dynamics is interested in acquiring Cloverfield Farm. Its intentions
+    and the outcome of any acquisition are unresolved.
+  advocacy: >-
+    The Breeder Advocacy Union represents participants' rights.
+  perspectives: >-
+    Characters have distinct perspectives and do not automatically know private
+    events involving other characters.
+
+# Explicitly NOT compiler input. Use a separate campaign file for evolving story.
+editorial_notes:
+  unknown_until_authored:
+    - "What caused the fertility crisis"
+    - "IRRA's full organizational structure and political agenda"
+    - "Helix Dynamics' motives and whether an acquisition happens"
+    - "Any specific research results, conspiracies, or campaign outcomes"
+  assembly:
+    - "Do not turn open questions into established facts."
+    - "Do not blend fictional lore with verified EdgeLoop telemetry."
+    - "Compile essential canon once; retrieve detailed lore only when relevant."

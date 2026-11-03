@@ -1,0 +1,110 @@
+# EdgeLoop AI — Standard Character Template
+# F2.9 | draft schema_version 0.3.0 | Stable Character Definitions
+# Copy this file to create a new character. Leave unknown information null or [].
+# No example character, user information, live telemetry, memories, or local paths belong here.
+# Shared runtime protocols are applied by EdgeLoop, not redefined by each character.
+
+schema_version: "0.3.0"
+kind: character_definition
+
+metadata:
+  character_id: null              # Unique slug, e.g. lowercase letters/numbers/hyphens
+  definition_version: "0.1.0"    # Manually versioned character definition, not model weights
+  status: draft                  # draft | review | approved | retired
+  description: null
+  source_references: []          # Non-sensitive source IDs, not absolute local paths
+  changelog: []
+
+identity:                         # Authored core: edits require author review
+  name: null
+  aliases: []
+  adult_status: adult            # EdgeLoop characters are adults; do not unset
+  nature: null                   # Human, synthetic, etc.; character-specific
+  universe: null
+  occupation_or_role: null
+  affiliations: []
+  origin: null
+  biography: null
+  defining_history: []
+  foundational_values: []
+  immutable_canon: []
+
+personality:                      # Stable authored traits, edited manually and versioned
+  core_traits: []
+  strengths: []
+  flaws: []
+  internal_contradictions: []
+  motivations: []
+  fears_and_vulnerabilities: []
+  beliefs_and_worldview: []
+  interests_and_hobbies: []
+  preferences: []
+  personal_ambitions: []
+
+relationships:                    # Fictional starting facts, not imported user data
+  established: []                # Items to be defined by the character author
+  boundaries_and_loyalties: []
+
+communication:
+  voice: null
+  diction: null
+  humor: null
+  warmth: null
+  directness: null
+  initiative_style: null
+  emotional_range: null
+  distinctive_mannerisms: []
+  repetitive_patterns_to_avoid: []
+  conversation_preferences: []
+  response_length: adaptive      # No rigid sentence quota
+
+narrative:
+  primary_setting: null
+  personal_stakes: []
+  story_goals: []
+  established_story_facts: []
+  unresolved_threads: []         # Authored premises only; evolving threads live in memory
+  expertise: []
+
+knowledge:
+  shared_world_canon_ref: null   # Resolved by a shared, versioned canon source
+  character_known_facts: []
+  character_unknown_facts: []    # Guard against omniscience
+  character_private_facts: []
+  edgeloop_terms_ref: null       # Versioned definitions; NOT current session state
+
+integration:
+  standalone_ollama_chat: true
+  edgeloop_runtime_compatible: true
+  expression_set_ref: edgeloop-12
+  default_expression: neutral
+  expression_style_notes: []
+  # Rendering/header syntax is inherited from the runtime's actual protocol.
+  # Telemetry, Director events, session state and records are NEVER authored here.
+
+memory:
+  strategy: external
+  character_isolation: true
+  journal_access: runtime_permission_required
+  cross_character_recall: explicit_authorization_only
+  # The runtime enforces access; this file cannot grant itself permissions.
+
+model:
+  base_model_ref: null           # Portable model name/tag, not a blobs/ absolute path
+  prompt_renderer_ref: null      # Must match actual supported Qwen/Ollama integration
+  inference:
+    temperature: null
+    top_k: null
+    top_p: null
+    num_ctx: null
+  # Inference behavior (including think:false) is enforced by the application.
+
+assets:
+  portrait_manifest_ref: null
+  voice_manifest_ref: null
+
+publication:
+  character_text_provenance: null
+  character_text_license: null
+  assets_rights_status: not_reviewed
+  redistribution_approved: false
