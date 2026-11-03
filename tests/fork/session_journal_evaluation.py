@@ -11,7 +11,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 def baseline():
     module=types.ModuleType('companion_ai._f284_baseline');module.__package__='companion_ai';sys.modules[module.__name__]=module
-    exec(compile(subprocess.check_output(['git','show','2781e8a:companion_ai/context_compiler.py'],text=True,cwd=ROOT),'<f283>', 'exec'),module.__dict__)
+    exec(compile((ROOT/'tests/fixtures/historical/journal/context_compiler.py').read_text(),'<f283>', 'exec'),module.__dict__)
     return module.ContextCompiler()
 
 async def evaluate(live=False):

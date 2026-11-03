@@ -13,7 +13,7 @@ from tests.fork.grounding_cases import cases
 
 ROOT=Path(__file__).resolve().parents[2]
 MODELS=['evelyn-lite-v1:latest','evelyn-qwen35-stable:latest','daisy-qwen35:latest']
-BASELINE='370fe0b'
+BASELINE='standalone source fixture'
 WORDS={0:'zero',1:'one',3:'three',42:'forty two',70:'seventy',98:'ninety eight',99:'ninety nine',100:'one hundred',120:'one hundred twenty',125:'one hundred twenty five',140:'one hundred forty',150:'one hundred fifty'}
 
 def has_number(text,n):
@@ -79,7 +79,7 @@ class Monitor:
     def close(self):self.stop.set();self.thread.join(8)
 
 def baseline_compose():
-    source=subprocess.check_output(['git','show',BASELINE+':companion_ai/context.py'],cwd=ROOT,text=True)
+    source=(ROOT/'tests/fixtures/historical/grounding/context.py').read_text()
     module=types.ModuleType('companion_ai.f23_pinned_baseline');module.__package__='companion_ai'
     exec(compile(source,'git:'+BASELINE+':companion_ai/context.py','exec'),module.__dict__)
     return module.compose_messages,hashlib.sha256(source.encode()).hexdigest()

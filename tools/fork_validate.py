@@ -19,7 +19,11 @@ def verify():
     changes=json.loads(changes_path.read_text()) if changes_path.exists() else {}
     if any(name not in pin["files"] or record["base_sha256"]!=pin["files"][name] for name,record in changes.items()):
         raise ValueError("Invalid reviewed change manifest")
+    exclusions=json.loads((ROOT/'docs/fork/release-exclusions.json').read_text())
+    if any(name not in pin['files'] or (ROOT/name).exists() for name in exclusions):
+        raise ValueError('Invalid release exclusion manifest')
     for name, digest in pin['files'].items():
+        if name in exclusions: continue
         path = ROOT / name
         if (path.is_symlink() or not path.resolve().is_relative_to(ROOT)
                 or not path.is_file() or sha256(path.read_bytes()).hexdigest() != changes.get(name, {}).get('sha256', digest)):

@@ -1,13 +1,51 @@
-# Playwright, if installed locally for the smoke test (never a project dependency)
-node_modules/
-package-lock.json
-# Screenshots and reports written by tools/smoke.js
-tools/smoke-out/
-# Optional AI observer: personal data and Python caches never enter source backups.
+# Private runtime and credentials
 .ai-data/
-__pycache__/
-
-# Fork-owned Python development environment and generated metadata
+.env
+.env.*
+!.env.example
+*pairing*.json
+*.db
+*.sqlite*
+*.jsonl
+*.funscript
+*.v0.funscript
+# Local dependencies / caches / reports
 .venv/
+node_modules/
+__pycache__/
 .pytest_cache/
+*.py[cod]
 *.egg-info/
+.cache/
+coverage/
+htmlcov/
+playwright-report/
+test-results/
+*.log
+*.xml
+*.core
+core
+*.dump
+*.tmp
+*.bak
+*.swp
+.DS_Store
+!licenses/**
+# Bundled runtime/weights are published as release assets, not Git blobs
+/runtime/
+/models/
+/wheelhouse/
+/BUNDLE.json
+/dist/
+*.gguf
+*.safetensors
+*.pt
+*.pth
+*.bin
+# Release audit materials are always private
+*private-audit*
+tools/smoke-out/
+
+# Development-only
+.pytest_cache/
+.claude/

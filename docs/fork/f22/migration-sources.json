@@ -1,299 +1,99 @@
 {
-  "legacy_commit": "9e89fa1",
   "files": [
     {
-      "source": "edgeloop_ai/llm.py",
-      "destination": "companion_ai/llm.py",
-      "source_sha256": "32cd9e4ddb3dbdacbde55d9bc49f1da9d36059a4016f86003589cd522e903216",
-      "reason": "Retain streaming provider and passive tool-call rejection; add explicit modern thinking controls and discovery response validation; license header",
-      "migrated_sha256": "8e314b09832a70ab3ec7b7b908dc854a545baade312d32382227f566b0b60b1b"
-    },
-    {
-      "source": "edgeloop_ai/director.py",
-      "destination": "companion_ai/director.py",
-      "source_sha256": "273c540d1402e423797c336b0794d7e6a2fecc2875e6a3f73f73b82ee3868e82",
-      "reason": "Preserve conversation policy and package-local imports; license header; no controller or personality definitions",
-      "migrated_sha256": "59b1139dd6b7116a76e5bf462801bceb82349b47fad0552c6835d7de4be4db82"
-    },
-    {
-      "source": "edgeloop_ai/context.py",
-      "destination": "companion_ai/context.py",
-      "source_sha256": "3280837208eef7a921cf264e0db2136c4c5a5433c4e0d5e4b207a712848dca7c",
-      "reason": "Retain context budgeting/provenance; replace legacy tool-execution runtime advice with read-only neutral instructions; no personality prompt",
-      "migrated_sha256": "bf9aa5bcb6e83a77dcd813adb33fabb14cda5811f53fe87f569a36eb11dc7207"
-    },
-    {
-      "source": "edgeloop_ai/storage.py",
-      "destination": "companion_ai/storage.py",
-      "source_sha256": "8e81a33085649de969a4009481cb6cc2b06fc521eebba32daf978a611668f5e1",
-      "reason": "Preserve atomic settings implementation; license header",
-      "migrated_sha256": "0b5d0c6a16e152db3ddc72822202d92d629647e3dec2306d1297d961ee3ab327"
-    },
-    {
-      "source": "edgeloop_ai/diagnostics.py",
-      "destination": "companion_ai/diagnostics.py",
-      "source_sha256": "7a00a8d46d5fb950f1cdaacf323df29a0c753a74740f7999d50c63b3a89b37a8",
-      "reason": "Preserve read-only resource and inference metrics; license header",
-      "migrated_sha256": "2781fbe8168c9a28c54da43c5f53640158aaa99bff0a04b92a180c79338744aa"
-    },
-    {
-      "source": "edgeloop_ai/models.py",
-      "destination": "companion_ai/models.py",
-      "source_sha256": "0ce2f7f84e3a1b3080ed488c00052cfe54e2e8ca9ca55255559f4ab3c87ab8ac",
-      "reason": "Extract conversation-only schemas; exclude legacy telemetry, control, session and personality APIs",
-      "migrated_sha256": "d4f82f8e9f6d889124dbe4c0ad428bfa2c7daab1e46785947f4bf86ddc7a1ee4"
-    },
-    {
-      "source": "edgeloop_ai/conversation.py",
-      "destination": "companion_ai/conversation.py",
-      "source_sha256": "e9a5754a9447fadee255cd478b7a3246af2f436cf319bcba272aa5d18c3765c6",
-      "reason": "Retain text-only model lifecycle, memory, Director and bounded recovery; remove tool execution/control imports and simulator replies; namespace memory by endpoint; do not evict external models",
-      "migrated_sha256": "b938262895abcb905672ff33922b407d42ddf201d0d45237d893b013069179d2"
-    },
-    {
-      "source": "models/mira/Modelfile",
       "destination": "characters/models/mira/Modelfile",
       "source_sha256": "e5df2b0a5e0d97761136cb45a810c8100eb126759e23454a7cad53b949bf0fb5",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "e5df2b0a5e0d97761136cb45a810c8100eb126759e23454a7cad53b949bf0fb5"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "models/evelyn/Modelfile",
       "destination": "characters/models/evelyn/Modelfile",
       "source_sha256": "5067405d32a7409ef1427b23287a4d044b2dd0e3d6626a23220cdc1e252c0dac",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "5067405d32a7409ef1427b23287a4d044b2dd0e3d6626a23220cdc1e252c0dac"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "models/daisy/Modelfile",
       "destination": "characters/models/daisy/Modelfile",
       "source_sha256": "3d25915a1d7c58c8687ffd30a895dcf4c4f3d4525b74613fe430856208da34b2",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "3d25915a1d7c58c8687ffd30a895dcf4c4f3d4525b74613fe430856208da34b2"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "models/evelyn-lite/Modelfile",
       "destination": "characters/models/evelyn-lite/Modelfile",
       "source_sha256": "80bc353b3a27a49ad19acbb62e4fd6386e48951d05fa4827cd4529b95f459c64",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "80bc353b3a27a49ad19acbb62e4fd6386e48951d05fa4827cd4529b95f459c64"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "models/evelyn-lite-candidate/Modelfile",
       "destination": "characters/models/evelyn-lite-candidate/Modelfile",
       "source_sha256": "ca6fbb6a86c3a0df5fe1917eae2a0b3f999d5e9e4aa6a09ce671c0a40fa63af9",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "ca6fbb6a86c3a0df5fe1917eae2a0b3f999d5e9e4aa6a09ce671c0a40fa63af9"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "lore/edgeloop_universe.md",
       "destination": "characters/lore/edgeloop_universe.md",
       "source_sha256": "5fbebe43abc93e191c0f0f28b636c156aa819339d5b912a4872cab8da13b304a",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "5fbebe43abc93e191c0f0f28b636c156aa819339d5b912a4872cab8da13b304a"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "lore/world_factions.md",
       "destination": "characters/lore/world_factions.md",
       "source_sha256": "6b5fe5e290a71c6d10ddbc3bb0fdc661860b39470fedb7760a1ce1e42690385a",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "6b5fe5e290a71c6d10ddbc3bb0fdc661860b39470fedb7760a1ce1e42690385a"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "lore/core_canon.md",
       "destination": "characters/lore/core_canon.md",
       "source_sha256": "aba08b536ae945d9662779e75b7dd3464a0a464eb585affaf83151dc839244f9",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "aba08b536ae945d9662779e75b7dd3464a0a464eb585affaf83151dc839244f9"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "lore/runtime/session_template.json",
       "destination": "characters/lore/runtime/session_template.json",
       "source_sha256": "1dd4e19c6ea7582c70247f8ca21d2ea0e604c34c6569da47b36f4fd9df964582",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "1dd4e19c6ea7582c70247f8ca21d2ea0e604c34c6569da47b36f4fd9df964582"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/generated/evelyn/Modelfile",
       "destination": "characters/build/generated/evelyn/Modelfile",
       "source_sha256": "e6609346774d1909733a04dfcb9eb25b7457d0d0009edfd33f5554d8c2c56c39",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "e6609346774d1909733a04dfcb9eb25b7457d0d0009edfd33f5554d8c2c56c39"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/generated/daisy/Modelfile",
       "destination": "characters/build/generated/daisy/Modelfile",
       "source_sha256": "8edc47654479ecd5d3577a7c5b5d392b960d285d1bf20a75d41b962f4ca605b6",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "8edc47654479ecd5d3577a7c5b5d392b960d285d1bf20a75d41b962f4ca605b6"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/generated/evelyn-v11/Modelfile",
       "destination": "characters/build/generated/evelyn-v11/Modelfile",
       "source_sha256": "3e145d5384099392d5014fcde1e1a87dad749554ed70641f721f40bca299a521",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "3e145d5384099392d5014fcde1e1a87dad749554ed70641f721f40bca299a521"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/generated/daisy-v11/Modelfile",
       "destination": "characters/build/generated/daisy-v11/Modelfile",
       "source_sha256": "7c8fbf43de15958fb1e6b8671623f911d37d7e8414aa7765d4d7b23d5663d744",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "7c8fbf43de15958fb1e6b8671623f911d37d7e8414aa7765d4d7b23d5663d744"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/generated/evelyn-v12/Modelfile",
       "destination": "characters/build/generated/evelyn-v12/Modelfile",
       "source_sha256": "c2156fa6e5f33f7693798e6dcbdc79b0422d0caa2831353b4a4a4d0fbd9aef52",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "c2156fa6e5f33f7693798e6dcbdc79b0422d0caa2831353b4a4a4d0fbd9aef52"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/generated/evelyn-v12r1/Modelfile",
       "destination": "characters/build/generated/evelyn-v12r1/Modelfile",
       "source_sha256": "7ef30ddfcf27bf697ed5e5877f6036000dc6f8896a03baeedb2988c92c167ef4",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "7ef30ddfcf27bf697ed5e5877f6036000dc6f8896a03baeedb2988c92c167ef4"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/generated/evelyn-reptest/Modelfile",
       "destination": "characters/build/generated/evelyn-reptest/Modelfile",
       "source_sha256": "0ad5acc711177b1f01c8c615fd7deb5c42297f5a3629cc1a3c6f54a1ff2f75a1",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "0ad5acc711177b1f01c8c615fd7deb5c42297f5a3629cc1a3c6f54a1ff2f75a1"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/generated/evelyn-qwen35/Modelfile",
       "destination": "characters/build/generated/evelyn-qwen35/Modelfile",
       "source_sha256": "7a7ffee378bf45de56278660ac66269d95f5c64146d73f518e314ecccf105848",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "7a7ffee378bf45de56278660ac66269d95f5c64146d73f518e314ecccf105848"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/generated/daisy-qwen35/Modelfile",
       "destination": "characters/build/generated/daisy-qwen35/Modelfile",
       "source_sha256": "f6d57a08db8903ffe52c16fd05235faba411e96ed10f7caccc8231b6632b3efc",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "f6d57a08db8903ffe52c16fd05235faba411e96ed10f7caccc8231b6632b3efc"
+      "reason": "byte-for-byte source migration"
     },
     {
-      "source": "build/evelyn-lite/revision-2/v1-Modelfile",
       "destination": "characters/archive/evelyn-lite-v1.Modelfile",
       "source_sha256": "80bc353b3a27a49ad19acbb62e4fd6386e48951d05fa4827cd4529b95f459c64",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "80bc353b3a27a49ad19acbb62e4fd6386e48951d05fa4827cd4529b95f459c64"
-    },
-    {
-      "source": "scripts/build_character.py",
-      "destination": "tools/characters/build_character.py",
-      "source_sha256": "38bb1ce1dbb2ac162aa672f520dd4d0486332865b244b657457006f3ab514dcb",
-      "reason": "Preserve generator behavior with fork-owned source root and explicit existing Ollama endpoint; --create remains opt-in and is not invoked during consolidation",
-      "migrated_sha256": "cbbaaa42f6a1a0a89a5dfdf1e90387bd8b58a7554600085723220c7525c044e7"
-    },
-    {
-      "source": "scripts/build_character_v11.py",
-      "destination": "tools/characters/build_character_v11.py",
-      "source_sha256": "dfcad52843cbc6788c9145b2ce11be4af20c773639aa5318a07ce69b6f11bfad",
-      "reason": "Preserve generator behavior with fork-owned source root and explicit existing Ollama endpoint; --create remains opt-in and is not invoked during consolidation",
-      "migrated_sha256": "9741f682e136bffe8c9ed2e5f097da8e5c908f2d460cbd8553f695febdcde344"
-    },
-    {
-      "source": "tools/compare_evelyn_lite.py",
-      "destination": "tools/characters/compare_evelyn_lite.py",
-      "source_sha256": "41eca41ba881cc20722bdbf6f34887f7c10504f2fb10259668a0b43c27332824",
-      "reason": "Direct comparison benchmark only; no legacy application/controller import",
-      "migrated_sha256": "1746aee91d0766bdbf9686755b5780ee1f9a40a575514f5fbad7fc7935ca94d2"
-    },
-    {
-      "source": "docs/EVELYN_LITE.md",
-      "destination": "characters/EVELYN_LITE_HISTORY.md",
-      "source_sha256": "a7cb730482cd08a9072674920d0cc3ebed5050ae57ce8a5db277c62c8566e10c",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "a7cb730482cd08a9072674920d0cc3ebed5050ae57ce8a5db277c62c8566e10c"
-    },
-    {
-      "source": "build/evelyn-lite/comparison.json",
-      "destination": "docs/fork/character-evidence/comparison.json",
-      "source_sha256": "d5dcb8b518dcb2a79eff17ae9caa44aaa0174f5fdacc733fc1886a7b0f7a7587",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "d5dcb8b518dcb2a79eff17ae9caa44aaa0174f5fdacc733fc1886a7b0f7a7587"
-    },
-    {
-      "source": "build/evelyn-lite/preserved-manifests.json",
-      "destination": "docs/fork/character-evidence/preserved-manifests.json",
-      "source_sha256": "cfc28f702c14ef4d4b04bce2176b0043f73c69f6b54daf0eafc4f348729cd8b6",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "cfc28f702c14ef4d4b04bce2176b0043f73c69f6b54daf0eafc4f348729cd8b6"
-    },
-    {
-      "source": "build/evelyn-lite/verification.json",
-      "destination": "docs/fork/character-evidence/verification.json",
-      "source_sha256": "a1d6170cb77f1d9cfa595f237c09125ede4918e5b8dc599914fc0f7c5d41210a",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "a1d6170cb77f1d9cfa595f237c09125ede4918e5b8dc599914fc0f7c5d41210a"
-    },
-    {
-      "source": "build/evelyn-lite/greeting-budget512.json",
-      "destination": "docs/fork/character-evidence/greeting-budget512.json",
-      "source_sha256": "cf85b5ef5cc2dcaeff3efc12098684f4ed82ab819d8f31d4a212a10d85b0a598",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "cf85b5ef5cc2dcaeff3efc12098684f4ed82ab819d8f31d4a212a10d85b0a598"
-    },
-    {
-      "source": "build/evelyn-lite/revision-2/before-manifests.json",
-      "destination": "docs/fork/character-evidence/revision-2/before-manifests.json",
-      "source_sha256": "04ca1aa7b25506dc5e3a8fe827f5dd9ed894aa0510ef01ffb72899676dfcd7f1",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "04ca1aa7b25506dc5e3a8fe827f5dd9ed894aa0510ef01ffb72899676dfcd7f1"
-    },
-    {
-      "source": "build/evelyn-lite/revision-2/v1-show.json",
-      "destination": "docs/fork/character-evidence/revision-2/v1-show.json",
-      "source_sha256": "5b1a0b0ae6659cc3504a598c3e4d1630ef97bb3bafb6e7453adc42573758a8a5",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "5b1a0b0ae6659cc3504a598c3e4d1630ef97bb3bafb6e7453adc42573758a8a5"
-    },
-    {
-      "source": "build/evelyn-lite/revision-2/prompt-delivery.json",
-      "destination": "docs/fork/character-evidence/revision-2/prompt-delivery.json",
-      "source_sha256": "d761c7b4fd0845b5d0928720ec6eda0251c0911da699f7c7a08b6bafdb6129d8",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "d761c7b4fd0845b5d0928720ec6eda0251c0911da699f7c7a08b6bafdb6129d8"
-    },
-    {
-      "source": "build/evelyn-lite/revision-2/candidate-off.json",
-      "destination": "docs/fork/character-evidence/revision-2/candidate-off.json",
-      "source_sha256": "1e87b7c689f93dd51b6f4f653592ec17c906f83c8680e491aee6e41b9330db32",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "1e87b7c689f93dd51b6f4f653592ec17c906f83c8680e491aee6e41b9330db32"
-    },
-    {
-      "source": "build/evelyn-lite/revision-2/candidate-on-boundaries.json",
-      "destination": "docs/fork/character-evidence/revision-2/candidate-on-boundaries.json",
-      "source_sha256": "e01ccc0ebb54c0a2cf1364d03b5d14457124cb6e35abf97da710bdf607187f04",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "e01ccc0ebb54c0a2cf1364d03b5d14457124cb6e35abf97da710bdf607187f04"
-    },
-    {
-      "source": "build/evelyn-lite/revision-2/manual-review.json",
-      "destination": "docs/fork/character-evidence/revision-2/manual-review.json",
-      "source_sha256": "c5b44bcde19a51c13fc9b44b836c44fc75e47aa5f6fbe1a978b3e9a5c5c4734c",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "c5b44bcde19a51c13fc9b44b836c44fc75e47aa5f6fbe1a978b3e9a5c5c4734c"
-    },
-    {
-      "source": "build/evelyn-lite/revision-2/model-inventory.json",
-      "destination": "docs/fork/character-evidence/revision-2/model-inventory.json",
-      "source_sha256": "1aa5a87e5e2430c7d258c1b4ce9d0dc02641e7817cd5324dd19417da0726bc4d",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "1aa5a87e5e2430c7d258c1b4ce9d0dc02641e7817cd5324dd19417da0726bc4d"
-    },
-    {
-      "source": "build/evelyn-lite/revision-2/verification.json",
-      "destination": "docs/fork/character-evidence/revision-2/verification.json",
-      "source_sha256": "d0306aaec6eb96385cfe8a35887f73d055fa94e01627f982fe5012eee1870c93",
-      "reason": "byte-for-byte source migration",
-      "migrated_sha256": "d0306aaec6eb96385cfe8a35887f73d055fa94e01627f982fe5012eee1870c93"
+      "reason": "byte-for-byte source migration"
     }
   ]
 }

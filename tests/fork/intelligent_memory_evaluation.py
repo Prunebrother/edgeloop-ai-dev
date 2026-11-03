@@ -15,7 +15,7 @@ def frozen():
     modules={}
     for name in ('narrative_facts','narrative','context_compiler'):
         full='companion_ai._f2841_a_'+name;m=types.ModuleType(full);m.__package__='companion_ai';sys.modules[full]=m
-        source=subprocess.check_output(['git','show','4b09888:companion_ai/'+name+'.py'],text=True,cwd=ROOT)
+        source=(ROOT/'tests/fixtures/historical/curation'/(name+'.py')).read_text()
         source=source.replace('from .narrative_facts import','from ._f2841_a_narrative_facts import').replace('from .narrative import','from ._f2841_a_narrative import')
         exec(compile(source,'<f284-'+name+'>','exec'),m.__dict__);modules[name]=m
     return modules

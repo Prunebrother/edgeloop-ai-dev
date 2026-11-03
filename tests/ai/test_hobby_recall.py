@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 from copy import deepcopy
+from pathlib import Path
 import json,subprocess,sys,types
 import pytest
 from companion_ai.narrative import NarrativeConfig,NarrativeMemory
@@ -104,7 +105,7 @@ def test_checkpoint_retains_generic_statement_but_slot_only_recall_fails(model,h
  name='companion_ai._hobby_regression_checkpoint'
  if name not in sys.modules:
   m=types.ModuleType(name);m.__package__='companion_ai';sys.modules[name]=m
-  source=subprocess.check_output(['git','show','710b81e:companion_ai/narrative_facts.py'],text=True)
+  source=(Path(__file__).resolve().parents[2]/'tests/fixtures/historical/narrative_facts_before_hobby_recall.py').read_text()
   exec(compile(source,'<hobby-regression-checkpoint>','exec'),m.__dict__)
  old=sys.modules[name];records=old.extract(reply,'assistant',model,'a'*32,ESTABLISH.format(hobby=hobby))
  assert records # source exists before detours; this isolates matching from eviction

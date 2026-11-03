@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 """Director regression: synthetic observations, no hardware or live inference.
 The legacy idle and narrative-continuation schedulers are retired; Director 2.0 cards are the only proactive dialogue."""
+from pathlib import Path
 import asyncio,json
 from copy import deepcopy
 import httpx,pytest
@@ -275,7 +276,7 @@ def test_checkpoint_reproduces_id_expiry_and_new_envelope_duplicate_defects():
  import subprocess,sys,types
  name='companion_ai._f285_checkpoint_director'
  module=types.ModuleType(name);module.__package__='companion_ai';sys.modules[name]=module
- source=subprocess.check_output(['git','show','710b81e:companion_ai/director.py'],text=True)
+ source=(Path(__file__).resolve().parents[2]/'tests/fixtures/historical/director_before_occurrence_fix.py').read_text()
  exec(compile(source,'<f285-checkpoint-director>','exec'),module.__dict__)
  r,s,_,_=rig();old=module.ConversationDirector(clock=r.clock.mono);new=s.director
  first={'event_id':'original','session_id':r.observation.session_id,'at_ms':1000,'occurrence':{'family':'edge','counter':3}}

@@ -35,7 +35,7 @@ describe('parseChangelog', () => {
     });
 
     it('reads the real changelog as the current version, then 1.1.2, then 1.1.1, then 1.1.0', () => {
-        const text = readFileSync(new URL('../../CHANGELOG.md', import.meta.url), 'utf8');
+        const text = readFileSync(new URL('../../docs/upstream/CHANGELOG.md', import.meta.url), 'utf8');
         const sections = parseChangelog(text);
         const titles = sections.map((section) => section.title);
         assert.equal(titles[0], APP_VERSION);

@@ -9,10 +9,10 @@ from companion_ai.models import AIConfig
 from companion_ai.llm import OllamaProvider,LLMRequest,ChatMessage,collect_reply
 from tests.fork.context_retention_fixture import MODELS,fixture as context_fixture
 
-BASELINE='ff0f1ba';ROOT=Path(__file__).resolve().parents[2]
+BASELINE='standalone source fixture';ROOT=Path(__file__).resolve().parents[2]
 QUOTE='The truth was hidden in plain sight.';POTS='vintage, slightly dented teapots'
 def frozen(name):
-    source=subprocess.check_output(['git','show',BASELINE+':companion_ai/'+name+'.py'],cwd=ROOT,text=True)
+    source=(ROOT/'tests/fixtures/historical/narrative'/(name+'.py')).read_text()
     module=types.ModuleType('companion_ai._f283_baseline_'+name);module.__package__='companion_ai';sys.modules[module.__name__]=module
     exec(compile(source,'<f282-'+name+'>','exec'),module.__dict__);return module
 

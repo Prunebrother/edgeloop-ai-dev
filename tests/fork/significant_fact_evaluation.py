@@ -14,13 +14,13 @@ def frozen(revision):
  modules={}
  for name in ('narrative_facts','narrative','context_compiler'):
   full='companion_ai._fact_replay_'+revision+'_'+name;module=types.ModuleType(full);module.__package__='companion_ai';sys.modules[full]=module
-  source=subprocess.check_output(['git','show',revision+':companion_ai/'+name+'.py'],cwd=ROOT,text=True)
+  source=(ROOT/'tests/fixtures/historical/significant'/(name+'.py')).read_text()
   for dependency in ('narrative_facts','narrative'):source=source.replace('from .'+dependency+' import','from ._fact_replay_'+revision+'_'+dependency+' import')
   exec(compile(source,'<fact-replay-'+revision+'-'+name+'>','exec'),module.__dict__);modules[name]=module
  return modules
 
 def evaluate():
- old=frozen('710b81e');rows=[]
+ old=frozen('source_fixture');rows=[]
  scenarios=[(model,speaker,source,question,value,correction,replacement,'diverse') for model in MODELS for speaker,source,question,value,correction,replacement in CASES]
  scenarios.extend((model,'assistant',reply,'What is your hobby?',hobby,'Actually, your hobby is sketching cityscapes.','sketching cityscapes','activity') for model,hobby,reply in ACTIVITIES)
  for model,speaker,source,question,value,correction,replacement,kind in scenarios:

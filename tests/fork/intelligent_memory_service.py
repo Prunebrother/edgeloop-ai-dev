@@ -8,7 +8,7 @@ if ARM=='A':
     # Freeze the real checkpoint extraction/storage/retrieval/compiler, not a reimplementation.
     for name in ('narrative_facts','narrative','context_compiler'):
         full='companion_ai.'+name;module=types.ModuleType(full);module.__package__='companion_ai';sys.modules[full]=module
-        exec(compile(subprocess.check_output(['git','show','4b09888:companion_ai/'+name+'.py'],text=True,cwd=ROOT),'<f284-'+name+'>','exec'),module.__dict__)
+        exec(compile((ROOT/'tests/fixtures/historical/curation'/(name+'.py')).read_text(),'<f284-'+name+'>','exec'),module.__dict__)
     sys.modules['companion_ai.narrative_facts'].recall_violations=lambda *a:[]
 import httpx,uvicorn
 from ai_observer.server import create_app

@@ -1,0 +1,22 @@
+{
+  "src/js/app.js": {
+    "base_sha256": "8338a6cfe0bfb29a966a7ffcc69ea1507cd92cfea43e7e515c64bd26a716d88d",
+    "sha256": "fe08fe4f79544a3dc94531c2ed31a531dc90f0f0a133f2b57a120f26b4c98709",
+    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged; F2.5.1 projects existing learning-release counter only; original handlers and safety unchanged; F2.8.1 adds post-motor-stop/pre-counter-reset read-only final projection and Survival restart observation only; reset cancellation final projection after stop dispatch; session-completion checkpoint/history deduplication and explicit completion-report projection; companion emergency button labels the existing stop dispatch as Emergency Stop; motor-control logic unchanged"
+  },
+  "sw.js": {
+    "base_sha256": "56b2e11356124f2baa4b926e32251c938670dac9b79e8947d4b6e123d4af0abb",
+    "sha256": "ceeb271a1f62eab7d806a7ad954618da4e4ded386d4e3d4485fd1226253f362c",
+    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only; F2.5.1 cache version only; F2.6 cache version only; F2.6.1 character menu module and cache invalidation; F2.7 event settings module and cache invalidation; F2.8 context tools precache and cache invalidation; F2.8.1 cache invalidation only; F2.8.2 context diagnostics cache invalidation only; free-form objective guidance cache invalidation only; F2.8.3 memory diagnostics cache invalidation; F2.8.4 public journal UI module precache and cache invalidation (journal records remain private observer data); F2.8.4.1 curator controls and memory diagnostics cache invalidation only; Nova character registration cache invalidation only; F2.8.5 Director controls cache invalidation only"
+  },
+  ".gitignore": {
+    "base_sha256": "f5dace1690dab0464685a792bf7005b1e43b16c580cd5dfd8f552f362704c81a",
+    "sha256": "0665bd92662cf099a27cd42a40f8b879faca45812d011e811547fb74ebc362f3",
+    "reason": "Exclude fork-owned Python environment/metadata and private AI data"
+  },
+  "index.html": {
+    "base_sha256": "7da05d6d914484f64aa897de686fa19eb636ddc9a79d873a75f23471eddf54b1",
+    "sha256": "40a5ad9788e5388a2fcc277ac0c2b3f74c0696c162eca74933a5e214000ffc82",
+    "reason": "F2.1 stylesheet link and accessible viewport zoom; original controls preserved"
+  }
+}

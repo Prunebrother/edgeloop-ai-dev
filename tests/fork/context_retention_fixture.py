@@ -12,9 +12,9 @@ from ai_observer.protocol import Observation
 
 ROOT=Path(__file__).resolve().parents[2]
 MODELS=('evelyn-narrative-v1','daisy-narrative-v1','celeste-narrative-v2')
-BASELINE='1ac5091'
+BASELINE='standalone regression source fixture'
 def baseline_compiler():
-    source=subprocess.check_output(['git','show',BASELINE+':companion_ai/context_compiler.py'],cwd=ROOT,text=True)
+    source=(ROOT/'tests/fixtures/historical/context_compiler_before_budget_fix.py').read_text()
     module=types.ModuleType('companion_ai._f282_baseline');module.__package__='companion_ai';sys.modules[module.__name__]=module
     exec(compile(source,'<f281-compiler>','exec'),module.__dict__)
     return module.ContextCompiler()
