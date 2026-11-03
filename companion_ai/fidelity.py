@@ -370,6 +370,14 @@ def anecdote(sentence):
     """Somebody else's, or the speaker's own, with neither the person addressed nor a session in it."""
     return bool((OTHER_SUBJECT.search(sentence) or FIRST_PERSON.search(sentence)) and not ADDRESSEE.search(sentence) and not SESSION_NAMED.search(sentence))
 
+def clause_at(sentence,position):
+    """The clause holding position, split where clauses_of splits."""
+    start=0
+    for match in re.finditer(r"[,;:—–]|\s-\s|\s(?:and|but)\s",sentence):
+        if match.end()<=position:start=match.end()
+        elif match.start()>=position:return sentence[start:match.start()]
+    return sentence[start:]
+
 def session_figure(sentence,match):
     """Whether this duration is stated about a session or the person's performance in one."""
     before,after=sentence[:match.start(1)],sentence[match.end(1):]
@@ -632,7 +640,8 @@ def history_violations(text,summary):
                 if since is None or not low-size<=since<=high+size:codes.append('wrong_time_since')
         if sentence.rstrip().endswith('?'):continue
         if status!='none' and FIRST_SESSION.search(sentence):codes.append('first_session_claim')
-        if not found and SHARED_PAST.search(sentence):codes.append('invented_history')
+        # "I haven't seen a new face in a long time" is the speaker's own story, not a past with the person addressed.
+        if not found and any(not anecdote(clause_at(sentence,m.start())) for m in SHARED_PAST.finditer(sentence)):codes.append('invented_history')
         for match in NAMED_PRIOR.finditer(sentence):
             said=spoken_number(match[1])
             if OTHER_SUBJECT.search(sentence):continue

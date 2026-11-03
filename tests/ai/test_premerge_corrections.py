@@ -948,6 +948,22 @@ def test_with_no_earlier_session_a_wish_is_not_invented_history():
  assert card_language_violations("I'd have loved to see one more edge before we called it a day.",summary)==[]
  assert 'invented_history' in card_language_violations('You had more edges than last time.',summary)
 
+DAISY_FIRST_ARRIVALS=("Well, pull up a chair and let's get acquainted. I haven't had a session with anyone in a long time, and I'd hate to start with a stranger who doesn't know the Cloverfield way. Now, tell me how you'd like to begin this little adventure.",
+    "Well, pull up a chair and say hello! I haven't had my hands on a new face like this in a long time, and I'd hate to let you slip away without a proper introduction. Tell me what you're feeling, and let's see if we can make this place feel right for you.")
+
+@pytest.mark.parametrize('text',DAISY_FIRST_ARRIVALS)
+def test_the_speakers_own_long_time_is_not_shared_history(text):
+    assert history_violations(text,{'deck_card':{'lane':'arrival','history':{'status':'none'}}})==[]
+
+@pytest.mark.parametrize('status',['none','denied'])
+@pytest.mark.parametrize('text',["Welcome back!","It's been a long time.","I haven't seen you in a long time.","I've missed you.","Back again, I see.",
+    "Like before, I'll take it slow with you.","Our last session was fun.","I remember when we first met in the barn.","I've been waiting a long time for you to come back."])
+def test_a_past_with_the_person_addressed_is_still_invented_history(text,status):
+    assert 'invented_history' in history_violations(text,{'deck_card':{'lane':'arrival','history':{'status':status}}})
+
+def test_without_journal_access_no_earlier_session_is_still_unknown():
+    assert 'first_session_claim' in history_violations(DAISY_FIRST_ARRIVALS[0],{'deck_card':{'lane':'arrival','history':{'status':'denied'}}})
+
 def test_nova_may_mention_this_synthetic_heart():
  assert card_language_violations('You make this synthetic heart skip a beat.',{'deck_card':{'lane':'normal'}})==[]
  assert 'test_language' in card_language_violations('That was a synthetic session.',{'deck_card':{'lane':'normal'}})
