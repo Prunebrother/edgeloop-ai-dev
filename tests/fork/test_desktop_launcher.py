@@ -81,3 +81,15 @@ def test_manual_key_expiry_and_managed_process_lifetime(tmp_path,lifetime,accept
                 with client.websocket_connect('/observe',headers={'Origin':'http://127.0.0.1:8770'}) as ws:
                     ws.send_json({'version':1,'type':'auth','token':'x'*43,'browser_id':str(uuid4())})
                     ws.receive_json()
+
+
+def test_optional_manual_fixture_pairing_without_desktop_file_returns_503(monkeypatch):
+    from types import SimpleNamespace
+    module=load('manual_fixture_static','tools/serve_local.py')
+    handler=module.Handler.__new__(module.Handler)
+    handler.path='/ai/pair';handler.server=SimpleNamespace(server_port=18950)
+    handler.headers={'Host':'127.0.0.1:18950','Origin':'http://127.0.0.1:18950','X-EdgeLoop-Pair':'1'}
+    errors=[];handler.send_error=errors.append
+    monkeypatch.delenv('EDGELOOP_PAIRING_FILE',raising=False)
+    handler.do_POST()
+    assert errors==[503]
