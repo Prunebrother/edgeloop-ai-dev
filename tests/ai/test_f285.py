@@ -335,7 +335,7 @@ def test_queued_user_behind_discovery_prevents_idle_scheduling(tmp_path):
 
 
 def test_idle_source_filter_preserves_established_personal_facts_introduced_with_events():
- r,s,_,_=rig();text='I work as an archivist.';epoch=s.narrative.state['epoch']
+ r,s,_,_=rig();text='I work as an archivist.';s.narrative.config=s.narrative.config.model_copy(update={'assistant_facts':True});epoch=s.narrative.state['epoch']
  s.narrative.accepted('Observed application event',text,False,event='experience_changed')
  s.director.accepted(text,False,{'kind':'experience_changed','event_id':'old-mode'});s.director.memory['event_responses'][-1]['narrative_epoch']=epoch
  projection={'narrative_context':s.narrative.context()};s.idle_context(projection,[])

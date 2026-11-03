@@ -75,14 +75,15 @@ async def test_earlier_commentary_is_not_replayed_as_conversation():
  await turn(s)
  assert not [m for m in messages(wire) if m['role']=='assistant'] and 'proper stretch' not in json.dumps(messages(wire)) and 'Seven' not in json.dumps(messages(wire))
 
-async def test_a_real_exchange_is_kept_and_bounded_and_commentary_around_it_is_dropped():
+async def test_only_the_latest_user_message_is_replayed_and_commentary_is_dropped():
  r,s,wire,frames=await service();play_only(s,'general-remark')
  for index in range(4):s.history+=[spoken(r,'user',f'Tell me about barn {index}.'),spoken(r,'assistant',f'Barn {index} leans east.')]
  s.history.append(monologue(r,'An unprompted aside about fences.'))
  await turn(s)
- sent=[m['content'] for m in messages(wire)[1:-1]]
- assert sent==['Tell me about barn 2.','Barn 2 leans east.','Tell me about barn 3.','Barn 3 leans east.'] and 'fences' not in prompt(wire)
- assert [m['role'] for m in messages(wire)[1:-1]]==['user','assistant','user','assistant'] and 'your real recent conversation' in prompt(wire)
+ # Companion lines are never replayed, and the latest user line is background, not an unanswered turn.
+ assert [m['role'] for m in messages(wire)]==['system','user'] and '- "Tell me about barn 3."' in prompt(wire) and 'barn 2' not in prompt(wire)
+ assert 'fences' not in prompt(wire) and 'leans east' not in json.dumps(messages(wire))
+ assert 'EARLIER, THE PARTICIPANT SAID (already answered' in prompt(wire) and 'What the participant said earlier, listed at the top, is real' in prompt(wire)
 
 async def test_another_sessions_conversation_is_not_continued():
  r,s,wire,frames=await service();play_only(s,'general-remark')
@@ -90,12 +91,12 @@ async def test_another_sessions_conversation_is_not_continued():
  await turn(s)
  assert 'Old session' not in json.dumps(messages(wire))
 
-async def test_a_count_in_a_real_exchange_is_marked_as_possibly_out_of_date():
+async def test_a_stale_count_from_the_companion_is_not_replayed_and_history_is_marked_out_of_date():
  r,s,wire,frames=await service(edges=3);play_only(s,EDGE)
  s.history+=[spoken(r,'user','How many edges so far?'),spoken(r,'assistant','The edge counter says 2 edges.')]
  await turn(s)
- assert 'The edge counter says 2' in json.dumps(messages(wire)[1:-1])  # A real exchange is preserved...
- assert 'only the values listed here are current' in prompt(wire) and 'Edges this session: 3' in prompt(wire)  # ...and labelled as possibly stale.
+ assert 'How many edges so far?' in prompt(wire) and 'The edge counter says 2' not in json.dumps(messages(wire))  # Only the user's side is replayed...
+ assert 'may be out of date, so only the values listed here are current' in prompt(wire) and 'Edges this session: 3' in prompt(wire)  # ...and labelled as possibly stale.
 
 async def test_the_transcript_itself_is_untouched():
  r,s,wire,frames=await service(edges=3);play_only(s,EDGE)

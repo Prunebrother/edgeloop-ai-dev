@@ -165,7 +165,7 @@ def test_current_session_question_uses_no_old_dialogue_as_measurement_history_ev
     assert 'Heart rate [hr]: 98 BPM' in messages[-1]['content']
     # Explicit questions about prior dialogue still retain the conversation.
     past,_=compose_messages(case.summary(),'What did I say about my BPM earlier?',case.history,AIConfig(max_tokens=512),MemoryConfig(max_messages=64))
-    assert any('130 BPM' in m['content'] for m in past[:-1])
+    assert '130 BPM' in past[-1]['content'].split('EARLIER, THE PARTICIPANT SAID (already answered',1)[1].split('\n\n',1)[0]  # as background, not as a fresh turn
 
 
 def test_model_data_distinguishes_heart_sensor_from_stimulation_transports():

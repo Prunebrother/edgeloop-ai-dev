@@ -161,7 +161,7 @@ def test_previous_session_operational_dialogue_is_omitted_on_story_continuation(
     history=[{'role':'assistant','content':'The session was at 120 BPM.','session_id':'old'}, {'role':'user','content':'The blue envelope matters.','session_id':'old'}]
     messages,warnings=compose_messages(summary,'Continue our mystery.',history,AIConfig())
     assert not any(m['content']=='The session was at 120 BPM.' for m in messages)
-    assert any(m['content']=='The blue envelope matters.' for m in messages)
+    assert len(messages)==2 and '"The blue envelope matters."' in messages[-1]['content'] and 'EARLIER, THE PARTICIPANT SAID (already answered' in messages[-1]['content']
     assert warnings
 
 

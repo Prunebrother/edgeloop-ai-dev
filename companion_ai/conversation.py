@@ -1273,7 +1273,7 @@ class ConversationService:
             # Delivered cards stay in the transcript above; routine ones never become Story Memory.
             if summary.get('narrative_scope')==self.narrative_scope() and memory.enabled and (card or {}).get('memory')!='none':
                 self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
-                self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False))
+                self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False),story=(card or {}).get('memory')=='story')
                 self.curator.note(self.narrative,prompt,text,user)
                 trigger=summary.get('trigger_event',{})
                 if trigger.get('event_id'):self.narrative.reference_event(trigger)

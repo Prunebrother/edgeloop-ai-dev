@@ -26,6 +26,9 @@ class ContextConfig(StrictModel):
     events_tokens: int=Field(default=400,ge=80,le=1200)
     narrative_tokens: int=Field(default=450,ge=0,le=1800)
     history_tokens: int=Field(default=1200,ge=0,le=5000)
+    # last_user: replay only the most recent user message (plus explicit standing
+    # directives); companion lines are never replayed, so they cannot be echoed.
+    history_policy: Literal['last_user','ranked']='last_user'
     expression_tokens: int=Field(default=280,ge=80,le=400)
     event_max_age_seconds: int=Field(default=60,ge=5,le=120)
 
@@ -192,7 +195,7 @@ RELATIONSHIP={'returning':'Relationship: you have had sessions together before. 
               'first':'Relationship: this is your first session together. Introduce yourself in a few words.',
               'unknown':'Relationship: unknown to you. Do not introduce yourself as if you are new, and claim no shared past.'}
 
-def card_instruction(summary,data,selected,brief,history_present,retry,expressions=False):
+def card_instruction(summary,data,selected,brief,history_present,retry,expressions=False,background=False):
     """One concise commentary instruction: intention, verified facts, and how to say it."""
     card=summary['deck_card'];lane=card.get('lane');result=(summary.get('trigger_event') or {}).get('session_result')
     history=card.get('history')
@@ -220,7 +223,7 @@ def card_instruction(summary,data,selected,brief,history_present,retry,expressio
     # A greeting or a closing has one occasion, so a fixed opening would only make every companion start alike.
     variety=(' '+CARD_OPENINGS[int(card.get('commentary_count') or 0)%len(CARD_OPENINGS)] if lane in {'normal','mission','narrative'} else '')+' Use fresh wording, with no pet phrases.'
     again=' Your last attempt needs another try, so take a different angle with fresh wording and no time of day.' if retry else ''
-    conversation='The messages above are your real recent conversation with the participant; any count or time in them may be out of date, so only the values listed here are current. ' if history_present else ''
+    conversation=('What the participant said earlier, listed at the top, is real; any count or time in it may be out of date, so only the values listed here are current. ' if background else 'The messages above are your real recent conversation with the participant; any count or time in them may be out of date, so only the values listed here are current. ') if history_present else ''
     # First on purpose: real-model replay of the same prompts gave 3/24 canonical headers without it and 24/24 with it.
     # The one card that may name its speaker: the first time they meet.
     guidance=CARD_GUIDANCE.replace('Introduce nobody, and use','Introduce nobody else, and use') if relationship=='first' else CARD_GUIDANCE
@@ -263,6 +266,8 @@ class ContextCompiler:
         scope=(summary.get('narrative_scope') or [narrative.get('model_scope')])[0]
         epoch=summary.get('narrative_epoch') or narrative.get('epoch')
         intent,matched_facts,memory_decisions=retrieve(narrative,prompt if user_context else '',scope,epoch,summary.get('narrative_canon')) if memory.enabled else (None,[],[])
+        # The companion's own claims are context only when the user asks it to recall them.
+        if not intent:matched_facts=[r for r in matched_facts if r['speaker']!='assistant']
         acknowledged={ref.get('event_id') for ref in narrative.get('event_references',[])} | set((summary.get('director') or {}).get('acknowledged_event_ids',[]))
         opportunity=summary.get('director_opportunity')
         if opportunity and opportunity.get('reference_id') and memory.enabled:
@@ -378,7 +383,7 @@ class ContextCompiler:
         if event_text:parts.append(event_text)
         if card:
             usable=[m for m in history[-memory.max_messages:] if m.get('role')=='user'] if memory.enabled else []
-            focus_block=card_instruction(summary,data,selected,card.get('brief') or (opportunity or {}).get('brief') or focus.instruction,bool(usable),revision is not None,config.explicit_expressions)
+            focus_block=card_instruction(summary,data,selected,card.get('brief') or (opportunity or {}).get('brief') or focus.instruction,bool(usable),revision is not None,config.explicit_expressions,c.history_policy=='last_user')
             event_text=''
             parts=[focus_block]+(['CURRENT PROTECTIVE OBSERVATION (original EdgeLoop): '+dump({k:safety[k] for k in ('signal','no_contact','watchdog_paused','fault') if k in safety})] if safety_relevant else [])
             facts=''
@@ -417,6 +422,9 @@ class ContextCompiler:
             if m.get('trigger_origin')=='system_event' and focus.category=='answer_user' and focus.topic not in {'physiology','milestones'}:continue
             if text in seen:continue
             seen.add(text);scoped.append((i,m))
+        if c.history_policy=='last_user':
+            users=[pair for pair in scoped if pair[1].get('role')=='user']
+            scoped=[pair for pair in users if active_instruction(pair[1]) or pair is users[-1]]
         query=set() if card else words(prompt)
         ranked=sorted(scoped,key=lambda pair:(active_instruction(pair[1]),(3*len(query&words(pair[1].get('content','')))+(3 if pair[1].get('role')=='user' else 0)+(5 if pair[1].get('role')=='user' and re.search(r'\b(?:always|never|do not|remember|please)\b',pair[1].get('content',''),re.I) else 0),pair[0])),reverse=True)
         candidates=[]
@@ -448,7 +456,14 @@ class ContextCompiler:
                 content='Story details from your conversation with the participant (fiction, possibly imperfect, not session facts):\n'+'\n'.join('- '+item['text'] for item in narrative_items)+'\n\n'+content
             elif narrative_items:
                 content='NARRATIVE CONTEXT (fallible fiction/conversation, not operational evidence):\n'+dump({'phase':narrative.get('phase'),'epoch':narrative.get('epoch'),'model_scope':narrative.get('model_scope'),'items':narrative_items})+'\n\n'+content
-            messages=[{'role':'system','content':system}]+[m for _,m in sorted(chosen)]+[{'role':'user','content':content,'origin':'real_user' if user_context and revision is None else 'system_event'}]
+            replayed=[m for _,m in sorted(chosen)]
+            if c.history_policy=='last_user' and replayed:
+                # A bare earlier user turn looks unanswered and gets answered again, so it is background here.
+                standing=[m['content'] for m in replayed if active_instruction(m)];earlier=[m['content'] for m in replayed if not active_instruction(m)]
+                content=''.join(['STANDING INSTRUCTION FROM THE PARTICIPANT (still applies):\n'+'\n'.join('- '+json.dumps(t,ensure_ascii=False) for t in standing)+'\n\n' if standing else '',
+                                 'EARLIER, THE PARTICIPANT SAID (already answered; background only, do not answer it again):\n'+'\n'.join('- '+json.dumps(t,ensure_ascii=False) for t in earlier)+'\n\n' if earlier else ''])+content
+                replayed=[]
+            messages=[{'role':'system','content':system}]+replayed+[{'role':'user','content':content,'origin':'real_user' if user_context and revision is None else 'system_event'}]
             return messages,sum(estimate(m['content'])+32 for m in messages)
         def add_history(pair,limit,required_directive=False):
             nonlocal history_used
