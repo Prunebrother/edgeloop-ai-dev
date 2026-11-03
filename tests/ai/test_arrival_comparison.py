@@ -321,6 +321,7 @@ async def test_switching_away_and_straight_back_is_not_a_new_arrival(monkeypatch
  r.clock.tick(5);await switch(s,'m-b:latest');await switch(s,first)
  assert s.arrival is None
 
+@pytest.mark.usefixtures('deck_off')
 async def test_a_model_change_invalidates_a_greeting_during_generation(monkeypatch):
  import companion_ai.conversation as conversation
  wire=[];holder={}
@@ -405,13 +406,22 @@ async def test_a_greeting_writes_no_story_memory_and_no_journal():
  await play(s)
  assert spoken(frames) and s.narrative.state['developments']==developments and s.narrative.state['facts']==facts and json.dumps(jr.data)==before
 
+@pytest.mark.usefixtures('deck_off')
 async def test_the_deck_flag_off_means_no_arrival_and_no_lookup():
  r,s,wire,frames=await idle();r.observation.journal=journal()
  s.deck_settings=DeckSettings();s.arrival=None;s.activate_model();s.pump();await asyncio.sleep(0)
  assert not chats(wire)
  assert DeckSettings().enabled is False
 
-def test_the_flag_defaults_keep_arrival_off_for_a_new_service():
+def test_a_new_service_has_the_deck_on_by_default():
+ from companion_ai.conversation import ConversationService
+ from tests.fork.event_replay import Replay
+ r=Replay();s=ConversationService(r.observation,lambda m:None,clock=r.clock.mono)
+ assert s.deck_settings.enabled is True
+
+
+@pytest.mark.usefixtures('deck_off')
+def test_with_the_deck_off_a_new_service_has_no_arrival():
  from companion_ai.conversation import ConversationService
  from tests.fork.event_replay import Replay
  r=Replay();s=ConversationService(r.observation,lambda m:None,clock=r.clock.mono)

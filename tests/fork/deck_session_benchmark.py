@@ -41,11 +41,12 @@ class Rig:
   self.deck=deck;self.root=root;self.r=Replay();self.r.state['devices'].update(toy_ready=True,handy=True);self.r.state['safety']['fault']='none'
   self.r.step(85,seconds=0);self.start=self.r.clock.mono();self.frames=[];self.turns=[];self.speech=[];self.bodies=[];self.count=0;self.active=0;self.peak=0;self.starts=[];self.s=None
   self.store=SettingsStore(root)
-  if deck:self.enable(model);self.enable(EVELYN)
- def enable(self,model):
+  # Both arms write an explicit per-model setting; the 'off' arm does not rely on the default.
+  self.enable(model,deck);self.enable(EVELYN,deck)
+ def enable(self,model,on=True):
   from companion_ai.event_deck import scope_key
   path=self.root/'deck-settings.json';saved=json.loads(path.read_text()) if path.exists() else {'schema_version':1,'models':{}}
-  saved['models'][scope_key('ollama:'+BASE+':'+model)]={'enabled':True,'countdown_seconds':10.}
+  saved['models'][scope_key('ollama:'+BASE+':'+model)]={'enabled':on,'countdown_seconds':10.}
   self.store.write('deck-settings.json',saved)
  def at(self):return round(self.r.clock.mono()-self.start,2)
  def publish(self,message):

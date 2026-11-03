@@ -64,6 +64,7 @@ def test_summary_sensor_availability_scope_retention_restart_and_staleness():
  assert len(o.completed_sessions)==8 and len(o.completed())==3
 
 
+@pytest.mark.usefixtures('deck_off')
 async def test_completion_without_the_deck_is_recorded_once_and_never_spoken():
  # The legacy closing reaction is retired: Director 2.0's Closing card is the only closing commentary.
  c,o,s=observation();messages=[]
@@ -230,6 +231,7 @@ async def test_each_model_gets_own_conversational_scope_and_native_completion_co
  await service.close()
 
 
+@pytest.mark.usefixtures('deck_off')
 def test_completion_e2e_survives_reset_with_identity_significance_and_no_reaction_without_the_deck(tmp_path):
  import threading,json,httpx
  from fastapi.testclient import TestClient

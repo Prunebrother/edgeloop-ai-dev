@@ -193,6 +193,7 @@ async def test_routine_events_cannot_queue_in_observer_and_busy_generation_is_no
     speech.interrupt();await active;await speech.close()
 
 
+@pytest.mark.usefixtures('deck_off')
 def test_routine_observer_updates_never_trigger_inference(tmp_path):
     from tests.fork.test_observer import TOKEN,ORIGIN,snapshot,frame,auth,until
     import time

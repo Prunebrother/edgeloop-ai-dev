@@ -107,6 +107,7 @@ async def test_extended_forty_turn_session_and_transport_thinking_off():
     assert len(speech.history)==8
     await speech.close()
 
+@pytest.mark.usefixtures('deck_off')
 async def test_a_welcomed_story_thread_is_remembered_but_never_continued_unprompted_without_the_deck():
     # Story Memory still records the welcomed thread; only the retired legacy continuation would have spoken it.
     c,o,s=observation();calls=[]
@@ -191,6 +192,7 @@ def test_narrative_cannot_claim_generic_hardware_motion_or_paused_after_stop():
     assert 'unsupported_session_status' in violations('With the session officially paused, we can talk.',o.canonical())
 
 
+@pytest.mark.usefixtures('deck_off')
 async def test_no_bounded_narrative_opportunity_reaches_the_wire_without_the_deck():
     c,o,s=observation();wire=[];m=ModelManager(transport=runtime(wire,'[[expression:focused]]A new clue waits by the window.'));await m.select(AIConfig(model='daisy-narrative-v1:latest'))
     d=ObserverDirector(DirectorConfig(regenerate_once=False),clock=c.mono);d.session_status='RUNNING'

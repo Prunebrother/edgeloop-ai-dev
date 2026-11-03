@@ -164,8 +164,13 @@ class DeckDefinition(_Frozen):
         return self
 
 
+# The card deck is Director 2.0's proactive dialogue and is on by default (v0.4.0). A saved
+# per-model setting still turns it off; an invalid settings file always turns it off.
+DEFAULT_DECK_ENABLED = True
+
+
 class DeckSettings(_Frozen):
-    enabled: bool = False
+    enabled: bool = Field(default_factory=lambda: DEFAULT_DECK_ENABLED)
     countdown_seconds: float = Field(default=10., ge=0, le=3600)
     interruption_retry_seconds: float = Field(default=2., ge=0, le=300)
     mission_spacing_seconds: float = Field(default=4., ge=0, le=300)
@@ -214,7 +219,7 @@ class DeckContext(_Frozen):
 
 
 class DeckModelSettings(_Frozen):
-    enabled: bool = False
+    enabled: bool = Field(default_factory=lambda: DEFAULT_DECK_ENABLED)
     countdown_seconds: float = Field(default=10., ge=0, le=3600)
     simulated_session: bool = False
 
@@ -290,7 +295,7 @@ def load_model_settings(store, scope):
     try:
         saved = DeckSettingsFile.model_validate(store.read(SETTINGS_FILE, {}))
     except (ValueError, TypeError, OSError):
-        return DeckSettings(), 'Invalid or unsupported deck settings; deck disabled. Existing file preserved.'
+        return DeckSettings(enabled=False), 'Invalid or unsupported deck settings; deck disabled. Existing file preserved.'
     entry = saved.models.get(scope_key(scope), DeckModelSettings())
     return DeckSettings(enabled=entry.enabled, countdown_seconds=entry.countdown_seconds, simulated_session=entry.simulated_session), None
 

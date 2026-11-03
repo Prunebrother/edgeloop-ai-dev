@@ -71,6 +71,7 @@ def test_transition_alias_and_reconnect_cannot_replay_edge_or_mode():
  assert s.pending
 
 
+@pytest.mark.usefixtures('deck_off')
 async def test_mode_reacts_once_without_second_historical_event_in_prompt():
  wire=[];m=ModelManager(transport=runtime(wire,'[[expression:focused]]A new direction is selected.'))
  await m.select(AIConfig(model='nova-narrative-v1:latest'))
@@ -87,6 +88,7 @@ async def test_mode_reacts_once_without_second_historical_event_in_prompt():
  await s.close()
 
 
+@pytest.mark.usefixtures('deck_off')
 async def test_a_quiet_running_session_with_story_and_memory_gets_no_idle_initiative():
  # The legacy idle selector and narrative continuation are retired. Seeded story, memory and long
  # quiet periods produce no unsolicited turn without the deck.
@@ -128,6 +130,7 @@ async def test_a_major_event_never_preempts_a_direct_user_turn():
  gate.set();await user;await s.close()
 
 
+@pytest.mark.usefixtures('deck_off')
 async def test_stopped_session_stays_silent_and_direct_chat_on_pause_works():
  r,s,_,frames=rig();seed(s);tick(r,51);s.pump();assert s.task is None
  r.step(85,status='IDLE')
@@ -216,6 +219,7 @@ async def test_provider_inference_remains_serialized_when_a_direct_user_turn_int
  await s.close()
 
 
+@pytest.mark.usefixtures('deck_off')
 async def test_benchmark_has_no_unsolicited_turns_duplicate_ack_or_hardware_calls():
  from tests.fork.director_session_benchmark import run_arm
  result=await run_arm(True)
@@ -343,6 +347,7 @@ def test_idle_source_filter_preserves_established_personal_facts_introduced_with
  assert any(f['text']==text and f['category']=='character_detail' for f in projection['narrative_context']['facts'])
 
 
+@pytest.mark.usefixtures('deck_off')
 async def test_lifecycle_and_ordinary_events_without_the_deck_are_recorded_not_spoken():
  r,s,a,_=rig()
  event(r,s,'edge','earlier-edge');tick(r,1);event(r,s,'session_resumed','resume')

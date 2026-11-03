@@ -139,6 +139,7 @@ def test_unknown_model_without_narrative_uses_generic_grounded_context():
  assert not info['narrative_references'] and 'Heart rate [hr]: 98 BPM' in messages[-1]['content']
 
 
+@pytest.mark.usefixtures('deck_off')
 async def test_event_arriving_mid_generation_cannot_replace_user_focus():
  import asyncio,json,httpx
  from companion_ai.conversation import ConversationService,ModelManager

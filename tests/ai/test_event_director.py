@@ -16,6 +16,7 @@ async def service(config=None,text='[[expression:focused]]The simulator shows a 
  for i in range(21):s.process_derived(r.step(85+i,seconds=0 if i==0 else 1))
  return r,s,wire,frames
 
+@pytest.mark.usefixtures('deck_off')
 async def test_derived_evidence_is_context_only_and_grounds_a_user_question_with_thinking_off():
  # With no deck there is no unsolicited physiology commentary; the evidence still answers the user.
  r,s,wire,frames=await service()
@@ -27,6 +28,7 @@ async def test_derived_evidence_is_context_only_and_grounds_a_user_question_with
  assert 'PRIVATE REASONING' not in json.dumps(list(s.history))
  await s.close()
 
+@pytest.mark.usefixtures('deck_off')
 async def test_derived_events_stay_silent_while_typing_and_after_a_storyline_reset():
  r,s,wire,frames=await service();s.director.typing_until=r.clock.mono()+6;s.pump()
  assert not s.task and s.event_intelligence.history[-1]['decision']=='context_only:no_card_dealer'
@@ -35,6 +37,7 @@ async def test_derived_events_stay_silent_while_typing_and_after_a_storyline_res
  await s.close()
 
 @pytest.mark.parametrize('mode',['routine','irrelevant','disabled'])
+@pytest.mark.usefixtures('deck_off')
 async def test_context_only_or_disabled_never_generates(mode):
  c=EventConfig()
  if mode=='routine':c.detectors['rapid_rise'].significance='routine'
@@ -44,6 +47,7 @@ async def test_context_only_or_disabled_never_generates(mode):
  if mode!='disabled':assert 'context_only' in s.event_intelligence.history[-1]['decision']
  await s.close()
 
+@pytest.mark.usefixtures('deck_off')
 async def test_configuration_session_and_model_changes_never_replay_events():
  r,s,wire,frames=await service();s.configure_events(EventConfig());assert not s.pending
  assert s.event_intelligence.history[-1]['decision']=='context_only:no_card_dealer'
@@ -70,6 +74,7 @@ def test_derived_events_cannot_be_recast_as_feelings_or_personal_simulator_pulse
  assert event_violations('The simulator increased by 27 BPM.',trigger)==['incorrect_derived_change']
 
 
+@pytest.mark.usefixtures('deck_off')
 async def test_an_ungrounded_derived_claim_never_reaches_the_model_without_the_deck():
  r,s,wire,frames=await service(text="[[expression:happy]]The simulator is whispering your excitement.")
  s.director.session_status='RUNNING';s.pump()

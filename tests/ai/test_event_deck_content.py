@@ -402,4 +402,5 @@ async def test_the_baseline_is_taken_while_speech_is_not_allowed():
 # Off by default, and off in the live application
 
 def test_the_library_does_not_enable_anything():
- assert DeckSettings().enabled is False and 'enabled' not in RAW and not (ROOT/'deck-settings.json').exists()
+ # The on-by-default switch lives in code (DEFAULT_DECK_ENABLED), never in the card library.
+ assert DeckSettings().enabled is True and 'enabled' not in RAW and not (ROOT/'deck-settings.json').exists()

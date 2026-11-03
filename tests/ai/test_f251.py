@@ -133,6 +133,7 @@ def test_selection_acknowledgement_can_repeat_structure_but_not_an_exact_respons
     score=director.assess('You selected headplay with goal tease.',False,prompt)
     assert score['excessive']
 
+@pytest.mark.usefixtures('deck_off')
 async def test_deliberate_event_does_not_reinject_old_unsolicited_prose_but_preserves_memory():
     c,o,s=observation();received=[]
     class Adapter:
@@ -158,6 +159,7 @@ def test_came_early_is_not_an_early_arrival():
     assert not event_violations('You arrived early.',{'kind':'goal_changed'})
 
 
+@pytest.mark.usefixtures('deck_off')
 def test_came_early_without_the_deck_is_recorded_and_stop_has_no_reaction_to_preserve(tmp_path):
     import threading
     from tests.fork.test_observer import TOKEN,ORIGIN,auth,until
@@ -193,6 +195,7 @@ def test_came_early_without_the_deck_is_recorded_and_stop_has_no_reaction_to_pre
             assert speech.task is None and not speech.pending and 'session_ended' in [e['kind'] for e in speech.recent_events]
             assert app.state.observation.report['status']=='IDLE'
 
+@pytest.mark.usefixtures('deck_off')
 async def test_selection_changed_during_generation_cannot_publish_or_save_an_obsolete_reaction():
     c,o,s=observation();s['experience']='headplay';o.report=s;gate=asyncio.Event();messages=[]
     class Slow:

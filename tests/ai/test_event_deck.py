@@ -80,9 +80,9 @@ def draw_all(target, count, now=0):
 
 # Schema
 
-def test_feature_flag_is_off_by_default_and_a_disabled_deck_proposes_nothing():
-    assert DeckSettings().enabled is False
-    target = EventDeck(definition(), SCOPE, 'evelyn', SESSION, EPOCH)
+def test_feature_flag_is_on_by_default_and_a_disabled_deck_proposes_nothing():
+    assert DeckSettings().enabled is True
+    target = EventDeck(definition(), SCOPE, 'evelyn', SESSION, EPOCH, DeckSettings(enabled=False))
     assert target.next_play(context(), 0) == (None, 'deck_disabled')
 
 

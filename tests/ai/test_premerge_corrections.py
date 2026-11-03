@@ -300,6 +300,7 @@ async def test_a_silent_closing_is_retried_and_then_delivered():
  deck=await run_closing(r,s)
  assert spoken(frames)==['The session is over. A fair result.'] and deck.closing_outcome=='delivered' and drops(s)==[]
 
+@pytest.mark.usefixtures('deck_off')
 async def test_a_closing_silent_every_time_is_a_recorded_drop():
  r,s,wire,frames=await closing_rig(['[SILENCE]'])
  deck=await run_closing(r,s,6)

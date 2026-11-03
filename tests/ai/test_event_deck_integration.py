@@ -82,6 +82,7 @@ def finish(r,s,kind='session_ended'):
 
 # Flag off: no proactive scheduler. Conversation continues; nothing is unsolicited.
 
+@pytest.mark.usefixtures('deck_off')
 async def test_disabled_deck_means_no_unsolicited_dialogue_but_conversation_continues():
  r,s,a,frames=rig(deck=False)
  assert s.deck() is None and DeckSettings().enabled is False
@@ -96,12 +97,14 @@ async def test_disabled_deck_records_session_start_as_context_only_and_keeps_the
  s.pending.clear();s.last_event=r.clock.mono()
  assert s.request('Legacy turn',user=False,event={'kind':'idle_initiative','priority':0,'at':0,'narrative':True})=={'accepted':False,'reason':'frequency_policy'}
 
+@pytest.mark.usefixtures('deck_off')
 def test_disabled_deck_never_reads_the_definition_file(monkeypatch):
  r,s,_,_=rig(deck=False)
  monkeypatch.setattr('companion_ai.conversation.load_definition',lambda raw:pytest.fail('definition read while disabled'))
  assert s.deck() is None
  s.deck_event('edge','occ')
 
+@pytest.mark.usefixtures('deck_off')
 async def test_disabled_deck_finish_is_recorded_but_not_spoken():
  r,s,a,_=rig(deck=False);finish(r,s);s.pump()
  assert s.pending==[] and s.task is None and not a.calls
@@ -410,6 +413,7 @@ async def test_narrative_card_does_progress_story_memory():
  summary=await turn(s);assert summary['deck_card']['memory']=='story'
  assert s.narrative.state['developments'] and all(f['model_scope']==s.active_model_id for f in s.narrative.state['facts'])
 
+@pytest.mark.usefixtures('deck_off')
 async def test_decks_and_transcripts_are_isolated_by_exact_model():
  r,s,a,_=rig()
  await turn(s);first=s.deck();scope=s.active_model_id
@@ -441,12 +445,14 @@ def stored_service(root):
  clock=Replay().clock;a=Stored(root);r=Replay()
  return ConversationService(r.observation,lambda m:None,a,clock=r.clock.mono,director=ObserverDirector(DirectorConfig(),clock=r.clock.mono)),a
 
-def test_settings_file_defaults_are_off_and_scope_is_exact(tmp_path):
- s,a=stored_service(tmp_path)
- assert s.deck_settings==DeckSettings() and not (tmp_path/'deck-settings.json').exists()
- enable(tmp_path,s.active_model_id,countdown_seconds=25)
- s2,_=stored_service(tmp_path);assert s2.deck_settings.enabled and s2.deck_settings.countdown_seconds==25 and s2.deck_identity=='nova'
- a.config=AIConfig(model='evelyn-narrative-v1:latest');s.activate_model();assert not s.deck_settings.enabled
+def test_settings_file_defaults_are_on_and_scope_is_exact(tmp_path):
+ s,a=stored_service(tmp_path);nova=s.active_model_id
+ assert s.deck_settings==DeckSettings() and s.deck_settings.enabled and not (tmp_path/'deck-settings.json').exists()
+ enable(tmp_path,nova,enabled=False)
+ s2,_=stored_service(tmp_path);assert not s2.deck_settings.enabled
+ a.config=AIConfig(model='evelyn-narrative-v1:latest');s.activate_model();assert s.deck_settings.enabled  # off for Nova only
+ enable(tmp_path,nova,countdown_seconds=25)
+ s3,_=stored_service(tmp_path);assert s3.deck_settings.enabled and s3.deck_settings.countdown_seconds==25 and s3.deck_identity=='nova'
 
 def test_corrupt_settings_fail_closed_and_are_preserved(tmp_path):
  path=tmp_path/'deck-settings.json';path.write_text('{not json');s,_=stored_service(tmp_path)
@@ -489,6 +495,7 @@ def test_enabled_observer_plays_the_opening_from_a_real_observation(tmp_path):
    assert wait_for_lane(ws,speech,'session_start')['text']==TEXTS[0]
  assert a.calls[0][0]['deck_card']['card_id']=='opening'
 
+@pytest.mark.usefixtures('deck_off')
 def test_observer_with_no_settings_file_never_creates_a_deck(tmp_path):
  a=Served(tmp_path);app=create_app(TOKEN,tmp_path,adapter=a)
  with TestClient(app) as client:
@@ -828,6 +835,7 @@ async def test_acknowledging_the_users_selection_survives_unless_a_card_covers_i
  r,s,a,_=rig(sequences=[mission(event_kinds=['experience_changed'])]);s.enqueue('experience_changed',50,selection|{'session_id':r.observation.session_id})
  assert s.pending==[] and s.deck().snapshot()['active_sequences']==['m1']
 
+@pytest.mark.usefixtures('deck_off')
 async def test_flag_off_records_events_without_reactions():
  r,s,a,_=rig(deck=False)
  s.enqueue('edge',50,{'event_id':'e1','session_id':r.observation.session_id,'category':'authoritative','at_ms':int(r.clock.wall()*1000)})
@@ -853,6 +861,7 @@ async def test_a_fault_stops_a_running_card_and_queued_or_future_reactions():
  s.enqueue('experience_changed',50,details);s.enqueue('session_ended',70,details|{'event_id':'end','session_result':RESULT})
  assert s.pending==[] and s.recent_events[-1]['kind']=='session_ended' and 'session_result' not in s.recent_events[-1]
 
+@pytest.mark.usefixtures('deck_off')
 async def test_a_fault_is_per_model_and_outlasts_reactivation():
  r,s,a,_=rig();s.deck().next_play=broken;s.pump();assert s.deck_error
  a.config=AIConfig(model='evelyn-narrative-v1:latest');s.activate_model()
