@@ -56,6 +56,7 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
                     <summary>Advanced pacing</summary>
                     <p>Proactive dialogue comes only from Director 2.0 cards for models that have it enabled. Response length is unchanged.</p>
                     <label class="director-number">Selection reaction cooldown (seconds)<input type="number" data-director-field="reaction_interval_seconds" min="0" max="60" value="4" step="1"></label>
+                    <label class="director-toggle"><input type="checkbox" data-director-field="unlimited_unsolicited" checked> Unlimited unsolicited replies</label>
                     <label class="director-number">Maximum consecutive unsolicited replies<input type="number" data-director-field="max_consecutive_unsolicited" min="1" max="50" value="50" step="1"></label>
                 </details>
             </div>
@@ -112,7 +113,8 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
         director.querySelector('[data-save-director]').disabled=!d||saving;
         director.querySelector('[data-director-scope]').textContent=d?.settings?'Settings apply to the selected model. User replies and EdgeLoop safety notices remain independent.':'The existing proactive toggle applies to this running service. Load the updated observer for model-scoped pacing controls.';
         const pacing=director.querySelector('[data-director-pacing]');pacing.hidden=!d?.settings;
-        for(const input of pacing.querySelectorAll('input')){input.disabled=!d?.settings||saving;if(!saving&&!dirty&&d?.settings){input.value=d.settings[input.dataset.directorField];}}
+        for(const input of pacing.querySelectorAll('input')){input.disabled=!d?.settings||saving;if(!saving&&!dirty&&d?.settings){const v=d.settings[input.dataset.directorField];if(input.type==='checkbox')input.checked=v!==false;else input.value=v;}}
+        syncCap();
         if(d){
             field(diagnostics,'Director',d.enabled?'Enabled':'Disabled · baseline scheduler');
             field(diagnostics,'Proactive dialogue',d.proactive_enabled?'Enabled':'Disabled');
@@ -145,10 +147,12 @@ export function mountCharacterMenus(host,{send,onReset=()=>{}}) {
         summary.querySelector('p').textContent=d?.last_event?'Last significant event: '+human(d.last_event.kind)+' ('+human(d.last_event.significance)+')':'No verified session event recorded.';
     }
     director.querySelector('[data-proactive]').onchange=()=>{dirty=true;notice('director','Unsaved change');};
-    director.querySelector('[data-director-pacing]').oninput=()=>{dirty=true;notice('director','Unsaved change');};
+    // The cap only applies while unlimited is off.
+    function syncCap(){const pacing=director.querySelector('[data-director-pacing]');pacing.querySelector('[data-director-field="max_consecutive_unsolicited"]').disabled=pacing.querySelector('[data-director-field="unlimited_unsolicited"]').checked||!state?.director?.settings||saving;}
+    director.querySelector('[data-director-pacing]').oninput=()=>{dirty=true;syncCap();notice('director','Unsaved change');};
     director.querySelector('[data-save-director]').onclick=()=>{
         const value=director.querySelector('[data-proactive]').checked;
-        const settings={};if(state?.director?.settings){settings.model=model;for(const input of director.querySelectorAll('[data-director-field]')){if(!input.validity.valid){const advanced=input.closest('details');if(advanced)advanced.open=true;input.reportValidity();return;}settings[input.dataset.directorField]=Number(input.value);}}
+        const settings={};if(state?.director?.settings){settings.model=model;for(const input of director.querySelectorAll('[data-director-field]')){if(input.disabled)continue;if(!input.validity.valid){const advanced=input.closest('details');if(advanced)advanced.open=true;input.reportValidity();return;}settings[input.dataset.directorField]=input.type==='checkbox'?input.checked:Number(input.value);}}
         if(send({version:1,type:'configure_director',proactive_enabled:value,...settings})){saving=true;notice('director','Saving…');render();}
     };
     story.querySelector('[data-start-story]').onclick=()=>{story.querySelector('[data-story-confirm]').hidden=false;story.querySelector('[data-story-keep]').focus();};

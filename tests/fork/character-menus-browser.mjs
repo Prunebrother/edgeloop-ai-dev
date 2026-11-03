@@ -53,10 +53,12 @@ try{
  await sleep(2200);assert((await state()).requests.length===requestCount,'Re-enabling proactive replayed disabled events');
  await page.locator('[data-director-advanced] summary').click();
  await page.getByLabel('Selection reaction cooldown (seconds)',{exact:true}).fill('6');
- await page.getByLabel('Maximum consecutive unsolicited replies',{exact:true}).fill('5');
+ const cap=page.getByLabel('Maximum consecutive unsolicited replies',{exact:true});
+ assert(await cap.isDisabled(),'Cap editable while unlimited');
+ await page.getByLabel('Unlimited unsolicited replies',{exact:true}).uncheck();await cap.fill('5');
  await page.locator('[data-save-director]').click();await page.getByText('Saved to the companion service.',{exact:true}).waitFor();
  const pacing=(await (await fetch(ai+'/fixture/context')).json()).director.settings;
- assert(pacing.reaction_interval_seconds===6&&pacing.max_consecutive_unsolicited===5&&!('experimental_idle_enabled' in pacing),'Director pacing not applied');
+ assert(pacing.reaction_interval_seconds===6&&pacing.max_consecutive_unsolicited===5&&pacing.unlimited_unsolicited===false&&!('experimental_idle_enabled' in pacing),'Director pacing not applied');
  assert((await state()).requests.length===requestCount,'Saving pacing settings caused inference');
  assert(!(await page.getByLabel('Experimental idle initiative',{exact:true}).count()),'Retired idle initiative control still shown');
  report.steps.push('Character-scoped selection pacing validates and saves without inference; retired idle controls are gone');

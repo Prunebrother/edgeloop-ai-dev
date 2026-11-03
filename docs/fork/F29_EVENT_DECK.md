@@ -194,8 +194,8 @@ back, and it never enters the shuffle. See "Arrival lifecycle" below.
 | Session start | Bypassed | Bypassed | Bypassed |
 | Session end | Bypassed | Bypassed | Bypassed |
 | Mission | Bypassed; 4 s between missions | Bypassed; doesn't count | Bypassed |
-| Narrative | Bypassed | Applies and counts | Applies |
-| Normal | Applies | Applies and counts | Applies |
+| Narrative | Bypassed | Counts; applies only when the cap is on | Applies |
+| Normal | Applies | Counts; applies only when the cap is on | Applies |
 
 Every lane waits for free output and is blocked by quiet mode, user activity and protective states.
 
@@ -220,9 +220,13 @@ card comes at whichever is later:
 A user who keeps replying within 30 seconds therefore gets no normal cards, which is intended: the
 conversation is already active. Setting the value to 0 removes the hold.
 
-**Unsolicited limit (`max_consecutive_unsolicited`, default 50).** Normal and narrative cards count
-toward it and only a user message resets it. At roughly 15 seconds per card, an uninterrupted session
-reaches it after about 12 minutes and normal cards then stop until the user speaks.
+**Unsolicited limit (`unlimited_unsolicited`, default on; `max_consecutive_unsolicited`, 1–50,
+default 50).** By default there is no cap: cards keep coming for as long as the other gates allow.
+With **Unlimited unsolicited replies** switched off, normal and narrative cards count toward the cap
+and only a user message resets it. At roughly 15 seconds per card, an uninterrupted session reaches a
+cap of 50 after about 12 minutes, and normal cards then stop until the user speaks. The count is kept
+either way and shows in diagnostics. Saved settings without the field load as unlimited; a saved cap
+is kept for when the toggle is switched off.
 
 ## Closing
 

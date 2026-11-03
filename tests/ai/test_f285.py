@@ -89,7 +89,7 @@ async def test_mode_reacts_once_without_second_historical_event_in_prompt():
 async def test_a_quiet_running_session_with_story_and_memory_gets_no_idle_initiative():
  # The legacy idle selector and narrative continuation are retired. Seeded story, memory and long
  # quiet periods produce no unsolicited turn without the deck.
- r,s,a,frames=rig(max_consecutive_unsolicited=4);seed(s)
+ r,s,a,frames=rig(unlimited_unsolicited=False,max_consecutive_unsolicited=4);seed(s)
  for _ in range(6):tick(r,51);s.pump();assert s.task is None
  assert not a.calls and not list(s.director.memory['initiative_intents'])
  assert not any(f['type'] in ('speech','conversation_error') for f in frames)

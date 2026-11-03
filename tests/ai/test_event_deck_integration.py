@@ -323,7 +323,7 @@ async def test_publication_is_delivery_and_generated_alone_is_not():
 
 async def test_limit_holds_normal_cards_but_not_opening_or_missions_which_do_not_count():
  r,s,a,_=rig(sequences=[mission()],mission_spacing_seconds=0)
- s.director.config=s.director.config.model_copy(update={'max_consecutive_unsolicited':1})
+ s.director.config=s.director.config.model_copy(update={'unlimited_unsolicited':False,'max_consecutive_unsolicited':1})
  assert (await turn(s))['deck_card']['lane']=='session_start'
  assert s.director.memory['consecutive_unsolicited']==0
  await settle(r,s)
@@ -333,6 +333,18 @@ async def test_limit_holds_normal_cards_but_not_opening_or_missions_which_do_not
  s.deck_event('edge','occ-1')
  assert (await turn(s))['deck_card']['lane']=='mission'
  assert s.director.memory['consecutive_unsolicited']==1
+
+
+async def test_unlimited_ignores_the_cap_and_is_the_default():
+ r,s,a,_=rig()
+ assert s.director.config.unlimited_unsolicited
+ s.director.config=s.director.config.model_copy(update={'max_consecutive_unsolicited':1})
+ assert (await turn(s))['deck_card']['lane']=='session_start'
+ await settle(r,s)
+ for count in (1,2,3):
+  assert (await turn(s))['deck_card']['lane']=='normal'
+  assert s.director.memory['consecutive_unsolicited']==count
+  await settle(r,s)
 
 
 # Controls

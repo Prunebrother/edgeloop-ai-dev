@@ -23,6 +23,7 @@ RETIRED_SETTINGS=frozenset({'narrative_initiative_enabled','experimental_idle_en
 class DirectorConfig(StrictModel):
     enabled: bool = True
     spontaneous_enabled: bool = True
+    unlimited_unsolicited: bool = True
     max_consecutive_unsolicited: int = Field(default=50, ge=1, le=50)
     selection_debounce_seconds: float = Field(default=2.0, ge=.2, le=10)
     reaction_interval_seconds: float = Field(default=4.0, ge=0, le=60)

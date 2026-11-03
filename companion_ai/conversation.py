@@ -598,7 +598,7 @@ class ConversationService:
             fresh=getattr(self.state,'fresh',lambda:True)(),signal=safety['signal'],no_contact=safety['no_contact'],watchdog_paused=safety['watchdog_paused'],fault=safety['fault'],
             quiet=memory['quiet_requested'],user_active=now<self.director.typing_until or generating and self.active_source=='user' or now-self.last_user<config.reaction_user_grace_seconds,
             output_busy=generating or now<self.busy_until or now<self.deck_hold_until,conversation_active=now-memory['last_user']<config.user_idle_before_spontaneous_seconds,
-            unsolicited_limit_reached=memory['consecutive_unsolicited']>=config.max_consecutive_unsolicited,
+            unsolicited_limit_reached=not config.unlimited_unsolicited and memory['consecutive_unsolicited']>=config.max_consecutive_unsolicited,
             story_welcome=self.memory_config.enabled and self.narrative.state['initiative_allowed'] and self.event_intelligence.config.relevance(self.responder().get('model'),'story')>0,
             # Heart-rate cards obey the existing Event Intelligence and per-character physiology choices.
             hr_current=getattr(self.state,'hr_current',lambda:False)() and self.event_intelligence.config.enabled and self.event_intelligence.config.relevance(self.responder().get('model'),'physiology')>0,

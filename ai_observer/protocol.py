@@ -146,6 +146,7 @@ class ConfigureDirector(StrictModel):
     proactive_enabled: bool
     model: str | None = Field(default=None,min_length=1,max_length=120)
     reaction_interval_seconds: float | None = Field(default=None,ge=0,le=60)
+    unlimited_unsolicited: bool | None = None
     max_consecutive_unsolicited: int | None = Field(default=None,ge=1,le=50)
 
 class ObjectiveFields(StrictModel):

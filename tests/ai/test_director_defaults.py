@@ -11,7 +11,7 @@ from companion_ai.storage import SettingsStore
 from tests.fork.test_observer import TOKEN
 
 MODELS=[f'{name}-narrative-v1:latest' for name in ('nova','evelyn','daisy','celeste')]
-EXPECTED={'spontaneous_enabled':True,'reaction_interval_seconds':4.,'max_consecutive_unsolicited':50}
+EXPECTED={'spontaneous_enabled':True,'reaction_interval_seconds':4.,'max_consecutive_unsolicited':50,'unlimited_unsolicited':True}
 
 def select(app,model):
  app.state.speech.adapter.config=AIConfig(model=model)
@@ -32,7 +32,7 @@ def test_new_companion_uses_shared_director_and_event_defaults(tmp_path,model):
 @pytest.mark.parametrize('model',MODELS)
 def test_saved_model_override_survives_restart_and_other_companions_inherit_defaults(tmp_path,model):
  app=create_app(TOKEN,tmp_path);select(app,model)
- overrides={'spontaneous_enabled':False,'reaction_interval_seconds':9.,'max_consecutive_unsolicited':3}
+ overrides={'spontaneous_enabled':False,'reaction_interval_seconds':9.,'max_consecutive_unsolicited':3,'unlimited_unsolicited':False}
  app.state.speech.configure_director(overrides,model)
  path=tmp_path/'director-models.json';saved=path.read_bytes()
  restored=create_app(TOKEN,tmp_path)
@@ -53,7 +53,7 @@ def test_saved_global_and_event_settings_are_not_rewritten(tmp_path):
  for model in MODELS:
   settings=select(app,model)
   assert settings['reaction_interval_seconds']==7. and not RETIRED_SETTINGS&set(settings)
-  assert settings['max_consecutive_unsolicited']==50 and app.state.speech.director_settings_error is None
+  assert settings['max_consecutive_unsolicited']==50 and settings['unlimited_unsolicited'] and app.state.speech.director_settings_error is None
  assert not app.state.speech.event_intelligence.config.enabled
  assert all((tmp_path/name).read_bytes()==contents for name,contents in before.items())
 
@@ -65,6 +65,8 @@ def test_frontend_initial_fields_match_backend_defaults():
  for key in ('reaction_interval_seconds','max_consecutive_unsolicited'):
   match=re.search(r'data-director-field="'+key+r'"[^>]*value="([^"]+)"',menu)
   assert match and float(match[1])==getattr(defaults,key),key
+ unlimited=re.search(r'<input\b[^>]*data-director-field="unlimited_unsolicited"[^>]*>',menu)
+ assert unlimited and bool(re.search(r"\bchecked\b",unlimited[0]))==defaults.unlimited_unsolicited
  tag=re.search(r'<input\b[^>]*\bdata-proactive\b[^>]*>',menu)
  assert tag and re.search(r'\bchecked\b',tag[0])
  assert not any('data-director-field="'+key+'"' in menu for key in RETIRED_SETTINGS) and 'data-idle-enabled' not in menu
