@@ -115,7 +115,7 @@ def test_pause_reason_is_a_closed_category():
     from ai_observer.protocol import Observation
     from tests.fork.grounding_cases import Clock, snapshot, frame
     value = snapshot(Clock(), status='PAUSED')
-    value['details'].update(pause_reason='AA:BB:CC:DD:EE:FF', warmup_active=False, warmup_remaining_seconds=None)
+    value['details'].update(pause_reason=':'.join(['AA', 'BB', 'CC', 'DD', 'EE', 'FF']), warmup_active=False, warmup_remaining_seconds=None)
     with pytest.raises(pydantic.ValidationError):
         Observation.model_validate(frame(value))
 

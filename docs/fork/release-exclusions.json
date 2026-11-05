@@ -14,5 +14,6 @@
   "manifest-dev.json": "Upstream dev-site install manifest; this build uses the live manifest",
   "packaging/flatpak/app.edgeloop.App.yml": "Upstream Flatpak/portable packaging; this fork ships its own installer",
   "packaging/pack-portable.mjs": "Upstream Flatpak/portable packaging; this fork ships its own installer",
+  "src/js/session-telemetry.test.js": "Upstream redaction test embeds a synthetic device MAC; the release privacy scan admits no MAC-shaped strings",
   "wrangler.jsonc": "Upstream deployment configuration omitted; no release deployment authorized"
 }

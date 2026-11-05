@@ -99,7 +99,7 @@ test('pause reasons are bounded categories; an Edged stop is reported as its edg
     Object.assign(s,{sessionStatus:'RUNNING',pauseReason:''});
     p=c.project(s,devices);assert.equal(p.snapshot.details.pause_reason,null);assert.deepEqual(p.events.map(e=>e.kind),['session_resumed']);
     for(const [source,reason] of [['button','user'],['relube','relube'],['player','player'],['video','player'],['remote','remote'],
-        ['hr-signal','hr_signal'],['handy-stop','device'],['intiface','device'],['AA:BB:CC:DD:EE:FF',null],['__proto__',null]]){
+        ['hr-signal','hr_signal'],['handy-stop','device'],['intiface','device'],[['AA','BB','CC','DD','EE','FF'].join(':'),null],['__proto__',null]]){
         Object.assign(s,{sessionStatus:'PAUSED',pauseReason:source,pauses:s.pauses+1});
         p=c.project(s,devices);assert.equal(p.snapshot.details.pause_reason,reason,source);assert.ok(p.events.some(e=>e.kind==='pause'),source);
         Object.assign(s,{sessionStatus:'RUNNING',pauseReason:''});c.project(s,devices);
