@@ -1,6 +1,6 @@
 # v0.5.0 development build: supervised feature testing
 
-Status, 2026-11-05: `experiment/ai-companion` at merge `55c9fd8` ("Merge test/character-cards-v050"). Local only: not pushed, tagged or exported. This guide covers simulator-only testing first and lists what must be true before any supervised hardware session.
+Status, 2026-11-05: `experiment/ai-companion` includes the Character Card merge `55c9fd8` and the Player workspace (fast-forwarded to `feature/player-workspace`; checkpoint tag `checkpoint/pre-player-workspace-merge-20261105` → `a3cb88e`). Local only: not pushed, released or exported. This guide covers simulator-only testing first and lists what must be true before any supervised hardware session.
 
 ## What the build contains
 
@@ -9,6 +9,9 @@ Status, 2026-11-05: `experiment/ai-companion` at merge `55c9fd8` ("Merge test/ch
   - `config/event-deck.json` is byte-identical to the personal checkpoint `75d38d8`: SHA-256 `39e04b7c…95c1cb`.
 - Card-history separation (`b4bb068`): earlier conversation reaches a card prompt as an assistant-side background message, not inside the current instruction.
 - The video player with funscript follow, Theater and Fullscreen.
+  - The player opens only from the **Player** button and closes with **✕ Close player**. When open, it sits above a compact chat in the centre column. Closing it keeps playback, the session and the conversation.
+  - Theater covers all three columns. In Theater and Fullscreen an **Emergency stop** sits inside the video.
+  - Loading a video + funscript switches to Script without a Director comment. Your own play style and endgame choices are still acknowledged.
 - Bratty Tease and Script play styles, visible to the companion. Pause reasons reach the companion.
 - No Agent Link (see `AGENT_LINK_BOUNDARY.md`). The AI side has no command path.
 
