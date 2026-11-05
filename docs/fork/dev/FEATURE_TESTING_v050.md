@@ -75,7 +75,7 @@ Limits:
 ```bash
 cd ~/projects/edgeloop-ai-fork
 node tests/fork/upstream-sync-browser.mjs   # all play styles, video+funscript, pause reasons, emergency stop, read-only chat
-FORK_BROWSER_PORT=8783 FORK_OBSERVER_PORT=8793 node tests/fork/browser.mjs   # running session, pause/resume, stop, AI disconnect independence
+node tests/fork/browser.mjs                 # running session, pause/resume, stop, AI disconnect independence
 node tests/fork/player-workspace-browser.mjs # player open/close, Theater, Fullscreen emergency stop, media-load dialogue
 node tests/fork/character-browser.mjs       # portraits, Director mission card, emergency accessibility
 node tests/fork/character-menus-browser.mjs
@@ -84,7 +84,7 @@ npm test                                    # engine JS (1477)
 node --test tests/fork/*.test.mjs           # companion JS (75/76, known alias-count failure)
 ```
 
-These suites use mocked Ollama and their own fixture servers. `browser.mjs` defaults to the desktop stack's ports (8770/8768), so give it other ports as above; it refuses to start if its ports are already serving.
+These suites use mocked Ollama, their own fixture servers, temporary AI data and no pairing file. They refuse the desktop stack's ports (8770, 8768, 11435) and any port already in use, and their pages cannot reach other local ports, so they are safe to run while the desktop stack is up. Two suites that share a port can't run at the same time; the second one fails at start.
 
 ## Before any supervised hardware session
 
