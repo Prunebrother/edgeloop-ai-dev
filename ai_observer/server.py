@@ -383,7 +383,10 @@ def main():
             parser.exit(1,'Ollama is unavailable at '+config.ollama_url+'. Start that existing server manually or set EDGELOOP_OLLAMA_URL. No process was started.\n')
         return
     try:
-        with socket.socket() as probe:probe.bind(('127.0.0.1',config.port))
+        with socket.socket() as probe:
+            # Like uvicorn: a restart must not trip over the previous run's TIME_WAIT sockets. A live listener still fails.
+            probe.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+            probe.bind(('127.0.0.1',config.port))
     except OSError as exc:
         detail=f'Observer port {config.port} is occupied.' if exc.errno==errno.EADDRINUSE else f'Cannot bind observer port {config.port}: {exc.strerror}.'
         parser.exit(1,detail+' Inspect ss -ltnp or choose EDGELOOP_OBSERVER_PORT. No process was stopped.\n')
