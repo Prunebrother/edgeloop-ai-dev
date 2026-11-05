@@ -57,6 +57,16 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_error(404);return None
         return super().send_head()
     def list_directory(self,path):self.send_error(404);return None
+    # Revalidate on every load (an unchanged file is a cheap 304). Without this the browser
+    # may keep an old companion.css heuristically fresh next to a newer layout.js after an
+    # update, and the dashboard loses its scroll containers.
+    def send_header(self,keyword,value):
+        if keyword.lower()=='cache-control':self._cache_control=True
+        super().send_header(keyword,value)
+    def end_headers(self):
+        if not getattr(self,'_cache_control',False):self.send_header('Cache-Control','no-cache')
+        self._cache_control=False
+        super().end_headers()
 
 if __name__=='__main__':
     try:

@@ -112,8 +112,11 @@ self.addEventListener('fetch', (event) => {
     // Portraits use the browser HTTP cache; never accumulate the whole high-res archive in SW caches.
     if (url.origin === self.location.origin && url.pathname.startsWith('/Character_Art/')) return;
 
+    // Same-origin files always revalidate with the server, so a cached older stylesheet is
+    // never combined with newer scripts after an update. Navigations keep their own request.
+    const fresh = url.origin === self.location.origin && request.mode !== 'navigate' ? new Request(request, { cache: 'no-cache' }) : request;
     event.respondWith(
-        fetch(request)
+        fetch(fresh)
             .then((response) => {
                 // Same-origin and CORS replies are cached when ok; opaque replies (the CDN script tags) have no
                 // readable status, so they are cached as-is to keep the cockpit styled offline.

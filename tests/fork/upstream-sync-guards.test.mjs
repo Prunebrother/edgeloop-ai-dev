@@ -73,6 +73,9 @@ test('the service worker never caches AI, observer or loopback traffic',()=>{
     assert.match(sw,/port === '8768' \|\| new URL\(request\.url\)\.pathname\.startsWith\('\/ai\/'\)\) return;/);
     assert.match(sw,/url\.origin !== self\.location\.origin && \['127\.0\.0\.1','localhost','\[::1\]'\]\.includes\(url\.hostname\)\) return;/);
     assert.match(sw,/pathname\.startsWith\('\/Character_Art\/'\)\) return;/);
+    // Same-origin files revalidate, so a stale stylesheet never meets newer scripts.
+    assert.match(sw,/url\.origin === self\.location\.origin && request\.mode !== 'navigate' \? new Request\(request, \{ cache: 'no-cache' \}\) : request;/);
+    assert.match(sw,/fetch\(fresh\)/);
 });
 
 test('Bratty Tease and script mode project with experience-change events instead of failing closed',async()=>{

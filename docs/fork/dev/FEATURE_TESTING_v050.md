@@ -141,6 +141,12 @@ Video player and Director (fixed on `feature/player-workspace`):
 3. The player was narrow. When opened, the video is now shown large in the centre column above a compact chat.
 4. Loading a video + funscript gave unsolicited "Script mode" Director lines. The switch to Script came from loading media, but was treated as the user's own selection. It is now recorded as context only. Choosing a play style yourself is still acknowledged.
 
+After an update (fixed on `feature/player-ui-polish`):
+- **Problem:** the browser could keep an old `companion.css` cached next to the new scripts.
+- **Symptoms:** the Player showed unstyled, the chat no longer scrolled and grew past the window, and the message box and controls slid off-screen.
+- **Fix:** the local web server now sends `Cache-Control: no-cache`, and the service worker revalidates same-origin files.
+- **One-time step:** do a hard reload (Ctrl+Shift+R) after restarting the stack, to drop copies cached before this fix.
+
 Grounding (dialogue quality), to be investigated separately:
 
 5. Invented participant or session history.
