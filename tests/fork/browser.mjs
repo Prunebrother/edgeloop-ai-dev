@@ -15,7 +15,11 @@ const children=[];let browser,page;
 const assert=(x,m)=>{if(!x)throw new Error(m);};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function waitServer(url){for(let i=0;i<50;i++){try{if((await fetch(url)).ok)return;}catch{}await sleep(100);}throw new Error('Local fixture server unavailable: '+url);}
+// Never attach to a running EdgeLoop stack: the fixture servers must own both ports.
+async function assertPortFree(port){try{await fetch('http://127.0.0.1:'+port+'/',{signal:AbortSignal.timeout(500)});}catch{return;}
+    throw new Error('Port '+port+' is already serving (live EdgeLoop stack?). Stop it or set FORK_BROWSER_PORT/FORK_OBSERVER_PORT.');}
 try {
+    await assertPortFree(uiPort);await assertPortFree(observerPort);
     await mkdir(output,{recursive:true});
     browser=await chromium.launch();
     children.push(spawn('python3',['tools/serve_local.py',uiPort],{cwd:root,stdio:'ignore'}));
