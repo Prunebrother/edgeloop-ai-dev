@@ -1,5 +1,7 @@
 # Agent Link: integration boundary (not integrated)
 
+> **Superseded in part (2026-11-05):** the user approved AI Settings Control for v0.6.0, which lets companion models request a limited set of setting changes through an engine-side gate. See [AI_SETTINGS_CONTROL.md](AI_SETTINGS_CONTROL.md). The remote Agent Link relay below is still not integrated.
+
 Status, 2026-11-05: **not part of this fork.** The upstream sync on `feature/upstream-sync` takes `upstream/main` (`d3c5df3`, EdgeLoop 1.1.4.31 + 2 fixes). Agent Link exists only on `upstream/dev`, so it was not pulled in. This document records what it depends on and the boundary any future implementation must keep. Guard tests fail if Agent Link code arrives with a later sync (see "Guards in place").
 
 ## What upstream's Agent Link is
