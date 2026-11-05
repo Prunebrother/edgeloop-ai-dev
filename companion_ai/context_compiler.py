@@ -197,11 +197,15 @@ RELATIONSHIP={'returning':'Relationship: you have had sessions together before. 
               'first':'Relationship: this is your first session together. Introduce yourself in a few words.',
               'unknown':'Relationship: unknown to you. Do not introduce yourself as if you are new, and claim no shared past.'}
 
+COMPANION_ENDED='How it ended: YOU, the companion, stopped this session yourself through AI Settings Control. The participant did not press stop, so never say they stopped or quit. Your reason was: '
+
 def card_instruction(summary,data,selected,brief,history_present,retry,expressions=False,background=False):
     """One concise commentary instruction: intention, verified facts, and how to say it."""
     card=summary['deck_card'];lane=card.get('lane');result=(summary.get('trigger_event') or {}).get('session_result')
     history=card.get('history')
     lines=arrival_facts(history) if lane=='arrival' else mission_facts(data) if lane=='mission' else card_facts(data,selected) if not result else closing_facts(result)
+    if result and summary.get('ended_by_companion'):
+        lines=[line for line in lines if not line.startswith('How it ended')]+[COMPANION_ENDED+dump(summary['ended_by_companion']['reason'] or 'none given')+'.']
     compared=comparison_facts(history) if history and lane=='session_end' else []
     lines=lines+compared
     labelled='\n'.join('- '+line for line in lines)
@@ -365,6 +369,12 @@ class ContextCompiler:
             else:instructions+='\nCORRECTION REQUIRED: '+', '.join(summary['grounding_corrections'])+'. State only supported facts or uncertainty.'
         presentation=FORMAT_INSTRUCTION if config.explicit_expressions else ''
         focus_block='PRIMARY FOCUS: '+dump(focus.__dict__)
+        reply=summary.get('settings_reply')
+        if reply and user_context:
+            if reply['kind']=='applied':
+                focus_block+='\nAI SETTINGS CONTROL, in answer to this message (verified by EdgeLoop): '+reply['brief'].replace('Announce your own setting change: ','')+' Answer the user and tell them about this change in the same reply. Do not argue with what they asked for.'
+            else:
+                focus_block+='\nAI SETTINGS CONTROL: you tried to change the '+str(reply['setting'])+' for this message, but EdgeLoop did not apply it ('+str(reply['reason'] or 'refused')+'). Nothing was changed; do not say that it was.'
         if opportunity:focus_block+='\nDIRECTOR OPPORTUNITY (scheduling only, not verified telemetry): '+dump(opportunity)
         # User content is preserved exactly, even if it exceeds the soft target.
         current_label='REVISION INPUT (not a new user turn or event):' if revision is not None else 'USER MESSAGE (request, not session data):' if user_context else 'APPLICATION EVENT / REVISION (not a user message):'
@@ -372,6 +382,7 @@ class ContextCompiler:
         current=revision if revision is not None else prompt if focus.source!='validated_event' else 'Respond to the verified triggering evidence above in your established character.'
         if event and event.get('session_result'):
             facts+='\nFINAL SESSION RESULT (authoritative engine counters; completion is a user report, not sensor proof; null means unknown): '+dump(event.get('session_result',{}))
+            if summary.get('ended_by_companion'):facts+='\n'+COMPANION_ENDED+dump(summary['ended_by_companion']['reason'] or 'none given')+'.'
         parts=[facts,focus_block]
         completed=[] if summary.get('journal_lookup') or summary.get('journal_context') or summary.get('journal_access_denied') else summary.get('completed_sessions',[])[-1:]
         if completed and ('timing' in requested or event and event.get('kind') in {'completion_accepted','came_early','session_ended'} or re.search(r'previous session|completed session|last session',prompt,re.I)):

@@ -13,14 +13,14 @@ from .narrative import NarrativeMemory, NarrativeConfig
 from .expressions import clean_dialogue
 from .reply_cleanup import CleanupConfig, ReplyCleaner, clean_reply
 from .player_events import PLAYER_EVENTS, PLAYER_BRIEFS, player_current
-from .settings_control import SettingsControl, CARD_KIND as SETTINGS_CARD, card_brief as settings_card_brief
+from .settings_control import SettingsControl, CARD_KIND as SETTINGS_CARD, card_brief as settings_card_brief, settings_intent, available as settings_available
 from .event_policy import SELECTION_EVENTS, REACTION_EVENTS
 from .models import SpeechPolicy, AIConfig, MemoryConfig
 from .diagnostics import Metrics
 from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, InferenceCompatibilityError, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
 from .context import compose_messages, ContextBudgetError
 from .context_compiler import ContextConfig,load_context_config
-from .fidelity import corrected_closing, violations, event_violations, card_language_violations, history_checked, history_records, GroundingError, settings_claims_allowed
+from .fidelity import settings_reply_announced, corrected_closing, violations, event_violations, card_language_violations, history_checked, history_records, GroundingError, settings_claims_allowed
 from .director import ConversationDirector, DirectorConfig, silent_response
 from .event_deck import Arrival, DeckContext, DeckLifecycleError, DeckRegistry, DeckSettings, load_definition, load_model_settings
 from .session_history import compare, previous_session, outcome as session_outcome
@@ -863,6 +863,19 @@ class ConversationService:
         self.settings.task=asyncio.create_task(self.settings.run(self.adapter,report,self.responder().get('model'),self.publish))
         self.tasks.add(self.settings.task);self.settings.task.add_done_callback(self.tasks.discard)
 
+    async def decide_for_user(self,text):
+        """A chat message about the session's settings: decide before replying, so the reply itself can say what was
+        changed (or that nothing was). Returns ('applied', entry), ('rejected', entry) or None."""
+        report=getattr(self.state,'report',None)
+        if not settings_intent(text) or not settings_available(report) or self.state.emergency:return None
+        if not hasattr(self.adapter,'decide_settings') or getattr(self.adapter,'mode',None) in {'mock','stopped'}:return None
+        if self.settings.task and not self.settings.task.done():self.settings.task.cancel()
+        request=await self.settings.run(self.adapter,report,self.responder().get('model'),self.publish,user_text=text)
+        if request is None:return None
+        entry=await self.settings.settled(request['id'],lambda:getattr(self.state,'report',None))
+        if entry is None:return None
+        return ('rejected' if entry['status']=='rejected' else 'applied',entry)
+
     def settings_outcome(self,message):
         self.settings.outcome(message)
         self.settings_observe()
@@ -870,6 +883,16 @@ class ConversationService:
     def settings_observe(self):
         report=getattr(self.state,'report',None)
         for entry in self.settings.confirmations(report):self.settings_cards.append(entry)
+
+    def settings_reply_finished(self,summary,prompt,text):
+        """The reply was meant to announce a verified change. If it failed, was cancelled, or only echoed the user,
+        the change goes to the card path so the user still hears what changed."""
+        reply=summary.get('settings_reply') or {}
+        if reply.get('kind')!='applied':return
+        entry=self.settings.ledger.get(reply.get('request_id'))
+        if not entry or entry['request']['setting']=='stop' or entry in self.settings_cards:return
+        if text is not None and settings_reply_announced(text,prompt,entry['request']['setting']):return
+        entry['sent_at']=self.clock();self.settings_cards.append(entry)
 
     def pump_settings_card(self,now):
         """Announce a confirmed AI change, in character. It reports the model's own action, so it plays even with
@@ -1069,7 +1092,7 @@ class ConversationService:
                 "queue_limit": self.policy.pending_event_limit, "queue_dropped": self.queue_dropped,
                 "active_source": self.active_source, "policy": self.policy.model_dump(), "director": self.director.status()}
 
-    def request(self, prompt, user=False, event=None):
+    def request(self, prompt, user=False, event=None, settings_result=None):
         self.activate_model()
         self.sync_narrative()
         now = self.clock()
@@ -1140,6 +1163,13 @@ class ConversationService:
         summary['narrative_initiative']=bool(event and event.get('narrative'))
         recent_changes=self.settings.recent(getattr(self.state,'session_id',None))
         if recent_changes:summary['ai_settings_recent']=recent_changes[-3:]
+        if user and settings_result:
+            kind,entry=settings_result
+            summary['settings_reply']={'kind':kind,'brief':settings_card_brief(entry) if kind=='applied' else None,
+                'setting':entry['request']['setting'],'reason':entry['outcome'].get('reason') if kind=='rejected' else None,
+                'request_id':entry['request']['id']}
+        ended=self.settings.ended_by_companion((event or {}).get('session_id')) if event and event.get('session_result') else None
+        if ended:summary['ended_by_companion']={'reason':ended['request']['reason']}
         if card:summary['deck_card']=card
         if event and event.get('opportunity'):
             summary['director_opportunity']=event['opportunity']
@@ -1385,12 +1415,15 @@ class ConversationService:
                 "text": text, "responder": responder, 'expression':expression, 'expression_source':'model' if expression else 'fallback', "speak": self.policy.enabled, "interrupt": user or (self.policy.interruption == "interrupt" and not card)})
             # Delivery means published. busy_until is only an estimate of when output ends.
             self.deck_transition(card,'delivered')
+            if user:self.settings_reply_finished(summary,prompt,text)
             if (card or {}).get('lane')=='arrival':self.arrival_delivered[self.active_model_id]=self.clock()
             else:self.deck_response_completed()
         except asyncio.CancelledError:
+            if user:self.settings_reply_finished(summary,prompt,None)
             if trigger:self.director.mark_event(trigger,'cancelled')
             self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'discarded:generation_cancelled')
         except (httpx.HTTPError, ValueError, TypeError, KeyError, TimeoutError) as exc:
+            if user:self.settings_reply_finished(summary,prompt,None)
             if generation == self.generation:
                 if trigger:self.director.mark_event(trigger,'failed_or_unsupported')
                 rejected_card=bool(card) and isinstance(exc,GroundingError)

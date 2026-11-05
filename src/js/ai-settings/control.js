@@ -5,7 +5,7 @@
 // the same handler as the on-page control and then read back, so a change the
 // engine refused is reported as rejected. Model output never reaches configure(),
 // confirm() or undo(): those are called from user clicks only.
-import { authorize, sanitizeAiSettings } from './gate.js';
+import { authorize, sanitizeAiSettings, ownChangeReady } from './gate.js';
 
 export const AI_SETTINGS_STORAGE_KEY = 'edgeloop_ai_settings';
 const AUDIT_LIMIT = 50;
@@ -16,6 +16,7 @@ export function createAiSettingsControl({ load = () => null, save = () => {}, no
     let settings = sanitizeAiSettings(load());
     let revoked = false;
     let lastAppliedAt = null;
+    let lastAiAt = null;
     let applied = 0;
     let last = null;
     let pending = null;
@@ -33,7 +34,7 @@ export function createAiSettingsControl({ load = () => null, save = () => {}, no
 
     function contextFor(sessionId) {
         const live = context();
-        return { ...live, settings, revoked, remotePage, sessionId: live.sessionId ?? sessionId, now: now(), lastAppliedAt };
+        return { ...live, settings, revoked, remotePage, sessionId: live.sessionId ?? sessionId, now: now(), lastAppliedAt, lastAiAt };
     }
 
     function commit(change, by) {
@@ -50,6 +51,7 @@ export function createAiSettingsControl({ load = () => null, save = () => {}, no
             return outcome(change.id, 'rejected', { reason: 'engine_refused', setting: change.setting });
         }
         if (!reducing) lastAppliedAt = now();
+        if (by === 'ai') lastAiAt = now();
         applied += 1;
         const to = reducing ? after.status : after.current[change.setting];
         last = { id: change.id, setting: change.setting, from: reducing ? change.from : before ?? change.from, to, applied };
@@ -57,7 +59,7 @@ export function createAiSettingsControl({ load = () => null, save = () => {}, no
         while (history.size > AUDIT_LIMIT) history.delete(history.keys().next().value);
         record({ id: change.id, by, setting: change.setting, from: last.from, to, status: 'applied', clamped: Boolean(change.clamped) });
         const result = outcome(change.id, 'applied', { setting: change.setting, from: last.from, to, clamped: Boolean(change.clamped),
-            reason: change.reason, undoable: !reducing && by === 'ai' });
+            reason: change.reason, trigger: change.trigger ?? 'own', undoable: !reducing && by === 'ai' });
         emit({ kind: 'applied', outcome: result, by });
         return result;
     }
@@ -65,7 +67,10 @@ export function createAiSettingsControl({ load = () => null, save = () => {}, no
     return {
         settings: () => ({ ...settings }),
         configure(partial) {
+            const wasEnabled = settings.enabled;
             settings = sanitizeAiSettings({ ...settings, ...partial });
+            // Switching it on mid-session starts the pacing clock, so nothing changes the moment it is enabled.
+            if (settings.enabled && !wasEnabled) lastAiAt = now();
             if (!settings.enabled) pending = null;
             try { save(settings); } catch { /* storage is optional */ }
             emit({ kind: 'settings', settings: { ...settings } });
@@ -99,7 +104,7 @@ export function createAiSettingsControl({ load = () => null, save = () => {}, no
             pending = null;
             if (now() - at > PENDING_TTL_MS) return outcome(id, 'rejected', { reason: 'confirmation_expired' });
             const verdict = authorize({ version: 1, type: 'settings_request', id, session_id: sessionId,
-                setting: change.setting, value: change.to, reason: change.reason }, contextFor(sessionId));
+                setting: change.setting, value: change.to, trigger: change.trigger, reason: change.reason }, contextFor(sessionId));
             if (!verdict.ok) return outcome(id, 'rejected', { reason: verdict.reason });
             return commit(verdict.change, 'ai');
         },
@@ -135,12 +140,15 @@ export function createAiSettingsControl({ load = () => null, save = () => {}, no
             revoked = false;
             pending = null;
             lastAppliedAt = null;
+            // Pacing counts from the user's own start, so the first unprompted change waits a full interval.
+            lastAiAt = now();
             history.clear();
             if (wasRevoked) emit({ kind: 'restored' });
         },
         // Projection for the read-only snapshot, used by the observer to confirm a change.
         snapshot: () => ({ enabled: settings.enabled, revoked, applied, last_id: last?.id ?? null, last_setting: last?.setting ?? null,
-            applying_id: applying }),
+            applying_id: applying, pacing: settings.pacing,
+            own_ready: settings.enabled && !revoked && ownChangeReady(settings, now(), lastAiAt) }),
         audit: () => audit.map((entry) => ({ ...entry })),
         pending: () => (pending ? { ...pending.change } : null),
         subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }

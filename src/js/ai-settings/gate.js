@@ -18,9 +18,15 @@ export const AI_SETTINGS = Object.freeze(['play_style', 'game', 'endgame', 'orga
 // Only reduce stimulation, so they skip the signal, readiness and rate checks.
 const REDUCING = new Set(['pause', 'stop']);
 
+// How often the companion may change something on its own initiative. A change the user asks for
+// in chat is not paced by this, only by min_interval_seconds. Seconds since the last AI change
+// (or since the user started the session).
+export const AI_PACING = Object.freeze({ never: null, rarely: 600, sometimes: 300, often: 120 });
+
 export const AI_SETTINGS_DEFAULTS = Object.freeze({
     enabled: false,
     mode: 'auto',
+    pacing: 'sometimes',
     intensity_min: 20,
     intensity_max: 80,
     min_interval_seconds: 45
@@ -43,6 +49,7 @@ export function sanitizeAiSettings(raw) {
     const out = { ...AI_SETTINGS_DEFAULTS };
     if (typeof src.enabled === 'boolean') out.enabled = src.enabled;
     if (src.mode === 'auto' || src.mode === 'ask') out.mode = src.mode;
+    if (Object.hasOwn(AI_PACING, src.pacing)) out.pacing = src.pacing;
     if (wholeInRange(src.intensity_min, 0, 100)) out.intensity_min = src.intensity_min;
     if (wholeInRange(src.intensity_max, 0, 100)) out.intensity_max = src.intensity_max;
     if (out.intensity_min > out.intensity_max) {
@@ -75,14 +82,24 @@ export function parseRequest(raw) {
     else if (setting === 'intensity') value = wholeInRange(raw.value, 0, 100) ? raw.value : undefined;
     else value = raw.value === undefined || raw.value === null || raw.value === true ? true : undefined;
     if (value === undefined) return null;
-    return { id: raw.id, session_id: raw.session_id, setting, value, reason: cleanReason(raw.reason) };
+    // Absent means the companion's own idea: the stricter case.
+    const trigger = raw.trigger === undefined ? 'own' : raw.trigger;
+    if (trigger !== 'own' && trigger !== 'user') return null;
+    return { id: raw.id, session_id: raw.session_id, setting, value, trigger, reason: cleanReason(raw.reason) };
 }
 
 function reject(reason) {
     return { ok: false, reason };
 }
 
-// ctx: {settings, revoked, remotePage, sessionId, status, signal, toyReady, now (ms), lastAppliedAt (ms|null),
+// True when pacing allows an unprompted change now. lastAiAt is the last applied AI change or the user's session start.
+export function ownChangeReady(settings, now, lastAiAt) {
+    const gap = AI_PACING[sanitizeAiSettings(settings).pacing];
+    if (gap === null) return false;
+    return !Number.isFinite(lastAiAt) || now - lastAiAt >= gap * 1000;
+}
+
+// ctx: {settings, revoked, remotePage, sessionId, status, signal, toyReady, now (ms), lastAppliedAt (ms|null), lastAiAt (ms|null),
 //       current: {play_style, game, endgame, orgasm, intensity}}
 export function authorize(raw, ctx) {
     const request = parseRequest(raw);
@@ -106,6 +123,8 @@ export function authorize(raw, ctx) {
         if (!ctx.toyReady) return reject('device_not_ready');
         if (Number.isFinite(ctx.lastAppliedAt) && ctx.now - ctx.lastAppliedAt < settings.min_interval_seconds * 1000)
             return reject('rate_limited');
+        if (request.trigger === 'own' && !ownChangeReady(settings, ctx.now, ctx.lastAiAt))
+            return reject(settings.pacing === 'never' ? 'own_changes_off' : 'paced');
     }
     const current = isPlainObject(ctx.current) ? ctx.current : {};
     let to = request.value;
@@ -114,6 +133,6 @@ export function authorize(raw, ctx) {
     if (!REDUCING.has(setting) && from === to) return reject('unchanged');
     return {
         ok: true,
-        change: { id: request.id, setting, from: from ?? null, to, clamped: to !== request.value, reason: request.reason }
+        change: { id: request.id, setting, from: from ?? null, to, clamped: to !== request.value, trigger: request.trigger, reason: request.reason }
     };
 }

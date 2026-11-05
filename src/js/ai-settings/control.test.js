@@ -20,8 +20,8 @@ function harness({ settings = { enabled: true }, refuse = false } = {}) {
             else engine.current[change.setting] = change.to;
         }
     });
-    const ask = (setting, value, id = 'req_' + String(applied.length + 10).padStart(8, '0')) =>
-        control.request({ version: 1, type: 'settings_request', id, session_id: 's1', setting, value, reason: 'You looked too relaxed.' }, { sessionId: 's1' });
+    const ask = (setting, value, id = 'req_' + String(applied.length + 10).padStart(8, '0'), trigger = 'user') =>
+        control.request({ version: 1, type: 'settings_request', id, session_id: 's1', setting, value, trigger, reason: 'You looked too relaxed.' }, { sessionId: 's1' });
     return { control, engine, applied, ask, tick: (ms) => { clock += ms; }, saved: () => saved };
 }
 
@@ -39,7 +39,8 @@ test('auto mode applies, reports from/to and the reason, and advances the snapsh
     const h = harness();
     const result = h.ask('endgame', 'denial');
     assert.deepEqual([result.status, result.from, result.to, result.reason, result.undoable], ['applied', 'orgasm', 'denial', 'You looked too relaxed.', true]);
-    assert.deepEqual(h.control.snapshot(), { enabled: true, revoked: false, applied: 1, last_id: result.id, last_setting: 'endgame', applying_id: null });
+    assert.deepEqual(h.control.snapshot(), { enabled: true, revoked: false, applied: 1, last_id: result.id, last_setting: 'endgame', applying_id: null,
+        pacing: 'sometimes', own_ready: false });
 });
 
 test('a change the engine silently refuses is reported as rejected, not applied', () => {
@@ -114,4 +115,34 @@ test('the projection taken during an AI change is labelled; a user Undo is not',
     assert.equal(control.snapshot().applying_id, null);
     control.undo(result.id);
     assert.deepEqual(seen, ['req_labelled', null]);
+});
+
+test('own-initiative changes are paced; changes the user asks for are not', () => {
+    const h = harness({ settings: null });
+    h.control.configure({ enabled: true });
+    assert.equal(h.ask('play_style', 'bratty', 'req_own00001', 'own').reason, 'paced', 'enabling starts the pacing clock');
+    assert.equal(h.control.snapshot().own_ready, false);
+    assert.equal(h.ask('intensity', 60, 'req_user0001', 'user').status, 'applied');
+    h.tick(299000);
+    assert.equal(h.ask('play_style', 'bratty', 'req_own00002', 'own').reason, 'paced', 'counts from the last AI change');
+    h.tick(1000);
+    assert.equal(h.control.snapshot().own_ready, true);
+    assert.equal(h.ask('play_style', 'bratty', 'req_own00003', 'own').status, 'applied');
+    assert.equal(h.ask('pause', true, 'req_own00004', 'own').status, 'applied', 'pause is never paced');
+});
+
+test('pacing options, and Never leaves only changes the user asks for', () => {
+    for (const [pacing, seconds] of [['often', 120], ['sometimes', 300], ['rarely', 600]]) {
+        const h = harness({ settings: { enabled: true, pacing } });
+        h.control.newSession();
+        h.tick(seconds * 1000 - 1);
+        assert.equal(h.ask('endgame', 'denial', 'req_pace0001', 'own').reason, 'paced', pacing);
+        h.tick(1);
+        assert.equal(h.ask('endgame', 'denial', 'req_pace0002', 'own').status, 'applied', pacing);
+    }
+    const never = harness({ settings: { enabled: true, pacing: 'never' } });
+    never.tick(10 ** 9);
+    assert.equal(never.ask('endgame', 'denial', 'req_never001', 'own').reason, 'own_changes_off');
+    assert.equal(never.control.snapshot().own_ready, false);
+    assert.equal(never.ask('endgame', 'denial', 'req_never002', 'user').status, 'applied');
 });

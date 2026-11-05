@@ -50,6 +50,12 @@ export function withAiSettingsPanel(control) {
             const option = element('option', '', text); option.value = value; mode.append(option);
         }
         const modeLabel = element('label', 'ai-settings-row', 'Mode '); modeLabel.append(mode);
+        const pacing = element('select'); pacing.dataset.aiSettingsPacing = '';
+        for (const [value, text] of [['never', 'Never: only when I ask'], ['rarely', 'Rarely: at most every 10 min'],
+            ['sometimes', 'Sometimes: at most every 5 min'], ['often', 'Often: at most every 2 min']]) {
+            const option = element('option', '', text); option.value = value; pacing.append(option);
+        }
+        const pacingLabel = element('label', 'ai-settings-row', 'Changes on its own '); pacingLabel.append(pacing);
         const number = (key, min, max) => {
             const input = element('input'); input.type = 'number'; input.min = String(min); input.max = String(max); input.step = '1';
             input.dataset.aiSettingsField = key; return input;
@@ -57,15 +63,15 @@ export function withAiSettingsPanel(control) {
         const low = number('intensity_min', 0, 100), high = number('intensity_max', 0, 100), interval = number('min_interval_seconds', 15, 600);
         const band = element('label', 'ai-settings-row', 'Intensity band (slider 0–100) ');
         band.append(low, document.createTextNode(' to '), high);
-        const pace = element('label', 'ai-settings-row', 'Seconds between changes ');
+        const pace = element('label', 'ai-settings-row', 'Minimum seconds between any changes ');
         pace.append(interval);
         const status = element('p', 'ai-settings-status'); status.setAttribute('role', 'status');
-        box.append(summary, note, enabledLabel, modeLabel, band, pace, status);
+        box.append(summary, note, enabledLabel, modeLabel, pacingLabel, band, pace, status);
         container.append(box);
 
         const paint = () => {
             const s = control.settings();
-            enabled.checked = s.enabled; mode.value = s.mode;
+            enabled.checked = s.enabled; mode.value = s.mode; pacing.value = s.pacing;
             low.value = String(s.intensity_min); high.value = String(s.intensity_max); interval.value = String(s.min_interval_seconds);
             const snap = control.snapshot();
             status.textContent = !s.enabled ? 'Off' : snap.revoked ? 'Paused after emergency stop until you start a new session'
@@ -74,6 +80,7 @@ export function withAiSettingsPanel(control) {
         };
         enabled.addEventListener('change', () => { control.configure({ enabled: enabled.checked }); });
         mode.addEventListener('change', () => { control.configure({ mode: mode.value }); });
+        pacing.addEventListener('change', () => { control.configure({ pacing: pacing.value }); });
         for (const input of [low, high, interval]) {
             input.addEventListener('change', () => {
                 const next = sanitizeAiSettings({ ...control.settings(), [input.dataset.aiSettingsField]: Number(input.value) });

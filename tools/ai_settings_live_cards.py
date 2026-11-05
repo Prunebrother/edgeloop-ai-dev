@@ -19,6 +19,7 @@ from uuid import uuid4
 import uvicorn
 import websockets
 from ai_observer.server import create_app
+from companion_ai.fidelity import settings_reply_announced
 
 TOKEN = 'live-settings-check-' + 'x' * 32
 ORIGIN = 'http://127.0.0.1:8770'
@@ -43,7 +44,8 @@ class Session:
                       'details': {'captured_at_ms': 0, 'hr_recorded_at_ms': 0, 'resting_bpm': 70, 'single_max_bpm': 140, 'dual_max_bpm': 125, 'pauses': 0,
                                   'calibration_pass': 'none', 'warmup_active': False, 'warmup_remaining_seconds': None, 'ease_down_seconds': 0, 'rampdown_seconds': None,
                                   'endgame': 'orgasm', 'orgasm_mode': False, 'selection_source': 'selection', 'intensity_source': 'user',
-                                  'ai_settings': {'enabled': enabled, 'revoked': False, 'applied': 0, 'last_id': None, 'last_setting': None}}}
+                                  'ai_settings': {'enabled': enabled, 'revoked': False, 'applied': 0, 'last_id': None, 'last_setting': None,
+                                                  'pacing': 'sometimes', 'own_ready': True}}}
         self.events = []
         self.started = None
 
@@ -77,6 +79,7 @@ class Session:
         elif setting == 'pause': v['status'] = 'PAUSED'; d['pause_reason'] = 'ai'; d['pauses'] += 1; self.events.append('pause'); to = 'PAUSED'
         elif setting == 'stop': v['status'] = 'IDLE'; d['terminal_outcome'] = 'manual_stop'; self.events.append('stop'); to = 'IDLE'
         ai = d['ai_settings']; ai['applied'] += 1; ai['last_id'] = request['id']; ai['last_setting'] = setting
+        ai['own_ready'] = False  # 'sometimes' pacing: no own change for 5 minutes after any AI change
         return {'status': 'applied', 'setting': setting, 'from': frm, 'to': to, 'clamped': setting == 'intensity' and to != value,
                 'undoable': setting not in {'pause', 'stop'}}
 
@@ -118,7 +121,7 @@ async def run_model(model, ollama, port, log, disabled=False):
                 if m['type'] in {'ai_error', 'conversation_error'}: raise RuntimeError(m)
             session.start()
             for name, chat in STEPS:
-                step = {'step': name, 'user': chat, 'messages': [], 'request': None, 'outcome': None, 'card': None, 'errors': []}
+                step = {'step': name, 'user': chat, 'messages': [], 'request': None, 'outcome': None, 'reply': None, 'reply_announced': None, 'card': None, 'errors': []}
                 if chat:
                     await ws.send(json.dumps({'version': 1, 'type': 'chat', 'model': model, 'text': chat}))
                     # The step waits for the request and the card that follows it.
@@ -138,11 +141,19 @@ async def run_model(model, ollama, port, log, disabled=False):
                     elif m['type'] == 'speech':
                         entry = {'source': m.get('source'), 'text': m.get('text'), 'after_request': card_after is not None}
                         step['messages'].append(entry)
-                        if card_after is not None and m.get('source') != 'safety': step['card'] = m.get('text'); break
+                        if card_after is None or m.get('source') == 'safety': continue
+                        if m.get('source') == 'user' and step['reply'] is None:
+                            # The reply should announce the change itself; if it doesn't, a fallback card follows.
+                            step['reply'] = m.get('text')
+                            step['reply_announced'] = settings_reply_announced(m.get('text'), chat, step['request']['setting'])
+                            if step['reply_announced'] or step['outcome']['status'] != 'applied' or step['request']['setting'] == 'stop': break
+                            deadline = min(deadline, time.time() + 60)
+                        else:
+                            step['card'] = m.get('text'); break
                     elif m['type'] in {'ai_error', 'conversation_error'}:
                         step['errors'].append({k: m.get(k) for k in ('type', 'code', 'detail')})
                 record['steps'].append(step); log.write(json.dumps({'model': model} | step) + '\n'); log.flush()
-                print(f"{model[:24]:24} {name:8} request={step['request'] and (step['request']['setting'], step['request']['value'])} card={(step['card'] or '')[:110]!r}", flush=True)
+                print(f"{model[:24]:24} {name:8} request={step['request'] and (step['request']['setting'], step['request']['value'])} announced={step['reply_announced']} reply={(step['reply'] or '')[:80]!r} card={(step['card'] or '')[:80]!r}", flush=True)
                 if name == 'break' and session.value['status'] == 'PAUSED':
                     await asyncio.sleep(3); session.resume()
                 if session.value['status'] == 'IDLE': break

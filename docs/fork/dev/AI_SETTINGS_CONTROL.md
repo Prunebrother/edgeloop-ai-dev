@@ -48,6 +48,7 @@ A request is rejected unless all of these hold:
 - The session is RUNNING (pause also in RAMPDOWN, stop also in PAUSED).
 - The heart-rate signal is fresh and the toy is ready. Pause and stop skip these checks, because they only reduce stimulation.
 - At least `min_interval_seconds` (default 45) have passed since the last applied change. Pause and stop are exempt.
+- Pacing, for changes the companion makes on its own initiative (`trigger: 'own'`, the default when a request names no trigger): the user's **Own changes** setting allows one at most every 10 minutes (Rarely), 5 minutes (Sometimes, the default) or 2 minutes (Often), counted from the last applied AI change or from the user starting the session or enabling the feature. **Never** disables them. A change the user asks for in chat (`trigger: 'user'`) is paced only by `min_interval_seconds`. Pause and stop are exempt. Rejections: `paced`, `own_changes_off`.
 - The setting is on the allowlist, the value is valid, and the value differs from the current one.
 - The page is not a remote viewer or controller page.
 
@@ -59,6 +60,9 @@ The AI can never start or resume a session, reset, change duration, stream motio
 
 - `companion_ai/settings_control.py`: the decision prompt and schema, cadence (only while the snapshot says it is enabled and RUNNING; at most one decision every `decision_interval_seconds`; also after an edge and after a user message), the pending-request ledger and the snapshot confirmation.
 - The observer protocol gains exactly two message types: `settings_request` (server → browser) and `settings_outcome` (browser → server). Neither carries engine command names.
+- A chat message that reads as a settings request is decided **before** the reply. The reply waits up to 4 seconds for the snapshot to confirm the change and then announces it itself (one message, no separate card). If the gate rejects it, the reply is told nothing changed. If confirmation is late, the reply says nothing about it and the card path announces it once confirmed.
+- When the companion stops the session, the closing card and the session result say the character ended it, not the user.
+- A settings card that never refers to the change is rejected by the card check (`settings_card_off_topic`) and retried.
 - Settings cards use the Player-event card path, with priority above ordinary event cards. They are announced even when spontaneous commentary is off, because they report the model's own action.
 
 ## Tests required before merge

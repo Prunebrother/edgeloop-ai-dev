@@ -49,6 +49,9 @@ class AiSettingsFacts(StrictModel):
     applied: int = Field(ge=0,le=1000000)
     last_id: str | None = Field(default=None,max_length=64)
     last_setting: str | None = Field(default=None,max_length=32)
+    pacing: Literal['never','rarely','sometimes','often'] = 'sometimes'
+    # The engine-side gate's own answer: may the companion change something unprompted right now?
+    own_ready: bool = False
 
 class ProjectionDetails(StrictModel):
     player: PlayerFacts | None = None
@@ -215,6 +218,7 @@ class SettingsOutcome(StrictModel):
     to: SettingValue = None
     clamped: bool | None = None
     undoable: bool | None = None
+    trigger: Literal['own','user'] | None = None
 
 class ConfigureCurator(StrictModel):
     version: Literal[1]

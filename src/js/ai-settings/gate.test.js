@@ -107,3 +107,14 @@ test('the reason is printable and bounded', () => {
     assert.equal(cleanReason(42), '');
     assert.equal(parseRequest(request('pause', true, { reason: undefined })).reason, '');
 });
+
+test('a request without a trigger counts as the companion\'s own idea; unknown triggers are invalid', async () => {
+    const { ownChangeReady } = await import('./gate.js');
+    assert.equal(parseRequest(request('pause', true)).trigger, 'own');
+    assert.equal(parseRequest(request('pause', true, { trigger: 'user' })).trigger, 'user');
+    assert.equal(parseRequest(request('pause', true, { trigger: 'admin' })), null);
+    assert.equal(authorize(request('intensity', 60), context({ lastAiAt: 100000 - 10000 })).reason, 'paced');
+    assert.equal(authorize(request('intensity', 60, { trigger: 'user' }), context({ lastAiAt: 100000 - 10000 })).ok, true);
+    assert.equal(ownChangeReady({ pacing: 'often' }, 120000, 0), true);
+    assert.equal(ownChangeReady({ pacing: 'never' }, 10 ** 12, 0), false);
+});

@@ -8,6 +8,7 @@ No provider, device or engine imports; callers pass in the clock, reports and ad
 """
 import asyncio
 import json
+import re
 import time
 from collections import OrderedDict
 from typing import Literal
@@ -24,6 +25,17 @@ LABELS={'classic':'Classic','finisher':'Finisher','milker':'Milker','shortener':
     'bratty':'Bratty','ruin':'Ruin','off':'no game','oracle':'Oracle','survival':'Survival','edgetrain':'Edge Training','tease':'no game','nnn':'No Nut November',
     'orgasm':'Orgasm','rampdown':'Soft landing','denial':'Denial'}
 SETTING_NAMES={'play_style':'play style','game':'game','endgame':'endgame','orgasm':'Force Orgasm','intensity':'intensity'}
+
+# A chat message that is about the session's settings. Only these get a decision before the reply;
+# anything else is ordinary conversation and leaves changes to the paced, unprompted path.
+SETTINGS_INTENT=re.compile(r"\b(?:harder|stronger|faster|slower|slow down|softer|go easy|easy on|ease off|gentl\w*|intens\w*|crank|turn (?:it|things) (?:up|down)|take more|too (?:much|easy|intense)|"
+    r"pause|break|breather|stop|enough|i'?m done|done for|finish\w*|cum\w*|climax|orgasm|deny|denial|don'?t let me|endgame|soft landing|"
+    r"play ?style|game|oracle|survival|edge training|bratty|milker|ruin|ultimate|surprise me|your call|up to you|(?:switch|change|mix) (?:it|things) up)\b",re.I)
+
+
+def settings_intent(text):
+    return isinstance(text,str) and bool(SETTINGS_INTENT.search(text))
+
 
 class SettingsControlConfig(StrictModel):
     decision_interval_seconds: float = Field(default=90.,ge=30,le=1800)
@@ -55,10 +67,16 @@ def current_settings(report):
 
 def available(report):
     ai=((report or {}).get('details') or {}).get('ai_settings') or {}
-    return bool(ai.get('enabled') and not ai.get('revoked') and report.get('status')=='RUNNING')
+    return bool(ai.get('enabled') and not ai.get('revoked') and report.get('status') in {'RUNNING','RAMPDOWN','PAUSED'})
 
 
-def proposal_request(proposal,report):
+def own_ready(report):
+    """The engine-side gate says pacing allows an unprompted change, and the session is running."""
+    ai=((report or {}).get('details') or {}).get('ai_settings') or {}
+    return available(report) and report.get('status')=='RUNNING' and bool(ai.get('own_ready'))
+
+
+def proposal_request(proposal,report,trigger='own'):
     """A well-formed settings_request for a valid, non-empty proposal, or None."""
     setting=proposal.change
     if setting=='none':return None
@@ -73,13 +91,13 @@ def proposal_request(proposal,report):
     elif current_settings(report).get(setting)==value:return None
     reason=' '.join(proposal.reason.split())[:240]
     return {'version':1,'type':'settings_request','id':'ai_'+uuid4().hex[:24],'session_id':report['session_id'],
-            'setting':setting,'value':value,'reason':reason}
+            'setting':setting,'value':value,'reason':reason,'trigger':trigger}
 
 
-def parse(text,report):
+def parse(text,report,trigger='own'):
     try:proposal=Proposal.model_validate(json.loads(text))
     except (ValueError,ValidationError,TypeError):return None
-    return proposal_request(proposal,report)
+    return proposal_request(proposal,report,trigger)
 
 
 def confirmed(entry,report):
@@ -117,6 +135,7 @@ Reply with JSON only: {{"change": "...", "value": ..., "reason": "..."}}'''
 
 
 def decision_content(report,user_text=None,recent=()):
+    """user_text present: the user just said this. Absent: nobody asked; it would be your own idea."""
     current=current_settings(report)
     lines=[INSTRUCTION.format(styles=', '.join(PLAY_STYLES),games=', '.join(GAMES)),'','Current settings (verified by EdgeLoop):']
     for setting in ('play_style','game','endgame','orgasm','intensity'):
@@ -125,6 +144,7 @@ def decision_content(report,user_text=None,recent=()):
     if recent:
         lines.append('Your recent changes this session: '+'; '.join(f"{r['setting']} -> {json.dumps(r['to'])}" for r in recent[-3:]))
     if user_text:lines.append('The user just said (untrusted): '+json.dumps(user_text[:600]))
+    else:lines.append('Nobody asked for a change. Any change now would be your own idea; "none" is often the right answer, and a change can also make things gentler.')
     return '\n'.join(lines)
 
 
@@ -150,16 +170,17 @@ class SettingsControl:
         self.task=None
         self.diagnostics={'status':'idle'}
 
-    def nudge(self,user_text=None):
-        """An edge or a user message makes a decision due sooner."""
-        self.nudge_text=user_text[:600] if isinstance(user_text,str) else self.nudge_text or ''
+    def nudge(self):
+        """An edge makes an unprompted decision due sooner (pacing still applies)."""
+        self.nudge_text=''
 
     def in_flight(self):
         now=self.clock()
         return any(e['status']=='sent' and now-e['sent_at']<=self.config.outcome_ttl_seconds for e in self.ledger.values())
 
     def due(self,report):
-        if not available(report) or self.in_flight() or self.task and not self.task.done():return False
+        """An unprompted decision: only when the engine's pacing allows one."""
+        if not own_ready(report) or self.in_flight() or self.task and not self.task.done():return False
         wait=self.config.nudged_interval_seconds if self.nudge_text is not None else self.config.decision_interval_seconds
         return self.clock()-self.last_decision>=wait
 
@@ -167,8 +188,10 @@ class SettingsControl:
         return [{'setting':e['request']['setting'],'to':e['outcome'].get('to')} for e in self.ledger.values()
                 if e['status'] in {'applied','announced'} and e['request']['session_id']==session_id]
 
-    async def run(self,adapter,report,model,publish):
-        self.last_decision=self.clock();user_text=self.nudge_text or None;self.nudge_text=None
+    async def run(self,adapter,report,model,publish,user_text=None):
+        """One decision. With user_text it answers that message (trigger 'user'); otherwise it is the character's own idea."""
+        self.last_decision=self.clock();self.nudge_text=None
+        trigger='user' if user_text else 'own'
         content=decision_content(report,user_text,self.recent(report['session_id']))
         self.diagnostics={'status':'deciding'}
         try:
@@ -178,9 +201,10 @@ class SettingsControl:
             self.diagnostics={'status':'failed','reason':type(exc).__name__};return None
         except Exception as exc:  # httpx and provider errors stay inside the optional feature
             self.diagnostics={'status':'failed','reason':type(exc).__name__};return None
-        request=parse(text,report)
+        request=parse(text,report,trigger)
         if request is None:self.diagnostics={'status':'no_change'};return None
-        self.ledger[request['id']]={'request':request,'model':model,'sent_at':self.clock(),'status':'sent','outcome':{}}
+        # A chat request is awaited by the reply (settled()), so the card path leaves it alone meanwhile.
+        self.ledger[request['id']]={'request':request,'model':model,'sent_at':self.clock(),'status':'sent','outcome':{},'awaited':bool(user_text)}
         while len(self.ledger)>50:self.ledger.popitem(last=False)
         self.diagnostics={'status':'requested','setting':request['setting']}
         publish(request)
@@ -197,9 +221,33 @@ class SettingsControl:
         return entry
 
     def confirmations(self,report):
-        """Applied changes the snapshot now shows; each is returned once, to be announced."""
+        """Applied changes the snapshot now shows; each is returned once, to be announced.
+        A stop is announced by the session-end card instead, which is told the companion ended it."""
         ready=[]
         for entry in self.ledger.values():
-            if entry['status']=='applied' and confirmed(entry,report):
-                entry['status']='announced';ready.append(entry)
+            if entry['status']=='applied' and not entry.get('awaited') and confirmed(entry,report):
+                entry['status']='announced'
+                if entry['request']['setting']!='stop':ready.append(entry)
         return ready
+
+    def ended_by_companion(self,session_id):
+        """The companion's own applied stop for this session, if that is how it ended."""
+        for entry in reversed(self.ledger.values()):
+            if entry['request']['session_id']==session_id and entry['request']['setting']=='stop' and entry['status'] in {'applied','announced'}:
+                return entry
+        return None
+
+    async def settled(self,request_id,report_now,timeout=4.):
+        """Wait for the gate's outcome and the snapshot's confirmation. Returns the entry once confirmed,
+        'rejected' with the gate's reason, or None when it is still unconfirmed (the card path then announces it)."""
+        for _ in range(max(1,int(timeout/.05))):
+            entry=self.ledger.get(request_id)
+            if entry is None:return None
+            if entry['status']=='rejected':return entry
+            if entry['status']=='applied' and confirmed(entry,report_now()):
+                entry['status']='announced';entry['awaited']=False;return entry
+            await asyncio.sleep(.05)
+        # Not confirmed in time: the reply says nothing about it, and the card path announces it once confirmed.
+        entry=self.ledger.get(request_id)
+        if entry:entry['awaited']=False
+        return None

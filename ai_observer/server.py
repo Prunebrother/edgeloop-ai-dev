@@ -343,8 +343,9 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         async with model_lock:
                             if not adapter and (manager.mode in {'mock','stopped'} or message.model!=manager.config.model):
                                 publish({'type':'ai_error','detail':'Select an installed model before sending; no simulator reply substituted'});continue
-                            speech.request(message.text,user=True)
-                            speech.settings.nudge(message.text)
+                            # A message about the settings is decided first, so the reply can announce the verified change.
+                            settings_result=await speech.decide_for_user(message.text)
+                            speech.request(message.text,user=True,settings_result=settings_result)
             tasks=[asyncio.create_task(send()),asyncio.create_task(receive()),asyncio.create_task(process_ai())]
             done,_=await asyncio.wait(tasks,return_when=asyncio.FIRST_COMPLETED)
             for task in done:task.result()
