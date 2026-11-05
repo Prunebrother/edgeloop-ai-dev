@@ -689,6 +689,13 @@ def relationship_violations(text,card):
     named=speaker and re.search(r"\b(?:I am|I['’]m|my name is|call me)\s+(?:dr\.?\s+|ambassador\s+)?(?:\w+\s+)?"+re.escape(speaker)+r"\b",text,re.I)
     return (['first_session_claim'] if FIRST_SESSION.search(text) else [])+(['reintroduction'] if named and relationship=='returning' else [])
 
+def settings_claims_allowed(codes,summary):
+    """AI Settings Control: a character that verifiably changed a setting itself may say so."""
+    card=summary.get('deck_card') or {}
+    if card.get('settings_change') or summary.get('ai_settings_recent'):
+        return [code for code in codes if code!='read_only_control_claim']
+    return codes
+
 def card_language_violations(text,summary):
     """Unsolicited card turns only: a person who asks about the session can still be answered plainly."""
     card=summary.get('deck_card')

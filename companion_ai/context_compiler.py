@@ -221,6 +221,11 @@ def card_instruction(summary,data,selected,brief,history_present,retry,expressio
         known+='\nNo video frames, audio or participant images are supplied. Treat even familiar titles as labels: describe no plot, characters, genre, seen imagery or participant appearance. Invent no past viewing, physiological effects or hardware activity. Only the user controls playback, the session and devices; never claim to operate them.'
         status=data.facts['status']
         if status.known and status.current:known+='\nCurrent verified session state: '+str(status.value)+'.'
+    if card.get('settings_change'):
+        # AI Settings Control: the brief names the verified change; only that change may be claimed.
+        known='Verified by EdgeLoop: you yourself just made this setting change through AI Settings Control, inside the limits the user allowed. The user did not make it.'
+        status=data.facts['status']
+        if status.known and status.current:known+='\nCurrent verified session state: '+str(status.value)+'.'
     relationship=card.get('relationship')
     if relationship:known+='\n'+RELATIONSHIP[relationship]
     if history:

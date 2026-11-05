@@ -7,7 +7,7 @@ import {CharacterPresentation,mountExpressionPreview} from './character.js';
 import {CharacterPresentationController} from './presentation-controller.js';
 import {mountCharacterMenus} from './character-menus.js';
 import {mountLayout} from './layout.js';
-export function mountCompanion({refreshObservation=()=>{}}={}) {
+export function mountCompanion({refreshObservation=()=>{},settingsControl=null}={}) {
     const capture=new Capture();
     const panel=document.createElement('section');panel.id='ai-companion';panel.dataset.paired='false';panel.setAttribute('aria-label','AI conversation');
     // Static markup only. Server and model text is always assigned with textContent.
@@ -72,6 +72,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
         }
         if(debug)queueMicrotask(updateDiagnostics);
         if(['character_state','narrative_reset','character_menu_error','session_journal'].includes(m.type)){menus.receive(m);return;}
+        if(m.type==='settings_request'){settingsRequest(m);return;}
         if(m.type==='protocol_error'&&m.errors?.some(e=>['configure_events','configure_context','update_objective'].some(type=>e.path.includes(type)))){menus.receive({type:'character_menu_error',detail:'Invalid companion settings. Check the permitted ranges and selected model; no configuration was applied.'});return;}
         if(m.type==='ai_diagnostics'){if(m.responder?.model&&m.responder.model!==selected||m.id&&m.id!==presentation.lastRequest?.id)return;Object.assign(diagnostic,m);return;}
         if(m.type==='models'){
@@ -126,6 +127,20 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
             if(m.selection_failed&&!m.active){selected=null;thinking=null;supportsThinking=false;}finish();error((m.detail||'AI unavailable')+(m.errors?.length?' · '+m.errors.map(e=>e.path.join('.')+': '+e.code).join(', '):''));activity('error',selected?'Ready · last request failed':'AI unavailable');if(m.type==='ai_error')el('ollama').textContent='Ollama request unavailable';}
     }});
     const menus=mountCharacterMenus(artwork,{send:m=>connection.send(m),onReset:()=>{presentation.cancel();finish();}});
+    // AI Settings Control: the engine-side gate decides; this layer only forwards and shows the result.
+    const settingsName=()=>selected?(resolveArtwork(selected).name==='Your companion'?selected:resolveArtwork(selected).name):'Companion';
+    const settingsChip=outcome=>{if(!settingsControl?.chip)return;el('empty')?.remove();el('history').append(settingsControl.chip(outcome,{name:settingsName(),send:r=>connection.send(r)}));scroll();};
+    const settingsRequest=m=>{
+        if(!settingsControl)return;
+        let outcome;try{outcome=settingsControl.request(m,{sessionId:connection.latest?.session_id});}catch{outcome={version:1,type:'settings_outcome',id:typeof m.id==='string'?m.id.slice(0,64):null,status:'rejected',reason:'gate_error'};}
+        connection.send(outcome);
+        if(['applied','pending'].includes(outcome.status))settingsChip(outcome);
+    };
+    const settingsSlot=document.createElement('div');panel.querySelector('.ai-health').after(settingsSlot);
+    const settingsPanelCleanup=settingsControl?.mountPanel?.(settingsSlot)||null;
+    // The footer must not claim read-only while the user has allowed AI setting changes.
+    const settingsNote=()=>{panel.querySelector('.read-only-note').textContent=settingsControl?.settings().enabled?'AI Settings Control on · Emergency stop and session start stay with you':'Read-only companion · Session and safety stay with EdgeLoop';};
+    const settingsNoteCleanup=settingsControl?.subscribe(settingsNote)||null;settingsNote();
     el('setup').onsubmit=e=>{e.preventDefault();desktopPairing=false;error('');try{connection.connect(el('url').value,el('token').value);}catch(e){error(e.message);}finally{el('token').value='';}};
     let desktopPairing=true, pairingBusy=false;
     const autoPair=async()=>{
@@ -156,7 +171,7 @@ export function mountCompanion({refreshObservation=()=>{}}={}) {
     el('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el('chat').requestSubmit();}};
     // Original idle/paused sessions need no engine ticks. Refresh only the read-only projection.
     const observationTimer=setInterval(()=>{if(connection.epoch){try{refreshObservation();}catch{ /* Optional AI stays isolated. */ }}},1000);
-    window.addEventListener('pagehide',()=>{clearInterval(pairingTimer);desktopPairing=false;clearInterval(observationTimer);clearInterval(typingTimer);clearInterval(diagnosticTimer);connection.disconnect();menus.destroy();previewCleanup?.();character.destroy();});
+    window.addEventListener('pagehide',()=>{clearInterval(pairingTimer);desktopPairing=false;clearInterval(observationTimer);clearInterval(typingTimer);clearInterval(diagnosticTimer);connection.disconnect();menus.destroy();settingsPanelCleanup?.();settingsNoteCleanup?.();previewCleanup?.();character.destroy();});
     const releaseNote=document.createElement('p');releaseNote.dataset.releaseFeedback='';releaseNote.setAttribute('role','status');releaseNote.style.fontSize='11px';releaseNote.hidden=true;document.getElementById('cameEarlyBtn')?.parentElement?.after(releaseNote);
     return (state,devices,settings)=>{
         const previous=capture.previous;const observation=capture.project(state,devices,settings);

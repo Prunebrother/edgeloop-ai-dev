@@ -1,0 +1,126 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// User interface for AI Settings Control: the settings panel and the change
+// chips shown in the conversation. Engine side, so the AI layer receives these
+// as functions and never imports engine modules. Model text is assigned with
+// textContent only. Every button here is a user action.
+import { sanitizeAiSettings } from './gate.js';
+
+export const SETTING_LABELS = Object.freeze({
+    play_style: 'Play style', game: 'Game', endgame: 'Endgame', orgasm: 'Force Orgasm', intensity: 'Intensity', pause: 'Session', stop: 'Session'
+});
+const VALUE_LABELS = Object.freeze({
+    classic: 'Classic', finisher: 'Finisher', milker: 'Milker', shortener: 'Glans Protector', headplay: 'Head Play', ultimate: 'Ultimate',
+    bratty: 'Bratty', ruin: 'Ruin', off: 'No game', oracle: 'Oracle', survival: 'Survival', edgetrain: 'Edge Training', nnn: 'No Nut November',
+    orgasm: 'Orgasm', rampdown: 'Soft landing', denial: 'Denial', RUNNING: 'Running', PAUSED: 'Paused', IDLE: 'Stopped', RAMPDOWN: 'Ramping down'
+});
+
+export function describeValue(setting, value) {
+    if (value === null || value === undefined) return '—';
+    if (setting === 'orgasm') return value ? 'On' : 'Off';
+    if (setting === 'intensity') return `${Math.round(50 + Number(value))}%`;
+    return VALUE_LABELS[value] || String(value);
+}
+
+export function describeChange(change) {
+    const label = SETTING_LABELS[change.setting] || 'Setting';
+    if (change.setting === 'pause') return 'Paused the session';
+    if (change.setting === 'stop') return 'Stopped the session';
+    return `${label}: ${describeValue(change.setting, change.from)} → ${describeValue(change.setting, change.to)}`;
+}
+
+function element(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+}
+
+export function withAiSettingsPanel(control) {
+    function mountPanel(container) {
+        const box = element('details', 'ai-settings-panel');
+        box.dataset.aiSettings = '';
+        const summary = element('summary', '', 'AI Settings Control');
+        const note = element('p', 'ai-settings-note',
+            'Lets your companion change play style, game, endgame, Force Orgasm and intensity, and pause or stop. '
+            + 'It can never start or resume a session, change heart-rate limits or devices. Emergency stop turns it off for the session.');
+        const enabled = element('input'); enabled.type = 'checkbox'; enabled.dataset.aiSettingsEnabled = '';
+        const enabledLabel = element('label', 'ai-settings-row'); enabledLabel.append(enabled, document.createTextNode(' Let the companion change session settings'));
+        const mode = element('select'); mode.dataset.aiSettingsMode = '';
+        for (const [value, text] of [['auto', 'Auto: apply right away'], ['ask', 'Ask me first']]) {
+            const option = element('option', '', text); option.value = value; mode.append(option);
+        }
+        const modeLabel = element('label', 'ai-settings-row', 'Mode '); modeLabel.append(mode);
+        const number = (key, min, max) => {
+            const input = element('input'); input.type = 'number'; input.min = String(min); input.max = String(max); input.step = '1';
+            input.dataset.aiSettingsField = key; return input;
+        };
+        const low = number('intensity_min', 0, 100), high = number('intensity_max', 0, 100), interval = number('min_interval_seconds', 15, 600);
+        const band = element('label', 'ai-settings-row', 'Intensity band (slider 0–100) ');
+        band.append(low, document.createTextNode(' to '), high);
+        const pace = element('label', 'ai-settings-row', 'Seconds between changes ');
+        pace.append(interval);
+        const status = element('p', 'ai-settings-status'); status.setAttribute('role', 'status');
+        box.append(summary, note, enabledLabel, modeLabel, band, pace, status);
+        container.append(box);
+
+        const paint = () => {
+            const s = control.settings();
+            enabled.checked = s.enabled; mode.value = s.mode;
+            low.value = String(s.intensity_min); high.value = String(s.intensity_max); interval.value = String(s.min_interval_seconds);
+            const snap = control.snapshot();
+            status.textContent = !s.enabled ? 'Off' : snap.revoked ? 'Paused after emergency stop until you start a new session'
+                : s.mode === 'auto' ? 'On · auto' : 'On · asks first';
+            box.dataset.state = !s.enabled ? 'off' : snap.revoked ? 'revoked' : 'on';
+        };
+        enabled.addEventListener('change', () => { control.configure({ enabled: enabled.checked }); });
+        mode.addEventListener('change', () => { control.configure({ mode: mode.value }); });
+        for (const input of [low, high, interval]) {
+            input.addEventListener('change', () => {
+                const next = sanitizeAiSettings({ ...control.settings(), [input.dataset.aiSettingsField]: Number(input.value) });
+                control.configure(next);
+                paint();
+            });
+        }
+        const unsubscribe = control.subscribe(paint);
+        paint();
+        return () => { unsubscribe(); box.remove(); };
+    }
+
+    // A conversation chip for an applied, pending or declined change.
+    function chip(result, { name = 'Companion', send = () => {} } = {}) {
+        const node = element('div', 'ai-settings-chip');
+        node.dataset.aiSettingsChip = result.status;
+        node.setAttribute('role', 'status');
+        const text = element('span', 'ai-settings-chip-text');
+        const actions = element('span', 'ai-settings-chip-actions');
+        node.append(text, actions);
+        const show = (outcome) => {
+            actions.replaceChildren();
+            node.dataset.aiSettingsChip = outcome.status;
+            if (outcome.status === 'applied') {
+                text.textContent = `${name} · ${describeChange(outcome)}${outcome.clamped ? ' (kept inside your band)' : ''}`;
+                if (outcome.undoable) {
+                    const undo = element('button', 'ai-settings-undo', 'Undo'); undo.type = 'button';
+                    undo.addEventListener('click', () => {
+                        const ok = control.undo(outcome.id);
+                        actions.replaceChildren(element('span', '', ok ? 'Undone' : 'Can no longer undo'));
+                    });
+                    actions.append(undo);
+                }
+            } else if (outcome.status === 'pending') {
+                text.textContent = `${name} wants to change ${describeChange(outcome)}`;
+                const allow = element('button', 'ai-settings-allow', 'Allow'); allow.type = 'button';
+                const decline = element('button', 'ai-settings-decline', 'Decline'); decline.type = 'button';
+                allow.addEventListener('click', () => { const r = control.confirm(outcome.id); if (r) { send(r); show(r.status === 'applied' ? r : { ...r, status: 'gone' }); } });
+                decline.addEventListener('click', () => { const r = control.decline(outcome.id); if (r) { send(r); show({ ...r, status: 'gone' }); } });
+                actions.append(allow, decline);
+            } else {
+                text.textContent = `${name}'s request was not applied`;
+            }
+        };
+        show(result);
+        return node;
+    }
+
+    return { ...control, mountPanel, chip };
+}

@@ -25,7 +25,7 @@ from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
 from companion_ai.session_journal import SessionJournal
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, JournalCommand, ConfigureCurator, safe_validation_errors
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, JournalCommand, ConfigureCurator, SettingsOutcome, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
@@ -69,6 +69,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                 if not model_lock.locked() and owner['ai_queue'].empty():speech.pump()
                 else:director.deferred('queued_user_or_model_work')
                 if not model_lock.locked() and owner['ai_queue'].empty() and clock()>=director.typing_until:speech.maybe_curate()
+                if not model_lock.locked() and owner['ai_queue'].empty() and clock()>=director.typing_until:speech.maybe_decide_settings()
                 if director.last_reason!=previous_decision:publish({'type':'ai_diagnostics','director_decision':director.last_reason,'pending_events':len(speech.pending)})
             if owner and state.connected and not state.fresh():
                 state.connected=False;speech.pending.clear();speech.interrupt()
@@ -166,6 +167,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             seen[event.id]=now
                             if len(seen)>256:seen.pop(next(iter(seen)))
                             speech.deck_event(event.kind,event.id)
+                            if event.kind=='edge':speech.settings.nudge()
                             priority, rank=significance(event.kind,previous,state.report)
                             evidence=next((e for e in reversed(state.events) if e['kind']==event.kind),{})
                             if priority in {'major','critical'}:speech.last_validated_event={'kind':event.kind,'significance':priority,'session_id':state.session_id,'received':clock()}
@@ -202,7 +204,12 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             if priority=='critical' or event.kind in {'pause','stop'}:
                                 speech.safety('emergency_stop' if message.snapshot.details and message.snapshot.details.terminal_outcome=='safety_stop' else event.kind)
                                 speech.event_intelligence.decision(event.id,'deterministic_safety_notice')
-                            if event.kind in {'experience_changed','goal_changed'} and details.get('selection_source')=='media':
+                            ai_change=event.kind in {'experience_changed','goal_changed'} and details.get('selection_source')=='ai' or event.kind=='intensity_changed' and (state.report.get('details') or {}).get('intensity_source')=='ai'
+                            if ai_change:
+                                # AI Settings Control made this change; its settings card announces it, so the Director does not react as if the user chose it.
+                                speech.event_intelligence.decision(event.id,'context_only:ai_settings')
+                                director.observation(event.kind,details,'edgeloop_telemetry')
+                            elif event.kind in {'experience_changed','goal_changed'} and details.get('selection_source')=='media':
                                 # Loading or clearing a funscript switches the play style by itself. That is recorded,
                                 # but it is not the participant's selection, so the Director does not acknowledge it as one.
                                 speech.event_intelligence.decision(event.id,'context_only:media_initialization')
@@ -222,6 +229,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 'session_result':{k:final.get(k) for k in ('active_running_seconds','last_verified_running_ticks','edges','experience','goal','termination','completion_status','completion_source','completeness')},
                                 'evidence':'Session ended; use only the supplied counters and their completeness. Completion status is explicit user report or unknown, never inferred from measurements.'})
                         speech.process_derived()
+                        speech.settings_observe()
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
                             'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (closing or accepted_release or any(p['kind'] in {'came_early','completion_accepted'} for p in speech.pending) or speech.active_event_kind in {'came_early','completion_accepted'} and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
@@ -285,6 +293,9 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 publish({'type':'character_menu_error','detail':'Director settings could not be saved.'});continue
                             publish(speech.character_state() | {'director_saved':True})
                         else:publish(speech.character_state())
+                    elif isinstance(message,SettingsOutcome):
+                        # The browser's engine-side gate reporting what it did with a settings_request.
+                        speech.settings_outcome(message)
                     elif isinstance(message,Cancel):
                         # Interrupt output immediately, independently of telemetry/model discovery.
                         speech.pending.clear();speech.interrupt()
@@ -333,6 +344,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             if not adapter and (manager.mode in {'mock','stopped'} or message.model!=manager.config.model):
                                 publish({'type':'ai_error','detail':'Select an installed model before sending; no simulator reply substituted'});continue
                             speech.request(message.text,user=True)
+                            speech.settings.nudge(message.text)
             tasks=[asyncio.create_task(send()),asyncio.create_task(receive()),asyncio.create_task(process_ai())]
             done,_=await asyncio.wait(tasks,return_when=asyncio.FIRST_COMPLETED)
             for task in done:task.result()

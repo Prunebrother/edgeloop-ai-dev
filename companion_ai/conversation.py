@@ -13,13 +13,14 @@ from .narrative import NarrativeMemory, NarrativeConfig
 from .expressions import clean_dialogue
 from .reply_cleanup import CleanupConfig, ReplyCleaner, clean_reply
 from .player_events import PLAYER_EVENTS, PLAYER_BRIEFS, player_current
+from .settings_control import SettingsControl, CARD_KIND as SETTINGS_CARD, card_brief as settings_card_brief
 from .event_policy import SELECTION_EVENTS, REACTION_EVENTS
 from .models import SpeechPolicy, AIConfig, MemoryConfig
 from .diagnostics import Metrics
 from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, InferenceCompatibilityError, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
 from .context import compose_messages, ContextBudgetError
 from .context_compiler import ContextConfig,load_context_config
-from .fidelity import corrected_closing, violations, event_violations, card_language_violations, history_checked, history_records, GroundingError
+from .fidelity import corrected_closing, violations, event_violations, card_language_violations, history_checked, history_records, GroundingError, settings_claims_allowed
 from .director import ConversationDirector, DirectorConfig, silent_response
 from .event_deck import Arrival, DeckContext, DeckLifecycleError, DeckRegistry, DeckSettings, load_definition, load_model_settings
 from .session_history import compare, previous_session, outcome as session_outcome
@@ -179,6 +180,17 @@ class ModelManager:
                 text=await collect_reply(self.adapter,LLMRequest(config,(ChatMessage(role='system',content=INSTRUCTION),ChatMessage(role='user',content=content)),response_schema=Proposals.model_json_schema()))
             return text,dict(self.metrics.samples[-1]) if self.metrics.samples else {}
 
+    async def decide_settings(self,content,schema,timeout):
+        """AI Settings Control decision: the character's own persona, one JSON answer, no tools or retry."""
+        from .context_compiler import estimate
+        async with self.lifecycle_lock:
+            if self.mode!='ollama' or self.adapter is None:raise ValueError('No active Ollama character')
+            config=self.config.model_copy(update={'thinking':False,'explicit_expressions':False,'max_tokens':200})
+            native=(self.model_metadata or {}).get('system','')
+            if estimate(native+content)+config.max_tokens+160>config.context_length:raise ValueError('Settings decision exceeds context limit')
+            async with asyncio.timeout(timeout):
+                return await collect_reply(self.adapter,LLMRequest(config,(ChatMessage(role='user',content=content),),response_schema=schema))
+
     def status(self):
         return {"mode": self.mode, "config": self.config.model_dump(), 'load_state': self.load_state,
                 'context_warnings': self.context_warnings, 'runtime_error': self.metrics.last_error,
@@ -241,7 +253,7 @@ class ModelManager:
                     # A slow generation must not turn an expired/request-time fact into a live claim.
                     if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                     def check(text):
-                        return history_checked(violations(text,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),history_records(summary,(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',()))),summary.get('journal_context',()),told,card=bool(summary.get('deck_card')))+event_violations(text,summary.get('trigger_event'))+recall_violations(text,summary,self.context_diagnostics,native_system)+card_language_violations(text,summary),summary,text)
+                        return settings_claims_allowed(history_checked(violations(text,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),history_records(summary,(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',()))),summary.get('journal_context',()),told,card=bool(summary.get('deck_card')))+event_violations(text,summary.get('trigger_event'))+recall_violations(text,summary,self.context_diagnostics,native_system)+card_language_violations(text,summary),summary,text),summary)
                     problems=check(result)
                     self.grounding_attempts=1;self.grounding_corrections=problems
                     if problems:
@@ -352,6 +364,7 @@ class ConversationService:
         self.narrative = NarrativeMemory(getattr(self.adapter, "narrative_config", None), getattr(self.adapter, "store", None))
         from .memory_curator import MemoryCurator
         self.curator=MemoryCurator(store)
+        self.settings=SettingsControl(clock=clock);self.settings_cards=deque(maxlen=4)
         self.deck_settings=DeckSettings();self.deck_settings_error=None;self.deck_faults={};self.deck_definition=None;self.deck_registry=None
         self.deck_identity='generic';self.deck_closing_event=None;self.deck_hold_until=float('-inf');self.deck_open={};self.busy_from_user=False;self.deck_current=None
         self.arrival=None;self.arrival_delivered={}
@@ -841,6 +854,42 @@ class ConversationService:
         self.publish({'type':'narrative_reset','model':self.responder()['model'],'narrative_epoch':self.narrative.state['epoch']})
         self.publish(self.character_state())
 
+    def maybe_decide_settings(self):
+        """AI Settings Control: ask the character whether to request one change. Never while it is speaking."""
+        report=getattr(self.state,'report',None)
+        if self.closed or not report or self.state.emergency or self.task and not self.task.done():return
+        if not hasattr(self.adapter,'decide_settings') or getattr(self.adapter,'mode',None) in {'mock','stopped'}:return
+        if not getattr(self.state,'fresh',lambda:True)() or not self.settings.due(report):return
+        self.settings.task=asyncio.create_task(self.settings.run(self.adapter,report,self.responder().get('model'),self.publish))
+        self.tasks.add(self.settings.task);self.settings.task.add_done_callback(self.tasks.discard)
+
+    def settings_outcome(self,message):
+        self.settings.outcome(message)
+        self.settings_observe()
+
+    def settings_observe(self):
+        report=getattr(self.state,'report',None)
+        for entry in self.settings.confirmations(report):self.settings_cards.append(entry)
+
+    def pump_settings_card(self,now):
+        """Announce a confirmed AI change, in character. It reports the model's own action, so it plays even with
+        spontaneous commentary off; quiet requests, safety and an active turn still take precedence."""
+        report=getattr(self.state,'report',None)
+        while self.settings_cards and (not report or self.settings_cards[0]['request']['session_id']!=report['session_id'] or now-self.settings_cards[0]['sent_at']>120):
+            self.settings_cards.popleft()
+        if not self.settings_cards or self.director.memory['quiet_requested'] or now<self.deck_hold_until:return False
+        if self.task is not None and not self.task.done():return False
+        entry=self.settings_cards[0];request=entry['request']
+        event={'kind':SETTINGS_CARD,'at':now,'priority':40,'session_id':request['session_id'],'source_status':report['status'],
+               'observer_epoch':getattr(self.state,'connection_epoch',None),'event_id':request['id'],
+               'deck_card':{'lane':'normal','memory':'none','card_id':SETTINGS_CARD,'brief':settings_card_brief(entry),
+                   'settings_change':{'setting':request['setting'],'from':entry['outcome'].get('from'),'to':entry['outcome'].get('to'),'reason':request['reason']},
+                   'speaker':self.deck_identity if self.deck_identity!='generic' else None}}
+        prompt='Observed application event (not a user request): '+json.dumps({'kind':SETTINGS_CARD,'setting':request['setting'],'from':entry['outcome'].get('from'),'to':entry['outcome'].get('to')})
+        result=self.request(prompt,user=False,event=event)
+        if result['accepted']:self.settings_cards.popleft();self.director.last_reason='settings_card'
+        return result['accepted']
+
     def maybe_curate(self):
         if self.closed or self.pending or self.task and not self.task.done() or self.state.status!='IDLE':return
         deck=self.deck()
@@ -853,6 +902,7 @@ class ConversationService:
 
     def interrupt(self):
         self.curator.cancel()
+        if self.settings.task and not self.settings.task.done():self.settings.task.cancel()
         self.generation += 1
         if self.task and not self.task.done():
             self.task.cancel()
@@ -979,6 +1029,7 @@ class ConversationService:
             self.arrival_maintain(now)
         if deck and self.pump_deck_closing(deck,now):return
         if self.deck_error:return
+        if not self.closed and self.policy.enabled and not self.state.emergency and self.pump_settings_card(now):return
         if not self.director.config.spontaneous_enabled:
             self.director.deferred('proactive_disabled');return
         if self.closed or not self.policy.enabled or not self.policy.event_responses or self.state.emergency:
@@ -1087,6 +1138,8 @@ class ConversationService:
         if event and not event.get('narrative'):summary['trigger_event']={k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm'}}
         if event:summary['director_turn']={k:event.get(k) for k in ('kind','session_id','source_status','observer_epoch')} | {'session_id':event.get('session_id',getattr(self.state,'session_id',None)),'observer_epoch':event.get('observer_epoch',getattr(self.state,'connection_epoch',None))}
         summary['narrative_initiative']=bool(event and event.get('narrative'))
+        recent_changes=self.settings.recent(getattr(self.state,'session_id',None))
+        if recent_changes:summary['ai_settings_recent']=recent_changes[-3:]
         if card:summary['deck_card']=card
         if event and event.get('opportunity'):
             summary['director_opportunity']=event['opportunity']
@@ -1180,6 +1233,8 @@ class ConversationService:
         if event.get('sequence') is not None and event['sequence']>getattr(self.state,'sequence',event['sequence']):return False
         opportunity=summary.get('director_opportunity')
         if opportunity and (report['status'] not in {'RUNNING','RAMPDOWN'} or opportunity.get('session_id')!=getattr(self.state,'session_id',None) or self.director.memory['quiet_requested']):return False
+        if event.get('kind')==SETTINGS_CARD:
+            return event.get('session_id')==getattr(self.state,'session_id',None) and not self.director.memory['quiet_requested']
         if event.get('kind') in PLAYER_EVENTS:
             return (not event.get('session_id') or event['session_id']==self.state.session_id) and not self.director.memory['quiet_requested'] and self.director.config.spontaneous_enabled and player_current(event,report)
         if event and event.get('kind') not in {'completion_accepted','came_early','session_ended'} and report['status']=='IDLE' and not (event.get('kind') in SELECTION_EVENTS and event.get('source_status')=='IDLE'):return False
