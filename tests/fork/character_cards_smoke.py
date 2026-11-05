@@ -58,7 +58,7 @@ DIAGNOSTIC = {'nova': 'nova-borrowed-wonder', 'daisy': 'daisy-gate-debate',
 async def run(args):
     if os.environ.get('EDGELOOP_LIVE_ACCEPTANCE') != '1':
         raise RuntimeError('Set EDGELOOP_LIVE_ACCEPTANCE=1 for real local inference')
-    report = {'base': '78283d8', 'url': args.url, 'thinking': False,
+    report = {'base': 'e60708a', 'url': args.url, 'thinking': False,
               'hardware': 'none; synthetic Replay observations only', 'companions': [],
               'quality': 'Manual transcript review required; two samples are not a reliability estimate.'}
     output = Path(args.output)
@@ -66,7 +66,7 @@ async def run(args):
     previous_calls = 0
     if args.resume and output.exists():
         report = json.loads(output.read_text())
-        assert report['url'] == args.url and report['base'] == '78283d8'
+        assert report['url'] == args.url and report['base'] == 'e60708a'
         complete = []
         for row in report['companions']:
             expected = {c.id: c.brief for c in CARDS if c.audience == row['identity']}
