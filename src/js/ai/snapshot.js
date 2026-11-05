@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Read-only projection. Never import a controller or expose keys/hidden targets/history.
-const modes=['classic','finisher','milker','shortener','headplay','ultimate','ruin'];
+const modes=['classic','finisher','milker','shortener','headplay','ultimate','bratty','ruin','script'];
 const goals=['tease','survival','edgetrain','oracle','calibrate','nnn'];
 const integer=(n,min,max)=>{if(!Number.isFinite(n)||n<min||n>max)throw new Error('Invalid observation');return Math.round(n);};
 const optional=(n,min,max)=>Number.isFinite(n)&&n>=min&&n<=max?Math.round(n):null;

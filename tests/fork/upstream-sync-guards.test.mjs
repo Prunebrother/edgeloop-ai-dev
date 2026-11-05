@@ -67,3 +67,20 @@ test('the service worker never caches AI, observer or loopback traffic',()=>{
     assert.match(sw,/url\.origin !== self\.location\.origin && \['127\.0\.0\.1','localhost','\[::1\]'\]\.includes\(url\.hostname\)\) return;/);
     assert.match(sw,/pathname\.startsWith\('\/Character_Art\/'\)\) return;/);
 });
+
+test('Bratty Tease and script mode project with experience-change events instead of failing closed',async()=>{
+    const {Capture}=await import('../../src/js/ai/snapshot.js');
+    const devices={simulated_hr:true,hr_ready:true,toy_ready:true,ble:false,handy:true,intiface:false,tcode:false,vacuglide:false};
+    const s={sessionStatus:'RUNNING',sessionSeconds:30,teaseMode:'classic',activeMode:'classic',gameMode:null,sensorHr:90,effectiveMaxHr:140,
+        edgeTriggerHr:133,lastHrTimestamp:1,edges:0,intensityValue:50,strokerSpeed:20,prostateSpeed:10,strokeMin:0,strokeMax:100,
+        simEngaged:true,hrSignalState:'ok',hrNoContact:false,hrSignalPaused:false};
+    const c=new Capture();c.project(s,devices);
+    for(const mode of ['bratty','script']){
+        Object.assign(s,{teaseMode:mode,activeMode:mode});
+        const {snapshot,events}=c.project(s,devices);
+        assert.equal(snapshot.experience,mode);assert.equal(snapshot.active_mode,mode);
+        assert.deepEqual(events.map(e=>e.kind),['experience_changed']);
+    }
+    Object.assign(s,{teaseMode:'unknown-upstream-style',activeMode:'unknown-upstream-style'});
+    assert.throws(()=>c.project(s,devices),/Unknown upstream state/);
+});

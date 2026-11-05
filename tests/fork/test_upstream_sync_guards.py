@@ -31,10 +31,14 @@ GAMES = js_list(ENGINE, 'export const GAME_MODES')
 def test_snapshot_and_protocol_accept_every_engine_play_style():
     # A play style the observer does not know makes the projection fail closed,
     # which silently blinds the companion for that session.
-    assert sorted(js_list(SNAPSHOT, 'const modes')) == sorted(TEASE)
-    assert sorted(literal(protocol.Mode)) == sorted(TEASE)
+    # 'script' is set by the video player (applyModeSelection('script')) and is
+    # not part of TEASE_MODES; observe it whenever the engine can select it.
+    app = (ROOT / 'src/js/app.js').read_text()
+    styles = set(TEASE) | ({'script'} if "applyModeSelection('script')" in app else set())
+    assert sorted(js_list(SNAPSHOT, 'const modes')) == sorted(styles)
+    assert sorted(literal(protocol.Mode)) == sorted(styles)
     active = literal(protocol.Snapshot.model_fields['active_mode'].annotation)
-    assert set(TEASE) | set(GAMES) <= set(active)
+    assert styles | set(GAMES) <= set(active)
 
 
 def test_snapshot_and_protocol_accept_every_engine_goal():
@@ -77,3 +81,11 @@ def test_local_server_exposes_no_agent_relay_or_worker_paths(tmp_path):
     for raw in ['/api/agent/abcdefghijklmnopqrstuv', '/api/agent', '/api/room/peer', '/worker/index.js',
                 '/tools/edgeloop_openwebui.py', '/wrangler.jsonc', '/app/host.mjs', '/ai_observer/server.py']:
         assert public_file(raw) is None, raw
+
+
+def test_director_has_a_display_name_for_every_observable_mode_and_goal():
+    from companion_ai.grounding import MODE_NAMES
+    active = literal(protocol.Snapshot.model_fields['active_mode'].annotation)
+    for value in set(literal(protocol.Mode)) | set(literal(protocol.Goal)) | set(active):
+        assert MODE_NAMES.get(value), value
+    assert MODE_NAMES['bratty'] == 'Bratty Tease' and MODE_NAMES['nnn'] == 'No Nut November'

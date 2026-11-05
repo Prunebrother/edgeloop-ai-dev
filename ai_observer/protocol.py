@@ -7,7 +7,7 @@ from companion_ai.memory_curator import CuratorConfig
 from companion_ai.models import StrictModel, ModelSelection
 
 Identifier = Annotated[str, Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')]
-Mode = Literal['classic','finisher','milker','shortener','headplay','ultimate','ruin']
+Mode = Literal['classic','finisher','milker','shortener','headplay','ultimate','bratty','ruin','script']
 Goal = Literal['tease','survival','edgetrain','oracle','calibrate','nnn']
 
 class Auth(StrictModel):
@@ -71,7 +71,7 @@ class Snapshot(StrictModel):
     status: Literal['IDLE','RUNNING','PAUSED','RAMPDOWN']
     seconds: int = Field(ge=0,le=31536000)
     experience: Mode
-    active_mode: Literal['classic','finisher','milker','shortener','headplay','ultimate','ruin','survival','oracle','edgetrain','calibrate']
+    active_mode: Literal['classic','finisher','milker','shortener','headplay','ultimate','bratty','ruin','script','survival','oracle','edgetrain','calibrate']
     goal: Goal
     hr: int | None = Field(ge=35,le=250)
     effective_max: int = Field(ge=30,le=400)

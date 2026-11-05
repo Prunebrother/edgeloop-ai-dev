@@ -89,6 +89,16 @@ try {
         assert(await engine(new Function('return state=>state.teaseMode')())===mode,'Engine did not take play style '+mode);
         await observed(s=>s.experience===mode,'Observer did not receive play style '+mode);
     }
+    // Video/script mode: upstream's own fixture clip + funscript, followed by the engine.
+    await page.locator('#playerFileInput').setInputFiles([path.join(root,'tools/fixtures/smoke-clip.webm'),path.join(root,'tools/fixtures/smoke-clip.funscript')]);
+    await page.waitForFunction(()=>!document.getElementById('playerFollowRow')?.classList.contains('hidden'),null,{timeout:8000})
+        .catch(()=>{throw new Error('Player did not offer Follow the script for the fixture clip');});
+    await page.locator('#playerFollowScript').evaluate(el=>{el.checked=true;el.dispatchEvent(new Event('change',{bubbles:true}));});
+    assert(await engine(new Function('return state=>state.teaseMode')())==='script','Engine did not enter script mode');
+    await observed(s=>s.experience==='script'&&s.active_mode==='script','Observer did not receive script mode');
+    await page.locator('#playerFollowScript').evaluate(el=>{el.checked=false;el.dispatchEvent(new Event('change',{bubbles:true}));});
+    await observed(s=>s.experience!=='script','Observer did not leave script mode');
+    styles.push('script');
     await page.locator('[data-mode="classic"]').first().evaluate(el=>el.click());
     report.steps.push('Observed play styles: '+styles.join(', ')+' (engine: '+engineStyles.join(', ')+')');
 
