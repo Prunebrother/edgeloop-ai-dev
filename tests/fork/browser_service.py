@@ -7,6 +7,7 @@ import re
 import tempfile
 import httpx
 import uvicorn
+from fastapi import Request
 from ai_observer.server import create_app
 
 UI_PORT=int(os.getenv('EDGELOOP_FIXTURE_UI_PORT','8770'))
@@ -30,6 +31,11 @@ SELECTION_LINES=['Got it, that choice is set.','Understood, the new setting is i
     'There we are, the update is in.','Alright, that is what we will do.','Sounds good, the selection stands.','Very well, I have adjusted with you.']
 SELECTION_REPLIES=[]
 PLAYER_REQUESTS=[]
+# AI Settings Control: queued model decisions, and what the observer asked and announced.
+SETTINGS_PROPOSALS=[]
+SETTINGS_DECISIONS=[]
+SETTINGS_CARDS=[]
+SETTINGS_REPLIES=[]
 
 async def runtime(request):
     global last_thinking
@@ -41,6 +47,19 @@ async def runtime(request):
     last_thinking=body.get('think')
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
     current=body['messages'][-1]['content']
+    if 'deciding, in character, whether to change one EdgeLoop session setting' in current:
+        SETTINGS_DECISIONS.append({'content':current,'format':body.get('format') is not None})
+        proposal=SETTINGS_PROPOSALS.pop(0) if SETTINGS_PROPOSALS else {'change':'none'}
+        return httpx.Response(200,text=json.dumps({'message':{'content':json.dumps(proposal)},'done':True,'done_reason':'stop'})+'\n')
+    context_all='\n'.join(m['content'] for m in body['messages'])
+    if 'AI SETTINGS CONTROL' in context_all and 'USER MESSAGE (request, not session data)' in context_all:
+        applied='in answer to this message (verified by EdgeLoop)' in context_all
+        SETTINGS_REPLIES.append({'applied':applied,'content':context_all})
+        line='Done. I changed it for you, just as you asked.' if applied else 'I tried, but EdgeLoop kept things as they are for now.'
+        return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:playful]]'+line},'done':True,'done_reason':'stop'})+'\n')
+    if 'Announce your own setting change' in context_all:
+        SETTINGS_CARDS.append({'content':context_all,'retry':'Your last attempt needs another try' in current})
+        return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:mischievous]]I changed that myself, because you were getting far too comfortable.'},'done':True,'done_reason':'stop'})+'\n')
     if 'Verified Player interaction:' in current:
         kind=re.search(r'Verified Player interaction: (\w+)',current)[1]
         PLAYER_REQUESTS.append({'kind':kind,'messages':body['messages'],'model':body['model'],'retry':'Your last attempt needs another try' in current})
@@ -86,7 +105,19 @@ async def event_policy(mode: str):
     app.state.speech.last_event=float('-inf');app.state.speech.busy_until=0
     return {'mode':mode}
 
+@app.post('/fixture/settings-proposal')
+async def settings_proposal(request: Request):
+    SETTINGS_PROPOSALS.append(await request.json())
+    # Decide on the next maintenance tick instead of waiting out the cadence.
+    app.state.speech.settings.last_decision=-1e9
+    return {'queued':len(SETTINGS_PROPOSALS)}
+
+@app.delete('/fixture/settings-proposals')
+async def clear_settings_proposals():
+    SETTINGS_PROPOSALS.clear();return {'queued':0}
+
 @app.get('/fixture/state')
 async def observed():
-    return {'state':app.state.observation.report,'director':dict(app.state.director.counts),'read_only':app.state.models.tool_executor is None,'thinking':app.state.models.config.thinking,'last_thinking':last_thinking,'player_requests':PLAYER_REQUESTS,'selection_replies':SELECTION_REPLIES}
+    return {'state':app.state.observation.report,'director':dict(app.state.director.counts),'read_only':app.state.models.tool_executor is None,'thinking':app.state.models.config.thinking,'last_thinking':last_thinking,'player_requests':PLAYER_REQUESTS,'selection_replies':SELECTION_REPLIES,
+            'settings_decisions':len(SETTINGS_DECISIONS),'settings_formatted':all(d['format'] for d in SETTINGS_DECISIONS),'settings_cards':SETTINGS_CARDS,'settings_replies':SETTINGS_REPLIES,'settings_proposals_left':len(SETTINGS_PROPOSALS)}
 if __name__=='__main__':uvicorn.run(app,host='127.0.0.1',port=OBSERVER_PORT,access_log=False,ws_max_size=16384)

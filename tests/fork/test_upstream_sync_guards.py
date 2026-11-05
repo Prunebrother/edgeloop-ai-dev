@@ -68,8 +68,20 @@ def test_observer_protocol_is_closed_and_has_no_engine_commands():
     assert types == {'observation', 'select_model', 'chat', 'list_models', 'cancel_generation',
                      'reset_narrative', 'get_character_state', 'configure_director', 'configure_events',
                      'conversation_activity', 'configure_context', 'update_objective', 'session_journal',
-                     'configure_curator'}
+                     'configure_curator','settings_outcome'}
     assert not types & COMMANDS
+
+
+def test_ai_settings_requests_use_their_own_bounded_vocabulary():
+    """AI Settings Control (docs/fork/dev/AI_SETTINGS_CONTROL.md): the observer may only *request* one of these,
+    and the browser's engine-side gate decides. No engine command name is ever sent."""
+    from companion_ai.settings_control import SETTINGS, Proposal
+    assert set(SETTINGS)=={'play_style','game','endgame','orgasm','intensity','pause','stop'}
+    assert not set(SETTINGS) & COMMANDS
+    assert set(Proposal.model_json_schema()['properties']['change']['enum'])==set(SETTINGS)|{'none'}
+    source=(ROOT/'companion_ai/settings_control.py').read_text()
+    assert not any(command in source for command in COMMANDS)
+    assert "'type':'settings_request'" in source
 
 
 def test_observer_server_never_emits_engine_commands():

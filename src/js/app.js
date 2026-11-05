@@ -187,6 +187,8 @@ import { offsetFor, rememberOffset, readOffsets, climaxMarksFor, rememberClimaxM
 import { rhythmAt, hampTarget } from './player/script-rhythm.js';
 import { posAt } from './player/script-track.js';
 import { effectiveInvert } from './player/script-shaper.js';
+import { createAiSettingsControl, AI_SETTINGS_STORAGE_KEY } from './ai-settings/control.js';
+import { withAiSettingsPanel } from './ai-settings/panel.js';
 
 // Load persisted settings. The old 15/85 default envelope is migrated to
 // 0/100 exactly once (flagged), so a user who deliberately types 15/85 later
@@ -2488,8 +2490,10 @@ playPauseBtn?.addEventListener('click', async () => {
                 return;
             }
         }
+        const fromIdle = state.sessionStatus === 'IDLE';
         const started = startOrResumeSession();
         if (!started && handyHsp?.owns()) releaseHandyHsp();
+        if (started && fromIdle) aiSettingsControl?.newSession();
     } else if (state.sessionStatus === 'RUNNING' || state.sessionStatus === 'RAMPDOWN') {
         pauseSession('Paused.', pendingPauseReason || 'button');
         pendingPauseReason = '';
@@ -2508,6 +2512,7 @@ stopBtn?.addEventListener('click', () => {
     const safetyStop = stopBtn.dataset.safetyStop === 'true';
     delete stopBtn.dataset.safetyStop;
     stopSession(safetyStop ? "Emergency Stop" : "Stopped");
+    if (safetyStop) aiSettingsControl?.revoke();
 });
 
 document.getElementById('edgedBtn')?.addEventListener('click', () => {
@@ -6200,6 +6205,54 @@ function renderRemoteHostSettings(data) {
     if (holdInput && data.edgeHoldPercent !== undefined) holdInput.value = data.edgeHoldPercent;
 }
 
+// AI Settings Control (docs/fork/dev/AI_SETTINGS_CONTROL.md). Off by default.
+// The gate in ./ai-settings decides; an accepted change goes through the same
+// handler as the on-page control, then is read back from state.
+function aiSettingsContext() {
+    const readiness = hardwareReadiness();
+    const signal = !readiness.hrReady ? 'missing' : state.simEngaged ? 'ok'
+        : state.hrNoContact ? 'no_contact' : (state.hrSignalState || 'ok');
+    return {
+        status: state.sessionStatus, signal, toyReady: readiness.toyReady,
+        current: { play_style: state.teaseMode, game: state.gameMode || 'off', endgame: state.endgameType || 'orgasm',
+            orgasm: Boolean(state.orgasmMode), intensity: state.intensityValue }
+    };
+}
+function applyAiSettingsChange(change) {
+    if (change.setting === 'play_style') applyModeSelection(change.to);
+    else if (change.setting === 'game') applyModeSelection(change.to === 'off' ? 'goal-off' : change.to, true);
+    else if (change.setting === 'endgame') {
+        state.endgameType = change.to;
+        highlightEndgameCard(state.endgameType);
+        persistSessionLimits(true);
+        renderModeDetail();
+    } else if (change.setting === 'orgasm') {
+        if (Boolean(state.orgasmMode) !== change.to) orgasmBtn?.click();
+        return;
+    } else if (change.setting === 'intensity') {
+        if (!intensitySlider) return;
+        intensitySlider.value = String(change.to);
+        intensitySlider.dispatchEvent(new Event('input'));
+        return;
+    } else if (change.setting === 'pause') {
+        pendingPauseReason = 'ai';
+        playPauseBtn?.click();
+        pendingPauseReason = '';
+        return;
+    } else if (change.setting === 'stop') {
+        stopBtn?.click();
+        return;
+    }
+    syncTelemetry();
+    updateEngine();
+}
+const aiSettingsControl = isRemotePage ? null : createAiSettingsControl({
+    load: () => safeParse(AI_SETTINGS_STORAGE_KEY, null),
+    save: (value) => safeSet(AI_SETTINGS_STORAGE_KEY, value),
+    context: aiSettingsContext,
+    apply: applyAiSettingsChange
+});
+
 function syncAiObservation(readiness = null, terminalOutcome = null) {
     if (isRemotePage) return;
     // Optional observation only; failure never changes the original control path.
@@ -6216,7 +6269,9 @@ function syncAiObservation(readiness = null, terminalOutcome = null) {
             dual_max_bpm: Number.isFinite(dual) && dual > limits.minHr && dual <= 250 ? dual : null,
             warmup_minutes: advancedSettings.warmupMinutes, hr_live: pulseIsLive(),
             completion_reported: Boolean(state.completionReported),
-            learning_release_count: advancedSettings.learningProfile?.breakthroughEvents ?? 0, terminal_outcome: terminalOutcome });
+            learning_release_count: advancedSettings.learningProfile?.breakthroughEvents ?? 0, terminal_outcome: terminalOutcome,
+            endgame: state.endgameType || 'orgasm', orgasm_mode: Boolean(state.orgasmMode),
+            ai_settings: aiSettingsControl?.snapshot() ?? null });
     } catch { /* AI is optional; the original session continues independently. */ }
 }
 
@@ -6790,6 +6845,6 @@ if (!isRemotePage) maybeShowFirstRunWizard();
 // F2 extension is loaded independently; backend absence cannot block app boot.
 var aiObservation = null;
 if (!isRemotePage) import('./ai/companion.js').then(({ mountCompanion }) => {
-    aiObservation = mountCompanion({refreshObservation: syncAiObservation});
+    aiObservation = mountCompanion({refreshObservation: syncAiObservation, settingsControl: withAiSettingsPanel(aiSettingsControl)});
     syncTelemetry();
 }).catch((error) => console.warn('AI companion unavailable; the session runs without it.', error));

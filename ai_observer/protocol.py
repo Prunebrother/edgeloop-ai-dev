@@ -43,6 +43,16 @@ class Movement(StrictModel):
         if self.stroke_min>self.stroke_max: raise ValueError('Invalid stroke observation')
         return self
 
+class AiSettingsFacts(StrictModel):
+    enabled: bool
+    revoked: bool
+    applied: int = Field(ge=0,le=1000000)
+    last_id: str | None = Field(default=None,max_length=64)
+    last_setting: str | None = Field(default=None,max_length=32)
+    pacing: Literal['never','rarely','sometimes','often'] = 'sometimes'
+    # The engine-side gate's own answer: may the companion change something unprompted right now?
+    own_ready: bool = False
+
 class ProjectionDetails(StrictModel):
     player: PlayerFacts | None = None
     captured_at_ms: int = Field(ge=0,le=9007199254740991)
@@ -52,9 +62,14 @@ class ProjectionDetails(StrictModel):
     single_max_bpm: int | None = Field(ge=30,le=250)
     dual_max_bpm: int | None = Field(ge=30,le=250)
     pauses: int | None = Field(ge=0,le=1000000)
-    pause_reason: Literal['user','edged','relube','player','remote','hr_signal','device'] | None = None
+    pause_reason: Literal['user','edged','relube','player','remote','hr_signal','device','ai'] | None = None
     # What made the last play-style/goal transition: the participant's selection, or the player loading/clearing a funscript.
-    selection_source: Literal['selection','media'] = 'selection'
+    # 'ai' marks a change applied by AI Settings Control.
+    selection_source: Literal['selection','media','ai'] = 'selection'
+    intensity_source: Literal['user','ai'] = 'user'
+    endgame: Literal['orgasm','rampdown','denial'] | None = None
+    orgasm_mode: bool | None = None
+    ai_settings: AiSettingsFacts | None = None
     calibration_pass: Literal['none','primary','dual']
     warmup_active: bool | None
     warmup_remaining_seconds: int | None = Field(ge=0,le=86400)
@@ -189,6 +204,22 @@ class ConversationActivity(StrictModel):
     model: str = Field(min_length=1,max_length=120)
     typing: bool
 
+SettingValue = Annotated[str,Field(max_length=32)] | int | bool | None
+
+class SettingsOutcome(StrictModel):
+    """The engine-side gate's answer to a settings_request. It reports; it never commands."""
+    version: Literal[1]
+    type: Literal['settings_outcome']
+    id: str | None = Field(min_length=1,max_length=64)
+    status: Literal['applied','rejected','pending']
+    reason: str | None = Field(default=None,max_length=240)
+    setting: str | None = Field(default=None,max_length=32)
+    from_: SettingValue = Field(default=None,alias='from')
+    to: SettingValue = None
+    clamped: bool | None = None
+    undoable: bool | None = None
+    trigger: Literal['own','user'] | None = None
+
 class ConfigureCurator(StrictModel):
     version: Literal[1]
     type: Literal['configure_curator']
@@ -213,7 +244,7 @@ class JournalCommand(StrictModel):
             raise ValueError('Privacy settings require configure')
         return self
 
-Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext|UpdateObjective|JournalCommand|ConfigureCurator,Field(discriminator='type')])
+Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext|UpdateObjective|JournalCommand|ConfigureCurator|SettingsOutcome,Field(discriminator='type')])
 
 
 def _schema_paths(node):

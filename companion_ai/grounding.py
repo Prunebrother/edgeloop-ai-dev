@@ -65,7 +65,8 @@ MODE_NAMES={'classic':'Simple Ramp','finisher':'Finisher','milker':'Prostate Mil
 
 PAUSE_REASON_NAMES={'user':'Pause button','edged':'Edged button: the user marked an edge (not counted as a pause)',
     'relube':'Relube break requested by the user (not counted as a pause)','player':'video player paused or stalled',
-    'remote':'remote controller','hr_signal':'heart-rate signal safety pause','device':'device safety pause'}
+    'remote':'remote controller','hr_signal':'heart-rate signal safety pause','device':'device safety pause',
+    'ai':'paused by the companion through AI Settings Control'}
 
 def render_facts(value, *, include_timing=True, include_events=True, include_boundaries=True):
     data=value if isinstance(value,SessionFacts) else SessionFacts.model_validate(value)

@@ -21,7 +21,7 @@ Inference runs locally. A CPU can run the models slowly; compatible NVIDIA hardw
 
 ## What it does
 
-The browser engine controls biofeedback sessions and hardware. The AI receives read-only observations, provides local dialogue and uses a bounded Conversation Director. It cannot send device commands. Story Memory is isolated by character/model. Session Journal recording and historical AI access require separate opt-ins. Experimental Director initiative is off by default. Use the [simulation-first instructions](INSTALL.md) before considering hardware.
+The browser engine controls biofeedback sessions and hardware. The AI receives read-only observations, provides local dialogue and uses a bounded Conversation Director. It cannot send device commands. Optional AI Settings Control (off by default) lets a companion request a small set of session-setting changes through a local engine gate; see [SAFETY.md](SAFETY.md). Story Memory is isolated by character/model. Session Journal recording and historical AI access require separate opt-ins. Experimental Director initiative is off by default. Use the [simulation-first instructions](INSTALL.md) before considering hardware.
 
 No automatic session upload is added. Browser libraries are served locally. Optional peer signaling, device cloud APIs and external links can still use the network; see [privacy](PRIVACY.md), [safety](SAFETY.md) and [known issues](KNOWN_ISSUES.md).
 

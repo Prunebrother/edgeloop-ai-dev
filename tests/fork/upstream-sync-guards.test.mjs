@@ -46,10 +46,10 @@ test('the AI layer presses only the user-clicked emergency stop and the close-on
     assert.match(layout,/\[data-close-player\]'\)\.addEventListener\('click',\(\)=>\{if\(body\.dataset\.player==='on'\)toggle\.click\(\);\}\);/);
 });
 
-test('the engine mounts the companion with a refresh callback only and keeps its own stop authority',()=>{
+test('the engine mounts the companion with a refresh callback and the AI Settings gate only, and keeps its own stop authority',()=>{
     const app=read('src/js/app.js');
-    const mounts=[...app.matchAll(/mountCompanion\(([^)]*)\)/g)].map(m=>m[1].trim());
-    assert.deepEqual(mounts,['{refreshObservation: syncAiObservation}']);
+    const mounts=[...app.matchAll(/mountCompanion\((\{[^}]*\})\)/g)].map(m=>m[1].trim());
+    assert.deepEqual(mounts,['{refreshObservation: syncAiObservation, settingsControl: withAiSettingsPanel(aiSettingsControl)}']);
     // The AI observation is wrapped so a failing projection can never alter the control path.
     assert.match(app,/function syncAiObservation[\s\S]*?try \{[\s\S]*?\} catch \{ \/\* AI is optional/);
     // Emergency stop is an ordinary engine stop with a distinct outcome label.
@@ -145,4 +145,43 @@ test('the player hook only labels the change: it runs before upstream applies th
     assert.match(app,/state\.mediaSelection = \{ experience: 'script', goal: 'tease' \};\n\s*applyModeSelection\('script'\);/);
     assert.match(app,/state\.mediaSelection = \{ experience: restored, goal: state\.gameMode \|\| 'tease' \};\n\s*applyModeSelection\(restored\);/);
     assert.equal([...app.matchAll(/mediaSelection/g)].length,2);
+});
+
+// AI Settings Control (docs/fork/dev/AI_SETTINGS_CONTROL.md): replaces the old "AI is strictly read-only" guard
+// with the approved boundary. The AI layer forwards a request; the engine-side gate decides.
+const settingsFiles=readdirSync(path.join(root,'src/js/ai-settings')).filter(f=>f.endsWith('.js')&&!f.endsWith('.test.js')).map(f=>'src/js/ai-settings/'+f);
+
+test('the AI layer forwards settings requests only to the engine-side gate it was handed',()=>{
+    const companion=read('src/js/ai/companion.js');
+    assert.deepEqual([...new Set([...companion.matchAll(/settingsControl\??\.(\w+)/g)].map(m=>m[1]))].sort(),['chip','mountPanel','request','settings','subscribe']);
+    assert.match(companion,/settingsControl\?\.mountPanel\?\.\(settingsSlot\)/);
+    assert.match(read('src/js/ai/connection.js'),/'settings_request'\]\.includes\(m\.type\)\)this\.onMessage\(m\)/);
+});
+
+test('AI Settings modules import only the gate, the engine mode lists and session rules',()=>{
+    for(const file of settingsFiles){
+        const specifiers=[...read(file).matchAll(/import\s[^;]*?from\s*'([^']+)'/g)].map(m=>m[1]);
+        for(const spec of specifiers)assert.ok(['./gate.js','./control.js','../engine.js','../session-rules.js'].includes(spec),`${file} imports ${spec}`);
+        assert.ok(!/dispatchHardware|sendPeerCommand|navigator\.(bluetooth|serial|usb|hid)|fetch\(|WebSocket|localStorage/.test(read(file)),`${file} reaches hardware, network or storage`);
+    }
+});
+
+test('the engine applies an AI change only through the on-page control handlers',()=>{
+    const app=read('src/js/app.js');
+    const start=app.indexOf('function applyAiSettingsChange(');
+    const body=app.slice(start,app.indexOf('\n}\n',start));
+    for(const forbidden of [/dispatchHardware/,/maxHr|minHr|dualMaxHr|edgeTriggerHr|effectiveMaxHr/,/speedSlowest|speedFastest|strokeMin|strokeMax/,
+        /startOrResumeSession|resetBtn|sessionStatus\s*=/,/handy|intiface|tcode|vacuglide/i,/chosenTargetSeconds|duration/i])
+        assert.ok(!forbidden.test(body),`applyAiSettingsChange matches ${forbidden}`);
+    assert.match(body,/applyModeSelection\(change\.to\)/);
+    assert.match(body,/pendingPauseReason = 'ai';\s*playPauseBtn\?\.click\(\);/);
+    // Emergency stop revokes; only a user-started session clears it.
+    assert.match(app,/stopSession\(safetyStop \? "Emergency Stop" : "Stopped"\);\s*if \(safetyStop\) aiSettingsControl\?\.revoke\(\);/);
+    assert.equal([...app.matchAll(/aiSettingsControl\?\.newSession\(\)/g)].length,1);
+    assert.match(app,/if \(started && fromIdle\) aiSettingsControl\?\.newSession\(\);/);
+});
+
+test('AI Settings Control is off by default',async()=>{
+    const {AI_SETTINGS_DEFAULTS}=await import('../../src/js/ai-settings/gate.js');
+    assert.equal(AI_SETTINGS_DEFAULTS.enabled,false);
 });

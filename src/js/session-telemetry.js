@@ -37,7 +37,9 @@ export const PAUSE_REASONS = Object.freeze([
     'handy', 'handy-stop',
     'vacuglide', 'intiface', 'tcode',
     'video', 'beat-sync', 'edged',
-    'device'
+    'device',
+    // AI Settings Control (fork): the companion paused through the engine-side gate.
+    'ai'
 ]);
 
 const PAUSE_SOURCE = Object.freeze({

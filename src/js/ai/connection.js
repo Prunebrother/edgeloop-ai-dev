@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-// Client sends observations/chat only. Server replies never dispatch controls.
+// Client sends observations/chat and AI Settings outcomes. Server replies never dispatch controls:
+// a settings_request is handed, unparsed, to the engine-side gate passed in by app.js.
 export class ReadOnlyConnection {
     constructor({WebSocketImpl=globalThis.WebSocket,uuid=()=>crypto.randomUUID(),now=()=>Date.now(),
         schedule=(fn,ms)=>setTimeout(fn,ms),cancel=id=>clearTimeout(id),onMessage=()=>{},onStatus=()=>{}}={}) {
@@ -24,12 +25,12 @@ export class ReadOnlyConnection {
             let m;try{m=JSON.parse(e.data);}catch{return;}
             if(m.type==='ready'&&m.version===1&&m.read_only===true) {
                 this.epoch=m.epoch;this.retry=0;this.pendingEvents.clear();this.lastSent=-Infinity;
-                this.onStatus('Connected · read-only · no AI controls');this.flush();
+                this.onStatus('Connected · session controls stay with EdgeLoop');this.flush();
                 this.send({version:1,type:'list_models'});
             } else if(['ai_diagnostics','response_expression','models','model_selected','response_start','response_delta','speech','speech_cancel','conversation_error',
-                'session_journal','character_state','character_menu_error','narrative_reset','response_suppressed','response_cancel','observation_ack','telemetry_status','ai_error','protocol_error'].includes(m.type))this.onMessage(m);
+                'session_journal','character_state','character_menu_error','narrative_reset','response_suppressed','response_cancel','observation_ack','telemetry_status','ai_error','protocol_error','settings_request'].includes(m.type))this.onMessage(m);
             else if(m.type==='resync_required')socket.close();
-            // Unrecognized output, including command/action objects, is ignored.
+            // Unrecognized output, including engine command objects, is ignored.
         };
         socket.onerror=()=>this.onStatus('AI unavailable; EdgeLoop continues');
         socket.onclose=e=>{
