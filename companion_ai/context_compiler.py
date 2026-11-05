@@ -300,6 +300,7 @@ class ContextCompiler:
         safety_relevant=data.current and (safety.get('watchdog_paused') or safety.get('no_contact') or safety.get('fault') in {'signal_lost','no_contact'} or event and event.get('significance')=='critical')
         operational=bool(requested&{'physiology','configuration','timing','devices','milestones'} or safety_relevant)
         selected={'status'}
+        if data.facts.get('pause_reason') is not None and data.facts['pause_reason'].known:selected|={'pause_reason'}
         if requested&{'physiology','devices'} or safety_relevant:selected|={'hr_source'}
         if 'devices' in requested or safety_relevant:selected|={'physical_motion','toy_ready','handy','ble','intiface','tcode','vacuglide'}
         if 'physiology' in requested or safety_relevant:selected|={'hr','trend','resting_bpm'}

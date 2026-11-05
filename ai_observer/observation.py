@@ -209,6 +209,7 @@ class BrowserObservation:
                   'goal':'state.gameMode or tease','intensity':'50 + state.intensityValue','edges':'state.edges'}
         for name,unit,kind in [('effective_max','BPM','derived'),('pullback','BPM','derived'),('status',None,'status'),('seconds','seconds','status'),('experience',None,'setting'),('active_mode',None,'status'),('goal',None,'setting'),('intensity','percent','setting'),('edges','count','status')]:add(name,r.get(name),kind,upstream[name],unit)
         add('pauses',d.get('pauses'),'status','state.pauses','count')
+        add('pause_reason',d.get('pause_reason'),'status','state.pauseReason while PAUSED (engine pause source category)',reason='not paused or unknown source')
         add('trend',self.trend if self.trend!='unknown' else None,'derived','4+ distinct HR samples, span >=3 seconds, monotonic direction; 15-second window',reason='mixed samples; no consistent direction' if len(valid_samples)>=4 and span>=3 else 'insufficient timestamped sample evidence')
         for name,key in [('primary','strokerSpeed'),('secondary','prostateSpeed')]:add(name,(r.get('movement') or {}).get(name),'engine_value','state.'+key+'; NOT hardware readback','percent')
         add('physical_motion',None,'measurement','not collected; no hardware feedback available')

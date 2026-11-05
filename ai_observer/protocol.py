@@ -50,6 +50,7 @@ class ProjectionDetails(StrictModel):
     single_max_bpm: int | None = Field(ge=30,le=250)
     dual_max_bpm: int | None = Field(ge=30,le=250)
     pauses: int | None = Field(ge=0,le=1000000)
+    pause_reason: Literal['user','edged','relube','player','remote','hr_signal','device'] | None = None
     calibration_pass: Literal['none','primary','dual']
     warmup_active: bool | None
     warmup_remaining_seconds: int | None = Field(ge=0,le=86400)

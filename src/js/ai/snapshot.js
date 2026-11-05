@@ -4,6 +4,9 @@ const modes=['classic','finisher','milker','shortener','headplay','ultimate','br
 const goals=['tease','survival','edgetrain','oracle','calibrate','nnn'];
 const integer=(n,min,max)=>{if(!Number.isFinite(n)||n<min||n>max)throw new Error('Invalid observation');return Math.round(n);};
 const optional=(n,min,max)=>Number.isFinite(n)&&n>=min&&n<=max?Math.round(n):null;
+// Bounded categories for the engine's state.pauseReason (upstream PAUSE_REASONS); unknown sources stay null.
+const pauseReasons={button:'user',edged:'edged',relube:'relube',player:'player',video:'player','beat-sync':'player',remote:'remote',
+    'hr-signal':'hr_signal','hr-link':'hr_signal',handy:'device','handy-stop':'device',vacuglide:'device',intiface:'device',tcode:'device',device:'device'};
 export class Capture {
     constructor({uuid=()=>crypto.randomUUID(),now=()=>Date.now()}={}) {
         this.uuid=uuid;this.now=now;this.sessionId=uuid();this.previous=null;this.samples=[];
@@ -55,7 +58,8 @@ export class Capture {
             details:{captured_at_ms:Math.round(now),hr_recorded_at_ms:hr===null?null:this.verifiedReading,
                 hr_live:typeof settings.hr_live==='boolean'?settings.hr_live:null,
                 resting_bpm:optional(settings.resting_bpm,30,250),single_max_bpm:optional(settings.single_max_bpm,30,250),dual_max_bpm:optional(settings.dual_max_bpm,30,250),
-                pauses:optional(state.pauses,0,1000000),calibration_pass:['primary','dual'].includes(state.calibrationPass)?state.calibrationPass:'none',
+                pauses:optional(state.pauses,0,1000000),
+                pause_reason:state.sessionStatus==='PAUSED'&&Object.hasOwn(pauseReasons,state.pauseReason)?pauseReasons[state.pauseReason]:null,calibration_pass:['primary','dual'].includes(state.calibrationPass)?state.calibrationPass:'none',
                 warmup_active:warmupActive,warmup_remaining_seconds:warmupActive?Math.ceil(warmup-elapsed):null,
                 completion_reported:Boolean(settings.completion_reported),
                 learning_release_count:optional(settings.learning_release_count,0,1000000),
@@ -69,7 +73,8 @@ export class Capture {
             if(snapshot.details.terminal_outcome==='survival_restart'&&p.details?.terminal_outcome!=='survival_restart'&&p.status!=='IDLE'&&p.active_mode==='survival')kinds.push('completion_accepted');
             if(snapshot.status!==p.status){
                 if(snapshot.status==='IDLE')kinds.push('stop');
-                else if(snapshot.status==='PAUSED')kinds.push('pause');
+                // An Edged stop is reported as its edge, not as an ordinary pause.
+                else if(snapshot.status==='PAUSED'){if(snapshot.details.pause_reason!=='edged')kinds.push('pause');}
                 else if(p.status==='IDLE')kinds.push('session_started');
                 else if(p.status==='PAUSED')kinds.push('session_resumed');
             }

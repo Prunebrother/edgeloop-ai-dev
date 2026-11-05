@@ -108,6 +108,23 @@ try {
     await page.locator('#sessionPlayPauseBtn').evaluate(el=>el.click());
     await page.waitForFunction(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';});
     await observed(s=>s.status==='RUNNING','Observer did not see the session start');
+    // Pause reasons: Edged is reported as its edge with reason 'edged' (no pause event); Pause is 'user'.
+    const frameFrom=frames.length;
+    await page.locator('#edgedBtn').evaluate(el=>el.click());
+    await observed(s=>s.status==='PAUSED'&&s.details?.pause_reason==='edged','Observer did not receive the Edged pause reason');
+    const edgedEvents=frames.slice(frameFrom).flatMap(f=>(f.events||[]).map(e=>e.kind));
+    assert(edgedEvents.includes('edge')&&!edgedEvents.includes('pause'),'Edged was not reported as an edge without a pause: '+edgedEvents.join(','));
+    assert(await engine(new Function('return state=>state.pauses')())===0,'Edged added to the engine pause count');
+    await page.locator('#sessionPlayPauseBtn').evaluate(el=>el.click());
+    await observed(s=>s.status==='RUNNING'&&s.details?.pause_reason===null,'Observer did not see the resume');
+    const pauseFrom=frames.length;
+    await page.locator('#sessionPlayPauseBtn').evaluate(el=>el.click());
+    await observed(s=>s.status==='PAUSED'&&s.details?.pause_reason==='user','Observer did not receive the ordinary pause reason');
+    await page.waitForTimeout(400);
+    assert(frames.slice(pauseFrom).some(f=>(f.events||[]).some(e=>e.kind==='pause')),'Ordinary pause produced no pause event');
+    await page.locator('#sessionPlayPauseBtn').evaluate(el=>el.click());
+    await observed(s=>s.status==='RUNNING','Observer did not see the second resume');
+    report.steps.push('Pause reasons: Edged → edge + pause_reason edged (no pause event, pause count unchanged); Pause → pause_reason user');
     const before=handy.length;
     await page.locator('#companion-dashboard [data-emergency]').click();
     const after=await engine(new Function('return state=>({status:state.sessionStatus,primary:state.strokerSpeed,secondary:state.prostateSpeed})')());

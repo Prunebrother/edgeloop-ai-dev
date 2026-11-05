@@ -89,3 +89,51 @@ def test_director_has_a_display_name_for_every_observable_mode_and_goal():
     for value in set(literal(protocol.Mode)) | set(literal(protocol.Goal)) | set(active):
         assert MODE_NAMES.get(value), value
     assert MODE_NAMES['bratty'] == 'Bratty Tease' and MODE_NAMES['nnn'] == 'No Nut November'
+
+
+def test_pause_reason_reaches_validated_facts_and_director_wording():
+    from ai_observer.observation import BrowserObservation
+    from ai_observer.protocol import Observation
+    from companion_ai.grounding import render_facts, SessionFacts
+    from tests.fork.grounding_cases import Clock, snapshot, frame
+    clock = Clock(); observation = BrowserObservation(clock.mono, clock.wall)
+    value = snapshot(clock, status='PAUSED')
+    value['details'].update(pause_reason='edged', warmup_active=False, warmup_remaining_seconds=None)
+    observation.accept(Observation.model_validate(frame(value)))
+    fact = SessionFacts.model_validate(observation.canonical()).facts['pause_reason']
+    assert fact.known and fact.current and fact.value == 'edged'
+    text = render_facts(observation.canonical())
+    assert 'Edged button: the user marked an edge (not counted as a pause) [edged]' in text
+    value = snapshot(clock); value['details']['pause_reason'] = None
+    running = BrowserObservation(clock.mono, clock.wall); running.accept(Observation.model_validate(frame(value)))
+    assert not SessionFacts.model_validate(running.canonical()).facts['pause_reason'].known
+
+
+def test_pause_reason_is_a_closed_category():
+    import pydantic
+    import pytest
+    from ai_observer.protocol import Observation
+    from tests.fork.grounding_cases import Clock, snapshot, frame
+    value = snapshot(Clock(), status='PAUSED')
+    value['details'].update(pause_reason='AA:BB:CC:DD:EE:FF', warmup_active=False, warmup_remaining_seconds=None)
+    with pytest.raises(pydantic.ValidationError):
+        Observation.model_validate(frame(value))
+
+
+def test_director_context_names_the_pause_reason_only_while_paused():
+    from ai_observer.observation import BrowserObservation
+    from ai_observer.protocol import Observation
+    from companion_ai.context_compiler import ContextCompiler
+    from companion_ai.models import AIConfig, MemoryConfig
+    from tests.fork.grounding_cases import Clock, snapshot, frame
+
+    def prompt_for(status, reason):
+        clock = Clock(); observation = BrowserObservation(clock.mono, clock.wall)
+        value = snapshot(clock, status=status)
+        value['details'].update(pause_reason=reason, warmup_active=False, warmup_remaining_seconds=None)
+        observation.accept(Observation.model_validate(frame(value)))
+        summary = observation.summary() | {'conversation_source': 'user'}
+        messages, _, _ = ContextCompiler().compile(summary, 'How is it going?', [], AIConfig(max_tokens=320), MemoryConfig(max_messages=64))
+        return '\n'.join(m['content'] for m in messages)
+    assert 'Why the engine is paused [pause_reason]: Relube break' in prompt_for('PAUSED', 'relube')
+    assert 'pause_reason' not in prompt_for('RUNNING', None)
