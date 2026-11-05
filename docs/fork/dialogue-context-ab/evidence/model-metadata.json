@@ -1,0 +1,54 @@
+{
+  "nova-narrative-f29-v011:latest": {
+    "native_system_sha256": "fb9ffe2ff0fd8a05d0a0dd7aa26092545044a05a061a2a9a067640cae9772353",
+    "details": {
+      "parent_model": "nova-narrative-v1:latest",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35"
+      ],
+      "parameter_size": "9.7B",
+      "quantization_level": "Q4_K_M"
+    }
+  },
+  "daisy-narrative-f29-v014:latest": {
+    "native_system_sha256": "ac142c4137c45daaae1e43cdcf3809fbe9aff68641876bdb7733872cdeec9ef2",
+    "details": {
+      "parent_model": "daisy-narrative-v1:latest",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35"
+      ],
+      "parameter_size": "9.7B",
+      "quantization_level": "Q4_K_M"
+    }
+  },
+  "evelyn-narrative-f29-v013:latest": {
+    "native_system_sha256": "08a277883cfb0d08f7627561f794367fd905e5184a808380000ac1fc8d14bd8c",
+    "details": {
+      "parent_model": "evelyn-narrative-v1:latest",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35"
+      ],
+      "parameter_size": "9.7B",
+      "quantization_level": "Q4_K_M"
+    }
+  },
+  "celeste-narrative-f29-v012:latest": {
+    "native_system_sha256": "9651457b6bed6c3304f25fb9acbfdebd74a71358e69788a3cba715083adf7693",
+    "details": {
+      "parent_model": "celeste-narrative-v2:latest",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35"
+      ],
+      "parameter_size": "9.7B",
+      "quantization_level": "Q4_K_M"
+    }
+  }
+}
