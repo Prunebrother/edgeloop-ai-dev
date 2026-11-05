@@ -25,6 +25,11 @@ class Stream(httpx.AsyncByteStream):
             await asyncio.sleep(.04)
         yield b'{"message":{"content":""},"done":true}\n'
 
+SELECTION_LINES=['Got it, that choice is set.','Understood, the new setting is in place.','All right, I see the change.','Noted, we will go that way.',
+    'Fine by me, the switch is made.','Okay, I have your new pick.','Changed, and I am ready when you are.','Your call, and it is in effect.',
+    'There we are, the update is in.','Alright, that is what we will do.','Sounds good, the selection stands.','Very well, I have adjusted with you.']
+SELECTION_REPLIES=[]
+
 async def runtime(request):
     global last_thinking
     if request.url.path=='/api/tags' and ollama_down:raise httpx.ConnectError('fixture unavailable')
@@ -36,6 +41,10 @@ async def runtime(request):
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
     if 'Three-edge milestone. The three-edge objective is complete.' in body['messages'][-1]['content']:
         return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:proud]]Three edges, and that objective is complete. The session continues.'},'done':True,'done_reason':'stop'})+'\n')
+    if 'APPLICATION EVENT / REVISION' in body['messages'][-1]['content'] and any(k in body['messages'][-1]['content'] for k in ('experience_changed','goal_changed')):
+        # Distinct lines per selection, so consecutive acknowledgements are not dropped as repeats.
+        SELECTION_REPLIES.append(SELECTION_LINES[len(SELECTION_REPLIES)%len(SELECTION_LINES)])
+        return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:happy]]'+SELECTION_REPLIES[-1]},'done':True,'done_reason':'stop'})+'\n')
     if 'APPLICATION EVENT / REVISION' in body['messages'][-1]['content']:
         return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:proud]]Five minutes are recorded in this simulated session.'},'done':True,'done_reason':'stop'})+'\n')
     prompt=body['messages'][-1].get('content','').split('USER MESSAGE (request, not session data):\n')[-1]

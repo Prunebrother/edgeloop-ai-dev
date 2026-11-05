@@ -5,7 +5,7 @@
 // reachable. Loading media is not acknowledged as the participant's play-style selection.
 // Fixtures only: simulated heart rate, mocked Handy cloud API, mocked Ollama. No real hardware.
 import {chromium} from 'playwright';
-import {spawn} from 'node:child_process';
+import {spawn} from 'node:child_process';import {claimPorts,ownedReady,isolatedEnv,guardBrowser} from './fixture-isolation.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 const root=path.resolve(new URL('../..',import.meta.url).pathname);
@@ -18,7 +18,7 @@ const report={passed:false,steps:[],screenshots:[],fixture:'simulated HR, mocked
 const children=[];let browser,page;
 const assert=(x,m)=>{if(!x)throw new Error(m);};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function waitServer(url){for(let i=0;i<80;i++){try{if((await fetch(url)).ok)return;}catch{}await sleep(100);}throw new Error('Fixture server unavailable: '+url);}
+async function waitServer(url){return ownedReady(url,children);}
 const engine=fn=>page.evaluate(async source=>{const{state}=await import('/src/js/state.js');return new Function('state','return ('+source+')(state)')(state);},fn.toString());
 const status=()=>engine(new Function('return state=>({status:state.sessionStatus,primary:state.strokerSpeed,secondary:state.prostateSpeed,mode:state.teaseMode})')());
 async function shot(name,opts={}){const file=path.join(output,name);await page.screenshot({path:file,...opts});report.screenshots.push(name);}
@@ -35,9 +35,9 @@ const layout=()=>page.evaluate(()=>{const box=s=>{const r=document.querySelector
         overflowX:document.documentElement.scrollWidth>innerWidth+1};});
 try {
     await mkdir(output,{recursive:true});
-    browser=await chromium.launch();
-    children.push(spawn('python3',['tools/serve_local.py',uiPort],{cwd:root,stdio:'ignore'}));
-    children.push(spawn(python,['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...process.env,PYTHONPATH:root,EDGELOOP_FIXTURE_UI_PORT:uiPort,EDGELOOP_FIXTURE_OBSERVER_PORT:observerPort}}));
+    browser=guardBrowser(await chromium.launch(),[uiPort,observerPort]);
+    await claimPorts(uiPort,observerPort);children.push(spawn('python3',['tools/serve_local.py',uiPort],{cwd:root,stdio:'ignore',env:isolatedEnv()}));
+    children.push(spawn(python,['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...isolatedEnv(),PYTHONPATH:root,EDGELOOP_FIXTURE_UI_PORT:uiPort,EDGELOOP_FIXTURE_OBSERVER_PORT:observerPort}}));
     await waitServer(uiUrl+'/');await waitServer(observerUrl+'/health');
     const ctx=await browser.newContext({viewport:{width:1920,height:1080}});
     await ctx.addInitScript(()=>{
@@ -49,6 +49,7 @@ try {
     page=await ctx.newPage();
     const errors=[],handy=[],external=[],frames=[];
     page.on('websocket',ws=>ws.on('framesent',event=>{try{const m=JSON.parse(event.payload);if(m.type==='observation')frames.push(m);}catch{}}));
+    const diagnostics=[];page.on('websocket',ws=>ws.on('framereceived',event=>{try{const m=JSON.parse(event.payload);if(m.type==='ai_diagnostics')diagnostics.push({t:Date.now(),...m});}catch{}}));
     page.on('pageerror',e=>errors.push(e.message));
     await page.route('**/*',async route=>{
         const url=new URL(route.request().url());
@@ -114,6 +115,24 @@ try {
     assert(selected?.snapshot.details.selection_source==='selection','Participant selection not labelled selection');
     await page.locator('#playerFollowScript').evaluate(el=>{el.checked=true;el.dispatchEvent(new Event('change',{bubbles:true}));});
     assert((await status()).mode==='script','Follow the script did not return to Script');
+    // Manual Play Style and Session Endgame choices keep their normal Director events.
+    const pickCard=async sel=>{const card=page.locator(sel);if(await card.isHidden())await page.locator('#playStyleToggle').click();await card.click();};
+    const manual=async(sel,kind,check)=>{
+        const from=frames.length,count=await page.locator('[data-history] .message-assistant').count();
+        await pickCard(sel);assert(await check(),'Manual '+sel+' did not apply');
+        await page.waitForFunction(n=>document.querySelectorAll('[data-history] .message-assistant').length>n,count,{timeout:15000})
+            .catch(()=>{throw new Error('Manual '+sel+' was not acknowledged by the Director; diag='+JSON.stringify(diagnostics.slice(-8).map(d=>[d.last_event,d.event_priority,d.director_decision,d.pending_events]))+' frames='+JSON.stringify(frames.slice(from).filter(f=>(f.events||[]).length).map(f=>({ev:f.events.map(e=>e.kind),src:f.snapshot?.details?.selection_source,exp:f.snapshot?.experience}))));});
+        const event=frames.slice(from).find(f=>(f.events||[]).some(e=>e.kind===kind));
+        assert(event?.snapshot.details.selection_source==='selection','Manual '+sel+' not labelled selection: '+JSON.stringify(event?.snapshot?.details));
+    };
+    const engine=()=>page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return {mode:state.teaseMode,goal:state.gameMode};});
+    const goalBefore=(await engine()).goal;
+    await manual('[data-mode="headplay"]','experience_changed',async()=>(await engine()).mode==='headplay');
+    await manual('[data-mode="survival"]','goal_changed',async()=>(await engine()).goal!==goalBefore);
+    await manual('[data-mode="goal-off"][data-endgame="orgasm"]','goal_changed',async()=>(await engine()).goal===goalBefore);
+    await page.locator('#playerFollowScript').evaluate(el=>{el.checked=true;el.dispatchEvent(new Event('change',{bubbles:true}));});
+    assert((await status()).mode==='script','Follow the script did not return to Script after manual choices');
+    report.steps.push('Manual Play Style (Head Play) and Session Endgame (Survival, back to Orgasm) choices are labelled selection and acknowledged by the Director');
     await fetch(observerUrl+'/fixture/event-policy/normal',{method:'POST'});
     report.steps.push('A participant play-style selection is still labelled selection and acknowledged by the Director');
 
@@ -160,6 +179,14 @@ try {
     l=await layout();assert(l.historyHeight>=400,'Conversation did not return to full height: '+l.historyHeight);
     await shot('closed-after-cycles-1920.png');
     report.steps.push('Three open/close cycles (Player button and Close player): same video element, media, script, companion, model and history; session keeps running; no hardware stop');
+    // 4b. Playback itself continues across open/close: still playing, position never reset.
+    await page.evaluate(()=>{const v=document.getElementById('playerVideo');v.currentTime=0;return v.play().catch(()=>{});});
+    await page.waitForFunction(()=>{const v=document.getElementById('playerVideo');return !v.paused&&v.currentTime>0.1;});
+    const p0=await media0();await page.locator('#playerHeaderBtn').click();await sleep(250);
+    const p1=await media0();await page.locator('[data-close-player]').click();await sleep(250);const p2=await media0();
+    assert(p1.same&&p2.same&&!p0.paused&&!p1.paused&&!p2.paused&&p1.time>p0.time&&p2.time>p1.time&&p2.src===p0.src,'Open/close interrupted playback: '+JSON.stringify({p0,p1,p2}));
+    assert((await status()).status==='RUNNING','Playback open/close changed the session');
+    report.steps.push(`Playback continues across open/close: playing throughout, position ${p0.time.toFixed(2)}s -> ${p1.time.toFixed(2)}s -> ${p2.time.toFixed(2)}s, same element and source`);
 
     // 5. Theater: over the columns, under the header; Escape returns to the open player.
     await page.locator('#playerHeaderBtn').click();
