@@ -96,6 +96,7 @@ try {
     // 2. Loading media opens nothing, and is not acknowledged as the participant's selection.
     await fetch(observerUrl+'/fixture/event-policy/fast',{method:'POST'});
     const assistantBefore=await page.locator('[data-history] .message-assistant').count(),frameFrom=frames.length;
+    const selectionRepliesBefore=(await (await fetch(observerUrl+'/fixture/state')).json()).selection_replies.length;
     await page.locator('#playerFileInput').setInputFiles([path.join(root,'tools/fixtures/smoke-clip.webm'),path.join(root,'tools/fixtures/smoke-clip.funscript')]);
     await page.waitForFunction(()=>!document.getElementById('playerFollowRow')?.classList.contains('hidden'),null,{timeout:8000});
     assert((await status()).mode==='script','Loading a funscript did not select Script (upstream behaviour)');
@@ -103,13 +104,13 @@ try {
     while(Date.now()<deadline&&!media){media=frames.slice(frameFrom).find(f=>(f.events||[]).some(e=>e.kind==='experience_changed'));if(!media)await sleep(100);}
     assert(media&&media.snapshot.details.selection_source==='media','Media-caused play-style change not labelled media: '+JSON.stringify(media?.snapshot?.details));
     await sleep(4000);
-    assert(await page.locator('[data-history] .message-assistant').count()===assistantBefore,'Director acknowledged loading media as a selection');
+    assert((await (await fetch(observerUrl+'/fixture/state')).json()).selection_replies.length===selectionRepliesBefore,'Director acknowledged loading media as a play-style selection');
     l=await layout();assert(l.player==='off'&&l.workspaceHidden,'Loading media opened the player');
     report.steps.push('Loading video + funscript keeps the player closed; the Script change is labelled media and gets no selection acknowledgement');
     // A genuine selection is still acknowledged.
-    const selectionFrom=frames.length;
+    const selectionFrom=frames.length,selectionBaseline=await page.locator('[data-history] .message-assistant').count();
     await page.locator('#playerFollowScript').evaluate(el=>{el.checked=false;el.dispatchEvent(new Event('change',{bubbles:true}));});
-    await page.waitForFunction(n=>document.querySelectorAll('[data-history] .message-assistant').length>n,assistantBefore,{timeout:15000})
+    await page.waitForFunction(n=>document.querySelectorAll('[data-history] .message-assistant').length>n,selectionBaseline,{timeout:15000})
         .catch(()=>{throw new Error('A genuine play-style selection was not acknowledged');});
     const selected=frames.slice(selectionFrom).find(f=>(f.events||[]).some(e=>e.kind==='experience_changed'));
     assert(selected?.snapshot.details.selection_source==='selection','Participant selection not labelled selection');

@@ -10,12 +10,14 @@
 // streamed from disk and revoked when the file is replaced or the page goes
 // away. The script is parsed in the page; its SHA-256 (of the parsed
 // actions, never the text) is the only thing app.js may keep. File names
-// are shown in the panel and never written anywhere.
+// are shown in the panel. The optional local companion receives only a bounded
+// display title and lifecycle counters, never file bytes, paths or source URLs.
 //
 // The video plays through the element itself and never through a Web Audio
 // graph: the microphone monitor relies on the browser's echo canceller
 // referencing official playback paths.
 
+import { createPlayerInteractions } from './interactions.js';
 import { pairFiles, VIDEO_EXTENSIONS, VIB_SUFFIXES, AXIS_SUFFIXES } from './script-pairing.js';
 import { parseFunscript, checkFunscriptSize, describeDropped, scriptDigestHex } from './funscript-parse.js';
 import { stats as trackStats } from './script-track.js';
@@ -86,6 +88,7 @@ export function createPlayer({
     clearRepeat = (id) => globalThis.clearInterval(id)
 } = {}) {
     const video = els.video || null;
+    const interactions = createPlayerInteractions({notify:value=>call(handlers, 'onInteraction', value)});
     let picked = [];
     let videoFile = null;
     let remoteVideo = false;
@@ -278,6 +281,7 @@ export function createPlayer({
             renderTime();
         });
         on('playing', () => {
+            if (videoFile && !video.paused && !video.ended && Number(video.readyState) >= 2 && (!video.currentSrc || video.currentSrc === video.src)) interactions.playing();
             waitingSince = null;
             stallReported = false;
             setVideoState('playing');
@@ -287,6 +291,7 @@ export function createPlayer({
         });
         on('pause', () => {
             if (!video.paused) return;
+            interactions.paused();
             stopClock();
             setVideoState(video.ended ? 'ended' : 'paused');
             waitingSince = null;
@@ -294,6 +299,7 @@ export function createPlayer({
             renderTime();
         });
         on('waiting', () => {
+            interactions.paused();
             stopClock();
             setVideoState('waiting');
             if (waitingSince === null) waitingSince = now();
@@ -307,6 +313,7 @@ export function createPlayer({
             if (waitingSince === null) waitingSince = now();
         });
         on('seeking', () => {
+            interactions.paused();
             stopClock();
             setVideoState('seeking');
         });
@@ -320,6 +327,7 @@ export function createPlayer({
             renderTime();
         });
         on('ended', () => {
+            interactions.ended();
             stopClock();
             setVideoState('ended');
             edgeHold = false;
@@ -334,6 +342,7 @@ export function createPlayer({
             }
         });
         on('error', () => {
+            interactions.paused();
             stopClock();
             setVideoState('idle');
             const type = videoFile && typeof videoFile.type === 'string' ? videoFile.type : '';
@@ -395,7 +404,9 @@ export function createPlayer({
 
     function setVideoFile(file) {
         if (file === videoFile) return;
-        const replacing = Boolean(videoFile) && Boolean(file) && !sameVideo(videoFile, file);
+        const changed = !sameVideo(videoFile, file);
+        const replacing = Boolean(videoFile) && Boolean(file) && changed;
+        if (changed) interactions.select(file ? fileKey(file) : null, file?.name || '');
         if (replacing) unloadScripts();
         stopClock();
         edgeHold = false;
@@ -430,6 +441,7 @@ export function createPlayer({
             return false;
         }
         const replacing = Boolean(videoFile) && !(videoFile.remote && videoFile.name === href);
+        interactions.select(href, href);
         stopClock();
         edgeHold = false;
         if (videoUrl) {
@@ -1404,6 +1416,8 @@ export function createPlayer({
         setLoop(on) {
             if (video) video.loop = Boolean(on);
         },
+        interactionState: () => interactions.snapshot(),
+        workspaceChanged: (open, byUser) => interactions.workspace(open, byUser),
         hasVideo() {
             return Boolean(videoFile);
         },

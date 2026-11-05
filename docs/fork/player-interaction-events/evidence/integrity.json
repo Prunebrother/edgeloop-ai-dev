@@ -1,0 +1,16 @@
+{
+  "baseline": "baba5751e8c0be3ec562d26281a8bcfa2ad040e0",
+  "deck_byte_identical_to_baseline": true,
+  "deck_sha256": "39e04b7cc5362b3c83ca56b9d6c06d9a24a74da79bf07326003cf46eba95c1cb",
+  "model_storage": {
+    "port": 11445,
+    "owned_pid": 395663,
+    "process_stopped": true,
+    "desktop_ports_contacted": false,
+    "live_data_used": false,
+    "physical_hardware": false,
+    "model_store_unchanged": true
+  },
+  "development_head": "baba5751e8c0be3ec562d26281a8bcfa2ad040e0",
+  "personal_branch_head": "75d38d8c4aab444841936f972c93af6a78c49ef3"
+}

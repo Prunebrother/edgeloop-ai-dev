@@ -29,6 +29,7 @@ SELECTION_LINES=['Got it, that choice is set.','Understood, the new setting is i
     'Fine by me, the switch is made.','Okay, I have your new pick.','Changed, and I am ready when you are.','Your call, and it is in effect.',
     'There we are, the update is in.','Alright, that is what we will do.','Sounds good, the selection stands.','Very well, I have adjusted with you.']
 SELECTION_REPLIES=[]
+PLAYER_REQUESTS=[]
 
 async def runtime(request):
     global last_thinking
@@ -39,6 +40,16 @@ async def runtime(request):
     body=json.loads(request.content)
     last_thinking=body.get('think')
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
+    current=body['messages'][-1]['content']
+    if 'Verified Player interaction:' in current:
+        kind=re.search(r'Verified Player interaction: (\w+)',current)[1]
+        PLAYER_REQUESTS.append({'kind':kind,'messages':body['messages'],'model':body['model'],'retry':'Your last attempt needs another try' in current})
+        lines={'player_opened':'A shared viewing invitation leaves room for curiosity.',
+               'video_selected':'That new selection has my attention; I am curious about your choice.',
+               'video_started':'The shared viewing begins, and I look forward to discovering it together.'}
+        if kind=='player_opened' and len([r for r in PLAYER_REQUESTS if r['kind']==kind])>1:lines[kind]='There is room for another shared discovery in that invitation.'
+        if kind=='video_started' and 'Second' in current:lines[kind]='Another screen choice, another chance to discover something together.'
+        return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:playful]]'+lines[kind]},'done':True,'done_reason':'stop'})+'\n')
     if 'Three-edge milestone. The three-edge objective is complete.' in body['messages'][-1]['content']:
         return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:proud]]Three edges, and that objective is complete. The session continues.'},'done':True,'done_reason':'stop'})+'\n')
     if 'APPLICATION EVENT / REVISION' in body['messages'][-1]['content'] and any(k in body['messages'][-1]['content'] for k in ('experience_changed','goal_changed')):
@@ -77,5 +88,5 @@ async def event_policy(mode: str):
 
 @app.get('/fixture/state')
 async def observed():
-    return {'state':app.state.observation.report,'director':dict(app.state.director.counts),'read_only':app.state.models.tool_executor is None,'thinking':app.state.models.config.thinking,'last_thinking':last_thinking}
+    return {'state':app.state.observation.report,'director':dict(app.state.director.counts),'read_only':app.state.models.tool_executor is None,'thinking':app.state.models.config.thinking,'last_thinking':last_thinking,'player_requests':PLAYER_REQUESTS,'selection_replies':SELECTION_REPLIES}
 if __name__=='__main__':uvicorn.run(app,host='127.0.0.1',port=OBSERVER_PORT,access_log=False,ws_max_size=16384)

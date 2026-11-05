@@ -18,6 +18,7 @@ from pydantic import ValidationError
 from companion_ai.conversation import ModelManager, ConversationService
 from companion_ai.director import transition_occurrence, ConversationDirector, DirectorConfig
 from companion_ai.llm import thinking_support, InferenceCompatibilityError
+from companion_ai.player_events import PLAYER_EVENTS
 from companion_ai.event_policy import significance
 from companion_ai.event_intelligence import preset
 from companion_ai.models import AIConfig, SpeechPolicy
@@ -169,6 +170,10 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             evidence=next((e for e in reversed(state.events) if e['kind']==event.kind),{})
                             if priority in {'major','critical'}:speech.last_validated_event={'kind':event.kind,'significance':priority,'session_id':state.session_id,'received':clock()}
                             details={'event_id':event.id,'session_id':state.session_id,'at_ms':event.at_ms,'sequence':message.sequence,'received_at_ms':int(time.time()*1000),'evidence':evidence.get('evidence'),'significance':priority,'occurrence':transition_occurrence(event.kind,previous,state.report,event.at_ms)}
+                            if event.kind in PLAYER_EVENTS:
+                                details['player']=state.report['details']['player']
+                                speech.enqueue(event.kind,20,details)
+                                continue
                             if event.kind=='completion_accepted':
                                 details.update(label='Accepted original Finished me outcome',meaning=evidence.get('evidence'))
                             if event.kind=='came_early':

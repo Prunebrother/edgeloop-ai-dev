@@ -62,7 +62,7 @@ export class Capture {
             movement:{primary:integer(state.strokerSpeed,0,100),secondary:integer(state.prostateSpeed,0,100),
                 stroke_min:integer(state.strokeMin,0,100),stroke_max:integer(state.strokeMax,0,100)},
             devices:Object.fromEntries(['simulated_hr','hr_ready','toy_ready','ble','handy','intiface','tcode','vacuglide'].map(k=>[k,Boolean(devices[k])])),safety,
-            details:{captured_at_ms:Math.round(now),selection_source:this.selectionSource||'selection',hr_recorded_at_ms:hr===null?null:this.verifiedReading,
+            details:{...(state.playerObservation?{player:Object.fromEntries(['instance_id','opened','selected','started','workspace_open','has_video','playing','title','title_source'].map(k=>[k,state.playerObservation[k]]))}:{}),captured_at_ms:Math.round(now),selection_source:this.selectionSource||'selection',hr_recorded_at_ms:hr===null?null:this.verifiedReading,
                 hr_live:typeof settings.hr_live==='boolean'?settings.hr_live:null,
                 resting_bpm:optional(settings.resting_bpm,30,250),single_max_bpm:optional(settings.single_max_bpm,30,250),dual_max_bpm:optional(settings.dual_max_bpm,30,250),
                 pauses:optional(state.pauses,0,1000000),
@@ -98,6 +98,12 @@ export class Capture {
             if(safety.no_contact&&!p.safety.no_contact)kinds.push('no_contact');
             if(JSON.stringify(snapshot.devices)!==JSON.stringify(p.devices))kinds.push('device_changed');
             if(snapshot.session_id===p.session_id&&snapshot.seconds>=300&&Math.floor(snapshot.seconds/300)>Math.floor(p.seconds/300))kinds.push('milestone');
+        }
+        const before=p?.details?.player,after=snapshot.details.player;
+        if(before&&after&&before.instance_id===after.instance_id){
+            if(after.opened>before.opened&&after.workspace_open)kinds.push('player_opened');
+            if(after.selected>before.selected&&after.has_video)kinds.push('video_selected');
+            if(after.started>before.started&&after.has_video&&after.playing)kinds.push('video_started');
         }
         this.previous=snapshot;
         return {snapshot,events:kinds.filter(Boolean).map(kind=>({id:this.uuid(),kind,at_ms:Math.round(now),session_id:this.sessionId}))};

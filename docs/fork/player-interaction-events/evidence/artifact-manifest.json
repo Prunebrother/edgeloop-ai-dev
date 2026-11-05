@@ -1,0 +1,70 @@
+{
+  "python.txt": {
+    "bytes": 3895,
+    "sha256": "c4bab228f72c4835c281221622705a4898470b4688058957a8ae7411c2c424cc"
+  },
+  "engine-js.txt": {
+    "bytes": 142567,
+    "sha256": "e779b567f17f07983405eb0fa227050c4ce5e99decf7e00612548e3c403933f0"
+  },
+  "companion-js.txt": {
+    "bytes": 9764,
+    "sha256": "2a3b92d7cb6ebe6a559a5a9906c5159e34a34d9e5643064426360c4a18cf1954"
+  },
+  "focused-js.txt": {
+    "bytes": 5414,
+    "sha256": "e5c00e2cef26d9ea25419bbb0cd48d8fae14d4b9c9db8f822c28c026f3344814"
+  },
+  "focused-python.txt": {
+    "bytes": 773,
+    "sha256": "d8f36630a71d8c53b591b93081a34da6bf995051987e8e0d3146f0cd400113d2"
+  },
+  "player-python.txt": {
+    "bytes": 612,
+    "sha256": "7ede35a19542f5b463676f0717dab627195ec268cfb892a29ef0defce7260845"
+  },
+  "player-priority-python.txt": {
+    "bytes": 933,
+    "sha256": "ab48ee5660ea8cbba56d79f3e3fd3ff346e576675edea8c44589622d71987faf"
+  },
+  "player-browser-report.json": {
+    "bytes": 12402,
+    "sha256": "be068cc1a2d0efe1b94ef199843d9ed307d96bef3692b87788139f3748cef2e3"
+  },
+  "workspace-browser-report.json": {
+    "bytes": 1815,
+    "sha256": "342c37490ba34281152e40c478237eb6d1805118084587b973e31d37cdbfb841"
+  },
+  "upstream-browser-report.json": {
+    "bytes": 788,
+    "sha256": "efd3999183efe2c8078bd91e6dada966613113cae811e3ab3c743b1d549a8a31"
+  },
+  "integrity.json": {
+    "bytes": 557,
+    "sha256": "1a696554b514b402c93516d671c8ad066f3e72422436617b494eb67441ed901b"
+  },
+  "real-models-final/samples.json": {
+    "bytes": 288152,
+    "sha256": "b8f2da74289b1bef2beb5e353660ac1d99234d0eb8cd7f6e55e1a39ed688dbb5"
+  },
+  "real-models-final/model-store-before.json": {
+    "bytes": 13125,
+    "sha256": "0af04b083a12a49268483e9a277e1aaec43974714cef0ac71d7987537595eea4"
+  },
+  "real-models-final/model-store-after.json": {
+    "bytes": 13125,
+    "sha256": "0af04b083a12a49268483e9a277e1aaec43974714cef0ac71d7987537595eea4"
+  },
+  "real-models-final/isolation.json": {
+    "bytes": 196,
+    "sha256": "86ccc308ecd375c609ca3c62c85233ea992383e9e953c98e67b69dfeab5c9f34"
+  },
+  "real-models-final/quality-review.json": {
+    "bytes": 10185,
+    "sha256": "3b40eec31a804808cf5779c3f21579f08e81d7c6fdebad530108095bc7c05616"
+  },
+  "real-models-final/quality-summary.json": {
+    "bytes": 857,
+    "sha256": "6d5a5f1557fcf8ef18655a2cbafeb015ee5e56f4cfe0b90332205b2573381b4c"
+  }
+}

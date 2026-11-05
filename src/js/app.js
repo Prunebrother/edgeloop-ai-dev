@@ -6477,10 +6477,12 @@ if (!isRemotePage && scriptFeed && document.getElementById('playerVideo')) {
             },
             onHudPause: () => { if (state.sessionStatus === 'RUNNING' || state.sessionStatus === 'RAMPDOWN') playPauseBtn?.click(); },
             onHudStop: () => stopBtn?.click(),
+            onInteraction: value => { state.playerObservation = value; },
             onVideo: () => renderPlayerHardwareNotice(),
             onPlayButton: () => playPauseBtn?.click()
         }
     });
+    state.playerObservation = player.interactionState();
     const STROKE_MODEL_DETAILS = {
         cactus: 'Strokes get shorter as your heart rate climbs. At your edge, the toy skips strokes and the video keeps going.',
         keep: 'Strokes stay the shape in the file. Your heart rate only turns them down. A pause in the file is a real stop.'
@@ -6530,7 +6532,7 @@ if (!isRemotePage && scriptFeed && document.getElementById('playerVideo')) {
         if (isRemoteController) sendPeerCommand({ type: 'MODE_CHANGE', mode: state.teaseMode, enabled: true });
         else syncTelemetry();
     });
-    function togglePlayer(force) {
+    function togglePlayer(force, byUser = false) {
         const section = document.getElementById('playerSection');
         const body = document.getElementById('playerBody');
         const header = document.getElementById('playerHeaderBtn');
@@ -6541,11 +6543,12 @@ if (!isRemotePage && scriptFeed && document.getElementById('playerVideo')) {
         if (!open && player && typeof player.leaveImmersive === 'function') player.leaveImmersive();
         header?.setAttribute('aria-expanded', open ? 'true' : 'false');
         placeSessionSetup(open);
+        player?.workspaceChanged(open, byUser);
         if (!open) channelConfig = null;
         paintPlayerChannels();
     }
-    document.getElementById('playerHeaderBtn')?.addEventListener('click', () => togglePlayer());
-    document.getElementById('playerToggleBtn')?.addEventListener('click', () => togglePlayer());
+    document.getElementById('playerHeaderBtn')?.addEventListener('click', event => togglePlayer(undefined, event.isTrusted));
+    document.getElementById('playerToggleBtn')?.addEventListener('click', event => togglePlayer(undefined, event.isTrusted));
     document.getElementById('playerPrimaryConfigBtn')?.addEventListener('click', () => {
         channelConfig = channelConfig === 'primary' ? null : 'primary';
         paintPlayerChannels();

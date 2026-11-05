@@ -12,7 +12,7 @@ import {chromium} from 'playwright';
 import {LIVE_PORTS,claimPorts,ownedReady,isolatedEnv,blockedUrl,guardBrowser} from './fixture-isolation.mjs';
 
 const root=path.resolve(new URL('../..',import.meta.url).pathname);
-const SUITES=['browser','upstream-sync-browser','player-workspace-browser','character-browser','character-menus-browser','narrative-browser',
+const SUITES=['browser','upstream-sync-browser','player-workspace-browser','player-interactions-browser','character-browser','character-menus-browser','narrative-browser',
     'desktop-launcher-browser','context-intelligence-browser','event-intelligence-browser','session-journal-browser','event-reliability'];
 
 // A stand-in for a running stack: answers every request with 200 and counts them.
