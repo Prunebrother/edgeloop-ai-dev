@@ -1,0 +1,337 @@
+{
+  "character_cards": 48,
+  "common_cards": 19,
+  "sampled_cards": 48,
+  "main_samples": 96,
+  "delivered": 96,
+  "question_replies": 40,
+  "ends_in_question": 38,
+  "marker_hits": 35,
+  "conversation_errors": 0,
+  "final_suppressions": 0,
+  "mean_words": 34.7,
+  "word_range": [
+    23,
+    55
+  ],
+  "within_15_to_35_words": 58,
+  "main_provider_calls": 107,
+  "provider_calls_including_introductions_and_diagnostics": 127,
+  "raw_evidence_sha256": "857c7d6d4665ec93504b9f39efbd772be3e28dfca599acf8f58812ef7f810371",
+  "deck_sha256": "515334e83e25133d369df9da25d6bf899444e0fa93ca27711af70dcf868d4721",
+  "per_companion": {
+    "nova": {
+      "samples": 24,
+      "delivered": 24,
+      "question_replies": 13,
+      "marker_hits": 12,
+      "exact_duplicate_pairs": 0,
+      "paired_sample_similarity": [
+        {
+          "card": "nova-beautiful-error",
+          "normalized_similarity": 0.831
+        },
+        {
+          "card": "nova-project-autonomy",
+          "normalized_similarity": 0.525
+        },
+        {
+          "card": "nova-session-mystery",
+          "normalized_similarity": 0.506
+        },
+        {
+          "card": "nova-unfamiliar-stars",
+          "normalized_similarity": 0.418
+        },
+        {
+          "card": "nova-challenge",
+          "normalized_similarity": 0.385
+        },
+        {
+          "card": "nova-curiosity",
+          "normalized_similarity": 0.265
+        },
+        {
+          "card": "nova-mystery-book",
+          "normalized_similarity": 0.182
+        },
+        {
+          "card": "nova-alien-menu",
+          "normalized_similarity": 0.16
+        },
+        {
+          "card": "nova-chosen-name",
+          "normalized_similarity": 0.094
+        },
+        {
+          "card": "nova-human-variable",
+          "normalized_similarity": 0.062
+        },
+        {
+          "card": "nova-borrowed-wonder",
+          "normalized_similarity": 0.051
+        },
+        {
+          "card": "nova-research-partner",
+          "normalized_similarity": 0.023
+        }
+      ]
+    },
+    "daisy": {
+      "samples": 24,
+      "delivered": 24,
+      "question_replies": 8,
+      "marker_hits": 6,
+      "exact_duplicate_pairs": 0,
+      "paired_sample_similarity": [
+        {
+          "card": "daisy-family-legacy",
+          "normalized_similarity": 0.653
+        },
+        {
+          "card": "daisy-prized-volunteer",
+          "normalized_similarity": 0.596
+        },
+        {
+          "card": "daisy-farm-quiet",
+          "normalized_similarity": 0.549
+        },
+        {
+          "card": "daisy-farm-future",
+          "normalized_similarity": 0.511
+        },
+        {
+          "card": "daisy-pie-diplomacy",
+          "normalized_similarity": 0.32
+        },
+        {
+          "card": "daisy-recipe-pride",
+          "normalized_similarity": 0.298
+        },
+        {
+          "card": "daisy-encouragement",
+          "normalized_similarity": 0.29
+        },
+        {
+          "card": "daisy-hat-contest",
+          "normalized_similarity": 0.276
+        },
+        {
+          "card": "daisy-gate-debate",
+          "normalized_similarity": 0.212
+        },
+        {
+          "card": "daisy-friendly-bargain",
+          "normalized_similarity": 0.108
+        },
+        {
+          "card": "daisy-production",
+          "normalized_similarity": 0.062
+        },
+        {
+          "card": "daisy-stubborn-charm",
+          "normalized_similarity": 0.026
+        }
+      ]
+    },
+    "evelyn": {
+      "samples": 24,
+      "delivered": 24,
+      "question_replies": 7,
+      "marker_hits": 5,
+      "exact_duplicate_pairs": 0,
+      "paired_sample_similarity": [
+        {
+          "card": "evelyn-composure",
+          "normalized_similarity": 0.756
+        },
+        {
+          "card": "evelyn-research-ambition",
+          "normalized_similarity": 0.57
+        },
+        {
+          "card": "evelyn-null-result",
+          "normalized_similarity": 0.54
+        },
+        {
+          "card": "evelyn-off-duty-botany",
+          "normalized_similarity": 0.522
+        },
+        {
+          "card": "evelyn-imagined-seminar",
+          "normalized_similarity": 0.366
+        },
+        {
+          "card": "evelyn-after-hours",
+          "normalized_similarity": 0.333
+        },
+        {
+          "card": "evelyn-research-appetite",
+          "normalized_similarity": 0.315
+        },
+        {
+          "card": "evelyn-precision-game",
+          "normalized_similarity": 0.294
+        },
+        {
+          "card": "evelyn-observation-trend",
+          "normalized_similarity": 0.138
+        },
+        {
+          "card": "evelyn-peer-review",
+          "normalized_similarity": 0.087
+        },
+        {
+          "card": "evelyn-human-complexity",
+          "normalized_similarity": 0.041
+        },
+        {
+          "card": "evelyn-observation-edges",
+          "normalized_similarity": 0.015
+        }
+      ]
+    },
+    "celeste": {
+      "samples": 24,
+      "delivered": 24,
+      "question_replies": 12,
+      "marker_hits": 12,
+      "exact_duplicate_pairs": 0,
+      "paired_sample_similarity": [
+        {
+          "card": "celeste-negotiating-silence",
+          "normalized_similarity": 0.649
+        },
+        {
+          "card": "celeste-ambition-wager",
+          "normalized_similarity": 0.523
+        },
+        {
+          "card": "celeste-quiet-competence",
+          "normalized_similarity": 0.486
+        },
+        {
+          "card": "celeste-public-promise",
+          "normalized_similarity": 0.341
+        },
+        {
+          "card": "celeste-personal",
+          "normalized_similarity": 0.325
+        },
+        {
+          "card": "celeste-ceremonial-pen",
+          "normalized_similarity": 0.288
+        },
+        {
+          "card": "celeste-earned-concession",
+          "normalized_similarity": 0.079
+        },
+        {
+          "card": "celeste-mission-challenge",
+          "normalized_similarity": 0.064
+        },
+        {
+          "card": "celeste-mission-stakes",
+          "normalized_similarity": 0.054
+        },
+        {
+          "card": "celeste-polished-excuse",
+          "normalized_similarity": 0.046
+        },
+        {
+          "card": "celeste-reluctant-smile",
+          "normalized_similarity": 0.015
+        },
+        {
+          "card": "celeste-evaluation",
+          "normalized_similarity": 0.011
+        }
+      ]
+    }
+  },
+  "category": {
+    "nova": {
+      "Personality / worldbuilding": [
+        "curiosity",
+        "chosen-name",
+        "unfamiliar-stars",
+        "mystery-book"
+      ],
+      "Session / project": [
+        "borrowed-wonder",
+        "human-variable",
+        "research-partner",
+        "project-autonomy"
+      ],
+      "Playful": [
+        "challenge",
+        "alien-menu",
+        "beautiful-error",
+        "session-mystery"
+      ]
+    },
+    "daisy": {
+      "Personality / worldbuilding": [
+        "recipe-pride",
+        "gate-debate",
+        "farm-quiet",
+        "family-legacy"
+      ],
+      "Session / project": [
+        "production",
+        "encouragement",
+        "farm-future",
+        "prized-volunteer"
+      ],
+      "Playful": [
+        "friendly-bargain",
+        "stubborn-charm",
+        "pie-diplomacy",
+        "hat-contest"
+      ]
+    },
+    "evelyn": {
+      "Personality / worldbuilding": [
+        "imagined-seminar",
+        "null-result",
+        "off-duty-botany",
+        "research-ambition"
+      ],
+      "Session / project": [
+        "observation-edges",
+        "observation-trend",
+        "research-appetite",
+        "human-complexity"
+      ],
+      "Playful": [
+        "precision-game",
+        "after-hours",
+        "peer-review",
+        "composure"
+      ]
+    },
+    "celeste": {
+      "Personality / worldbuilding": [
+        "personal",
+        "polished-excuse",
+        "negotiating-silence",
+        "quiet-competence"
+      ],
+      "Session / project": [
+        "evaluation",
+        "earned-concession",
+        "mission-stakes",
+        "public-promise"
+      ],
+      "Playful": [
+        "mission-challenge",
+        "ceremonial-pen",
+        "reluctant-smile",
+        "ambition-wager"
+      ]
+    }
+  },
+  "completed_diagnostic_samples": 8,
+  "base": "e60708a",
+  "revised_briefs": 19
+}
