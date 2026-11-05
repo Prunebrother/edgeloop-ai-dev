@@ -48,11 +48,15 @@ try {
     assert(!missingIds.length,'Original elements lost during layout: '+missingIds.join(', '));
     assert(await page.locator('#disconnectBanner').count()===1,'Original safety banner missing');
     // All original mode/goal controls retain their original listeners after reparenting.
-    await page.locator('[data-mode="headplay"]').click();
+    // Upstream 1.1.4.30+: play styles sit in a drawer that a choice closes again.
+    // "goal-off" is now one of the Session Endgame cards; the Orgasm ending is the plain no-game choice.
+    const pick=async mode=>{const card=page.locator(mode==='goal-off'?'[data-mode="goal-off"][data-endgame="orgasm"]':`[data-mode="${mode}"]`);
+        if(await card.isHidden())await page.locator('#playStyleToggle').click();await card.click();};
+    await pick('headplay');
     assert(await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.teaseMode==='headplay';}),'Experience listener lost');
-    await page.locator('[data-mode="classic"]').click();
-    await page.locator('[data-mode="survival"]').click();
-    await page.locator('[data-mode="goal-off"]').click();
+    await pick('classic');
+    await pick('survival');
+    await pick('goal-off');
     await page.locator('#cardBle').click();await page.getByRole('button',{name:/manual simulator/i}).click();
     await page.locator('#modalSimHrSlider').evaluate(el=>{el.value='98';el.dispatchEvent(new Event('input',{bubbles:true}));});
     await page.locator('#modalEngageSimBtn').click();

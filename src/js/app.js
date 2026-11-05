@@ -6784,4 +6784,4 @@ var aiObservation = null;
 if (!isRemotePage) import('./ai/companion.js').then(({ mountCompanion }) => {
     aiObservation = mountCompanion({refreshObservation: syncAiObservation});
     syncTelemetry();
-}).catch(() => {});
+}).catch((error) => console.warn('AI companion unavailable; the session runs without it.', error));

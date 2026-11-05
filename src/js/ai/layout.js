@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Reparent existing controls, preserving their IDs, listeners and engine ownership.
 export function mountLayout(chat,character) {
-    const original=document.body.firstElementChild;
-    const cockpit=original.querySelector(':scope > div.grid');
-    const [primary,secondary]=cockpit.children;
-    const [monitor,outputs,intensity,counters,transport]=[...primary.children];
-    monitor.classList.add('session-monitor');
-    const [devices,modes]=[...secondary.children];
+    // Stable upstream targets only. Upstream moves #sessionControlBar between
+    // #sessionControlHome and the video HUD, and the Play Style/Endgame panels
+    // between #sessionSetupHome and the player; those inner homes are never moved here.
+    const need=id=>{const el=document.getElementById(id);if(!el)throw new Error('Companion layout target missing: #'+id);return el;};
+    const devices=need('deviceBar'),player=need('playerSection'),cockpit=need('cockpit'),controls=need('sessionControlHome');
+    const banner=need('disconnectBanner'),original=banner.parentElement;
+    const heading=original.querySelector(':scope > header'),footer=original.querySelector(':scope > footer');
+    if(!heading||!footer)throw new Error('Companion layout target missing: page header/footer');
+    need('cockpitMain').firstElementChild?.classList.add('session-monitor');
     const shell=document.createElement('main');shell.id='companion-dashboard';shell.dataset.view='chat';
     shell.innerHTML=`<nav class="companion-nav" aria-label="Dashboard views"><span class="companion-brand">EDGE<span>LOOP</span> <small>COMPANION</small></span>
        <div role="group" aria-label="Views"><button data-view="session" aria-controls="session-panel">Session</button><button data-view="chat" aria-controls="ai-companion" aria-pressed="true">Chat</button><button data-view="character" aria-controls="character-panel">Character</button></div>
@@ -15,19 +18,15 @@ export function mountLayout(chat,character) {
     const scroll=shell.querySelector('.session-scroll'),dock=shell.querySelector('.session-transport');
     const group=(title,nodes,open=false)=>{const d=document.createElement('details');d.className='session-group';d.open=open;
         const s=document.createElement('summary');s.textContent=title;d.append(s,...nodes);return d;};
-    const heading=original.querySelector('header');heading.classList.add('session-heading');
-    // Move header actions into an accessible group; keep the original clock visible.
-    const actions=heading.lastElementChild,timer=actions.lastElementChild;
-    actions.append(document.getElementById('pipBtn'));
-    heading.append(timer);scroll.append(heading,monitor,devices,intensity,outputs,
-        group('Experience & session goals',[modes],true),group('Advanced settings & sharing',[actions]),
-        group('About EdgeLoop',[original.querySelector('footer')]));
-    // Less-frequent intensity tuning remains available without crowding the slider.
-    const extra=[...intensity.children].slice(3);if(extra.length)intensity.append(group('Output bounds & shortcuts',extra));
-    dock.append(counters,transport);
+    heading.classList.add('session-heading');
+    scroll.append(heading,devices,player,cockpit,group('About EdgeLoop',[footer]));
+    // The session buttons stay docked; upstream still re-homes the bar inside this container.
+    dock.append(controls);
     const columns=shell.querySelector('.companion-columns');columns.append(chat,character);
-    const banner=document.getElementById('disconnectBanner');banner.setAttribute('role','alert');
+    banner.setAttribute('role','alert');
     shell.insertBefore(banner,columns);
+    // Anything upstream adds later at the top level stays reachable rather than lost.
+    const rest=[...original.children];if(rest.length)scroll.append(group('More EdgeLoop controls',rest));
     original.replaceWith(shell);document.body.classList.add('companion-app');
     shell.querySelector('[data-emergency]').onclick=()=>{const stop=document.getElementById('sessionStopBtn');stop.dataset.safetyStop='true';stop.click();};
     const buttons=[...shell.querySelectorAll('[data-view]')];
