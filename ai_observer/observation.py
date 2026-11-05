@@ -3,6 +3,7 @@ from collections import deque, OrderedDict
 from copy import deepcopy
 from dataclasses import dataclass
 import time
+from companion_ai.player_events import PLAYER_EVENTS, player_evidence
 from companion_ai.director import ConversationDirector
 from companion_ai.grounding import Fact, SessionFacts, HistoricalEvent
 
@@ -41,6 +42,8 @@ class BrowserObservation:
         captured=details.get('captured_at_ms')
         if captured is not None and (captured>self.wall()*1000+1000 or self.last_capture is not None and captured<self.last_capture):return False
         previous=self.report;gap=not self.fresh()
+        p=((previous or {}).get('details') or {}).get('player');r=details.get('player')
+        if p and r and p['instance_id']==r['instance_id'] and any(r[k]<p[k] for k in ('opened','selected','started')):return False
         if details and previous and self.session_id==report['session_id'] and report['status']!='IDLE':
             if report['seconds']<previous['seconds'] or report['edges']<previous['edges']:return False
             old_details=previous.get('details') or {}
@@ -125,6 +128,7 @@ class BrowserObservation:
 
     @staticmethod
     def event_evidence(kind,p,r,gap):
+        if kind in PLAYER_EVENTS:return player_evidence(kind,p,r,gap)
         if not p or gap:return None
         if p['session_id']!=r['session_id']:
             return 'session status changed IDLE -> RUNNING' if kind=='session_started' and p['status']=='IDLE' and r['status']=='RUNNING' else None

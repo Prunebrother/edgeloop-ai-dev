@@ -499,3 +499,25 @@ describe('player markup', () => {
         assert.ok(handy > 0 && handy < beat && beat > filesEnd);
     });
 });
+
+describe('player: read-only interaction lifecycle', () => {
+    it('confirms playing, not a play click or refused start, and deduplicates resumes', async () => {
+        const s = setup({status:'IDLE'});
+        await s.player.addFiles([fakeFile('Aladdin.mp4','x')]);
+        assert.equal(s.player.interactionState().selected,1);
+        await s.video.play();
+        assert.equal(s.player.interactionState().started,0);
+        s.session.status='RUNNING';s.video.readyState=3;
+        await s.video.play();
+        assert.equal(s.player.interactionState().started,1);
+        s.video.pause();await s.video.play();s.video.fire('seeking');s.video.fire('seeked');s.video.fire('playing');
+        assert.equal(s.player.interactionState().started,1);
+        s.video.ended=true;s.video.fire('ended');s.video.ended=false;s.video.paused=false;s.video.fire('playing');
+        assert.equal(s.player.interactionState().started,2);
+    });
+    it('rejects a stale playing event while paused or on an old resource', async () => {
+        const s=setup({status:'RUNNING'});await s.player.addFiles([fakeFile('A.mp4','x')]);
+        s.video.readyState=3;s.video.fire('playing');assert.equal(s.player.interactionState().started,0);
+        s.video.paused=false;s.video.currentSrc='blob:old';s.video.fire('playing');assert.equal(s.player.interactionState().started,0);
+    });
+});

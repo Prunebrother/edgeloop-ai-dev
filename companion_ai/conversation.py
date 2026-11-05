@@ -12,6 +12,7 @@ from .event_intelligence import EventIntelligence,EventConfig,load_config,PHYSIO
 from .narrative import NarrativeMemory, NarrativeConfig
 from .expressions import clean_dialogue
 from .reply_cleanup import CleanupConfig, ReplyCleaner, clean_reply
+from .player_events import PLAYER_EVENTS, PLAYER_BRIEFS, player_current
 from .event_policy import SELECTION_EVENTS, REACTION_EVENTS
 from .models import SpeechPolicy, AIConfig, MemoryConfig
 from .diagnostics import Metrics
@@ -501,7 +502,7 @@ class ConversationService:
     def arrival_blocked(self,now):
         """Unsolicited speech rules apply. A missing device isn't among them: it needs none."""
         context=self.deck_context(now);deferred=None
-        if self.pending:deferred='significant_event_pending'
+        if any(e['kind'] not in PLAYER_EVENTS for e in self.pending):deferred='significant_event_pending'
         elif context.quiet:deferred='quiet_requested'
         elif not context.fresh:deferred='stale_observation'
         elif self.protective(context):deferred='protective_state'
@@ -616,7 +617,8 @@ class ConversationService:
     def deck_context_only(self,kind,priority,details,decision):
         """Detection, the occurrence ledger and recent context continue; only speech does not."""
         details=details or {}
-        self.curator.cancel();self.sync_narrative();self.narrative.event(kind)
+        if kind not in PLAYER_EVENTS:self.curator.cancel()
+        self.sync_narrative();self.narrative.event(kind)
         if not self.director.receive(kind,priority,details):
             self.event_intelligence.decision(details.get('event_id'),'discarded:duplicate');return
         self.event_intelligence.decision(details.get('event_id'),decision)
@@ -902,13 +904,15 @@ class ConversationService:
             self.deck_context_only(kind,priority,details,'context_only:deck_fault');return
         if deck and (details or {}).get('session_result'):
             self.deck_finish(deck,kind,details);return
-        if kind not in SELECTION_EVENTS or deck and deck.subscribes(kind):
+        if kind in PLAYER_EVENTS and (not deck or not self.event_intelligence.config.enabled or not self.event_intelligence.config.relevance(self.responder().get('model'),'session')):
+            self.deck_context_only(kind,priority,details,'context_only:disabled_or_character_preference' if deck else 'context_only:no_card_dealer');return
+        if kind not in SELECTION_EVENTS | PLAYER_EVENTS or deck and deck.subscribes(kind):
             # The deck is the only proactive scheduler: with it off there is no unsolicited commentary.
             # Detection, the occurrence ledger, Story Memory and recent context continue either way.
             # Only acknowledging the user's own selection is spoken here, unless a card covers it.
             if deck and (details or {}).get('event_id'):self.deck_event(kind,details['event_id'])
             self.deck_context_only(kind,priority,details,'context_only:deck_owned' if deck else 'context_only:no_card_dealer');return
-        self.curator.cancel()
+        if kind not in PLAYER_EVENTS:self.curator.cancel()
         self.sync_narrative()
         self.narrative.event(kind)
         if not self.director.receive(kind, priority, details):
@@ -931,6 +935,18 @@ class ConversationService:
             event['not_before']=now+self.director.config.selection_debounce_seconds
             if all(event.get('previous_'+key)==event.get('current_'+key) for key in ('experience','goal')):
                 self.director.last_reason='selection_returned_to_original';return
+        if kind in PLAYER_EVENTS:
+            prior=next((e for e in self.pending if e['kind'] in PLAYER_EVENTS),None)
+            if prior:
+                self.director.mark_event(prior,'coalesced:player')
+                # Within the same selection/view, keep the strongest verified event.
+                same=prior.get('session_id')==event.get('session_id') and all((prior.get('player') or {}).get(k)==event['player'].get(k) for k in ('instance_id','selected','started'))
+                ranks={'player_opened':0,'video_selected':1,'video_started':2}
+                if same and ranks[prior['kind']]>ranks[kind]:
+                    self.director.mark_event(event,'coalesced:player')
+                    event=prior|{'player':event['player']}
+            self.pending=[e for e in self.pending if e['kind'] not in PLAYER_EVENTS]
+            event['not_before']=now+self.director.config.selection_debounce_seconds
         self.pending = [e for e in self.pending if e["kind"] != kind and now-e["at"] <= self.policy.event_ttl_seconds]
         if len(self.pending) >= self.policy.pending_event_limit:
             lowest = min(self.pending, key=lambda e: (e["priority"], e["at"]))
@@ -980,10 +996,15 @@ class ConversationService:
             if allowed:opportunities.append((candidate,reason))
             else:self.director.deferred(reason,candidate)
         if not opportunities:
-            if deck:self.pump_deck(deck,now)
+            if deck and not any(e['kind'] in PLAYER_EVENTS for e in self.pending):self.pump_deck(deck,now)
             return
         event, reason = max(opportunities, key=lambda pair: (pair[0]['priority'], -pair[0]['at']))
         prompt = 'Observed application event (not a user request): ' + json.dumps({k:v for k,v in event.items() if k not in {'at','not_before','hr','delta_bpm','observation','config_revision','narrative_epoch'}} | {'origin':self.director.current_origin,'current_experience':getattr(self.state,'report',{}).get('experience') if getattr(self.state,'report',None) else event.get('current_experience'),'current_goal':getattr(self.state,'report',{}).get('goal') if getattr(self.state,'report',None) else event.get('current_goal')})
+        if event['kind'] in PLAYER_EVENTS:
+            # Optional event card: same prompt/grounding path, outside the shuffled pack.
+            event['deck_card']={'lane':'normal','memory':'none','card_id':event['kind'],
+                'brief':PLAYER_BRIEFS[event['kind']],'player':event['player'],
+                'player_event':event['kind'],'speaker':self.deck_identity if self.deck_identity!='generic' else None}
         result = self.request(prompt, user=False, event=event)
         if result["accepted"]:
             self.director.dispatched(event, reason)
@@ -1159,6 +1180,8 @@ class ConversationService:
         if event.get('sequence') is not None and event['sequence']>getattr(self.state,'sequence',event['sequence']):return False
         opportunity=summary.get('director_opportunity')
         if opportunity and (report['status'] not in {'RUNNING','RAMPDOWN'} or opportunity.get('session_id')!=getattr(self.state,'session_id',None) or self.director.memory['quiet_requested']):return False
+        if event.get('kind') in PLAYER_EVENTS:
+            return (not event.get('session_id') or event['session_id']==self.state.session_id) and not self.director.memory['quiet_requested'] and self.director.config.spontaneous_enabled and player_current(event,report)
         if event and event.get('kind') not in {'completion_accepted','came_early','session_ended'} and report['status']=='IDLE' and not (event.get('kind') in SELECTION_EVENTS and event.get('source_status')=='IDLE'):return False
         if event.get('session_id') and getattr(self.state,'session_id',None) is not None and event['session_id']!=self.state.session_id:return False
         if event.get('kind') in {'session_started','session_resumed'} and report['status'] not in {'RUNNING','RAMPDOWN'}:return False

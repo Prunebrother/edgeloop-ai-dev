@@ -5,6 +5,7 @@ from companion_ai.event_intelligence import EventConfig
 from companion_ai.context_compiler import ContextConfig
 from companion_ai.memory_curator import CuratorConfig
 from companion_ai.models import StrictModel, ModelSelection
+from companion_ai.player_events import PlayerFacts
 
 Identifier = Annotated[str, Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')]
 Mode = Literal['classic','finisher','milker','shortener','headplay','ultimate','bratty','ruin','script']
@@ -43,6 +44,7 @@ class Movement(StrictModel):
         return self
 
 class ProjectionDetails(StrictModel):
+    player: PlayerFacts | None = None
     captured_at_ms: int = Field(ge=0,le=9007199254740991)
     hr_recorded_at_ms: int | None = Field(ge=0,le=9007199254740991)
     hr_live: bool | None = None
@@ -98,7 +100,7 @@ class Snapshot(StrictModel):
         return self
 
 EventKind = Literal['session_started','pause','stop','session_resumed','mode_changed','edge',
-                    'signal_lost','signal_restored','no_contact','device_changed','milestone','experience_changed','goal_changed','intensity_changed','threshold_changed','came_early','completion_accepted']
+                    'signal_lost','signal_restored','no_contact','device_changed','milestone','experience_changed','goal_changed','intensity_changed','threshold_changed','came_early','completion_accepted','player_opened','video_selected','video_started']
 class Event(StrictModel):
     id: Identifier
     kind: EventKind

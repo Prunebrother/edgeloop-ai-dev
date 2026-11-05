@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "steps": [
+    "Companion mounts on the upstream page; every original element and engine control is preserved",
+    "Observed play styles: classic, finisher, milker, shortener, headplay, ultimate, bratty, ruin, script (engine: classic, finisher, milker, shortener, headplay, ultimate, bratty, ruin)",
+    "A chat requesting stop/mode/intensity commands leaves the engine session unchanged",
+    "Pause reasons: Edged \u2192 edge + pause_reason edged (no pause event, pause count unchanged); Pause \u2192 pause_reason user",
+    "Emergency stop is an engine stop: motors zero, mocked Handy stopped, observer records safety_stop",
+    "No agent/relay requests; external requests blocked: "
+  ],
+  "fixture": "simulated HR, mocked Handy and Ollama; no real hardware"
+}

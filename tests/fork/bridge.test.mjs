@@ -201,3 +201,28 @@ test('F281 reset projects cancellation without manufacturing a completion',()=>{
  const c=new Capture(),s=raw();c.project(s,devices);s.sessionStatus='RUNNING';s.sessionSeconds=90;c.project(s,devices);s.sessionStatus='IDLE';
  const p=c.project(s,devices,{terminal_outcome:'Cancelled'});assert.equal(p.snapshot.details.terminal_outcome,'cancelled');assert.deepEqual(p.events.map(e=>e.kind),['stop']);
 });
+
+test('Player projection is allowlisted and emits only proven new interaction counters',()=>{
+ const s=raw(),c=new Capture(),id=crypto.randomUUID();
+ s.playerObservation={instance_id:id,opened:0,selected:0,started:0,workspace_open:false,has_video:false,playing:false,title:null,title_source:'unknown',private_path:'/PRIVATE/media.mp4'};
+ assert.equal(c.project(s,devices).events.length,0);
+ s.playerObservation.opened=1;s.playerObservation.workspace_open=true;
+ assert.deepEqual(c.project(s,devices).events.map(e=>e.kind),['player_opened']);
+ assert.equal(c.project(s,devices).events.length,0);
+ s.playerObservation.selected=1;s.playerObservation.has_video=true;s.playerObservation.title='Aladdin';s.playerObservation.title_source='filename';
+ assert.deepEqual(c.project(s,devices).events.map(e=>e.kind),['video_selected']);
+ s.playerObservation.started=1;s.playerObservation.playing=true;
+ assert.deepEqual(c.project(s,devices).events.map(e=>e.kind),['video_started']);
+ assert.equal(c.project(s,devices).events.length,0);
+ assert.ok(!JSON.stringify(c.previous).includes('PRIVATE'));
+ s.playerObservation.instance_id=crypto.randomUUID();s.playerObservation.opened=7;
+ assert.equal(c.project(s,devices).events.length,0);
+});
+
+test('optional Player events cannot evict stop or engine events from a full observation batch',()=>{
+ const sent=[],c=new ReadOnlyConnection();c.enabled=true;c.epoch=uuid();
+ c.socket={readyState:1,bufferedAmount:0,send:raw=>sent.push(JSON.parse(raw))};
+ const kinds=['stop','pause','session_started','session_resumed','mode_changed','edge','signal_lost','signal_restored','no_contact','device_changed','milestone','experience_changed','goal_changed','intensity_changed','threshold_changed','came_early'];
+ c.observe({snapshot:{status:'IDLE',details:{}},events:[...kinds,'player_opened','video_selected','video_started'].map(kind=>({kind,id:uuid()}))});
+ assert.deepEqual(sent[0].events.map(e=>e.kind),kinds);
+});

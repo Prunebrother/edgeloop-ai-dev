@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "steps": [
+    "Player is closed by default; the upstream video stage is mounted once in the conversation column",
+    "Loading video + funscript keeps the player closed; the Script change is labelled media and gets no selection acknowledgement",
+    "Manual Play Style (Head Play) and Session Endgame (Survival, back to Orgasm) choices are labelled selection and acknowledged by the Director",
+    "A participant play-style selection is still labelled selection and acknowledged by the Director",
+    "Starting the session and video playback leaves the player closed",
+    "Three open/close cycles (Player button and Close player): same video element, media, script, companion, model and history; session keeps running; no hardware stop",
+    "Playback continues across open/close: playing throughout, position 0.10s -> 0.39s -> 0.68s, same element and source",
+    "Theater covers the three columns below the header; header, in-stage and engine stops are clickable; Escape returns to the open player",
+    "Fullscreen renders the in-stage Emergency stop; it stops the engine (IDLE, motors 0, mocked Handy stopped, safety_stop observed)",
+    "Theater in-stage Emergency stop stops a running session",
+    "With the player open, a participant reading back is not pulled down by a new line; Jump to latest returns",
+    "1366x768 and 390x844: open and closed layouts usable, no horizontal overflow, Emergency stop reachable",
+    "No page errors; external requests blocked: "
+  ],
+  "screenshots": [
+    "closed-1920.png",
+    "open-1920.png",
+    "closed-after-cycles-1920.png",
+    "theater-1920.png",
+    "fullscreen-1920.png",
+    "open-1366.png",
+    "closed-1366.png",
+    "open-390.png",
+    "closed-390.png"
+  ],
+  "fixture": "simulated HR, mocked Handy and Ollama; no real hardware"
+}

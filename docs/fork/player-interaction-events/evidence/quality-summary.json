@@ -1,0 +1,34 @@
+{
+  "samples": 28,
+  "delivered": 28,
+  "errors": 0,
+  "literal_stale_echoes": 0,
+  "exact_duplicates": 0,
+  "questions": 14,
+  "rubric": "Unblinded single-assistant analyst review. Scores 0 wrong/failed, 1 weak/partial, 2 clear. Unsupported includes actor confusion, inferred video/participant facts and invented records/staging/time; generic viewing metaphors and explicit guesses/questions are not automatic failures.",
+  "scores": {
+    "persona": {
+      "1": 17,
+      "2": 10,
+      "0": 1
+    },
+    "naturalness": {
+      "2": 17,
+      "1": 10,
+      "0": 1
+    },
+    "relevance": {
+      "2": 17,
+      "1": 10,
+      "0": 1
+    },
+    "unsupported": {
+      "0": 18,
+      "1": 10
+    }
+  },
+  "reaction_provider_calls": 28,
+  "prior_message_setup_calls_included": false,
+  "answered_history_samples": 12,
+  "history_separation_verified": 12
+}
