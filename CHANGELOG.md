@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.5.0 — draft, unreleased
+
+<!-- DRAFT: not tagged or published. Hardware checks are still to do before release. Add the Character Card expansion line after feature/character-cards is merged. -->
+
+- Built on EdgeLoop 1.1.4.31 (previously 1.1.3). New in the original app:
+  - a video player that can follow a funscript, with Theater and Fullscreen
+  - the Bratty Tease play style
+  - an Edged button that pauses and counts an edge
+  - adjustable Crawl speed
+  - Finisher holds at the heart rate you set
+  - No Nut November (renamed from NNN practice), with a midnight day roll
+  - an opt-in session log you can download from History
+  - updated drivers for The Handy, Intiface/Lovense and T-Code
+  - a warning when EdgeLoop is not the focused window
+  - Play Style and Session Endgame as compact cards
+- The companion follows the new page layout. The video player sits in the Session column, with Theater and Fullscreen for a larger view.
+- Companions now see Bratty Tease and video/script sessions, and the new card names (Simple Ramp, Ruin & Leak, No Nut November and others).
+- Companions can tell why a session is paused. An Edged stop counts as an edge, not a pause, so it is not described as a break.
+- Character Card expansion: *(to be added when merged)*.
+- Not included: upstream's agent link (AI control through a share link) and starting without a heart-rate sensor. The companion stays read-only; the heart-rate requirement is unchanged.
+
 ## v0.4.0 — companion conversation update
 
 - Four current companions: Nova, Evelyn, Daisy and Celeste, rebuilt with revised character prompts. Nova is the default for new installs; existing selections of older models need choosing again.
