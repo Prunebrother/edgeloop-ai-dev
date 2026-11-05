@@ -51,6 +51,8 @@ class ProjectionDetails(StrictModel):
     dual_max_bpm: int | None = Field(ge=30,le=250)
     pauses: int | None = Field(ge=0,le=1000000)
     pause_reason: Literal['user','edged','relube','player','remote','hr_signal','device'] | None = None
+    # What made the last play-style/goal transition: the participant's selection, or the player loading/clearing a funscript.
+    selection_source: Literal['selection','media'] = 'selection'
     calibration_pass: Literal['none','primary','dual']
     warmup_active: bool | None
     warmup_remaining_seconds: int | None = Field(ge=0,le=86400)

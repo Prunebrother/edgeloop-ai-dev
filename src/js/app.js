@@ -6401,6 +6401,8 @@ if (!isRemotePage && scriptFeed && document.getElementById('playerVideo')) {
                 loadedClimaxMarks = climaxMarksFor(storedClimaxMarks(), script.hash);
                 player?.setClimaxMarks(loadedClimaxMarks);
                 if (state.teaseMode !== 'script') strokeBeforeScript = state.teaseMode || 'classic';
+                // Fork (AI observation only): this switch comes from loading a funscript, not a selection.
+                state.mediaSelection = { experience: 'script', goal: 'tease' };
                 applyModeSelection('script');
                 channelConfig = 'primary';
                 paintPlayerChannels();
@@ -6426,7 +6428,10 @@ if (!isRemotePage && scriptFeed && document.getElementById('playerVideo')) {
                 loadedClimaxMarks = [];
                 scriptFeed.setTrack(null);
                 if (state.teaseMode === 'script') {
-                    applyModeSelection(strokeBeforeScript && strokeBeforeScript !== 'script' ? strokeBeforeScript : 'classic');
+                    const restored = strokeBeforeScript && strokeBeforeScript !== 'script' ? strokeBeforeScript : 'classic';
+                    // Fork (AI observation only): clearing the funscript restores the play style by itself.
+                    state.mediaSelection = { experience: restored, goal: state.gameMode || 'tease' };
+                    applyModeSelection(restored);
                 } else syncFollowScript();
                 paintPlayerChannels();
                 checkReadiness();

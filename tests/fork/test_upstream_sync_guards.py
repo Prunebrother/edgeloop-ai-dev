@@ -2,6 +2,7 @@
 """Upstream-integration guards: snapshot/protocol stay in step with the engine's
 modes, the observer protocol carries no commands, and the local server never
 exposes an agent or relay endpoint."""
+import pytest
 import re
 import typing
 from pathlib import Path
@@ -137,3 +138,48 @@ def test_director_context_names_the_pause_reason_only_while_paused():
         return '\n'.join(m['content'] for m in messages)
     assert 'Why the engine is paused [pause_reason]: Relube break' in prompt_for('PAUSED', 'relube')
     assert 'pause_reason' not in prompt_for('RUNNING', None)
+
+
+def test_selection_source_is_a_closed_category():
+    from ai_observer.protocol import Observation
+    from tests.fork.grounding_cases import Clock, frame, snapshot
+    clock = Clock()
+    for source in ('selection', 'media'):
+        value = snapshot(clock); value['details'].update(selection_source=source, warmup_active=False, warmup_remaining_seconds=None)
+        assert Observation.model_validate(frame(value)).snapshot.details.selection_source == source
+    value = snapshot(clock); value['details'].update(selection_source='agent', warmup_active=False, warmup_remaining_seconds=None)
+    with pytest.raises(Exception):
+        Observation.model_validate(frame(value))
+    # Older pages that do not send it are read as a selection.
+    value = snapshot(clock); value['details'].pop('selection_source', None)
+    assert Observation.model_validate(frame(value)).snapshot.details.selection_source == 'selection'
+
+
+@pytest.mark.parametrize('source,spoken', [('selection', True), ('media', False)])
+def test_media_caused_play_style_change_is_recorded_but_not_acknowledged_as_a_selection(tmp_path, source, spoken):
+    from fastapi.testclient import TestClient
+    from ai_observer.server import create_app
+    from tests.ai.test_f25 import runtime
+    from tests.fork.grounding_cases import Clock, frame, snapshot
+    from tests.fork.test_observer import ORIGIN, TOKEN, auth, until
+    clock = Clock(); wire = []
+    app = create_app(TOKEN, tmp_path, clock=clock.mono, transport=runtime(wire)); app.state.observation.wall = clock.wall
+    value = snapshot(clock); value.update(status='IDLE'); value['details'].update(warmup_active=False, warmup_remaining_seconds=None)
+    with TestClient(app) as client:
+        with client.websocket_connect('/observe', headers={'Origin': ORIGIN}) as ws:
+            ready = auth(ws)
+            def observe(sequence, kinds):
+                f = frame(value, sequence, kinds); f['epoch'] = ready['epoch']; ws.send_json(f)
+                return until(ws, 'observation_ack')
+            observe(0, [])
+            clock.tick(.3); value['details']['captured_at_ms'] = int(clock.wall() * 1000)
+            value.update(experience='script', active_mode='script'); value['details']['selection_source'] = source
+            observe(1, ['experience_changed'])
+            records = [r for r in app.state.speech.event_intelligence.history if r['event'].get('kind') == 'experience_changed']
+            assert records, 'the play-style change was not recorded'
+            if spoken:
+                assert any(e['kind'] == 'experience_changed' for e in app.state.speech.pending)
+            else:
+                assert records[-1]['decision'] == 'context_only:media_initialization'
+                assert not any(e['kind'] == 'experience_changed' for e in app.state.speech.pending)
+                assert app.state.observation.report['experience'] == 'script'

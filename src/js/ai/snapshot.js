@@ -10,7 +10,7 @@ const pauseReasons={button:'user',edged:'edged',relube:'relube',player:'player',
 export class Capture {
     constructor({uuid=()=>crypto.randomUUID(),now=()=>Date.now()}={}) {
         this.uuid=uuid;this.now=now;this.sessionId=uuid();this.previous=null;this.samples=[];
-        this.lastHrTimestamp=null;this.verifiedReading=null;this.source=null;this.segmentAt=this.now();
+        this.lastHrTimestamp=null;this.verifiedReading=null;this.source=null;this.segmentAt=this.now();this.selectionSource='selection';this.mediaSeen=null;
     }
     project(state,devices,settings={}) {
         if(!modes.includes(state.teaseMode)||!goals.includes(state.gameMode||'tease')||
@@ -48,6 +48,13 @@ export class Capture {
         const warmup=Number.isFinite(settings.warmup_minutes)?Math.max(0,settings.warmup_minutes)*60:null;
         const elapsed=Math.max(0,state.sessionSeconds-(state.warmupOriginSeconds||0));
         const warmupActive=warmup===null?null:state.sessionStatus==='RUNNING'&&warmup>0&&elapsed<warmup;
+        // A play-style/goal change made by the player itself (loading or clearing a funscript)
+        // is labelled 'media' once; any other transition is the participant's selection.
+        // The record is set in the same task as the change, so it counts only for the projection that first sees it.
+        const experience=state.teaseMode,goal=state.gameMode||'tease',media=state.mediaSelection,fresh=Boolean(media)&&media!==this.mediaSeen;
+        this.mediaSeen=media??null;
+        if(p&&(experience!==p.experience||goal!==p.goal))
+            this.selectionSource=fresh&&media.experience===experience&&media.goal===goal?'media':'selection';
         const snapshot={session_id:this.sessionId,status:state.sessionStatus,seconds:integer(state.sessionSeconds,0,31536000),
             experience:state.teaseMode,active_mode:state.activeMode,goal:state.gameMode||'tease',hr,
             effective_max:integer(state.effectiveMaxHr,30,400),pullback:optional(state.edgeTriggerHr,1,400),
@@ -55,7 +62,7 @@ export class Capture {
             movement:{primary:integer(state.strokerSpeed,0,100),secondary:integer(state.prostateSpeed,0,100),
                 stroke_min:integer(state.strokeMin,0,100),stroke_max:integer(state.strokeMax,0,100)},
             devices:Object.fromEntries(['simulated_hr','hr_ready','toy_ready','ble','handy','intiface','tcode','vacuglide'].map(k=>[k,Boolean(devices[k])])),safety,
-            details:{captured_at_ms:Math.round(now),hr_recorded_at_ms:hr===null?null:this.verifiedReading,
+            details:{captured_at_ms:Math.round(now),selection_source:this.selectionSource||'selection',hr_recorded_at_ms:hr===null?null:this.verifiedReading,
                 hr_live:typeof settings.hr_live==='boolean'?settings.hr_live:null,
                 resting_bpm:optional(settings.resting_bpm,30,250),single_max_bpm:optional(settings.single_max_bpm,30,250),dual_max_bpm:optional(settings.dual_max_bpm,30,250),
                 pauses:optional(state.pauses,0,1000000),

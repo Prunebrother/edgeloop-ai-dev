@@ -175,6 +175,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 details.update(label='Came Early: user-confirmed premature release',meaning='The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.')
                             if event.kind in {'experience_changed','goal_changed'}:
                                 details.update(previous_experience=previous['experience'],current_experience=state.report['experience'],previous_goal=previous['goal'],current_goal=state.report['goal'])
+                                details.update(selection_source=(state.report.get('details') or {}).get('selection_source','selection'))
                             observation,eligible=speech.event_intelligence.authoritative(event.kind,details,state,priority)
                             details.update(category='authoritative',observation=observation.model_dump())
                             narrative_priority=observation.significance
@@ -196,7 +197,12 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             if priority=='critical' or event.kind in {'pause','stop'}:
                                 speech.safety('emergency_stop' if message.snapshot.details and message.snapshot.details.terminal_outcome=='safety_stop' else event.kind)
                                 speech.event_intelligence.decision(event.id,'deterministic_safety_notice')
-                            if narrative_priority=='major' and event.kind not in {'stop','pause','came_early'} and not (event.kind=='completion_accepted' and state.status=='IDLE'):speech.enqueue(event.kind,rank,details)
+                            if event.kind in {'experience_changed','goal_changed'} and details.get('selection_source')=='media':
+                                # Loading or clearing a funscript switches the play style by itself. That is recorded,
+                                # but it is not the participant's selection, so the Director does not acknowledge it as one.
+                                speech.event_intelligence.decision(event.id,'context_only:media_initialization')
+                                director.observation(event.kind,details,'edgeloop_telemetry')
+                            elif narrative_priority=='major' and event.kind not in {'stop','pause','came_early'} and not (event.kind=='completion_accepted' and state.status=='IDLE'):speech.enqueue(event.kind,rank,details)
                             elif narrative_priority=='routine':
                                 speech.event_intelligence.decision(event.id,'context_only:low_significance' if eligible and relevance else 'context_only:disabled_or_character_preference')
                                 director.observation(event.kind,details,'edgeloop_telemetry')
