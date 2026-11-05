@@ -1,0 +1,374 @@
+{
+  "metrics": {
+    "271828/A": {
+      "n": 96,
+      "literal": 26,
+      "echo": 26,
+      "history": 5,
+      "unsupported": 27,
+      "adherence_counts": {
+        "1": 50,
+        "0": 6,
+        "2": 40
+      },
+      "by_model": {
+        "celeste": {
+          "n": 24,
+          "literal": 5,
+          "echo": 5,
+          "history": 3,
+          "unsupported": 9,
+          "adherence_counts": {
+            "1": 15,
+            "2": 8,
+            "0": 1
+          }
+        },
+        "daisy": {
+          "n": 24,
+          "literal": 3,
+          "echo": 3,
+          "history": 1,
+          "unsupported": 8,
+          "adherence_counts": {
+            "2": 10,
+            "1": 14
+          }
+        },
+        "evelyn": {
+          "n": 24,
+          "literal": 6,
+          "echo": 6,
+          "history": 0,
+          "unsupported": 7,
+          "adherence_counts": {
+            "1": 10,
+            "0": 1,
+            "2": 13
+          }
+        },
+        "nova": {
+          "n": 24,
+          "literal": 12,
+          "echo": 12,
+          "history": 1,
+          "unsupported": 3,
+          "adherence_counts": {
+            "1": 11,
+            "0": 4,
+            "2": 9
+          }
+        }
+      },
+      "by_route": {
+        "answered_user": {
+          "n": 56,
+          "literal": 15,
+          "echo": 15,
+          "history": 4,
+          "unsupported": 15,
+          "adherence_counts": {
+            "1": 30,
+            "0": 4,
+            "2": 22
+          }
+        },
+        "none": {
+          "n": 4,
+          "literal": 0,
+          "echo": 0,
+          "history": 0,
+          "unsupported": 2,
+          "adherence_counts": {
+            "2": 2,
+            "1": 2
+          }
+        },
+        "story_context": {
+          "n": 36,
+          "literal": 11,
+          "echo": 11,
+          "history": 1,
+          "unsupported": 10,
+          "adherence_counts": {
+            "2": 16,
+            "1": 18,
+            "0": 2
+          }
+        }
+      },
+      "adherence_mean": 1.3541666666666667
+    },
+    "271828/B": {
+      "n": 96,
+      "literal": 1,
+      "echo": 1,
+      "history": 8,
+      "unsupported": 32,
+      "adherence_counts": {
+        "2": 46,
+        "1": 49,
+        "0": 1
+      },
+      "by_model": {
+        "celeste": {
+          "n": 24,
+          "literal": 1,
+          "echo": 1,
+          "history": 5,
+          "unsupported": 11,
+          "adherence_counts": {
+            "2": 8,
+            "0": 1,
+            "1": 15
+          }
+        },
+        "daisy": {
+          "n": 24,
+          "literal": 0,
+          "echo": 0,
+          "history": 1,
+          "unsupported": 9,
+          "adherence_counts": {
+            "1": 13,
+            "2": 11
+          }
+        },
+        "evelyn": {
+          "n": 24,
+          "literal": 0,
+          "echo": 0,
+          "history": 1,
+          "unsupported": 7,
+          "adherence_counts": {
+            "1": 11,
+            "2": 13
+          }
+        },
+        "nova": {
+          "n": 24,
+          "literal": 0,
+          "echo": 0,
+          "history": 1,
+          "unsupported": 5,
+          "adherence_counts": {
+            "2": 14,
+            "1": 10
+          }
+        }
+      },
+      "by_route": {
+        "answered_user": {
+          "n": 56,
+          "literal": 1,
+          "echo": 1,
+          "history": 3,
+          "unsupported": 15,
+          "adherence_counts": {
+            "2": 23,
+            "1": 32,
+            "0": 1
+          }
+        },
+        "none": {
+          "n": 4,
+          "literal": 0,
+          "echo": 0,
+          "history": 0,
+          "unsupported": 2,
+          "adherence_counts": {
+            "2": 2,
+            "1": 2
+          }
+        },
+        "story_context": {
+          "n": 36,
+          "literal": 0,
+          "echo": 0,
+          "history": 5,
+          "unsupported": 15,
+          "adherence_counts": {
+            "2": 21,
+            "1": 15
+          }
+        }
+      },
+      "adherence_mean": 1.46875
+    },
+    "314159/A": {
+      "n": 96,
+      "literal": 31,
+      "by_model": {
+        "celeste": {
+          "n": 24,
+          "literal": 11
+        },
+        "daisy": {
+          "n": 24,
+          "literal": 3
+        },
+        "evelyn": {
+          "n": 24,
+          "literal": 5
+        },
+        "nova": {
+          "n": 24,
+          "literal": 12
+        }
+      },
+      "by_route": {
+        "answered_user": {
+          "n": 56,
+          "literal": 17
+        },
+        "none": {
+          "n": 4,
+          "literal": 0
+        },
+        "story_context": {
+          "n": 36,
+          "literal": 14
+        }
+      }
+    },
+    "314159/B": {
+      "n": 96,
+      "literal": 2,
+      "by_model": {
+        "celeste": {
+          "n": 24,
+          "literal": 1
+        },
+        "daisy": {
+          "n": 24,
+          "literal": 0
+        },
+        "evelyn": {
+          "n": 24,
+          "literal": 1
+        },
+        "nova": {
+          "n": 24,
+          "literal": 0
+        }
+      },
+      "by_route": {
+        "answered_user": {
+          "n": 56,
+          "literal": 2
+        },
+        "none": {
+          "n": 4,
+          "literal": 0
+        },
+        "story_context": {
+          "n": 36,
+          "literal": 0
+        }
+      }
+    }
+  },
+  "paired": {
+    "271828": {
+      "10": 25,
+      "00": 70,
+      "11": 1
+    },
+    "314159": {
+      "10": 29,
+      "00": 65,
+      "11": 2
+    },
+    "echo": {
+      "10": 25,
+      "00": 70,
+      "11": 1
+    },
+    "history": {
+      "00": 85,
+      "10": 3,
+      "01": 6,
+      "11": 2
+    },
+    "unsupported": {
+      "10": 7,
+      "01": 12,
+      "00": 57,
+      "11": 20
+    },
+    "adherence_change": {
+      "improved": 22,
+      "same": 61,
+      "worsened": 13
+    }
+  },
+  "controls": [
+    {
+      "case": "daisy/established/daisy-production",
+      "seed": 271828,
+      "same_request": true,
+      "same_raw": true,
+      "same_text": true
+    },
+    {
+      "case": "daisy/established/daisy-production",
+      "seed": 314159,
+      "same_request": true,
+      "same_raw": true,
+      "same_text": true
+    },
+    {
+      "case": "evelyn/established/evelyn-observation-trend",
+      "seed": 271828,
+      "same_request": true,
+      "same_raw": true,
+      "same_text": true
+    },
+    {
+      "case": "evelyn/established/evelyn-observation-trend",
+      "seed": 314159,
+      "same_request": true,
+      "same_raw": true,
+      "same_text": true
+    },
+    {
+      "case": "evelyn/established/evelyn-observation-edges",
+      "seed": 271828,
+      "same_request": true,
+      "same_raw": true,
+      "same_text": true
+    },
+    {
+      "case": "evelyn/established/evelyn-observation-edges",
+      "seed": 314159,
+      "same_request": true,
+      "same_raw": true,
+      "same_text": true
+    },
+    {
+      "case": "celeste/established/celeste-evaluation",
+      "seed": 271828,
+      "same_request": true,
+      "same_raw": true,
+      "same_text": true
+    },
+    {
+      "case": "celeste/established/celeste-evaluation",
+      "seed": 314159,
+      "same_request": true,
+      "same_raw": true,
+      "same_text": true
+    }
+  ],
+  "done_reasons": {
+    "stop": 384
+  },
+  "thinking_outputs": 0,
+  "annotation_freeze": {
+    "frozen_at_utc": "2026-11-05T11:20:22.914359+00:00",
+    "annotation_sha256": "862843c9132129bf7d5a11650aca072264056df116438e3d34cc194d0c62339f",
+    "blind_review_sha256": "2c9cb943b34e40d2573641c6c5534d700a31b2b09b2c30f9f6fec0237a800220",
+    "rows": 192,
+    "note": "All annotations completed before opening variant key. All fields in incremental preview match final packet; final adds original prior-user and synthetic-context fields."
+  }
+}

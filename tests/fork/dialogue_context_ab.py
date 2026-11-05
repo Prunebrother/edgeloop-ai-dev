@@ -138,6 +138,14 @@ async def run(args):
         raise ValueError('Only existing local 11435 allowed')
     out = Path(args.output); out.mkdir(parents=True, exist_ok=True)
     cases = load_cases(args.source, args.deck)
+    if args.compiled_cases:
+        compiled = json.loads(Path(args.compiled_cases).read_text())
+        assert [c['id'] for c in compiled] == [c['id'] for c in cases]
+        for case, actual in zip(cases, compiled):
+            assert case['request'] == actual['request']
+            assert actual['implemented_request']['messages'] == separate_card_context(case['request']['messages'])
+            assert {k:v for k,v in actual['implemented_request'].items() if k!='messages'} == {k:v for k,v in case['request'].items() if k!='messages'}
+            case['implemented_request'] = actual['implemented_request']
     (out/'cases.json').write_text(json.dumps(cases, indent=2)+'\n')
     result_file = out/'results.json'
     results = json.loads(result_file.read_text()) if args.resume and result_file.exists() else []
@@ -163,7 +171,11 @@ async def run(args):
                     body = deepcopy(case['request'])
                     body['options']['seed'] = seed
                     if arm == 'B':
-                        body['messages'] = separate_card_context(body['messages'])
+                        if args.compiled_cases:
+                            body = deepcopy(case['implemented_request'])
+                            body['options']['seed'] = seed
+                        else:
+                            body['messages'] = separate_card_context(body['messages'])
                     answer = await generate(client, body)
                     results.append({'case': case['id'], 'variant': arm, 'seed': seed,
                                     'request_sha256': digest(body),
@@ -183,4 +195,5 @@ if __name__ == '__main__':
     parser.add_argument('--output', required=True)
     parser.add_argument('--url', default='http://127.0.0.1:11435')
     parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--compiled-cases', help='Actual compiler-parity capture; B uses implemented requests directly')
     asyncio.run(run(parser.parse_args()))

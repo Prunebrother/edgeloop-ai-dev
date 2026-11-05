@@ -81,9 +81,10 @@ async def test_only_the_latest_user_message_is_replayed_and_commentary_is_droppe
  s.history.append(monologue(r,'An unprompted aside about fences.'))
  await turn(s)
  # Companion lines are never replayed, and the latest user line is background, not an unanswered turn.
- assert [m['role'] for m in messages(wire)]==['system','user'] and '- "Tell me about barn 3."' in prompt(wire) and 'barn 2' not in prompt(wire)
+ assert [m['role'] for m in messages(wire)]==['system','assistant','user'] and '- "Tell me about barn 3."' in messages(wire)[1]['content'] and 'barn 2' not in json.dumps(messages(wire))
  assert 'fences' not in prompt(wire) and 'leans east' not in json.dumps(messages(wire))
- assert 'EARLIER, THE PARTICIPANT SAID (already answered' in prompt(wire) and 'What the participant said earlier, listed at the top, is real' in prompt(wire)
+ assert 'Tell me about barn' not in prompt(wire)
+ assert 'EARLIER, THE PARTICIPANT SAID (already answered' in messages(wire)[1]['content'] and 'What the participant said earlier, listed at the top, is real' in prompt(wire)
 
 async def test_another_sessions_conversation_is_not_continued():
  r,s,wire,frames=await service();play_only(s,'general-remark')
@@ -95,7 +96,7 @@ async def test_a_stale_count_from_the_companion_is_not_replayed_and_history_is_m
  r,s,wire,frames=await service(edges=3);play_only(s,EDGE)
  s.history+=[spoken(r,'user','How many edges so far?'),spoken(r,'assistant','The edge counter says 2 edges.')]
  await turn(s)
- assert 'How many edges so far?' in prompt(wire) and 'The edge counter says 2' not in json.dumps(messages(wire))  # Only the user's side is replayed...
+ assert 'How many edges so far?' in messages(wire)[1]['content'] and 'How many edges so far?' not in prompt(wire) and 'The edge counter says 2' not in json.dumps(messages(wire))  # Only the user's side is replayed, outside the current task...
  assert 'may be out of date, so only the values listed here are current' in prompt(wire) and 'Edges this session: 3' in prompt(wire)  # ...and labelled as possibly stale.
 
 async def test_the_transcript_itself_is_untouched():

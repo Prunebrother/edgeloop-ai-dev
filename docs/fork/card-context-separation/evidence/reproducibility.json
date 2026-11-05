@@ -1,0 +1,7 @@
+{
+  "generations": 384,
+  "request_hash_matches": 384,
+  "raw_output_matches": 384,
+  "display_output_matches": 384,
+  "review_scope": "192 first-seed outputs; frozen previous ratings reused only after exact display-output and review-packet equality. Second-seed quality not manually rated."
+}

@@ -1,0 +1,22 @@
+engine-js.txt
+ℹ tests 1477
+ℹ suites 266
+ℹ pass 1477
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 165364.02446
+
+companion-js.txt
+✖ canonical identities use exact aliases, not name prefixes or prototype properties (1.134614ms)
+ℹ tests 76
+ℹ suites 0
+ℹ pass 75
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 177.614256
+✖ failing tests:
+✖ canonical identities use exact aliases, not name prefixes or prototype properties (1.134614ms)

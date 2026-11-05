@@ -119,12 +119,13 @@ async def test_answered_user_message_is_background_not_a_new_card_request(identi
     await asyncio.sleep(0)
     body = next(b for path, b in reversed(wire) if path == '/api/chat')
     # The production last_user policy keeps answered user text in a labelled
-    # background block; it never replays it as an unanswered chat turn.
-    assert len(body['messages']) == 2
+    # assistant context turn; it never places it in the current card task.
+    assert [m['role'] for m in body['messages']] == ['system', 'assistant', 'user']
     assert body['messages'][-1]['role'] == 'user'
     current = body['messages'][-1]['content']
-    assert 'already answered; background only, do not answer it again' in current
-    assert prior in current and 'the participant has not just spoken' in current
+    assert 'already answered; background only, do not answer it again' in body['messages'][1]['content']
+    assert prior in body['messages'][1]['content'] and prior not in current
+    assert 'the participant has not just spoken' in current
     assert 'Edges this session' not in current and 'Running time:' not in current
     assert not body.get('tools') and body['think'] is False
     assert not [f for f in frames if f['type'] == 'conversation_error']

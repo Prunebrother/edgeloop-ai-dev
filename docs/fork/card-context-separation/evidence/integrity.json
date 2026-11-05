@@ -1,0 +1,14 @@
+{
+  "deck_sha256": "39e04b7cc5362b3c83ca56b9d6c06d9a24a74da79bf07326003cf46eba95c1cb",
+  "deck_byte_unchanged_from_baseline": true,
+  "character_counts": {
+    "daisy": 12,
+    "evelyn": 12,
+    "celeste": 12,
+    "nova": 12
+  },
+  "common_count": 19,
+  "model_file_count": 78,
+  "model_metadata_and_manifest_hashes_unchanged": true,
+  "development_head": "48530582236b1c6dd2f424569fd802ba8217a658"
+}
