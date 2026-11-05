@@ -107,19 +107,24 @@ try {
     await page.locator('[data-text]').fill('thinking cutoff test');await page.locator('[data-text]').press('Enter');
     await page.waitForFunction(()=>document.querySelector('[data-history]').textContent.includes('Finished after reasoning.')&&document.querySelector('[data-cancel]').hidden);
     assert(!(await page.locator('[data-history]').textContent()).includes('UNFINISHED_DRAFT'),'Budget retry retained partial draft');
-    assert(await page.locator('.message-assistant').count()===2,'Budget retry duplicated assistant bubbles');
+    // Count by content: an unsolicited Director line may land in between (timing-dependent).
+    assert(await page.locator('.message-assistant',{hasText:'Finished after reasoning.'}).count()===1,'Budget retry duplicated assistant bubbles');
     report.steps.push('Thinking budget retry replaces incomplete draft with one finished reply');
     await page.locator('[data-text]').fill('grounding conflict test');await page.locator('[data-text]').press('Enter');
     await page.waitForFunction(()=>document.querySelector('[data-error]').textContent.includes('conflicted'));
     assert(!(await page.locator('[data-history]').textContent()).includes('210 BPM'),'Conflicting draft remained visible');
-    assert(await page.locator('.message-assistant').count()===2,'Rejected reply was committed as a bubble');
+    assert(await page.locator('.message-assistant',{hasText:'210'}).count()===0,'Rejected reply was committed as a bubble');
+    assert(await page.locator('.message-assistant',{hasText:'Finished after reasoning.'}).count()===1,'Rejected retry replaced an earlier reply');
     assert(await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';}),'Factual guard changed session');
     report.steps.push('Factual guard retries once and removes conflicting draft without changing session');
     // Exercise real streamed chunks and scroll anchoring using the local fixture transport.
     await page.locator('[data-text]').fill('long streaming response');
     await page.locator('[data-text]').press('Enter');
-    await page.waitForFunction(()=>document.querySelector('[data-history]').scrollHeight>document.querySelector('[data-history]').clientHeight+200);
-    assert(await page.locator('[data-activity-label]').textContent()==='Responding','Streaming activity not visible');
+    // Wait for the stream itself: earlier Director lines can already make the history scrollable.
+    const streaming=await page.waitForFunction(()=>document.querySelector('[data-activity-label]').textContent==='Responding'&&
+        document.querySelector('[data-history]').lastElementChild?.textContent.includes('A streamed companion message')&&
+        document.querySelector('[data-history]').scrollHeight>document.querySelector('[data-history]').clientHeight+200,null,{timeout:8000}).then(()=>true,()=>false);
+    assert(streaming,'Streaming activity not visible: '+await page.locator('[data-activity-label]').textContent());
     assert(await page.locator('[data-thinking]').isDisabled(),'Thinking changed during generation');
     await page.screenshot({path:path.join(output,'responding-1920.png')});
     await page.locator('[data-history]').evaluate(el=>{el.scrollTop=0;el.dispatchEvent(new Event('scroll'));});
@@ -161,7 +166,10 @@ try {
     await page.locator('[data-model]').selectOption('evelyn:latest');await page.locator('[data-select]').click();
     await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('Active: evelyn:latest'));
     assert(await page.evaluate(async()=>{const{state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';}),'Model selection changed original session');
-    assert(await page.locator('[data-history] .message').count()===0,'Model history leaked across models');
+    // The previous model's conversation must not carry over. A Director line from the
+    // newly selected model may legitimately arrive here (unsolicited replies are on).
+    assert(await page.locator('[data-history] .message-user').count()===0,'Model history leaked across models');
+    assert(!(await page.locator('[data-history]').textContent()).includes('evelyn-lite-v1:latest reports'),'Model history leaked across models');
     await page.locator('[data-model]').selectOption('evelyn-lite-v1:latest');await page.locator('[data-select]').click();
     await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('Active: evelyn-lite-v1:latest'));
     assert((await page.locator('[data-history]').textContent()).includes('98 BPM'),'Conversation memory not restored');
