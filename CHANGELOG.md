@@ -2,7 +2,7 @@
 
 ## v0.5.0 — draft, unreleased
 
-<!-- DRAFT: not tagged or published. Hardware checks are still to do before release. Add the Character Card expansion line after feature/character-cards is merged. -->
+<!-- DRAFT: not tagged or published. Supervised feature testing and hardware checks are still to do before release. -->
 
 - Built on EdgeLoop 1.1.4.31 (previously 1.1.3). New in the original app:
   - a video player that can follow a funscript, with Theater and Fullscreen
@@ -18,7 +18,8 @@
 - The companion follows the new page layout. The video player sits in the Session column, with Theater and Fullscreen for a larger view.
 - Companions now see Bratty Tease and video/script sessions, and the new card names (Simple Ramp, Ruin & Leak, No Nut November and others).
 - Companions can tell why a session is paused. An Edged stop counts as an edge, not a pause, so it is not described as a break.
-- Character Card expansion: *(to be added when merged)*.
+- Character Card expansion: 48 companion Character Cards, twelve each for Nova, Daisy, Evelyn and Celeste, alongside the 19 Common Cards. The Director deals them as before.
+- Earlier conversation reaches a card prompt as background, separate from the card's own instruction, so companions are less likely to answer an old message again.
 - Not included: upstream's agent link (AI control through a share link) and starting without a heart-rate sensor. The companion stays read-only; the heart-rate requirement is unchanged.
 
 ## v0.4.0 — companion conversation update
