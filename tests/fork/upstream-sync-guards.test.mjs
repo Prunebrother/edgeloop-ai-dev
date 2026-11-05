@@ -32,11 +32,18 @@ test('AI modules contain no hardware, peer, session-command or agent primitives'
     }
 });
 
-test('the only control the AI layer can press is the user-clicked emergency stop',()=>{
+test('the AI layer presses only the user-clicked emergency stop and the close-only Player toggle',()=>{
     const clicks=aiFiles.flatMap(file=>[...read(file).matchAll(/\.click\(\)/g)].map(()=>file));
-    assert.deepEqual(clicks,['src/js/ai/layout.js']);
+    assert.deepEqual(clicks,['src/js/ai/layout.js','src/js/ai/layout.js']);
     const layout=read('src/js/ai/layout.js');
-    assert.match(layout,/\[data-emergency\]'\)\.onclick=\(\)=>\{const stop=document\.getElementById\('sessionStopBtn'\);stop\.dataset\.safetyStop='true';stop\.click\(\);\}/);
+    // 1. Emergency stop: the original engine Stop, used by the header and the in-stage button alike.
+    assert.match(layout,/const emergencyStop=\(\)=>\{const stop=document\.getElementById\('sessionStopBtn'\);stop\.dataset\.safetyStop='true';stop\.click\(\);\};/);
+    assert.match(layout,/\[data-emergency\]'\)\.onclick=emergencyStop;/);
+    assert.match(layout,/addEventListener\('click',event=>\{event\.stopPropagation\(\);emergencyStop\(\);\}\)/);
+    // 2. Close player: the upstream Player toggle (#playerHeaderBtn), pressed only to close an open player.
+    //    It changes layout only; it never plays, pauses, loads media or changes the session.
+    assert.match(layout,/const toggle=document\.getElementById\('playerHeaderBtn'\);/);
+    assert.match(layout,/\[data-close-player\]'\)\.addEventListener\('click',\(\)=>\{if\(body\.dataset\.player==='on'\)toggle\.click\(\);\}\);/);
 });
 
 test('the engine mounts the companion with a refresh callback only and keeps its own stop authority',()=>{
@@ -104,4 +111,35 @@ test('pause reasons are bounded categories; an Edged stop is reported as its edg
         p=c.project(s,devices);assert.equal(p.snapshot.details.pause_reason,reason,source);assert.ok(p.events.some(e=>e.kind==='pause'),source);
         Object.assign(s,{sessionStatus:'RUNNING',pauseReason:''});c.project(s,devices);
     }
+});
+
+test('a play-style change made by loading or clearing a funscript is labelled media once; every other change is a selection',async()=>{
+    const {Capture}=await import('../../src/js/ai/snapshot.js');
+    const devices={simulated_hr:true,hr_ready:true,toy_ready:false,ble:false,handy:false,intiface:false,tcode:false,vacuglide:false};
+    const s={sessionStatus:'IDLE',sessionSeconds:0,teaseMode:'classic',activeMode:'classic',gameMode:null,sensorHr:90,effectiveMaxHr:140,
+        edgeTriggerHr:133,lastHrTimestamp:1,edges:0,pauses:0,intensityValue:50,strokerSpeed:0,prostateSpeed:0,strokeMin:0,strokeMax:100,
+        simEngaged:true,hrSignalState:'ok',hrNoContact:false,hrSignalPaused:false,pauseReason:''};
+    const c=new Capture();assert.equal(c.project(s,devices).snapshot.details.selection_source,'selection');
+    const step=(changes)=>{Object.assign(s,changes);const p=c.project(s,devices);return [p.snapshot.details.selection_source,p.events.map(e=>e.kind)];};
+    // app.js onScript: the record is written before applyModeSelection('script').
+    assert.deepEqual(step({mediaSelection:{experience:'script',goal:'tease'},teaseMode:'script',activeMode:'script'}),['media',['experience_changed']]);
+    // A later participant selection is not taken for media, although the record is still on the state object.
+    assert.deepEqual(step({teaseMode:'classic',activeMode:'classic'}),['selection',['experience_changed']]);
+    assert.deepEqual(step({teaseMode:'script',activeMode:'script'}),['selection',['experience_changed']]);
+    // A goal picked together with a media-caused change keeps media only if it matches the record exactly.
+    assert.deepEqual(step({mediaSelection:{experience:'classic',goal:'tease'},teaseMode:'classic',activeMode:'oracle',gameMode:'oracle'}),['selection',['experience_changed','goal_changed']]);
+    // Clearing the funscript restores the earlier style by itself.
+    step({gameMode:null,activeMode:'script',teaseMode:'script'});
+    assert.deepEqual(step({mediaSelection:{experience:'bratty',goal:'tease'},teaseMode:'bratty',activeMode:'bratty'}),['media',['experience_changed']]);
+    // A record seen without a change (same style reloaded) is spent and cannot label a later selection.
+    step({mediaSelection:{experience:'bratty',goal:'tease'}});
+    step({teaseMode:'classic',activeMode:'classic'});
+    assert.deepEqual(step({teaseMode:'bratty',activeMode:'bratty'}),['selection',['experience_changed']]);
+});
+
+test('the player hook only labels the change: it runs before upstream applies the same selection',()=>{
+    const app=read('src/js/app.js');
+    assert.match(app,/state\.mediaSelection = \{ experience: 'script', goal: 'tease' \};\n\s*applyModeSelection\('script'\);/);
+    assert.match(app,/state\.mediaSelection = \{ experience: restored, goal: state\.gameMode \|\| 'tease' \};\n\s*applyModeSelection\(restored\);/);
+    assert.equal([...app.matchAll(/mediaSelection/g)].length,2);
 });
