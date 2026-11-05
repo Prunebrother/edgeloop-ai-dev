@@ -1,3 +1,5 @@
+> Historical report for the pre-personal-edit drafts. For the preserved personal content and current integration results, see [the v0.5.0 integration review](../character-cards-v050/README.md). The current card text is in `config/event-deck.json`.
+
 # Final character card inventory
 
 48 character-specific normal cards: twelve per companion. Nineteen common normal cards are unchanged. Each companion has four editorially classified cards in each group below; categories do not affect runtime scheduling. The atmosphere follow-up revises nineteen briefs, including all sixteen playful cards. All card IDs, intents, eligibility and editorial groups remain unchanged from the structurally approved 48-card pack.

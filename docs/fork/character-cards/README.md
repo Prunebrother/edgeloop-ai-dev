@@ -1,3 +1,5 @@
+> Historical report for the pre-personal-edit drafts. For the preserved personal content and current integration results, see [the v0.5.0 integration review](../character-cards-v050/README.md). The current card text is in `config/event-deck.json`.
+
 # Character Cards — atmosphere revision
 
 This follow-up to structurally approved commit `e60708a` revises **19 briefs, including all 16 playful cards**, to emphasize personal interest, romantic tension, anticipation and non-graphic innuendo connected to the active session. The hats, pens, chocolate, pie bargains and detached games have been replaced. Three additional personality briefs move away from meal/gate/clerk anecdotes toward companion motivations and personal opinions.
