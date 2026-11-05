@@ -75,7 +75,8 @@ Limits:
 ```bash
 cd ~/projects/edgeloop-ai-fork
 node tests/fork/upstream-sync-browser.mjs   # all play styles, video+funscript, pause reasons, emergency stop, read-only chat
-node tests/fork/browser.mjs                 # running session, pause/resume, stop, AI disconnect independence
+FORK_BROWSER_PORT=8783 FORK_OBSERVER_PORT=8793 node tests/fork/browser.mjs   # running session, pause/resume, stop, AI disconnect independence
+node tests/fork/player-workspace-browser.mjs # player open/close, Theater, Fullscreen emergency stop, media-load dialogue
 node tests/fork/character-browser.mjs       # portraits, Director mission card, emergency accessibility
 node tests/fork/character-menus-browser.mjs
 .venv/bin/python -m pytest -q               # full Python suite (2971)
@@ -83,7 +84,7 @@ npm test                                    # engine JS (1477)
 node --test tests/fork/*.test.mjs           # companion JS (75/76, known alias-count failure)
 ```
 
-These suites use their own ports (8780/8788 and others) and mocked Ollama. Stop the desktop stack first if a port clashes.
+These suites use mocked Ollama and their own fixture servers. `browser.mjs` defaults to the desktop stack's ports (8770/8768), so give it other ports as above; it refuses to start if its ports are already serving.
 
 ## Before any supervised hardware session
 
@@ -93,7 +94,7 @@ All of these must hold:
 - [ ] The device is in hand, with a physical way to cut power or remove it that doesn't depend on the browser.
 - [ ] Start with the lowest Max speed / intensity setting and a short duration. Use one device at a time.
 - [ ] You know where the global **Emergency stop** button is (top right of the companion header).
-  - In **Fullscreen** that button is hidden. Use the overlay's own Stop, or press Esc first (see the issues below).
+  - In **Theater** and **Fullscreen** there is also an **Emergency stop** at the top centre of the video. It uses the same safety stop.
 - [ ] The upstream hardware changes have not been checked on real devices yet. Check them one at a time:
   - The Handy firmware 4 absolute position / HSP
   - Intiface/Lovense touch modes
@@ -118,7 +119,9 @@ Sessions and protections:
 - [ ] Stopping Ollama (`systemctl --user stop edgeloop-ai-ollama`) mid-chat leaves the page and the emergency stop working.
 
 Video/script:
-- [ ] Open the player with the **Player** header button, then load a video plus `.funscript`. The play style switches to Script.
+- [ ] The player stays closed until you press the **Player** header button: loading media, starting a session or a Director line never opens it.
+- [ ] Open the player, then load a video plus `.funscript`. The play style switches to Script, and the companion does not comment on it as your choice.
+- [ ] **✕ Close player** returns to the conversation layout. The session, companion, chat and loaded video are kept.
 - [ ] Playback stays paused until a heart-rate source and a toy are ready. That's upstream behaviour.
 - [ ] Theater and Fullscreen open and close (Exit / Esc). The session controls move into the overlay.
 - [ ] Note any Director lines that appear when a video is loaded (see the issues below).
@@ -129,19 +132,13 @@ UI:
 
 ## Known issues to watch (not fixed in this consolidation)
 
-Video player layout:
-1. **Theater mode is clipped in the companion layout.**
-   - Upstream Theater widens `#playerStage` in place (`100vw` and a negative margin) and expects the page body to be the scroll container. In this build `#playerSection` sits inside `.session-scroll` (overflow auto) inside `.session-panel` (overflow hidden). Theater is cut to the left column, and the companion panels are drawn over it.
-   - The engine's Stop in the Theater overlay is partly covered by the chat panel. The global Emergency stop stays visible and clickable, and Esc exits.
-   - Fullscreen is not affected, apart from the next item.
-2. **Fullscreen hides the companion's Emergency stop.** Only `#playerStage` is rendered there. Upstream moves the session control bar, with Stop, into the overlay, and that Stop is clickable. It's the same engine stop the emergency button uses, but without the `safety_stop` label for the companion.
-3. **The normal player is narrow.** In the Session column it measures about 235 × 956 px at 1920 wide. At 390 wide the video box is hidden.
+Video player and Director (fixed on `feature/player-workspace`):
+1. Theater was clipped to the Session column. It now covers all three columns below the companion header; Esc returns.
+2. Fullscreen hid the companion's Emergency stop. An Emergency stop now sits inside the video stage in Theater and Fullscreen.
+3. The player was narrow. When opened, the video is now shown large in the centre column above a compact chat.
+4. Loading a video + funscript gave unsolicited "Script mode" Director lines. The switch to Script came from loading media, but was treated as the user's own selection. It is now recorded as context only. Choosing a play style yourself is still acknowledged.
 
-Director behaviour:
-
-4. **Loading a video + funscript gives one or two unsolicited "Script mode" Director lines.** These are the existing mode-change event, not a new video card. In one run two lines appeared for one load, both with unsupported claims. The planned Video Start card is not implemented.
-
-Grounding (dialogue quality), to be investigated separately, not in this consolidation:
+Grounding (dialogue quality), to be investigated separately:
 
 5. Invented participant or session history.
 6. Unsupported physiological interpretation. Example from live checks: "you're running a bit warm for an idle session" at a simulated 98 BPM.
