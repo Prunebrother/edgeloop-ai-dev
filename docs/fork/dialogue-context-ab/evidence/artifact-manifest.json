@@ -1,0 +1,46 @@
+{
+  "cases.json": {
+    "bytes": 1012039,
+    "sha256": "a6f298d69506d3a7f330dbb5673306f319aa28afba2774c08e1a6c383e6b4813"
+  },
+  "results.json": {
+    "bytes": 316666,
+    "sha256": "54213dd0251faceedde962ce7ef36b51a84cd18442ee858e70d2687cdcec698f"
+  },
+  "blind-review.json": {
+    "bytes": 280589,
+    "sha256": "2c9cb943b34e40d2573641c6c5534d700a31b2b09b2c30f9f6fec0237a800220"
+  },
+  "blind-key.json": {
+    "bytes": 20659,
+    "sha256": "adc2d4a23801b259ac7a5f5d664deb49571ccd1b5249c0668c234542c7b9f19d"
+  },
+  "annotations.txt": {
+    "bytes": 16297,
+    "sha256": "862843c9132129bf7d5a11650aca072264056df116438e3d34cc194d0c62339f"
+  },
+  "annotation-freeze.json": {
+    "bytes": 439,
+    "sha256": "fa9a795858d169997dd3c4d75e89fc442d269bd0ec71441966cb71ba8b81ee14"
+  },
+  "summary.json": {
+    "bytes": 7712,
+    "sha256": "5458fadf685fcea4b3ef094970bbed99fbc6ace48b69942899d7ef893edb2f4d"
+  },
+  "model-metadata.json": {
+    "bytes": 1523,
+    "sha256": "b597fcfad35b4c8796e53499a70c842efefb20ad7fe136d19423e2f8c72e3323"
+  },
+  "model-store-before.json": {
+    "bytes": 13047,
+    "sha256": "ce637ab591131561a46389c8a0fe85b272f973f0bb53ffa8d9fe9054ed94fb68"
+  },
+  "model-store-after.json": {
+    "bytes": 13047,
+    "sha256": "ce637ab591131561a46389c8a0fe85b272f973f0bb53ffa8d9fe9054ed94fb68"
+  },
+  "regression.txt": {
+    "bytes": 1117,
+    "sha256": "3ad40650937c16b6b0cc207d99faeef242e7e7bbee8b1fe7363886f60144823d"
+  }
+}

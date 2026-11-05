@@ -604,7 +604,8 @@ async def test_an_arrival_prompt_holds_no_transcript_in_any_state(state):
  r,s,wire,stored=await arrival_after_a_session(state)
  assert s.session_history()['status']==state
  messages=arrival_messages(wire)
- assert [m['role'] for m in messages]==['system','user']
+ assert [m['role'] for m in messages]==['system','assistant','user']
+ assert 'Story details' in messages[1]['content'] and 'lighthouse' not in messages[-1]['content']
  text=json.dumps(messages)
  assert 'I reached' not in text and 'You logged' not in text and '72 minutes' not in text
 
@@ -621,8 +622,9 @@ async def test_authorized_figures_arrive_only_as_dealt():
 @pytest.mark.parametrize('state',STATES)
 async def test_story_memory_and_stored_conversation_are_preserved(state):
  r,s,wire,stored=await arrival_after_a_session(state)
- assert 'lighthouse' in arrival_messages(wire)[-1]['content']
+ assert 'lighthouse' in arrival_messages(wire)[-2]['content']
  assert [m['content'] for m in s.history][:4]==[m['content'] for m in stored][:4] and 'I reached 77' in s.history[0]['content']
+ assert not any('Story details from your conversation' in m['content'] for m in s.history)
 
 async def test_a_user_turn_keeps_its_ordinary_memory():
  r,s,wire,stored=await arrival_after_a_session('found')

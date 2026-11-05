@@ -27,7 +27,7 @@ try{
  await wait(ui);await wait(ai+'/health');browser=await chromium.launch();const context=await browser.newContext({viewport:{width:1920,height:1080}});
  await context.addInitScript(()=>{const no=()=>Promise.reject(new DOMException('No physical hardware','NotFoundError'));Object.defineProperty(navigator,'bluetooth',{value:{requestDevice:no},configurable:true});Object.defineProperty(navigator,'serial',{value:{requestPort:no,getPorts:async()=>[]},configurable:true});if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia=no;});
  page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(ui+'/?characterPreview=1');await page.locator('#ageConfirmBtn').click();await page.locator('#wizardSkipBtn').click();
- await page.locator('[data-url]').fill('ws://127.0.0.1:8858/observe');await page.locator('[data-token]').fill('event-reliability-fixture-'+'x'.repeat(32));await page.locator('[data-connect]').click();await page.waitForFunction(()=>document.querySelector('[data-model] option[value="evelyn-narrative-v1:latest"]'));
+ await page.locator('[data-url]').fill(ai.replace('http:','ws:')+'/observe');await page.locator('[data-token]').fill('event-reliability-fixture-'+'x'.repeat(32));await page.locator('[data-connect]').click();await page.waitForFunction(()=>document.querySelector('[data-model] option[value="evelyn-narrative-v1:latest"]'));
  await select('evelyn-narrative-v1:latest');await chat('Imagine an observatory mystery. I choose the blue envelope.');
  assert((await state()).context.premise.includes('blue envelope'),'Premise not recorded');await chat('I choose to keep the brass key for later.');
  assert(await page.locator('#ai-companion [data-narrative-reset]').count()===0,'Story control remains under composer');
@@ -45,7 +45,7 @@ try{
  assert((await state()).requests.length===requestCount,'Opening/configuring menus triggered inference');
  await page.locator('#character-director [data-close]').click();await page.locator('[data-menu-director]').click();
  assert(!(await page.locator('[data-proactive]').isChecked()),'Saved setting was not restored');
- await page.keyboard.press('Escape');await page.locator('[data-mode="oracle"]').click();
+ await page.keyboard.press('Escape');await page.locator('[data-mode="oracle"]').evaluate(el=>el.click());
  await page.locator('[data-menu-director]').click();await page.waitForFunction(()=>document.querySelector('[data-director-status]').textContent.includes('Goal changed'));
  assert((await page.locator('[data-director-status]').textContent()).includes('Major'),'Validated event significance missing');
  assert((await state()).requests.length===requestCount,'Disabled event generated commentary');

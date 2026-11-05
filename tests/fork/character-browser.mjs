@@ -38,10 +38,20 @@ try{
  await page.locator('[data-text]').fill('long streaming response');await page.locator('[data-text]').press('Enter');await page.waitForFunction(()=>document.querySelector('#character-panel').dataset.activity==='generating');await portrait(page,'evelyn','mischievous');assert(!(await page.locator('[data-history]').textContent()).includes('[[expression:'),'Metadata leaked during streaming');await capture(page,'expression-streaming.png');await page.locator('[data-cancel]').click();await sleep(600);assert(await page.locator('#character-panel').getAttribute('data-activity')==='idle','Cancelled generation still active');
  await fetch(ai+'/fixture/event-policy/fast',{method:'POST'});
  await page.evaluate(async()=>{const {state}=await import('/src/js/state.js');state.sessionSeconds=299;});
- await page.waitForFunction(()=>document.querySelector('[data-history]').textContent.includes('Five minutes are recorded'),null,{timeout:15000});
+ // Director 2.0 uses explicit mission cards, not the retired elapsed-time event.
+ // Exercise real user-marked edges and resumes against the mocked device.
+ for(let edge=0;edge<3;edge++){
+  await page.locator('#edgedBtn').evaluate(el=>el.click());
+  await page.waitForFunction(async()=>{const {state}=await import('/src/js/state.js');return state.sessionStatus==='PAUSED';});
+  await sleep(150);
+  await page.locator('#sessionPlayPauseBtn').evaluate(el=>el.click());
+  await page.waitForFunction(async()=>{const {state}=await import('/src/js/state.js');return state.sessionStatus==='RUNNING';});
+  await sleep(150);
+ }
+ await page.waitForFunction(()=>document.querySelector('[data-history]').textContent.includes('Three edges, and that objective is complete'),null,{timeout:15000});
  await portrait(page,'evelyn','proud');assert(!(await page.locator('[data-history]').textContent()).includes('[[expression:'),'Event metadata leaked');
  await page.getByText('Runtime diagnostics · development',{exact:true}).click();await capture(page,'verified-event-diagnostics.png');
- report.steps.push('Original simulated elapsed counter crosses milestone; validated event reaches Director and model expression');
+ report.steps.push('Three user-marked simulated edges trigger the Director mission card and model expression without ending the session');
  await fetch(ai+'/fixture/event-policy/normal',{method:'POST'});
  await select('daisy-qwen35:latest');await portrait(page,'daisy','neutral');await chat('portrait concerned test');await portrait(page,'daisy','concerned');
  await page.setViewportSize({width:2560,height:1440});await capture(page,'daisy-2560.png');

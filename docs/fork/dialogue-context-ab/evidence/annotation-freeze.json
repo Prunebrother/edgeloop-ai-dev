@@ -1,0 +1,7 @@
+{
+  "frozen_at_utc": "2026-11-05T11:20:22.914359+00:00",
+  "annotation_sha256": "862843c9132129bf7d5a11650aca072264056df116438e3d34cc194d0c62339f",
+  "blind_review_sha256": "2c9cb943b34e40d2573641c6c5534d700a31b2b09b2c30f9f6fec0237a800220",
+  "rows": 192,
+  "note": "All annotations completed before opening variant key. All fields in incremental preview match final packet; final adds original prior-user and synthetic-context fields."
+}

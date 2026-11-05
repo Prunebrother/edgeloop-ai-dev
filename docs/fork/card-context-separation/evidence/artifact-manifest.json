@@ -1,0 +1,82 @@
+{
+  "compiled-cases.json": {
+    "bytes": 1893015,
+    "sha256": "6906621555f47327d753d2d886b996b805979596b3dc6a4d997588e2857bf582"
+  },
+  "baseline-context-compiler.py": {
+    "bytes": 53531,
+    "sha256": "4a905de0a693abf6ff982d0531759499b6209ad0e97d89e36ea800a6ba658508"
+  },
+  "cases.json": {
+    "bytes": 1893015,
+    "sha256": "6906621555f47327d753d2d886b996b805979596b3dc6a4d997588e2857bf582"
+  },
+  "results.json": {
+    "bytes": 316662,
+    "sha256": "298d01a4feb33a473d281bd4c2f7edaded33d3b08d81e668976b417992796f47"
+  },
+  "blind-review.json": {
+    "bytes": 280589,
+    "sha256": "2c9cb943b34e40d2573641c6c5534d700a31b2b09b2c30f9f6fec0237a800220"
+  },
+  "blind-key.json": {
+    "bytes": 20659,
+    "sha256": "adc2d4a23801b259ac7a5f5d664deb49571ccd1b5249c0668c234542c7b9f19d"
+  },
+  "annotations.txt": {
+    "bytes": 16297,
+    "sha256": "862843c9132129bf7d5a11650aca072264056df116438e3d34cc194d0c62339f"
+  },
+  "annotation-freeze.json": {
+    "bytes": 439,
+    "sha256": "fa9a795858d169997dd3c4d75e89fc442d269bd0ec71441966cb71ba8b81ee14"
+  },
+  "summary.json": {
+    "bytes": 7712,
+    "sha256": "818afb59476a04b253bf1dc8c1bf887ccaf6095e2d1eb3cb17ce39592ad4e064"
+  },
+  "reproducibility.json": {
+    "bytes": 294,
+    "sha256": "843200c1416ae28bd2ba7f644cfd9470d25dedde0660f3c799b2bb50ae5c8e20"
+  },
+  "integrity.json": {
+    "bytes": 401,
+    "sha256": "ce384dcdabd42d0d40fa31cc65a65d9cfac45efce03cccd1f44134f9f5d04822"
+  },
+  "model-metadata.json": {
+    "bytes": 1523,
+    "sha256": "b597fcfad35b4c8796e53499a70c842efefb20ad7fe136d19423e2f8c72e3323"
+  },
+  "model-store-before.json": {
+    "bytes": 13047,
+    "sha256": "ce637ab591131561a46389c8a0fe85b272f973f0bb53ffa8d9fe9054ed94fb68"
+  },
+  "model-store-after.json": {
+    "bytes": 13047,
+    "sha256": "ce637ab591131561a46389c8a0fe85b272f973f0bb53ffa8d9fe9054ed94fb68"
+  },
+  "capture.log": {
+    "bytes": 414,
+    "sha256": "f833120cc3d3b36243b3285676b7775598e554a17cfc19fd49032757e16b3cec"
+  },
+  "focused-regression.txt": {
+    "bytes": 1437,
+    "sha256": "c0d71181effbeefb98c951950204061bc230b4a1e5582de5774733a492c61400"
+  },
+  "arrival-regression.txt": {
+    "bytes": 1277,
+    "sha256": "922db16312eaea5b7306b2d6e49151328e15e8155fc4a6fa2ec22b1e9bdc8e7c"
+  },
+  "full-python.txt": {
+    "bytes": 3919,
+    "sha256": "e74fe383cb480a49d70d94a8d0f011eb997328881a769d452e3e2323a3cf449a"
+  },
+  "engine-js.txt": {
+    "bytes": 141910,
+    "sha256": "60b4642236476824ef5f1822fc235a9f7ed04eccdf9fc288b25ec1ddf577fee8"
+  },
+  "companion-js.txt": {
+    "bytes": 8416,
+    "sha256": "6953b105ebdffb7a2b03a2b85b57b4c164a6fc6e6e0e2c028fef63974df92bba"
+  }
+}

@@ -449,21 +449,27 @@ class ContextCompiler:
         candidates=sorted(candidates,reverse=True)
         chosen=[];narrative_items=[];history_used=narrative_used=0
         def assemble():
-            content=base
+            content=base;background=''
             if intent:
                 selected=any(item['reference'].startswith('fact:') for item in narrative_items)
                 content=('NARRATIVE RECALL: selected evidence retains source/category; hypotheses are not established facts.' if selected else 'NARRATIVE RECALL: no matching structured memory selected. Use supplied dialogue/native canon only if it establishes the answer; otherwise acknowledge uncertainty.')+'\n'+content
             if narrative_items and card:
-                content='Story details from your conversation with the participant (fiction, possibly imperfect, not session facts):\n'+'\n'.join('- '+item['text'] for item in narrative_items)+'\n\n'+content
+                background='Story details from your conversation with the participant (fiction, possibly imperfect, not session facts):\n'+'\n'.join('- '+item['text'] for item in narrative_items)+'\n\n'
             elif narrative_items:
                 content='NARRATIVE CONTEXT (fallible fiction/conversation, not operational evidence):\n'+dump({'phase':narrative.get('phase'),'epoch':narrative.get('epoch'),'model_scope':narrative.get('model_scope'),'items':narrative_items})+'\n\n'+content
             replayed=[m for _,m in sorted(chosen)]
             if c.history_policy=='last_user' and replayed:
                 # A bare earlier user turn looks unanswered and gets answered again, so it is background here.
                 standing=[m['content'] for m in replayed if active_instruction(m)];earlier=[m['content'] for m in replayed if not active_instruction(m)]
-                content=''.join(['STANDING INSTRUCTION FROM THE PARTICIPANT (still applies):\n'+'\n'.join('- '+json.dumps(t,ensure_ascii=False) for t in standing)+'\n\n' if standing else '',
-                                 'EARLIER, THE PARTICIPANT SAID (already answered; background only, do not answer it again):\n'+'\n'.join('- '+json.dumps(t,ensure_ascii=False) for t in earlier)+'\n\n' if earlier else ''])+content
+                earlier_text='EARLIER, THE PARTICIPANT SAID (already answered; background only, do not answer it again):\n'+'\n'.join('- '+json.dumps(t,ensure_ascii=False) for t in earlier)+'\n\n' if earlier else ''
+                if card:background=earlier_text+background
+                else:content=earlier_text+content
+                content=('STANDING INSTRUCTION FROM THE PARTICIPANT (still applies):\n'+'\n'.join('- '+json.dumps(t,ensure_ascii=False) for t in standing)+'\n\n' if standing else '')+content
                 replayed=[]
+            # Card context is a prompt projection, never a stored companion utterance.
+            # Keep answered requests/excerpts out of the current user task, even when
+            # the assistant's original answer is absent. Existing labels retain provenance.
+            if background:replayed.append({'role':'assistant','content':background})
             messages=[{'role':'system','content':system}]+replayed+[{'role':'user','content':content,'origin':'real_user' if user_context and revision is None else 'system_event'}]
             return messages,sum(estimate(m['content'])+32 for m in messages)
         def add_history(pair,limit,required_directive=False):

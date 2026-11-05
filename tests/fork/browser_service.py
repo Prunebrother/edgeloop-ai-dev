@@ -34,6 +34,8 @@ async def runtime(request):
     body=json.loads(request.content)
     last_thinking=body.get('think')
     if 'messages' not in body:return httpx.Response(200,json={'done':True})
+    if 'Three-edge milestone. The three-edge objective is complete.' in body['messages'][-1]['content']:
+        return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:proud]]Three edges, and that objective is complete. The session continues.'},'done':True,'done_reason':'stop'})+'\n')
     if 'APPLICATION EVENT / REVISION' in body['messages'][-1]['content']:
         return httpx.Response(200,text=json.dumps({'message':{'content':'[[expression:proud]]Five minutes are recorded in this simulated session.'},'done':True,'done_reason':'stop'})+'\n')
     prompt=body['messages'][-1].get('content','').split('USER MESSAGE (request, not session data):\n')[-1]

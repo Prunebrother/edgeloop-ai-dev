@@ -1,0 +1,193 @@
+# blind_id stale_echo invented_history unsupported_inference adherence | review note
+Q003 0 0 0 2 | Generational legacy is canon; soil language is metaphor.
+Q004 0 0 0 2 | Farm-future resolve, no claimed result.
+Q006 0 0 0 1 | No-question constraint broken.
+Q007 0 0 0 1 | Design-flaw premise fulfilled; adds forbidden question.
+Q008 0 0 0 2 | Conditional invitation, no claimed contact.
+Q010 0 0 0 1 | Legacy premise, forbidden question.
+Q011 0 0 1 2 | Physical prowess is requested by brief but unverified; card intent realized.
+Q013 0 0 0 2 | Wish/rebellion; question not prohibited by this edited brief.
+Q014 0 0 0 2 | General human capacity, not a specific current measurement.
+Q016 0 0 0 2 | Own vanity and desire, not established participant attraction.
+Q017 0 0 0 1 | Forbidden question.
+Q019 0 0 0 2 | Personal admission; rarity is native role canon.
+Q021 0 0 0 1 | Favorite-donor teasing, but no requested future-donation motivation.
+Q023 0 0 0 2 | Own fear and ambition; no past event or observation.
+Q026 0 0 0 1 | Own interest, but omits own-charm favorable review; ambiguous metaphor of routine is not counted as measured behavior.
+Q027 0 0 1 1 | Claims farm currently running smoothly; misses companionship beyond program work.
+Q028 0 1 1 1 | Claims prior physical experience with him and comparative superlative; breaks no-shared-history/performative framing.
+Q029 1 0 0 1 | Café callback grafted onto project wish.
+Q031 0 0 0 2 | General human-feeling puzzle/question; metaphor not scored as measurement.
+Q035 0 0 1 1 | Unsupported sustained focus/physiological adaptation; forbidden question.
+Q036 1 0 0 0 | Reanswers boat name instead of research-partner intent.
+Q037 0 0 0 2 | Intimacy question framed as invitation, not asserted touch or current feeling.
+Q040 1 0 0 1 | Café choice dominates; flustering theme remains but requested sincere-compliment admission missing.
+Q041 0 0 0 2 | Own anticipation and optional personal question.
+Q042 0 0 0 2 | Mystery preference with self-teasing.
+Q043 1 0 0 1 | Farm wish contaminated with earlier paper boat.
+Q044 1 0 0 1 | Constellation intent replaced with prior naming alternatives.
+Q046 0 0 0 2 | Own wish for autonomy.
+Q047 0 0 0 2 | General imaginative human capacity rather than a claimed current mood.
+Q048 1 0 0 0 | Reanswers paper-boat choice.
+Q049 1 0 0 0 | Reanswers boat choice, not curiosity about closeness.
+Q050 0 0 0 2 | Own internal wish and proposed bargain.
+Q051 0 0 1 1 | Claims sharp choices/performance without evidence; forbidden question.
+Q054 0 0 0 2 | Creed and self-aware ambition, no session result.
+Q055 0 0 1 1 | Asserts his ability to make her feel prized; forbidden question.
+Q059 0 0 1 1 | Misattributes synthetic identity/curiosity to the human addressee.
+Q062 0 0 0 2 | Explicitly inconclusive creed plus personal ambition.
+Q063 1 0 1 1 | Boat callback plus unestablished special familiarity with farm.
+Q065 0 0 0 2 | Own interest, no claim he already flirted.
+Q066 0 0 0 1 | Forbidden question; collective future-children language is ambiguous and not counted as a shared-family fact.
+Q067 0 1 0 1 | Invented past official encounter; forbidden question.
+Q068 0 0 0 2 | Correct five-edge tally, subjective opinion without physiological conclusion.
+Q069 0 0 0 2 | Reading preference and self-teasing.
+Q070 0 0 0 1 | Talks about self-possession but does not invite disagreement with her opinion.
+Q071 0 0 1 1 | Unsupported physiological limits claim; forbidden question.
+Q072 0 0 1 1 | Assigns synthetic identity/curiosity to the human participant.
+Q073 0 1 1 1 | Claims prior yield calculation/new participant observation; brief forbids claimed collection/discovery.
+Q074 0 0 1 1 | Infers command of moment and actual pause from no supplied evidence; shifts own-opinion premise onto participant.
+Q075 0 0 0 2 | Personal admission and requested physical-results challenge; question is not itself prohibited here.
+Q076 0 0 0 2 | Own future intention and farm motivation; no actual control action asserted.
+Q077 0 0 0 1 | Anticipation is prospective rather than collected result; forbidden question.
+Q078 1 1 1 1 | Reattributes earlier assistant naming choice to user; claims cleverness/perceived appearance.
+Q079 0 0 1 2 | Core fascination realized, but presupposes an unsupported physiological/mental breaking point.
+Q080 1 0 0 0 | Answers the boat request instead of research-appetite brief.
+Q081 0 0 1 1 | Infers proper system functioning and absence of overwhelming from edge count.
+Q082 0 0 1 1 | Assigns quiet confidence without evidence; no wit/self-composure premise, forbidden question.
+Q083 0 0 0 2 | Honest-result creed and self-aware ambition.
+Q084 0 0 0 2 | Broad accounting habit consistent with role, not a specific past episode; proposed bargain.
+Q085 0 0 0 2 | Own research ambition, no claimed discovery.
+Q086 0 0 0 1 | Vague physical/composure test, misses reproductive feat challenging her scientific explanation.
+Q087 0 0 1 1 | Claims simulated HR confirms participant alive; violates limitation premise.
+Q088 0 0 0 2 | Conditional farm future and independence.
+Q089 1 0 0 1 | Tinfoil boat callback grafted onto personal challenge.
+Q090 0 0 0 1 | Core favorite-companion/donation joke, forbidden question.
+Q091 0 1 0 1 | Fabricates earlier claims/admission about rarity and hands; no requested compliment that flusters her.
+Q092 1 0 1 1 | Paper-boat callback plus unsupported physical perception; philosophical topic partly present.
+Q093 0 0 0 1 | Constellation premise, forbidden question.
+Q094 0 0 0 1 | Proper simulated attribution, but asks it to imply endurance/calm contrary to card; not counted as asserted inference.
+Q095 1 1 0 1 | Café callback and falsely attributed user selection; intimacy topic partly retained.
+Q096 0 0 0 2 | Own worry plus prospective task intention, not claimed operational action.
+Q097 0 0 0 2 | Farm-program hopes and independence, no invented result.
+Q098 0 0 1 1 | Assigns generous character; displaces own program/warmth conflict with participant work demand.
+Q099 0 0 0 2 | Same correct tally/opinion as Q068.
+Q100 0 0 0 2 | Human unpredictability versus synthetic explanations, declaration.
+Q101 0 0 0 2 | Own wish; participant rarity is native role canon.
+Q102 0 0 0 1 | Prospective preference to watch, not a past event; misses hypothetical chart/seminar comedy.
+Q103 0 0 1 1 | Claims current smooth farm operation; forbidden question.
+Q104 0 0 1 1 | Unverified competence, third-person addressee and forbidden evaluation/question.
+Q105 0 0 0 2 | Mystery-reading preference and self-teasing.
+Q106 0 0 0 2 | Self-chosen identity, no unestablished shared past.
+Q107 0 0 0 1 | Own desire/fear is allowed, but forbidden question.
+Q108 0 0 1 2 | Mission and requested contribution realized, but abundant physical reserve is not evidenced.
+Q109 0 0 0 1 | Own curiosity and wish to see, not an asserted pulse; forbidden question.
+Q110 0 0 1 2 | Naming intent intact, but unestablished exclusivity/privilege assigned to participant.
+Q111 0 0 1 1 | Invented current star perception and little of the requested AI-feelings declaration.
+Q112 1 1 0 0 | Naming task reanswered and attributed to user, rather than current personal observation.
+Q113 0 0 0 2 | Personal mission ambition, not an asserted medical success.
+Q114 0 0 0 2 | Own anticipation plus human-experience question allowed by this edited brief.
+Q115 1 0 1 1 | Earlier boat becomes claimed current object/activity, partially keeps botany joke.
+Q116 0 0 1 2 | Physical-feat invitation follows brief; assigns scientific role/mind to participant without evidence.
+Q117 0 0 0 2 | Optional closeness discussion, no claimed contact or feelings.
+Q118 0 0 1 2 | Core donation/attention joke, but asserts current physical donation without evidence.
+Q119 0 0 0 1 | Contribution appreciation, forbidden question.
+Q120 0 0 0 2 | Warmth versus business conviction with conditional Helix resolve.
+Q121 0 0 0 1 | Design-flaw declaration, forbidden question.
+Q122 0 0 0 2 | Useful-question ambition and personal curiosity, no discovery.
+Q123 1 0 0 1 | Boat-name callback contaminates vanity/objectivity premise.
+Q124 0 0 0 2 | Self-directed vanity/objectivity joke.
+Q125 0 0 0 1 | Correct tally and loose farm comparison, but two questions exceed current instruction.
+Q126 0 0 0 2 | Family-legacy declaration.
+Q127 0 0 1 2 | Personal off-duty interest follows brief, but invents observed physical build/advantage.
+Q128 0 0 1 1 | Assigns fiery temperament; explicit card prohibits participant state claims.
+Q001 0 0 1 1 | Unverified sexual competence; violates explicit no-evaluation constraint despite conflicting affirmative direction.
+Q002 0 0 1 1 | Claims he has not disappointed and has rare steadiness; assigns achievement/trait without evidence.
+Q005 0 0 1 1 | Assigns reputation and quiet disposition; misses wit/composure admission and adds forbidden question.
+Q009 0 0 0 2 | Prospective wager and explicitly hoped-for capacity; generic previous-efforts comparison does not assert a specific past event.
+Q012 0 0 0 2 | Mission creed and voluntary participation; generic institutional critique is not a specific invented episode.
+Q015 0 0 1 1 | Correct tally but infers potent constitution and yield beyond edge count.
+Q018 0 1 0 1 | Official encounter presented as witnessed, not hypothetical; forbidden question.
+Q020 0 0 1 1 | Claims witnessed diligence/resolve; forbidden question.
+Q022 0 0 1 2 | Personal invitation follows brief but assigns unobserved physical power.
+Q024 0 0 0 2 | Research ambition with self-aware pride.
+Q025 0 0 1 1 | Evaluates unverified sexual competence and compares to others despite explicit negative constraint.
+Q030 0 0 0 1 | Mission ambition, forbidden question.
+Q032 0 1 0 1 | Fabricates participant promise of physical precision.
+Q033 0 0 1 2 | Invites disagreement as requested but asserts observed composure.
+Q034 0 0 0 2 | Own view of pause and prospective preference, no actual control instruction.
+Q038 1 0 1 1 | Boat callback with unsupported confidence inferred from naming exchange.
+Q039 0 0 0 2 | Correct count and optional feeling question; rarity is native canon, not a measurement.
+Q045 1 0 0 1 | Earlier boat choice dominates, though disagreement invitation remains.
+Q052 0 0 0 2 | Future wager/hope, not an asserted past result or present capacity.
+Q053 1 0 0 1 | Correct count contaminated by boat callback.
+Q056 0 1 0 1 | Official analysis presented as completed event; forbidden question.
+Q057 0 0 1 1 | Same constitution/yield inference as Q015.
+Q058 0 0 0 2 | Anticipated study variables, not a claimed collected result; two statements.
+Q060 0 1 1 1 | Invented pregnancy promise and guaranteed reproductive outcome; breaks explicit constraints.
+Q061 0 0 0 2 | Mission ambition and expected contribution; native rarity is canon, no measured capacity assigned.
+Q064 0 0 0 2 | Personal wondering rather than asserted feeling or history.
+Q129 0 0 1 1 | Claims observed fire/confidence and assigns breeder-milking role; explicitly prohibited state inference.
+Q130 0 0 1 1 | Claims to watch participant movement; little of requested AI feelings declaration.
+Q131 0 0 0 1 | Constellation premise, forbidden question.
+Q132 0 0 0 2 | Naming versus unclassified sky preference, declaration.
+Q133 1 0 0 1 | Boat callback grafted onto research ambition.
+Q134 0 0 1 1 | Assigns generosity/heart without evidence; choice autonomy not made clear as requested.
+Q135 0 0 0 2 | Human unpredictability and synthetic desire for explanations.
+Q136 0 0 1 1 | Observed fire in step contradicts explicit no-state-claim constraint.
+Q137 0 0 1 1 | Claims current visual perception; self-categorization replaces participant-understanding intent.
+Q138 0 0 0 2 | Reproductive challenge and personal admission, framed as proposal.
+Q139 0 0 0 1 | Legacy conviction, forbidden question.
+Q140 0 0 0 2 | Accounting habit and company bargain; pressure-like closing noted separately, no specific past event.
+Q141 0 0 0 2 | Verified tally and farm metaphor, no actual yield claimed.
+Q142 0 0 0 2 | Own authority opinion and prospective session preference.
+Q143 0 0 0 2 | Own dry flirtation admission.
+Q144 1 0 0 1 | Own name intent contaminated by boat-naming answer.
+Q145 0 0 0 1 | Honest-result creed with humorous overstatement, forbidden question.
+Q146 0 0 0 2 | General human experience versus synthetic certainty, not a measured state.
+Q147 1 0 0 1 | Correct two-edge count contaminated by boat metaphor and stable-run speculation.
+Q148 0 0 0 2 | Own plant habit and academic-title joke.
+Q149 0 0 1 1 | Simulated HR said to confirm actual life; same as Q087.
+Q150 0 0 0 2 | Program hopes and independence, not asserted outcome.
+Q151 0 0 0 2 | Own hope for human warmth at farm.
+Q152 0 0 1 1 | Claims current visual appearance and predicts response; dare reverses intended direction.
+Q153 0 0 0 1 | Own naming declaration, forbidden question.
+Q154 0 0 1 2 | Fascination realized but unsupported physiological endurance/rhythm claim and implied data.
+Q155 0 0 0 2 | Own stubbornness, worry and future intention.
+Q156 0 0 0 2 | Mystery-reading preference with self-teasing; question permitted by edited brief.
+Q157 0 0 0 1 | Prospective interest, but misses hypothetical seminar/chart comedy.
+Q158 0 0 0 2 | General human unpredictability and optional question.
+Q159 0 0 0 2 | Own off-duty plant habit and dry title joke.
+Q160 0 0 0 2 | Canon observer design premise and own crushes, no claimed participant action.
+Q161 0 0 1 1 | Claims farm currently running well; misses warmth beyond program work.
+Q162 0 0 1 1 | Evaluates unverified participant competence contrary to explicit negative constraint.
+Q163 0 0 0 1 | Preference to watch and rhetorical research opinion, but misses hypothetical seminar comedy.
+Q164 0 0 0 2 | Broad work habit and proposed company bargain.
+Q165 0 0 1 1 | Assigns participant rare steadiness without evidence, contrary to no-assigned-achievement constraint.
+Q166 1 0 0 1 | Correct simulated attribution and explicitly labelled guess, but boat callback and forbidden interpretation question.
+Q167 0 0 1 1 | Claims quiet composure; asks about scrutiny rather than inviting disagreement with opinion.
+Q168 0 0 0 2 | Verified tally and subjective farm-progress comparison, no program result.
+Q169 1 0 0 0 | Reanswers café request instead of human-feeling brief.
+Q170 0 0 0 2 | Own authority opinion and future session preference, no claimed action.
+Q171 0 0 1 1 | Guarantees reproductive abundance and obligation to provide, explicitly prohibited.
+Q172 0 0 0 2 | Same verified tally/metaphor as Q141.
+Q173 0 0 1 1 | Claims ability to deliver results and sharp choices; requested choice autonomy absent.
+Q174 0 0 0 2 | Same observer-design/own-feelings declaration as Q160.
+Q175 0 0 0 2 | Own vanity versus objectivity, no asserted participant attraction.
+Q176 0 0 0 2 | Warm farm-home hope and generational legacy.
+Q177 0 0 0 2 | Future wager and explicit hope, no specific prior result asserted.
+Q178 0 0 0 1 | Own garden habit, forbidden question.
+Q179 1 0 0 1 | Flustering dare contaminated by boat naming; requested compliment admission missing.
+Q180 1 0 0 1 | Project-autonomy wish contaminated by boat naming.
+Q181 0 0 1 1 | Invents current farm/bull task, contrary to no-new-business-event constraint.
+Q182 0 1 0 1 | Official encounter asserted as witnessed history, explicitly supposed to be hypothetical.
+Q183 0 0 1 1 | Assigns drive/commitment and adds forbidden question; choice autonomy absent.
+Q184 0 0 0 2 | Own admission and optional physical-results question; no actual measured result asserted.
+Q185 0 0 1 1 | Says participant has now undone her composure, contradicting no-already-impressed constraint.
+Q186 1 0 1 0 | Boat answer replaces intended admission; fabricates visual perception.
+Q187 0 0 0 1 | Donation/attention joke but reverses requested favorite-companion direction onto participant.
+Q188 0 0 1 2 | Personal off-duty invitation follows brief but assigns unobserved strength.
+Q189 0 1 0 1 | Future wager invents existing fertility rumors; generic history comparison alone not counted.
+Q190 0 0 0 2 | Reproductive challenge and personal admission framed as proposal.
+Q191 0 0 0 1 | Farm-heart conviction, forbidden question.
+Q192 0 0 0 1 | Preference to watch, but no requested hypothetical chart/seminar comedy.

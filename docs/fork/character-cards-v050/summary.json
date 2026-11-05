@@ -1,0 +1,153 @@
+{
+  "personal_commit": "75d38d8",
+  "checkpoint": "checkpoint/character-cards-personal-20261105",
+  "integration_base": "4853058",
+  "integration_merge": "6fdf542",
+  "integrity": {
+    "sha256": "39e04b7cc5362b3c83ca56b9d6c06d9a24a74da79bf07326003cf46eba95c1cb",
+    "normal_inventory": {
+      "shared": 19,
+      "nova": 12,
+      "evelyn": 12,
+      "daisy": 12,
+      "celeste": 12
+    },
+    "changed_briefs": [
+      "nova-alien-menu",
+      "nova-human-variable",
+      "nova-beautiful-error",
+      "daisy-farm-future",
+      "daisy-gate-debate",
+      "daisy-prized-volunteer",
+      "daisy-friendly-bargain",
+      "evelyn-research-appetite",
+      "evelyn-imagined-seminar",
+      "evelyn-human-complexity",
+      "evelyn-precision-game",
+      "evelyn-after-hours",
+      "celeste-earned-concession",
+      "celeste-negotiating-silence",
+      "celeste-mission-stakes",
+      "celeste-quiet-competence",
+      "nova-mystery-book",
+      "nova-research-partner",
+      "nova-project-autonomy",
+      "daisy-stubborn-charm",
+      "daisy-pie-diplomacy",
+      "daisy-hat-contest",
+      "evelyn-research-ambition",
+      "evelyn-peer-review",
+      "celeste-public-promise",
+      "celeste-ceremonial-pen",
+      "celeste-ambition-wager"
+    ],
+    "unexpected_changes": [],
+    "common_unchanged": true,
+    "schema_valid": true,
+    "schema_error": null,
+    "max_brief_length": 383,
+    "over_length": [],
+    "unique_ids": true,
+    "all_card_count": 75,
+    "integration_identical_bytes": true
+  },
+  "tests": {
+    "personal_focused": {
+      "passed": 882,
+      "failures": 0
+    },
+    "combined_python": {
+      "passed": 2954,
+      "failures": 0
+    },
+    "javascript_engine": {
+      "passed_test_files": 50,
+      "failures": 0
+    },
+    "javascript_companion": {
+      "passed": 75,
+      "failures": 1,
+      "known_failure": "presentation alias count: actual 26, expected 25"
+    },
+    "browser_reports": {
+      "upstream_modes": {
+        "passed": true,
+        "steps": [
+          "Companion mounts on the upstream page; every original element and engine control is preserved",
+          "Observed play styles: classic, finisher, milker, shortener, headplay, ultimate, bratty, ruin, script (engine: classic, finisher, milker, shortener, headplay, ultimate, bratty, ruin)",
+          "A chat requesting stop/mode/intensity commands leaves the engine session unchanged",
+          "Pause reasons: Edged \u2192 edge + pause_reason edged (no pause event, pause count unchanged); Pause \u2192 pause_reason user",
+          "Emergency stop is an engine stop: motors zero, mocked Handy stopped, observer records safety_stop",
+          "No agent/relay requests; external requests blocked: "
+        ],
+        "path": "/home/sean/Work/character-cards-v050-validation/browser-upstream/report.json"
+      },
+      "character_portraits": {
+        "passed": true,
+        "steps": [
+          "Exact aliases share identity and retain the same loaded portrait node",
+          "Ordinary conversational tone selects Flirty without facial narration",
+          "Three user-marked simulated edges trigger the Director mission card and model expression without ending the session",
+          "Completed reply tone, cancellation, character switching and model history restoration",
+          "Both Celeste versions select with distinct identity and model-driven expression; desktop/mobile portraits fit",
+          "Nova model selection, expression, isolated history and desktop/mobile portrait",
+          "Verified stop preserves emotion while original emergency control stops mocked session",
+          "Desktop/tablet/mobile artwork, contain scaling, reduced motion and emergency accessibility",
+          "All 48 supplied character/expression portraits load directly; no model inference",
+          "Image error fallback, total failure placeholder and stale image-load fencing"
+        ],
+        "path": "/home/sean/Work/character-cards-v050-validation/browser-characters-fixed/report.json"
+      },
+      "director_menus": {
+        "passed": true,
+        "steps": [
+          "Character-scoped selection pacing validates and saves without inference; retired idle controls are gone",
+          "Both character menus, keyboard/Escape focus restoration, backend settings, no inference, readable story and cancelled reset",
+          "Candidate identities, thinking OFF, bounded callback context and independent story/dialogue restoration",
+          "Independent story reset, reset during generation and incomplete-response exclusion",
+          "Desktop/mobile artwork and independent emergency control remain accessible"
+        ],
+        "path": "/home/sean/Work/character-cards-v050-validation/browser-menus-final/report.json"
+      },
+      "real_f29_browser": {
+        "passed": true,
+        "steps": [
+          "Integrated UI, read-only observer, four installed F29 aliases, simulated HR and mocked device readiness",
+          "Real F29 reply delivered to a running simulated browser session",
+          "User emergency control stops the simulated engine"
+        ],
+        "path": "/home/sean/Work/character-cards-v050-validation/browser-live-review/report.json"
+      }
+    }
+  },
+  "normal_samples": {
+    "cards": 48,
+    "samples": 96,
+    "delivered": 96,
+    "errors": 0,
+    "final_suppressions": 0,
+    "ends_in_question": 33,
+    "prior_message_marker_flags": 27,
+    "mean_words": 34.2,
+    "provider_calls": 105
+  },
+  "history_controls": 8,
+  "shared_lifecycle_samples": {
+    "samples": 32,
+    "delivered": 32,
+    "errors": 0,
+    "final_suppressions": 0,
+    "provider_calls": 35
+  },
+  "emergency_stop_checks": {
+    "companions": 4,
+    "model_calls": 0,
+    "deterministic_notice_delivered": true
+  },
+  "model_storage": {
+    "unchanged": true,
+    "files_before": 78,
+    "files_after": 78,
+    "changed_files": []
+  }
+}

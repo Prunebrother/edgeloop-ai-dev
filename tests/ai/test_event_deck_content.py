@@ -51,7 +51,7 @@ def test_every_shared_category_is_present(intent,count):
 @pytest.mark.parametrize('audience,intents',[('nova',{'character_curiosity_nova','character_challenge_nova'}),('evelyn',{'scientific_observation'}),('daisy',{'cloverfield_production','cloverfield_encouragement'}),('celeste',{'diplomatic_evaluation','personal_observation'})])
 def test_every_companion_has_its_requested_themes(audience,intents):
  cards=[c for c in DEFINITION.normal if c.audience==audience]
- assert len(cards)==2 and {c.intent for c in cards}==intents
+ assert len(cards)==12 and intents<={c.intent for c in cards}
 
 def test_opening_and_closing_are_single_shared_cards():
  assert [(c.id,c.audience) for c in DEFINITION.session_start]==[('opening','shared')]
