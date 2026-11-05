@@ -1,29 +1,25 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Host acceptance: original UI/engine, fake Handy, real observer, mocked Ollama.
 import {chromium} from 'playwright';
-import {spawn} from 'node:child_process';
+import {spawn} from 'node:child_process';import {claimPorts,ownedReady,isolatedEnv,guardBrowser} from './fixture-isolation.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 const root=path.resolve(new URL('../..',import.meta.url).pathname);
 const output=process.env.FORK_BROWSER_REPORT||'/tmp/edgeloop-f21-browser';
 const python=process.env.EDGELOOP_TEST_PYTHON||path.join(root,'.venv/bin/python');
-const uiPort=process.env.FORK_BROWSER_PORT||'8770',observerPort=process.env.FORK_OBSERVER_PORT||'8768';
+const uiPort=process.env.FORK_BROWSER_PORT||'8783',observerPort=process.env.FORK_OBSERVER_PORT||'8793';
 const uiUrl='http://127.0.0.1:'+uiPort,observerUrl='http://127.0.0.1:'+observerPort;
 const token='browser-fixture-token-'+'x'.repeat(32);
 const report={passed:false,steps:[],fixture:'mocked Ollama and Handy; no real hardware'};
 const children=[];let browser,page;
 const assert=(x,m)=>{if(!x)throw new Error(m);};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function waitServer(url){for(let i=0;i<50;i++){try{if((await fetch(url)).ok)return;}catch{}await sleep(100);}throw new Error('Local fixture server unavailable: '+url);}
-// Never attach to a running EdgeLoop stack: the fixture servers must own both ports.
-async function assertPortFree(port){try{await fetch('http://127.0.0.1:'+port+'/',{signal:AbortSignal.timeout(500)});}catch{return;}
-    throw new Error('Port '+port+' is already serving (live EdgeLoop stack?). Stop it or set FORK_BROWSER_PORT/FORK_OBSERVER_PORT.');}
+async function waitServer(url){return ownedReady(url,children);}
 try {
-    await assertPortFree(uiPort);await assertPortFree(observerPort);
     await mkdir(output,{recursive:true});
-    browser=await chromium.launch();
-    children.push(spawn('python3',['tools/serve_local.py',uiPort],{cwd:root,stdio:'ignore'}));
-    children.push(spawn(python,['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...process.env,EDGELOOP_FIXTURE_UI_PORT:uiPort,EDGELOOP_FIXTURE_OBSERVER_PORT:observerPort}}));
+    browser=guardBrowser(await chromium.launch(),[uiPort,observerPort]);
+    await claimPorts(uiPort,observerPort);children.push(spawn('python3',['tools/serve_local.py',uiPort],{cwd:root,stdio:'ignore',env:isolatedEnv()}));
+    children.push(spawn(python,['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...isolatedEnv(),EDGELOOP_FIXTURE_UI_PORT:uiPort,EDGELOOP_FIXTURE_OBSERVER_PORT:observerPort}}));
     await waitServer(uiUrl+'/');await waitServer(observerUrl+'/health');
     const ctx=await browser.newContext({viewport:{width:1920,height:1080}});
     await ctx.addInitScript(()=>{

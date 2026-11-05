@@ -4,7 +4,7 @@
 // engine stop, and the page never reaches an agent/relay endpoint or real device.
 // Fixtures only: simulated heart rate, mocked Handy cloud API, mocked Ollama.
 import {chromium} from 'playwright';
-import {spawn} from 'node:child_process';
+import {spawn} from 'node:child_process';import {claimPorts,ownedReady,isolatedEnv,guardBrowser} from './fixture-isolation.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 const root=path.resolve(new URL('../..',import.meta.url).pathname);
@@ -17,7 +17,7 @@ const report={passed:false,steps:[],fixture:'simulated HR, mocked Handy and Olla
 const children=[];let browser,page;
 const assert=(x,m)=>{if(!x)throw new Error(m);};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function waitServer(url){for(let i=0;i<80;i++){try{if((await fetch(url)).ok)return;}catch{}await sleep(100);}throw new Error('Fixture server unavailable: '+url);}
+async function waitServer(url){return ownedReady(url,children);}
 async function observed(predicate,message,timeout=6000){
     const deadline=Date.now()+timeout;let last;
     do{last=await(await fetch(observerUrl+'/fixture/state')).json();if(predicate(last.state||{},last))return last;await sleep(100);}while(Date.now()<deadline);
@@ -26,9 +26,9 @@ async function observed(predicate,message,timeout=6000){
 const engine=fn=>page.evaluate(async source=>{const{state}=await import('/src/js/state.js');return new Function('state','return ('+source+')(state)')(state);},fn.toString());
 try {
     await mkdir(output,{recursive:true});
-    browser=await chromium.launch();
-    children.push(spawn('python3',['tools/serve_local.py',uiPort],{cwd:root,stdio:'ignore'}));
-    children.push(spawn(python,['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...process.env,EDGELOOP_FIXTURE_UI_PORT:uiPort,EDGELOOP_FIXTURE_OBSERVER_PORT:observerPort}}));
+    browser=guardBrowser(await chromium.launch(),[uiPort,observerPort]);
+    await claimPorts(uiPort,observerPort);children.push(spawn('python3',['tools/serve_local.py',uiPort],{cwd:root,stdio:'ignore',env:isolatedEnv()}));
+    children.push(spawn(python,['tests/fork/browser_service.py'],{cwd:root,stdio:'ignore',env:{...isolatedEnv(),EDGELOOP_FIXTURE_UI_PORT:uiPort,EDGELOOP_FIXTURE_OBSERVER_PORT:observerPort}}));
     await waitServer(uiUrl+'/');await waitServer(observerUrl+'/health');
     const ctx=await browser.newContext({viewport:{width:1920,height:1080}});
     await ctx.addInitScript(()=>{

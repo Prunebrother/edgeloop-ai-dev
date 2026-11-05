@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Real UI and authenticated backend; mocked Ollama, no device connection.
 import {chromium} from 'playwright';
-import {spawn} from 'node:child_process';
+import {spawn} from 'node:child_process';import {claimPorts,ownedReady,isolatedEnv,guardBrowser} from './fixture-isolation.mjs';
 import net from 'node:net';
 import {mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -13,7 +13,7 @@ async function requireFreePort(port){
  const probe=net.createServer();await new Promise((resolve,reject)=>{probe.once('error',reject);probe.listen(port,'127.0.0.1',resolve);});
  await new Promise((resolve,reject)=>probe.close(error=>error?reject(error):resolve()));
 }
-async function wait(url){for(let i=0;i<100;i++){try{if((await fetch(url)).ok)return;}catch{}await sleep(100);}throw Error('Fixture unavailable');}
+async function wait(url){return ownedReady(url,children);}
 async function state(){return (await fetch(ai+'/fixture/narrative')).json();}
 async function select(model){await page.locator('[data-model]').selectOption(model);await page.locator('[data-select]').click();await page.waitForFunction(m=>document.querySelector('[data-selected]').textContent==='Active: '+m,model);}
 async function chat(text){await page.locator('[data-text]').fill(text);await page.locator('[data-text]').press('Enter');await page.waitForFunction(()=>document.querySelector('[data-text]').value==='');await page.waitForFunction(()=>document.querySelector('[data-cancel]').hidden);assert(!(await page.locator('[data-error]').textContent()),'Chat failed');}
@@ -21,10 +21,10 @@ async function shot(name,width,height){await page.setViewportSize({width,height}
 try{
  await mkdir(out,{recursive:true});
  await requireFreePort(uiPort);await requireFreePort(aiPort);
- const testEnv={...process.env,EDGELOOP_LIVE_ACCEPTANCE:'0',EDGELOOP_FIXTURE_UI_PORT:String(uiPort),EDGELOOP_FIXTURE_OBSERVER_PORT:String(aiPort)};delete testEnv.EDGELOOP_PAIRING_FILE;
- children.push(spawn('python3',['tools/serve_local.py',String(uiPort)],{cwd:root,stdio:'ignore',env:testEnv}));
+ const testEnv={...isolatedEnv(),EDGELOOP_LIVE_ACCEPTANCE:'0',EDGELOOP_FIXTURE_UI_PORT:String(uiPort),EDGELOOP_FIXTURE_OBSERVER_PORT:String(aiPort)};delete testEnv.EDGELOOP_PAIRING_FILE;
+ await claimPorts(uiPort,aiPort);children.push(spawn('python3',['tools/serve_local.py',String(uiPort)],{cwd:root,stdio:'ignore',env:testEnv}));
  children.push(spawn(path.join(root,'.venv/bin/python'),['-m','tests.fork.narrative_browser_service'],{cwd:root,stdio:'ignore',env:testEnv}));
- await wait(ui);await wait(ai+'/health');browser=await chromium.launch();const context=await browser.newContext({viewport:{width:1920,height:1080}});
+ await wait(ui);await wait(ai+'/health');browser=guardBrowser(await chromium.launch(),[uiPort,aiPort]);const context=await browser.newContext({viewport:{width:1920,height:1080}});
  await context.addInitScript(()=>{const no=()=>Promise.reject(new DOMException('No physical hardware','NotFoundError'));Object.defineProperty(navigator,'bluetooth',{value:{requestDevice:no},configurable:true});Object.defineProperty(navigator,'serial',{value:{requestPort:no,getPorts:async()=>[]},configurable:true});if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia=no;});
  page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(ui+'/?characterPreview=1');await page.locator('#ageConfirmBtn').click();await page.locator('#wizardSkipBtn').click();
  await page.locator('[data-url]').fill(ai.replace('http:','ws:')+'/observe');await page.locator('[data-token]').fill('event-reliability-fixture-'+'x'.repeat(32));await page.locator('[data-connect]').click();await page.waitForFunction(()=>document.querySelector('[data-model] option[value="evelyn-narrative-v1:latest"]'));
