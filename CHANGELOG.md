@@ -1,9 +1,14 @@
 # Changelog
 
-## v0.5.0 — draft, unreleased
+## v0.6.0-rc1 — test build (pre-release)
 
-<!-- DRAFT: not tagged or published. Supervised feature testing and hardware checks are still to do before release. -->
+<!-- Release candidate for testers, published on the dev repository only. Hardware testing is still to do; v0.5.0 was never released and is folded into this version. -->
 
+- **AI Settings Control (new, off by default).** When you turn it on in the *AI Settings Control* panel, the companion may change a few session settings itself, in character: play style, game, endgame, the orgasm toggle, intensity inside a band you set, and pause or stop. Every request passes a local gate (allowlist, your limits, rate limits, a fresh heart-rate signal and a ready toy) and then goes through the same path as the on-page controls. Each change shows a chip with Undo and is announced by the companion with a short in-character card. *Own changes* sets how often the companion may change something on its own initiative (Never, Rarely, Sometimes (default, at most every 5 minutes) or Often); changes you ask for in chat are not held back by it. The companion can never start or resume a session, reset it, change the duration, heart-rate limits, calibration, devices or the speed window. Emergency stop revokes AI control for the rest of the session. See SAFETY.md.
+- **Player interactions.** The companion reacts when you open the video player, select a video or start it, through the same Director queue as other events.
+- **Player workspace.** The video player moved to the centre column, with Close player, a fixed Theater mode and an Emergency stop inside the player stage, so it stays reachable in Theater and Fullscreen.
+- Fix: UI files are always revalidated, so an old cached stylesheet can no longer break the dashboard layout (for example the chat not scrolling) after an update.
+- Fix: the companion service restarts cleanly even when the previous run's port is still closing.
 - Built on EdgeLoop 1.1.4.31 (previously 1.1.3). New in the original app:
   - a video player that can follow a funscript, with Theater and Fullscreen
   - the Bratty Tease play style
@@ -15,12 +20,12 @@
   - updated drivers for The Handy, Intiface/Lovense and T-Code
   - a warning when EdgeLoop is not the focused window
   - Play Style and Session Endgame as compact cards
-- The companion follows the new page layout. The video player sits in the Session column, with Theater and Fullscreen for a larger view.
+- The companion follows the new page layout.
 - Companions now see Bratty Tease and video/script sessions, and the new card names (Simple Ramp, Ruin & Leak, No Nut November and others).
 - Companions can tell why a session is paused. An Edged stop counts as an edge, not a pause, so it is not described as a break.
 - Character Card expansion: 48 companion Character Cards, twelve each for Nova, Daisy, Evelyn and Celeste, alongside the 19 Common Cards. The Director deals them as before.
 - Earlier conversation reaches a card prompt as background, separate from the card's own instruction, so companions are less likely to answer an old message again.
-- Not included: upstream's agent link (AI control through a share link) and starting without a heart-rate sensor. The companion stays read-only; the heart-rate requirement is unchanged.
+- Not included: upstream's agent link (AI control through a share link) and starting without a heart-rate sensor. The heart-rate requirement is unchanged.
 
 ## v0.4.0 — companion conversation update
 
