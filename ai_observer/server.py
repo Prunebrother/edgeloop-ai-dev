@@ -385,10 +385,12 @@ def main():
     try:
         with socket.socket() as probe:
             # Like uvicorn: a restart must not trip over the previous run's TIME_WAIT sockets. A live listener still fails.
-            probe.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+            # On Windows SO_REUSEADDR would let the probe share a live listener's port, so ask for exclusive use.
+            probe.setsockopt(socket.SOL_SOCKET,socket.SO_EXCLUSIVEADDRUSE if os.name=='nt' else socket.SO_REUSEADDR,1)
             probe.bind(('127.0.0.1',config.port))
     except OSError as exc:
-        detail=f'Observer port {config.port} is occupied.' if exc.errno==errno.EADDRINUSE else f'Cannot bind observer port {config.port}: {exc.strerror}.'
+        in_use={errno.EADDRINUSE,getattr(errno,'WSAEADDRINUSE',errno.EADDRINUSE),getattr(errno,'WSAEACCES',errno.EADDRINUSE)}
+        detail=f'Observer port {config.port} is occupied.' if exc.errno in in_use else f'Cannot bind observer port {config.port}: {exc.strerror}.'
         parser.exit(1,detail+' Inspect ss -ltnp or choose EDGELOOP_OBSERVER_PORT. No process was stopped.\n')
     token=secrets.token_urlsafe(32)
     pairing_path=os.environ.get('EDGELOOP_PAIRING_FILE')

@@ -12,6 +12,8 @@ PUBLIC={'index.html','sw.js','manifest.json','README.md','CHANGELOG.md','LICENSE
 
 def public_file(raw, root=ROOT):
     path=unquote(urlsplit(raw).path).lstrip('/') or 'index.html'
+    # Windows would read a backslash as a separator and a colon as a drive or stream name.
+    if '\\' in path or ':' in path: return None
     parts=PurePosixPath(path).parts
     if any(p.startswith('.') for p in parts): return None
     allowed=path in PUBLIC or (len(parts)==1 and parts[0].startswith('icon') and Path(path).suffix in {'.svg','.png'}) or (path.startswith('src/js/') and path.endswith('.js')) or (path.startswith('src/css/') and path.endswith('.css')) or (path.startswith('src/assets/characters/') and Path(path).suffix in {'.png','.webp','.jpg','.jpeg','.svg'})
@@ -75,7 +77,16 @@ if __name__=='__main__':
     except ValueError:
         raise SystemExit('UI port must be an integer between 1 and 65535')
     try:
-        server=ThreadingHTTPServer(('127.0.0.1',port),partial(Handler,directory=str(ROOT)))
+        server_class=ThreadingHTTPServer
+        if os.name=='nt':
+            # On Windows SO_REUSEADDR would let two servers share the port. Claim it exclusively.
+            class server_class(ThreadingHTTPServer):
+                allow_reuse_address=False
+                def server_bind(self):
+                    import socket
+                    self.socket.setsockopt(socket.SOL_SOCKET,socket.SO_EXCLUSIVEADDRUSE,1)
+                    super().server_bind()
+        server=server_class(('127.0.0.1',port),partial(Handler,directory=str(ROOT)))
     except OSError as exc:
         raise SystemExit(f'Cannot start EdgeLoop on 127.0.0.1:{port}: {exc.strerror}. Inspect ss -ltnp or choose another port. No process was stopped.')
     with server:

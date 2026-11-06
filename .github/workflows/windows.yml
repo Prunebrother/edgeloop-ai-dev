@@ -1,0 +1,123 @@
+# AGPL-3.0-only. Windows checks for the EdgeLoop AI fork: the Python suite on Windows, and a
+# real setup -> start -> health -> stop -> uninstall cycle with a test bundle (no model store,
+# no GPU, no toys). Runs on pushes to Windows work branches and on demand. Publishes nothing.
+name: Windows
+
+on:
+  push:
+    branches: ['feature/windows-**', 'release/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python-tests:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements.lock colorama==0.4.6
+          python -m pip install --disable-pip-version-check --no-deps --no-build-isolation -e .
+      - name: Tests
+        env:
+          PYTHONUTF8: '1'
+        run: python -m pytest -q -p no:cacheprovider --junitxml=pytest-windows.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pytest-windows
+          path: pytest-windows.xml
+
+  build-lite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export the reviewed source
+        run: python3 tools/export-public-source.py --out "$RUNNER_TEMP/source"
+      - name: Build the Windows test bundle and setup folder
+        run: python3 "$RUNNER_TEMP/source/tools/windows/build-windows.py" --work "$RUNNER_TEMP/work" --lite --iscc none
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-lite
+          compression-level: 0
+          retention-days: 3
+          path: |
+            ${{ runner.temp }}/work/dist/edgeloop-ai-windows-x86_64.tar.gz.part*
+            ${{ runner.temp }}/work/setup/
+
+  setup-cycle:
+    needs: build-lite
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-lite
+          path: lite
+      - name: Compile the setup program
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; }
+          & $iscc /Q /O"$PWD\lite\dist" lite\setup\edgeloop-ai.iss
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Get-ChildItem lite\dist
+      - name: Install silently (parts next to setup, as for an offline install)
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem lite\dist\EdgeLoop-AI-Setup-*.exe | Select-Object -First 1
+          $p = Start-Process $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/LOG=$PWD\setup-inno.log" -Wait -PassThru
+          Get-Content "$env:LOCALAPPDATA\EdgeLoop AI\logs\setup.log" -ErrorAction SilentlyContinue
+          if ($p.ExitCode) { Get-Content setup-inno.log -Tail 40; exit $p.ExitCode }
+          Get-ChildItem "$env:LOCALAPPDATA\Programs\EdgeLoop AI"
+          Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Filter 'EdgeLoop*'
+      - name: Start, check every service, stop
+        shell: pwsh
+        env:
+          EDGELOOP_WINDOWS_QUIET: '1'
+        run: |
+          $root = Get-ChildItem "$env:LOCALAPPDATA\Programs\EdgeLoop AI" -Directory | Where-Object Name -like 'v*' | Select-Object -First 1
+          $py = Join-Path $root.FullName '.venv\Scripts\python.exe'
+          $launcher = Join-Path $root.FullName 'tools\windows\edgeloop_ai_windows.py'
+          & $py $launcher start --no-browser --quiet
+          if ($LASTEXITCODE) { Get-Content "$env:LOCALAPPDATA\EdgeLoop AI\logs\*.log"; exit 1 }
+          & $py $launcher status
+          $tags = Invoke-RestMethod http://127.0.0.1:11435/api/tags
+          $health = Invoke-RestMethod http://127.0.0.1:8768/health
+          $page = Invoke-WebRequest http://127.0.0.1:8770/ -UseBasicParsing
+          if (-not $health.ok -or -not $health.read_only -or $page.Content -notmatch 'EdgeLoop') { throw 'Unhealthy stack' }
+          foreach ($bad in @('src/js/..%5C..%5C.venv%5Cpyvenv.cfg', 'src/js/app.js::%24DATA', 'MANIFEST.json', 'SOURCE-MANIFEST.json')) {
+            try { Invoke-WebRequest "http://127.0.0.1:8770/$bad" -UseBasicParsing | Out-Null; throw "Served $bad" }
+            catch [System.Net.WebException] { } catch { if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw } }
+          }
+          # A second start must reuse the running stack, not start another.
+          & $py $launcher start --no-browser --quiet
+          if ($LASTEXITCODE) { exit 1 }
+          & $py $launcher stop --quiet
+          Start-Sleep 2
+          foreach ($port in 11435, 8768, 8770) {
+            if (Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue) { throw "Port $port still open after stop" }
+          }
+          Get-Content "$env:LOCALAPPDATA\EdgeLoop AI\logs\observer.log" -Tail 5
+      - name: Uninstall silently
+        shell: pwsh
+        run: |
+          $u = Get-ChildItem "$env:LOCALAPPDATA\Programs\EdgeLoop AI\unins*.exe" | Select-Object -First 1
+          Start-Process $u.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
+          Start-Sleep 5
+          if (Test-Path "$env:LOCALAPPDATA\Programs\EdgeLoop AI\v*") { throw 'Bundle left behind after uninstall' }
+          if (-not (Test-Path "$env:LOCALAPPDATA\EdgeLoop AI\data\selection.json")) { throw 'User data was removed' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: setup-cycle-logs
+          path: |
+            setup-inno.log
+            ~/AppData/Local/EdgeLoop AI/logs/
