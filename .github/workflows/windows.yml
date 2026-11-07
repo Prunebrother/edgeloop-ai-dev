@@ -22,7 +22,7 @@ jobs:
           python-version: '3.12'
       - name: Install
         run: |
-          python -m pip install --disable-pip-version-check -r requirements.lock colorama==0.4.6
+          python -m pip install --disable-pip-version-check -r requirements.lock colorama==0.4.6 setuptools==84.2.1 wheel==0.48.0
           python -m pip install --disable-pip-version-check --no-deps --no-build-isolation -e .
       - name: Tests
         env:
@@ -114,10 +114,15 @@ jobs:
           Start-Sleep 5
           if (Test-Path "$env:LOCALAPPDATA\Programs\EdgeLoop AI\v*") { throw 'Bundle left behind after uninstall' }
           if (-not (Test-Path "$env:LOCALAPPDATA\EdgeLoop AI\data\selection.json")) { throw 'User data was removed' }
+      - name: Collect logs
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force logs | Out-Null
+          Copy-Item setup-inno.log logs -ErrorAction SilentlyContinue
+          Copy-Item "$env:LOCALAPPDATA\EdgeLoop AI\logs\*" logs -ErrorAction SilentlyContinue
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: setup-cycle-logs
-          path: |
-            setup-inno.log
-            ~/AppData/Local/EdgeLoop AI/logs/
+          path: logs/

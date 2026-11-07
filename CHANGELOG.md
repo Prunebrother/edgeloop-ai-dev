@@ -1,8 +1,14 @@
 # Changelog
 
-## v0.6.0-rc1 — test build (pre-release)
+## v0.6.0-rc2 — test build with Windows installer (pre-release)
 
 <!-- Release candidate for testers, published on the dev repository only. Hardware testing is still to do; v0.5.0 was never released and is folded into this version. -->
+
+- **Windows installer (experimental).** `EdgeLoop-AI-Setup-v0.6.0-rc2.exe` installs the complete app for one Windows user without administrator rights: the same companions, model, Ollama (with NVIDIA CUDA support) and portable Python as the Linux bundle. Start menu shortcuts start and stop the local services; uninstalling keeps your data. Tested on Windows without a GPU or toys; real-hardware testing is still to do. The setup program is not code-signed yet. See INSTALL.md.
+- On Windows, the observer and web server claim their ports exclusively, and the web server refuses Windows-style backslash and colon paths.
+- Otherwise identical to v0.6.0-rc1, below.
+
+## v0.6.0-rc1 — test build (pre-release)
 
 - **AI Settings Control (new, off by default).** When you turn it on in the *AI Settings Control* panel, the companion may change a few session settings itself, in character: play style, game, endgame, the orgasm toggle, intensity inside a band you set, and pause or stop. Every request passes a local gate (allowlist, your limits, rate limits, a fresh heart-rate signal and a ready toy) and then goes through the same path as the on-page controls. Each change shows a chip with Undo and is announced by the companion with a short in-character card. *Own changes* sets how often the companion may change something on its own initiative (Never, Rarely, Sometimes (default, at most every 5 minutes) or Often); changes you ask for in chat are not held back by it. The companion can never start or resume a session, reset it, change the duration, heart-rate limits, calibration, devices or the speed window. Emergency stop revokes AI control for the rest of the session. See SAFETY.md.
 - **Player interactions.** The companion reacts when you open the video player, select a video or start it, through the same Director queue as other events.
