@@ -85,9 +85,22 @@ def stage_bundle(work, model_store, inputs, lite=False):
         build.create_characters(stage, inputs, work / 'ollama-build.log', binary=host / 'ollama/bin/ollama')
     else:
         (stage / 'models').mkdir()  # Test bundle: everything except the model store.
+    resolve_symlinks(stage)
     strip_bytecode(stage)
     seal(stage, inputs, lite)
     return stage
+
+
+def resolve_symlinks(stage):
+    # Ollama links name manifests to blobs. Windows cannot create symlinks without extra rights,
+    # so the bundle carries a copy of each (small) target instead; only targets inside the stage.
+    for path in sorted(stage.rglob('*')):
+        if path.is_symlink():
+            target = path.resolve()
+            if not target.is_relative_to(stage.resolve()) or not target.is_file():
+                raise ValueError('Symlink leaves the bundle: ' + str(path.relative_to(stage)))
+            path.unlink()
+            shutil.copyfile(target, path)
 
 
 RESERVED = {'con', 'prn', 'aux', 'nul', *(f'com{i}' for i in range(10)), *(f'lpt{i}' for i in range(10))}

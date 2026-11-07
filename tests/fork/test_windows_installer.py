@@ -198,3 +198,17 @@ def test_static_server_refuses_windows_path_tricks(raw):
 def test_static_server_still_serves_the_app():
     assert serve.public_file('/src/js/app.js') is not None
     assert serve.public_file('/') is not None
+
+
+def test_symlinks_become_copies_and_may_not_leave_the_bundle(tmp_path):
+    stage = tmp_path / 'stage'
+    (stage / 'models/blobs').mkdir(parents=True)
+    (stage / 'models/blobs/sha256-x').write_text('{"manifest": 1}')
+    (stage / 'models/latest').symlink_to('blobs/sha256-x')
+    build.resolve_symlinks(stage)
+    assert not (stage / 'models/latest').is_symlink()
+    assert (stage / 'models/latest').read_text() == '{"manifest": 1}'
+    (tmp_path / 'outside').write_text('secret')
+    (stage / 'escape').symlink_to(tmp_path / 'outside')
+    with pytest.raises(ValueError):
+        build.resolve_symlinks(stage)
