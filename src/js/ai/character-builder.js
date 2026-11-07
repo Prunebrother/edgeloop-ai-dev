@@ -1,0 +1,131 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Character Builder editor: world, character, portrait and card deck. The observer validates,
+// composes and activates; this panel only edits sources and shows results. All server and
+// authored text is assigned with textContent.
+const MAX_MESSAGE=16384;
+const blankWorld=()=>({schema_version:1,id:'',name:'',setting:'',lore:'',rules:[]});
+const blankCard=n=>({id:'card-'+n,theme:'',brief:'',when:{},repeat:true,enabled:true});
+const blankCharacter=()=>({schema_version:1,id:'',world:'',name:'',short_name:'',personality:'',voice:'',relationship:'',
+    model:'huihui_ai/qwen3.5-abliterated:9b',portrait:null,deck:{shared:'lifecycle',cards:[blankCard(1)]}});
+const WHEN=[['min_seconds','From second'],['max_seconds','Until second'],['min_edges','From edge'],['max_edges','Up to edge']];
+
+export function mountCharacterBuilder(host,{send,models=()=>[]}){
+    const root=document.createElement('details');root.className='character-builder';root.dataset.characterBuilder='';
+    root.innerHTML=`<summary>Character Builder</summary>
+      <p class="builder-note">Create your own world and companion. Cards are dialogue and story briefs only; EdgeLoop keeps control of the session, device and emergency stop.</p>
+      <div class="builder-row"><label>Open<select data-b-open><option value="">New character</option></select></label><button type="button" data-b-load>Open</button></div>
+      <fieldset data-b-world><legend>World</legend>
+        <label>Reuse world<select data-b-worlds><option value="">New world</option></select></label>
+        <label>World ID<input data-w="id" maxlength="24" placeholder="saltglass" spellcheck="false"></label>
+        <label>Name<input data-w="name" maxlength="60"></label>
+        <label>Setting<textarea data-w="setting" rows="3" maxlength="1200"></textarea></label>
+        <label>Lore<textarea data-w="lore" rows="4" maxlength="3000"></textarea></label>
+        <label>Ground rules (one per line)<textarea data-w="rules" rows="3"></textarea></label></fieldset>
+      <fieldset data-b-character><legend>Character</legend>
+        <label>Character ID<input data-c="id" maxlength="24" placeholder="wren-calloway" spellcheck="false"></label>
+        <label>Full name<input data-c="name" maxlength="60"></label>
+        <label>Short name<input data-c="short_name" maxlength="24"></label>
+        <label>Age (adult, optional)<input data-c="age" type="number" min="18" max="1000"></label>
+        <label>Personality<textarea data-c="personality" rows="3" maxlength="1200"></textarea></label>
+        <label>Voice<textarea data-c="voice" rows="2" maxlength="800"></textarea></label>
+        <label>Relationship to you<textarea data-c="relationship" rows="2" maxlength="600"></textarea></label>
+        <label>Model<input data-c="model" list="builder-models" maxlength="120" spellcheck="false"><datalist id="builder-models" data-b-models></datalist></label>
+        <label>Portrait<select data-b-art><option value="">No portrait</option></select></label>
+        <p class="builder-hint" data-b-art-folder></p></fieldset>
+      <fieldset data-b-deck><legend>Card deck</legend>
+        <label>Shared cards<select data-b-shared><option value="lifecycle">Lifecycle only (start, closing, arrival, milestones)</option><option value="lifecycle+routine">Lifecycle and routine (counts, time, heart rate)</option></select></label>
+        <div data-b-cards></div><button type="button" data-b-add>Add card</button></fieldset>
+      <div class="builder-actions"><button type="button" data-b-save>Save</button><button type="button" data-b-preview>Preview</button><button type="button" class="accent-button" data-b-activate disabled>Activate</button></div>
+      <p class="builder-status" role="status" data-b-status></p>
+      <ul class="builder-errors" role="alert" data-b-errors hidden></ul>
+      <section class="builder-preview" data-b-preview-out hidden></section>
+      <p class="builder-hint">To return to a built-in companion, choose its model above and press Switch model.</p>`;
+    host.append(root);
+    const q=s=>root.querySelector(s);
+    let world=blankWorld(),character=blankCharacter(),previewed=null,saving=0,previewAfterSave=false;
+    const status=t=>{q('[data-b-status]').textContent=t;};
+    const showErrors=errors=>{const list=q('[data-b-errors]');list.replaceChildren();list.hidden=!errors?.length;
+        for(const e of errors||[]){const li=document.createElement('li');li.textContent=(e.path||[]).join(' › ')+': '+e.message;list.append(li);}};
+    const option=(select,value,label)=>{const o=document.createElement('option');o.value=value;o.textContent=label;select.append(o);};
+    const fillSelect=(select,values,first)=>{const keep=select.value;select.replaceChildren();option(select,'',first);for(const v of values)option(select,v,v);select.value=values.includes(keep)?keep:'';};
+    const num=v=>v===''||v==null?undefined:Number(v);
+
+    function renderCards(){
+        const box=q('[data-b-cards]');box.replaceChildren();
+        character.deck.cards.forEach((card,index)=>{
+            const item=document.createElement('fieldset');item.className='builder-card';
+            const legend=document.createElement('legend');legend.textContent='Card '+(index+1);item.append(legend);
+            const field=(label,el)=>{const l=document.createElement('label');l.textContent=label;l.append(el);item.append(l);return el;};
+            const input=(key,attrs={})=>{const el=document.createElement('input');Object.assign(el,attrs);el.value=card[key]??'';el.oninput=()=>{card[key]=el.value||(key==='occasion'?undefined:'');dirty();};return el;};
+            field('Card ID',input('id',{maxLength:32,spellcheck:false}));
+            field('Theme',input('theme',{maxLength:32,placeholder:'tide-lore',spellcheck:false}));
+            const brief=document.createElement('textarea');brief.rows=2;brief.maxLength=400;brief.value=card.brief;brief.oninput=()=>{card.brief=brief.value;dirty();};field('Brief for the model',brief);
+            field('Occasion (optional)',input('occasion',{maxLength:160}));
+            for(const [key,label] of WHEN){const el=document.createElement('input');el.type='number';el.min='0';el.value=card.when?.[key]??'';
+                el.oninput=()=>{card.when={...card.when,[key]:num(el.value)};if(card.when[key]===undefined)delete card.when[key];dirty();};field(label,el);}
+            const talk=document.createElement('input');talk.type='checkbox';talk.checked=!!card.when?.requires_conversation;
+            talk.onchange=()=>{card.when={...card.when,requires_conversation:talk.checked||undefined};if(!talk.checked)delete card.when.requires_conversation;dirty();};field('Only after you have talked',talk);
+            const on=document.createElement('input');on.type='checkbox';on.checked=card.enabled!==false;on.onchange=()=>{card.enabled=on.checked;dirty();};field('Enabled',on);
+            const remove=document.createElement('button');remove.type='button';remove.textContent='Remove card';remove.onclick=()=>{character.deck.cards.splice(index,1);renderCards();dirty();};item.append(remove);
+            box.append(item);
+        });
+    }
+    function render(){
+        for(const el of root.querySelectorAll('[data-w]'))el.value=el.dataset.w==='rules'?(world.rules||[]).join('\n'):world[el.dataset.w]??'';
+        for(const el of root.querySelectorAll('[data-c]'))el.value=character[el.dataset.c]??'';
+        q('[data-b-art]').value=character.portrait?.file||'';q('[data-b-shared]').value=character.deck.shared;renderCards();
+    }
+    function collect(){
+        for(const el of root.querySelectorAll('[data-w]'))world[el.dataset.w]=el.dataset.w==='rules'?el.value.split('\n').map(s=>s.trim()).filter(Boolean):el.value;
+        for(const el of root.querySelectorAll('[data-c]')){const v=el.value;if(el.dataset.c==='age'){if(v)character.age=Number(v);else delete character.age;}else character[el.dataset.c]=v;}
+        character.world=world.id;character.portrait=q('[data-b-art]').value?{file:q('[data-b-art]').value,fit:character.portrait?.fit||'contain',position:character.portrait?.position||'50% 50%'}:null;
+        character.deck.shared=q('[data-b-shared]').value;
+        // Optional fields the player left empty are omitted, so validation reports only real problems.
+        character.deck.cards=character.deck.cards.map(c=>Object.fromEntries(Object.entries(c).filter(([k,v])=>!(k==='occasion'&&!v))));
+    }
+    function dirty(){previewed=null;q('[data-b-activate]').disabled=true;}
+    root.addEventListener('input',e=>{if(e.target.matches('[data-w],[data-c]'))dirty();});
+    q('[data-b-art]').onchange=dirty;q('[data-b-shared]').onchange=dirty;
+    const request=message=>{const ok=JSON.stringify(message).length<=MAX_MESSAGE&&send({version:1,type:'character_builder',...message});
+        if(!ok)showErrors([{path:[message.action],message:'Too large to send; shorten the lore or remove cards.'}]);return ok;};
+    q('[data-b-add]').onclick=()=>{character.deck.cards.push(blankCard(character.deck.cards.length+1));renderCards();dirty();};
+    const save=()=>{collect();showErrors([]);saving=2;status('Saving…');if(!(request({action:'save_world',world})&&request({action:'save_character',character}))){saving=0;previewAfterSave=false;}};
+    q('[data-b-save]').onclick=()=>{previewAfterSave=false;save();};
+    // Preview always composes what is on screen: it saves first and composes only if both saves succeed.
+    q('[data-b-preview]').onclick=()=>{previewAfterSave=true;save();};
+    q('[data-b-activate]').onclick=()=>{if(previewed&&request({action:'activate',id:previewed.id}))status('Activating '+previewed.name+'…');};
+    q('[data-b-load]').onclick=()=>{const id=q('[data-b-open]').value;if(!id){world=blankWorld();character=blankCharacter();render();dirty();return;}request({action:'get',kind:'character',id});};
+    q('[data-b-worlds]').onchange=e=>{if(e.target.value)request({action:'get',kind:'world',id:e.target.value});};
+    root.ontoggle=()=>{if(root.open)refresh();};
+    function refresh(){request({action:'list'});const list=q('[data-b-models]');list.replaceChildren();for(const m of models())option(list,m,m);}
+
+    function showPreview(p){
+        const out=q('[data-b-preview-out]');out.replaceChildren();out.hidden=false;
+        const h=document.createElement('h4');h.textContent=p.name+' · '+p.world+' · revision '+p.revision+' · '+p.content_sha256.slice(0,12);out.append(h);
+        const meta=document.createElement('p');meta.textContent='Runs on '+p.model+'. Its persona replaces the model\'s built-in identity ('+p.persona_characters+' characters).';out.append(meta);
+        if(p.portrait&&origin()){const img=document.createElement('img');img.alt=p.name+' portrait';img.className='builder-portrait';img.src=origin()+'/character-art/'+p.portrait.file;out.append(img);}
+        const themes=document.createElement('p');themes.textContent='Themes in the shuffle: '+Object.entries(p.themes).map(([t,n])=>t+' ×'+n).join(', ');out.append(themes);
+        const table=document.createElement('table');const head=table.createTHead().insertRow();for(const t of ['Card','Theme','When','Brief'])head.insertCell().textContent=t;
+        const body=table.createTBody();for(const c of p.cards){const row=body.insertRow();row.insertCell().textContent=c.id+(c.custom?'':' (shared)');row.insertCell().textContent=c.theme;row.insertCell().textContent=c.when;row.insertCell().textContent=c.brief;}
+        out.append(table);
+        const life=document.createElement('p');life.textContent='Shared lifecycle cards: '+[...p.shared_lifecycle.session_start,...p.shared_lifecycle.session_end,...p.shared_lifecycle.arrival,...p.shared_lifecycle.milestones].join(', ');out.append(life);
+        const persona=document.createElement('details');const s=document.createElement('summary');s.textContent='Persona prompt';const pre=document.createElement('pre');pre.textContent=p.persona_system;persona.append(s,pre);out.append(persona);
+    }
+    let originValue=null;const origin=()=>originValue;
+    return {
+        setOrigin(value){originValue=value;},
+        receive(m){
+            if(m.type!=='character_builder')return;
+            if(!m.ok){showErrors(m.errors);status(m.action==='activate'?'Not activated.':'Fix the problems listed below.');if(m.action.startsWith('save')){saving=0;previewAfterSave=false;}return;}
+            if(m.action==='list'){fillSelect(q('[data-b-open]'),m.characters,'New character');fillSelect(q('[data-b-worlds]'),m.worlds,'New world');
+                const art=q('[data-b-art]'),want=character.portrait?.file||art.value;fillSelect(art,m.art,'No portrait');art.value=m.art.includes(want)?want:'';
+                q('[data-b-art-folder]').textContent='Put portrait images (PNG, JPEG or WebP, up to 8 MB) in '+m.art_folder+' and reopen this panel.';}
+            else if(m.action==='get'&&m.kind==='character'){character=m.value;if(!character.deck.cards.length)character.deck.cards.push(blankCard(1));request({action:'get',kind:'world',id:character.world});render();dirty();status('Opened '+character.name+'.');}
+            else if(m.action==='get'&&m.kind==='world'){world=m.value;render();dirty();}
+            else if(m.action==='save_world'||m.action==='save_character'){if(m.action==='save_character')character=m.value;if(--saving===0){status('Saved locally · revision '+character.revision+'.');refresh();
+                if(previewAfterSave&&request({action:'preview',id:character.id}))status('Composing preview…');previewAfterSave=false;}}
+            else if(m.action==='preview'){previewed=m.preview;showPreview(m.preview);q('[data-b-activate]').disabled=false;status('Preview ready. Activate to start talking with '+m.preview.short_name+'.');}
+            else if(m.action==='activate'){status(m.character.name+' is active.');refresh();}
+        },
+    };
+}

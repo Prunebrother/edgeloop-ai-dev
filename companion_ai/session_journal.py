@@ -18,6 +18,9 @@ def model_name(scope):
 
 def companion(scope):
     model = model_name(scope)
+    # Character Builder scopes end in '#character=<id>'; the companion is that character.
+    if '#character=' in model:
+        return 'custom.' + model.rsplit('#character=', 1)[1]
     return model.split('-narrative')[0] or 'unknown'
 
 class SessionJournal:

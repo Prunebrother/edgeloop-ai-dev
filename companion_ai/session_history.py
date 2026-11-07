@@ -17,7 +17,10 @@ LABEL = re.compile(r'^[A-Za-z0-9_ -]{1,40}$')
 
 def family(scope):
     """The character behind a model name, so that a new model version can't claim a first meeting."""
-    return companion(scope).split(':')[0].split('-')[0].casefold()
+    name = companion(scope)
+    # A custom character is one family under its full ID; editing it keeps the same history.
+    if name.startswith('custom.'):return name
+    return name.split(':')[0].split('-')[0].casefold()
 
 
 def number(value):

@@ -155,7 +155,8 @@ test('the AI layer forwards settings requests only to the engine-side gate it wa
     const companion=read('src/js/ai/companion.js');
     assert.deepEqual([...new Set([...companion.matchAll(/settingsControl\??\.(\w+)/g)].map(m=>m[1]))].sort(),['chip','mountPanel','request','settings','subscribe']);
     assert.match(companion,/settingsControl\?\.mountPanel\?\.\(settingsSlot\)/);
-    assert.match(read('src/js/ai/connection.js'),/'settings_request'\]\.includes\(m\.type\)\)this\.onMessage\(m\)/);
+    // character_builder (Character Builder editor results) is display data only; it carries no settings or engine command.
+    assert.match(read('src/js/ai/connection.js'),/'settings_request','character_builder'\]\.includes\(m\.type\)\)this\.onMessage\(m\)/);
 });
 
 test('AI Settings modules import only the gate, the engine mode lists and session rules',()=>{

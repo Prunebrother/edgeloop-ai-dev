@@ -135,6 +135,9 @@ class Select(StrictModel):
     type: Literal['select_model']
     selection: ModelSelection
     thinking: bool | None = None
+    # Re-selecting the model an active custom character runs on keeps that character only when
+    # asked (desktop auto-select after a restart); a normal switch returns to the built-in.
+    keep_character: bool = False
 
 class Chat(StrictModel):
     version: Literal[1]
@@ -225,6 +228,24 @@ class ConfigureCurator(StrictModel):
     type: Literal['configure_curator']
     config: CuratorConfig
 
+class CharacterBuilderCommand(StrictModel):
+    """Character Builder sources and activation. Bodies are validated by companion_ai.character_builder;
+    nothing here reaches EdgeLoop's engine, device output or safety stops."""
+    version: Literal[1]
+    type: Literal['character_builder']
+    action: Literal['list','get','save_world','save_character','preview','activate','deactivate']
+    kind: Literal['world','character'] | None = None
+    id: str | None = Field(default=None,pattern=r'^[a-z0-9][a-z0-9-]{0,23}$')
+    world: dict | None = None
+    character: dict | None = None
+
+    @model_validator(mode='after')
+    def required(self):
+        need={'get':('kind','id'),'save_world':('world',),'save_character':('character',),'preview':('id',),'activate':('id',)}
+        if any(getattr(self,name) is None for name in need.get(self.action,())):
+            raise ValueError('Missing field for this Character Builder action')
+        return self
+
 class JournalCommand(StrictModel):
     version: Literal[1]
     type: Literal['session_journal']
@@ -244,7 +265,7 @@ class JournalCommand(StrictModel):
             raise ValueError('Privacy settings require configure')
         return self
 
-Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext|UpdateObjective|JournalCommand|ConfigureCurator|SettingsOutcome,Field(discriminator='type')])
+Messages = TypeAdapter(Annotated[Observation|Select|Chat|Models|Cancel|ResetNarrative|CharacterState|ConfigureDirector|ConfigureEvents|ConversationActivity|ConfigureContext|UpdateObjective|JournalCommand|ConfigureCurator|SettingsOutcome|CharacterBuilderCommand,Field(discriminator='type')])
 
 
 def _schema_paths(node):

@@ -2,7 +2,8 @@
 import {pairDesktop} from './desktop-pairing.js';
 import {Capture} from './snapshot.js';
 import {ReadOnlyConnection,reactionMatchesLatest} from './connection.js';
-import {resolveArtwork} from './artwork-manifest.js';
+import {resolveArtwork,setCustomCharacter,customCharacter} from './artwork-manifest.js';
+import {mountCharacterBuilder} from './character-builder.js';
 import {CharacterPresentation,mountExpressionPreview} from './character.js';
 import {CharacterPresentationController} from './presentation-controller.js';
 import {mountCharacterMenus} from './character-menus.js';
@@ -35,7 +36,8 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
     const previewCleanup=mountExpressionPreview(artwork,presentation);mountLayout(panel,artwork);
     const el=key=>panel.querySelector(`[data-${key}]`);
     let selected=null,current=null,pending=false,follow=true,paired=false,changing=false,thinking=null,supportsThinking=false,canDisableThinking=true;
-    let discovered=new Set(),latestGeneration=0;
+    let discovered=new Set(),latestGeneration=0,activeCharacter=null;
+    const observerOrigin=()=>{try{const u=new URL(connection.url);return 'http://'+u.host;}catch{return null;}};
     const scroll=()=>{if(follow)el('history').scrollTop=el('history').scrollHeight;};
     el('history').onscroll=()=>{follow=el('history').scrollHeight-el('history').clientHeight-el('history').scrollTop<60;el('latest').hidden=follow;};
     el('latest').onclick=()=>{follow=true;el('latest').hidden=true;scroll();};
@@ -55,7 +57,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
     const busy=(value,label='Generating…')=>{pending=value;el('cancel').hidden=!value;el('progress').textContent=value?label:'';el('history').setAttribute('aria-busy',String(value));controls();if(value)activity('working',thinking?'Working · thinking on':'Working · thinking off');else resting();};
     const error=text=>{el('error').textContent=text;el('error').hidden=!text;};
     const line=(role,text)=>{el('empty')?.remove();const node=document.createElement('article');node.className='message message-'+role;
-        const name=document.createElement('span');name.className='message-author';name.textContent=role==='user'?'You':selected||'Companion';
+        const name=document.createElement('span');name.className='message-author';name.textContent=role==='user'?'You':customCharacter()?.model===selected?customCharacter().character.name:selected||'Companion';
         const body=document.createElement('div');body.className='message-content';body.textContent=text;node.append(name,body);el('history').append(node);
         while(el('history').children.length>64)el('history').firstElementChild.remove();scroll();return {node,body};};
     const finish=()=>{if(current){if(!current.text)current.node.remove();current=null;}busy(false);};
@@ -72,6 +74,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
         }
         if(debug)queueMicrotask(updateDiagnostics);
         if(['character_state','narrative_reset','character_menu_error','session_journal'].includes(m.type)){menus.receive(m);return;}
+        if(m.type==='character_builder'){builder.receive(m);return;}
         if(m.type==='settings_request'){settingsRequest(m);return;}
         if(m.type==='protocol_error'&&m.errors?.some(e=>['configure_events','configure_context','update_objective'].some(type=>e.path.includes(type)))){menus.receive({type:'character_menu_error',detail:'Invalid companion settings. Check the permitted ranges and selected model; no configuration was applied.'});return;}
         if(m.type==='ai_diagnostics'){if(m.responder?.model&&m.responder.model!==selected||m.id&&m.id!==presentation.lastRequest?.id)return;Object.assign(diagnostic,m);return;}
@@ -83,9 +86,11 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
             if(m.ollama_url)el('endpoint').textContent='Ollama: '+m.ollama_url;el('model').value=names.includes(selected)?selected:names.includes(m.selected)?m.selected:(names[0]||'');
             el('ollama').textContent=names.length?'Ollama connected · '+names.length+' models':'Ollama connected · no installed models';
             controls();
-            if(desktopPairing&&!selected&&!changing&&names.includes(m.selected))queueMicrotask(()=>selectModel(m.selected));
+            if(desktopPairing&&!selected&&!changing&&names.includes(m.selected))queueMicrotask(()=>selectModel(m.selected,undefined,true));
         } else if(m.type==='model_selected'){
-            const sameModel=selected===m.model;changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;canDisableThinking=m.can_disable_thinking!==false;el('selected').textContent='Active: '+m.model;el('name').textContent=resolveArtwork(m.model).name==='Your companion'?m.model:resolveArtwork(m.model).name;el('name').title=m.model;el('model').value=m.model;
+            // A custom character is identified by its package, so switching it on the same model is a switch too.
+            const characterKey=m.character?m.character.content_sha256:null;const sameModel=selected===m.model&&activeCharacter===characterKey;activeCharacter=characterKey;
+            setCustomCharacter(m.model,m.character,observerOrigin());changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;canDisableThinking=m.can_disable_thinking!==false;el('selected').textContent='Active: '+(m.character?m.character.name+' (custom) · '+m.model:m.model);el('name').textContent=resolveArtwork(m.model).name==='Your companion'?m.model:resolveArtwork(m.model).name;el('name').title=m.model;el('model').value=m.model;
             queueMicrotask(()=>menus.refresh());
             Object.assign(diagnostic,{id:null,responder:{model:m.model},model_selected_expression:null,validated_expression:null,expression_valid:null});
             presentation.select(m.model,m.history||[]);
@@ -127,6 +132,8 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
             if(m.selection_failed&&!m.active){selected=null;thinking=null;supportsThinking=false;}finish();error((m.detail||'AI unavailable')+(m.errors?.length?' · '+m.errors.map(e=>e.path.join('.')+': '+e.code).join(', '):''));activity('error',selected?'Ready · last request failed':'AI unavailable');if(m.type==='ai_error')el('ollama').textContent='Ollama request unavailable';}
     }});
     const menus=mountCharacterMenus(artwork,{send:m=>connection.send(m),onReset:()=>{presentation.cancel();finish();}});
+    const builderSlot=document.createElement('div');panel.querySelector('.model-picker').after(builderSlot);
+    const builder=mountCharacterBuilder(builderSlot,{send:m=>{builder.setOrigin(observerOrigin());return connection.send(m);},models:()=>[...discovered]});
     // AI Settings Control: the engine-side gate decides; this layer only forwards and shows the result.
     const settingsName=()=>selected?(resolveArtwork(selected).name==='Your companion'?selected:resolveArtwork(selected).name):'Companion';
     const settingsChip=outcome=>{if(!settingsControl?.chip)return;el('empty')?.remove();el('history').append(settingsControl.chip(outcome,{name:settingsName(),send:r=>connection.send(r)}));scroll();};
@@ -152,11 +159,12 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
     const pairingTimer=setInterval(autoPair,5000);
     el('disconnect').onclick=()=>{desktopPairing=false;connection.disconnect();};
     el('refresh').onclick=()=>connection.send({version:1,type:'list_models'});
-    const selectModel=(model,requestedThinking)=>{
+    const selectModel=(model,requestedThinking,keepCharacter=false)=>{
         if(pending||changing)return;
         if(!discovered.has(model)){error('Refresh the model list and choose an installed model.');return;}
         const message={version:1,type:'select_model',selection:{model}};
         if(typeof requestedThinking==='boolean')message.thinking=requestedThinking;
+        if(keepCharacter)message.keep_character=true;
         if(connection.send(message)){presentation.cancel();error('');changing=true;el('progress').textContent='Applying model settings…';controls();resting();}
     };
     el('select').onclick=()=>selectModel(el('model').value);

@@ -24,6 +24,7 @@ from .fidelity import settings_reply_announced, corrected_closing, violations, e
 from .director import ConversationDirector, DirectorConfig, silent_response
 from .event_deck import Arrival, DeckContext, DeckLifecycleError, DeckRegistry, DeckSettings, load_definition, load_model_settings
 from .session_history import compare, previous_session, outcome as session_outcome
+from .character_builder import Library as CharacterLibrary, BuilderError
 
 
 class OllamaAdapter(OllamaProvider):
@@ -56,14 +57,39 @@ class ModelManager:
         self.context_diagnostics = {}
         self.context_config,self.context_config_error = load_context_config(store) if store else (ContextConfig(),None)
         self.tool_executor = None
+        # Character Builder: the active custom character's package, or None for a built-in model.
+        self.character = None
+        self.character_error = None
+        if store:
+            active = CharacterLibrary(store).active()
+            if active:
+                try:
+                    package = CharacterLibrary(store).load(active.get('id'), active.get('content_sha256'))
+                    if package.model == self.config.model:self.character = package
+                    else:self.character_error = 'The saved custom character is not active because a different model is selected.'
+                except BuilderError as exc:
+                    self.character_error = 'The saved custom character could not be restored: ' + str(exc)[:200]
 
-    def provider(self, config=None):
+    def overlay(self, metadata, character=None):
+        """Model metadata as every runtime path sees it: with a custom character, its persona is
+        the only identity. Narrative canon, budgets, curator and grounding read this 'system'."""
+        character = self.character if character is None else character
+        if not character or metadata is None:return metadata
+        native = metadata.get('system', '') or ''
+        return metadata | {'system': character.persona_system, 'native_system_replaced': True,
+            'native_system_sha256': sha256(native.encode()).hexdigest(),
+            'character_package': {'id': character.id, 'revision': character.revision, 'content_sha256': character.content_sha256}}
+
+    def provider(self, config=None, character=False):
         config = config or self.config
+        character = self.character if character is False else character
         if config.thinking:raise ValueError('Thinking must be OFF in this runtime')
         factory = self.factories.get(config.provider)
         if factory is None:
             raise ValueError('Unsupported local provider: ' + config.provider)
-        return factory(config.model, self.base_url, self.transport, config, self.metrics)
+        provider = factory(config.model, self.base_url, self.transport, config, self.metrics)
+        if character is not None:provider.persona_system = character.persona_system
+        return provider
 
     def preset_key(self,model=None):
         return self.config.provider+':'+self.base_url+':'+(model or self.config.model)
@@ -74,10 +100,11 @@ class ModelManager:
             presets[self.preset_key()] = self.config.model_dump()
             self.store.write('model-presets.json', presets)
             self.store.write('selection.json', {'config': self.config.model_dump(), 'ollama_url':self.base_url})
+            CharacterLibrary(self.store).set_active(self.character)
 
-    async def prepare(self, config, context_policy='reject'):
-        provider = self.provider(config)
-        metadata = await provider.capabilities(config.model)
+    async def prepare(self, config, context_policy='reject', character=None):
+        provider = self.provider(config, character)
+        metadata = self.overlay(await provider.capabilities(config.model), character) if character else await provider.capabilities(config.model)
         capabilities = metadata.get('capabilities', [])
         controls=thinking_support(metadata)
         if not controls['can_enable'] and config.thinking:
@@ -120,10 +147,14 @@ class ModelManager:
             self.persist()
         return self.status()
 
-    async def select(self, config, context_policy='reject', interrupt=None):
+    async def select(self, config, context_policy='reject', interrupt=None, character=None):
+        """character: a Character Builder package to run on this model, or None for the model's
+        own built-in identity. Selecting a model without one always returns to the built-in."""
+        if character is not None and character.model != config.model:
+            raise ValueError('The custom character package names a different model')
         # Validate before interrupting a generation; never evict external model residency.
-        config, metadata, warnings = await self.prepare(config, context_policy)
-        provider = self.provider(config)
+        config, metadata, warnings = await self.prepare(config, context_policy, character)
+        provider = self.provider(config, character)
         if interrupt:
             await interrupt()
         async with self.lifecycle_lock:
@@ -138,6 +169,8 @@ class ModelManager:
                     provider.embedded_system = metadata.get('system', '')
                     provider.thinking_controls = thinking_support(metadata)
                 self.config = config
+                self.character = character
+                self.character_error = None
                 self.model_metadata = metadata
                 self.context_diagnostics = {}
                 self.context_warnings = warnings
@@ -195,8 +228,13 @@ class ModelManager:
         return {"mode": self.mode, "config": self.config.model_dump(), 'load_state': self.load_state,
                 'context_warnings': self.context_warnings, 'runtime_error': self.metrics.last_error,
                 'active_model': self.config.model if self.mode not in {'mock', 'stopped'} else None,
-                'capabilities': self.model_metadata, 'last_inference': self.metrics.samples[-1] if self.metrics.samples else None,
+                'capabilities': self.model_metadata, 'character': self.character_status(), 'last_inference': self.metrics.samples[-1] if self.metrics.samples else None,
                 "loading": "lazy on first conversation", "idle_unload": "Ollama keep_alive", "boot_autostart": False}
+
+    def character_status(self):
+        c=self.character
+        return ({'id':c.id,'identity':c.identity,'name':c.display_name,'short_name':c.short_name,'revision':c.revision,
+                 'content_sha256':c.content_sha256,'model':c.model,'world':c.world.name,'portrait':c.portrait} if c else None)
 
     async def reply(self, summary, prompt, history, on_chunk=None, on_reset=None, on_expression=None):
         if self.mode == 'stopped':
@@ -215,7 +253,7 @@ class ModelManager:
             compiler_settings=self.context_config.model_copy(deep=True)
             try:
                 if isinstance(self.adapter,OllamaProvider) and self.model_metadata is None:
-                    self.model_metadata = await self.adapter.capabilities(self.config.model)
+                    self.model_metadata = self.overlay(await self.adapter.capabilities(self.config.model))
                 if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                 # Nova cross-companion evidence is built from the current trusted
                 # Journal at inference dispatch, never from a queued snapshot.
@@ -400,7 +438,35 @@ class ConversationService:
 
     def adapter_scope(self):
         config = getattr(self.adapter, 'config', AIConfig())
-        return config.provider + ':' + getattr(self.adapter,'base_url','local') + ':' + config.model
+        scope = config.provider + ':' + getattr(self.adapter,'base_url','local') + ':' + config.model
+        # A custom character is its own memory, deck, pacing and journal scope, even on a
+        # model that also runs a built-in companion or another custom character.
+        character = getattr(self.adapter, 'character', None)
+        return scope + '#character=' + character.id if character else scope
+
+    def deck_speaker(self):
+        """The name a card turn speaks as; a custom character uses its authored short name."""
+        character = getattr(self.adapter, 'character', None)
+        if character:return character.short_name
+        return self.deck_identity if self.deck_identity!='generic' else None
+
+    def sync_character_deck(self):
+        """Swap between the built-in deck and a custom character's composed deck. Decks are
+        rebuilt on a switch, which the deck already treats like a model switch."""
+        character = getattr(self.adapter, 'character', None)
+        wanted = character.content_sha256 if character else None
+        if wanted == getattr(self, 'deck_package', None):return
+        if getattr(self, 'deck_package', None) is None:self.deck_builtin_definition = self.deck_definition
+        self.deck_package = wanted
+        self.deck_registry = None
+        if character is None:
+            self.deck_definition = getattr(self, 'deck_builtin_definition', None);return
+        from .character_builder import compose_definition
+        base = getattr(self, 'deck_builtin_definition', None)
+        if base is None:
+            base, error = load_definition(json.loads((Path(__file__).resolve().parents[1]/'config/event-deck.json').read_text()))
+            if base is None:raise ValueError(error)
+        self.deck_definition = compose_definition(base, character)
 
     def activate_model(self):
         config = getattr(self.adapter, 'config', AIConfig())
@@ -417,7 +483,10 @@ class ConversationService:
         self.history = deque([dict(m, content=clean_dialogue(m['content'])) if m.get('role')=='assistant' else m for m in (stored or [])], maxlen=memory.max_messages)
         self.active_model_id = scope
         self.deck_settings,self.deck_settings_error=load_model_settings(store,scope)
-        if self.deck_settings.enabled:self.deck_identity=character_identity(config.model)
+        character=getattr(self.adapter,'character',None)
+        if self.deck_settings.enabled:self.deck_identity=character.identity if character else character_identity(config.model)
+        try:self.sync_character_deck()
+        except (ValueError,OSError) as exc:self.deck_faults[scope]='Custom character deck unavailable: '+str(exc)[:120]
         if hasattr(self.state,'model_scope'):self.state.model_scope=scope
         if hasattr(self,'pending'):
             for event in self.pending:self.event_intelligence.decision(event.get('event_id'),'discarded:model_switch')
@@ -682,7 +751,7 @@ class ConversationService:
     def deck_start(self,deck,play,prompt,event):
         now=self.clock()
         # Who is speaking, so that the person addressed is never given the companion's own name.
-        event['deck_card']['speaker']=self.deck_identity if self.deck_identity!='generic' else None
+        event['deck_card']['speaker']=self.deck_speaker()
         result=self.request(prompt,user=False,event=event)
         if not result['accepted']:
             deck.transition(play.id,'deferred',now,result['reason']);self.director.deferred('deck:'+result['reason']);return False
@@ -907,7 +976,7 @@ class ConversationService:
                'observer_epoch':getattr(self.state,'connection_epoch',None),'event_id':request['id'],
                'deck_card':{'lane':'normal','memory':'none','card_id':SETTINGS_CARD,'brief':settings_card_brief(entry),
                    'settings_change':{'setting':request['setting'],'from':entry['outcome'].get('from'),'to':entry['outcome'].get('to'),'reason':request['reason']},
-                   'speaker':self.deck_identity if self.deck_identity!='generic' else None}}
+                   'speaker':self.deck_speaker()}}
         prompt='Observed application event (not a user request): '+json.dumps({'kind':SETTINGS_CARD,'setting':request['setting'],'from':entry['outcome'].get('from'),'to':entry['outcome'].get('to')})
         result=self.request(prompt,user=False,event=event)
         if result['accepted']:self.settings_cards.popleft();self.director.last_reason='settings_card'
@@ -1078,7 +1147,7 @@ class ConversationService:
             # Optional event card: same prompt/grounding path, outside the shuffled pack.
             event['deck_card']={'lane':'normal','memory':'none','card_id':event['kind'],
                 'brief':PLAYER_BRIEFS[event['kind']],'player':event['player'],
-                'player_event':event['kind'],'speaker':self.deck_identity if self.deck_identity!='generic' else None}
+                'player_event':event['kind'],'speaker':self.deck_speaker()}
         result = self.request(prompt, user=False, event=event)
         if result["accepted"]:
             self.director.dispatched(event, reason)

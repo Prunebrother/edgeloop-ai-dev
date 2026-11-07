@@ -25,8 +25,11 @@ from companion_ai.models import AIConfig, SpeechPolicy
 from companion_ai.storage import SettingsStore
 from companion_ai.session_journal import SessionJournal
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, JournalCommand, ConfigureCurator, SettingsOutcome, safe_validation_errors
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, JournalCommand, ConfigureCurator, SettingsOutcome, CharacterBuilderCommand, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
+from companion_ai.character_builder import Library as CharacterLibrary, BuilderError, load_package, preview as character_preview
+from companion_ai.event_deck import load_definition
+from fastapi.responses import Response
 
 DEFAULT_ORIGINS=frozenset({'http://127.0.0.1:8770','http://localhost:8770'})
 
@@ -93,6 +96,51 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
         if request.headers.get('origin') not in {None,*origins}:
             return JSONResponse({'detail':'Origin refused'},status_code=403)
         response=await call_next(request);response.headers['Cache-Control']='no-store';return response
+    library=CharacterLibrary(store)
+
+    @app.get('/character-art/{name}')
+    async def character_art(name:str):
+        # Content-addressed copies made by the composer only: the name is the image's SHA-256.
+        data=library.stored_art(name)
+        if data is None:return JSONResponse({'detail':'Not found'},status_code=404)
+        kind={'png':'image/png','jpg':'image/jpeg','webp':'image/webp'}[name.rsplit('.',1)[1]]
+        return Response(data,media_type=kind,headers={'Cross-Origin-Resource-Policy':'cross-origin','X-Content-Type-Options':'nosniff'})
+
+    def builtin_deck():
+        definition,error=load_definition(json.loads((Path(__file__).resolve().parents[1]/'config/event-deck.json').read_text()))
+        if definition is None:raise BuilderError([{'path':['deck'],'message':error}])
+        return definition
+
+    async def character_builder(message):
+        reply={'type':'character_builder','action':message.action,'ok':True}
+        try:
+            if message.action=='list':reply|=library.list()
+            elif message.action=='get':reply|={'kind':message.kind,'value':library.read(message.kind+'s',message.id)}
+            elif message.action=='save_world':reply|={'value':library.save_world(message.world).model_dump(mode='json')}
+            elif message.action=='save_character':reply|={'value':library.save_character(message.character).model_dump(mode='json')}
+            elif message.action=='preview':reply|={'preview':character_preview(library.compose(message.id),builtin_deck())}
+            elif message.action in {'activate','deactivate'}:
+                package=None
+                if message.action=='activate':
+                    composed=library.compose(message.id)
+                    library.write_package(composed)
+                    package=load_package(composed)
+                    builtin_deck()
+                model=package.model if package else manager.config.model
+                async with model_lock:
+                    presets=store.read('model-presets.json',{})
+                    values=manager.config.model_dump()|presets.get(manager.preset_key(model),{})|{'model':model,'thinking':False,'explicit_expressions':runtime_config.explicit_expressions}
+                    await manager.select(AIConfig.model_validate(values),'adapt',interrupt,character=package)
+                    speech.activate_model()
+                    publish({'type':'model_selected','model':manager.config.model,'thinking':False,'character':manager.character_status(),
+                             'history':[{k:str(m[k])[:4000] for k in ('role','content','expression') if m.get(k) is not None} for m in list(speech.history)[-8:]]})
+                reply|={'character':manager.character_status()}
+        except BuilderError as exc:reply|={'ok':False,'errors':exc.errors[:24]}
+        except InferenceCompatibilityError as exc:reply|={'ok':False,'errors':[{'path':['model'],'message':str(exc)[:300]}]}
+        except (ValueError,httpx.HTTPError,OSError) as exc:
+            reply|={'ok':False,'errors':[{'path':['model'],'message':'Could not activate on this model: '+str(exc)[:200]}]}
+        publish(reply)
+
     @app.get('/health')
     async def health():return {'ok':True,'read_only':True,'engine':'original_browser','observation_fresh':state.fresh(),'ollama_url':endpoint}
 
@@ -318,6 +366,8 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             available=await asyncio.wait_for(provider.discover(),timeout=10)
                             publish({'type':'models','models':[{'name':m['name']} for m in available[:128]],'selected':manager.config.model,'ollama_url':endpoint})
                         except (ValueError,httpx.HTTPError,TimeoutError):publish({'type':'ai_error','code':'discovery_unavailable','detail':'Ollama model discovery unavailable at '+endpoint,'ollama_url':endpoint})
+                    elif isinstance(message,CharacterBuilderCommand):
+                        await character_builder(message)
                     elif isinstance(message,Select):
                         try:
                             async with model_lock:
@@ -331,9 +381,10 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 controls=thinking_support(metadata)
                                 supports_thinking=controls['can_enable']
                                 if message.selection.context_length is not None:values['context_length']=message.selection.context_length
-                                await manager.select(AIConfig.model_validate(values),message.selection.context_policy,interrupt)
+                                kept=manager.character if message.keep_character and manager.character and manager.character.model==message.selection.model else None
+                                await manager.select(AIConfig.model_validate(values),'adapt' if kept else message.selection.context_policy,interrupt,character=kept)
                                 speech.activate_model()
-                                publish({'type':'model_selected','model':manager.config.model,'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'can_disable_thinking':controls['can_disable'],'history':[{k:str(m[k])[:4000] for k in ('role','content','expression') if m.get(k) is not None} for m in list(speech.history)[-8:]]})
+                                publish({'type':'model_selected','model':manager.config.model,'character':manager.character_status(),'thinking':manager.config.thinking,'supports_thinking':supports_thinking,'can_disable_thinking':controls['can_disable'],'history':[{k:str(m[k])[:4000] for k in ('role','content','expression') if m.get(k) is not None} for m in list(speech.history)[-8:]]})
                         except InferenceCompatibilityError as exc:publish({'type':'ai_error','code':'inference_compatibility','detail':str(exc),'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
                         except (ValueError,httpx.HTTPError,OSError):publish({'type':'ai_error','detail':'Model settings could not be applied; check model availability and thinking support.', 'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
                     elif isinstance(message,Chat):
