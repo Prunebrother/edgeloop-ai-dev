@@ -3,6 +3,7 @@
 from collections import Counter
 from copy import deepcopy
 import json
+from hashlib import sha256
 from pathlib import Path
 import shutil
 import httpx
@@ -407,9 +408,8 @@ def test_editor_flow_save_preview_activate_portrait_and_switch_back(tmp_path):
             preview = send(ws, action='preview', id='wren-calloway')['preview']
             assert preview['name'] == 'Wren Calloway' and preview['themes'] == {'dry_tease': 1, 'keepsake': 1, 'tide_lore': 4}
             assert preview['shared_lifecycle']['session_start'] == ['opening']
-            art = client.get('/character-art/' + preview['portrait']['file'])
-            assert art.status_code == 200 and art.content == ART and art.headers['content-type'] == 'image/png'
-            assert client.get('/character-art/..%2Fselection.json').status_code == 404
+            # A non-loopback test peer is refused; the loopback check follows after this client.
+            assert client.get('/character-art/' + preview['portrait']['file']).status_code == 404
             activated = send(ws, action='activate', id='wren-calloway')
             assert activated['ok'] and activated['character']['short_name'] == 'Wren'
             assert app.state.speech.active_model_id.endswith('#character=wren-calloway')
@@ -421,6 +421,10 @@ def test_editor_flow_save_preview_activate_portrait_and_switch_back(tmp_path):
             selected = until(ws, 'model_selected')
             assert selected['character'] is None and app.state.models.character is None
             assert send(ws, action='list')['active'] is None
+    with TestClient(app, client=('127.0.0.1', 50000)) as local:
+        art = local.get('/character-art/' + preview['portrait']['file'])
+        assert art.status_code == 200 and art.content == ART and art.headers['content-type'] == 'image/png'
+        assert local.get('/character-art/..%2Fselection.json').status_code == 404
 
 
 def test_protocol_rejects_incomplete_builder_commands(tmp_path):
@@ -453,3 +457,81 @@ def test_desktop_auto_select_keeps_a_restored_character_and_a_manual_switch_does
             ws.send_json({'version': 1, 'type': 'select_model', 'selection': {'model': BASE_MODEL}})
             assert until(ws, 'model_selected')['character'] is None
             assert not app.state.speech.active_model_id.endswith('#character=wren-calloway')
+
+
+def test_event_preferences_are_keyed_by_custom_identity_not_by_the_model(tmp_path):
+    from companion_ai.event_intelligence import EventConfig
+    config = EventConfig.model_validate({'preferences': {'daisy': {'physiology': 0, 'story': 0}}})
+    # Daisy's real model alias resolves to Daisy for the built-in companion.
+    assert config.relevance_for('daisy-narrative-f29-v014:latest', 'physiology') == 0
+    # Wren on Daisy's model starts with the stock defaults, not Daisy's choices.
+    assert config.relevance_for('daisy-narrative-f29-v014:latest', 'physiology', identity='custom.wren-calloway') == 1
+    assert config.relevance_for('daisy-narrative-f29-v014:latest', 'story', identity='custom.wren-calloway') == 1
+    saved = EventConfig.model_validate({'preferences': {'custom.wren-calloway': {'physiology': 2}}})
+    assert saved.relevance_for(DAISY_MODEL, 'physiology', identity='custom.wren-calloway') == 2
+    assert saved.preferences['custom.wren-calloway'] == {'physiology': 2, 'session': 1, 'configuration': 1, 'story': 1}
+    for bad in ('custom.', 'custom.Bad', 'wren', 'custom.x/../y'):
+        with pytest.raises(ValueError):
+            EventConfig.model_validate({'preferences': {bad: {}}})
+
+
+async def test_service_uses_the_custom_identity_for_relevance_and_shows_its_entry(tmp_path):
+    from companion_ai.event_intelligence import EventConfig
+    manager = ModelManager(transport=ollama([]), store=SettingsStore(tmp_path))
+    speech = ConversationService(Replay().observation, lambda m: None, manager)
+    speech.event_intelligence.config = EventConfig.model_validate({'preferences': {'daisy': {'story': 0}}})
+    await manager.select(AIConfig(model=DAISY_MODEL))
+    speech.activate_model()
+    assert speech.relevance_identity() is None
+    assert 'custom.wren-calloway' not in speech.event_intelligence_snapshot()['config']['preferences']
+    wren_on_daisy = cb.load_package(cb.compose(WORLD, WREN | {'model': DAISY_MODEL}, ART))
+    await manager.select(AIConfig(model=DAISY_MODEL), character=wren_on_daisy)
+    speech.activate_model()
+    snapshot = speech.event_intelligence_snapshot()
+    assert snapshot['active_identity'] == 'custom.wren-calloway'
+    assert snapshot['config']['preferences']['custom.wren-calloway'] == {'physiology': 1, 'session': 1, 'configuration': 1, 'story': 1}
+    assert speech.event_intelligence.config.relevance_for(DAISY_MODEL, 'story', identity=speech.relevance_identity()) == 1
+
+
+def test_portrait_route_is_loopback_only_and_serves_only_validated_artwork(tmp_path):
+    lib = library(tmp_path)
+    lib.save_world(WORLD)
+    lib.save_character(WREN)
+    name = lib.compose('wren-calloway')['portrait']['file']
+    app = create_app(TOKEN, tmp_path, transport=ollama([]))
+    with TestClient(app, client=('127.0.0.1', 50000)) as local:
+        assert local.get('/character-art/' + name).content == ART
+        # Not an art-store name, or not the stored image: nothing is served.
+        for bad in ('wren.png', '../art/wren.png', name.replace('.png', '.jpg'), 'f' * 64 + '.png', name + '.png'):
+            assert local.get('/character-art/' + bad).status_code == 404, bad
+        # A foreign Host header (DNS rebinding) or page origin is refused.
+        assert local.get('/character-art/' + name, headers={'Host': 'evil.example'}).status_code == 400
+        assert local.get('/character-art/' + name, headers={'Origin': 'https://evil.example'}).status_code == 403
+    with TestClient(app, client=('::1', 50000)) as local6:
+        assert local6.get('/character-art/' + name).status_code == 200
+    with TestClient(app, client=('192.168.1.20', 50000)) as remote:
+        assert remote.get('/character-art/' + name).status_code == 404
+    # A file in the store that hashes to its name but is not the claimed image type is refused.
+    fake = b'<svg onload="x"/>'
+    fake_name = sha256(fake).hexdigest() + '.png'
+    (lib.root / 'art-store' / fake_name).write_bytes(fake)
+    assert lib.stored_art(fake_name) is None
+    # The listener itself binds only to loopback.
+    source = (Path(__file__).resolve().parents[2] / 'ai_observer/server.py').read_text()
+    assert "uvicorn.run(app,host='127.0.0.1'" in source
+
+
+def test_reopening_and_resaving_keeps_conditions_the_editor_cannot_edit(tmp_path):
+    """The editor round-trips the whole card; the library must too."""
+    lib = library(tmp_path)
+    lib.save_world(WORLD)
+    character = deepcopy(WREN)
+    character['deck']['cards'][0]['when'] = {'requires_hr': True, 'hr_trends': ['rising', 'steady'], 'statuses': ['RAMPDOWN']}
+    character['deck']['cards'][1]['when'] = {'requires_story_welcome': True, 'min_seconds': 30}
+    lib.save_character(character)
+    reopened = lib.read('characters', 'wren-calloway')
+    again = lib.save_character(reopened).model_dump(mode='json')
+    assert again['deck'] == reopened['deck'] and again['revision'] == 1
+    when = again['deck']['cards'][0]['when']
+    assert when['requires_hr'] is True and when['hr_trends'] == ['rising', 'steady'] and when['statuses'] == ['RAMPDOWN']
+    assert again['deck']['cards'][1]['when']['requires_story_welcome'] is True

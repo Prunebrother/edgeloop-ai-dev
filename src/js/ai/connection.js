@@ -67,7 +67,8 @@ export class ReadOnlyConnection {
     }
     send(message) {
         if(!this.epoch||!this.socket||this.socket.readyState!==1)return false;
-        const raw=JSON.stringify(message);if(raw.length>16384)return false;
+        // The observer limit is 16 KiB of UTF-8, so count bytes: accented text or emoji take more than one.
+        const raw=JSON.stringify(message);if(messageBytes(raw)>16384)return false;
         this.socket.send(raw);return true;
     }
     disconnect() {
@@ -78,6 +79,10 @@ export class ReadOnlyConnection {
         this.onStatus('AI disabled; EdgeLoop controls remain independent');
     }
 }
+
+export const MESSAGE_LIMIT_BYTES=16384;
+const encoder=new TextEncoder();
+export function messageBytes(raw){return encoder.encode(raw).length;}
 
 // Presentation freshness only; source is the existing original-engine projection.
 export function reactionMatchesLatest(scope,snapshot){

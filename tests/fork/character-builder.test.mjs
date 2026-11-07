@@ -25,3 +25,16 @@ test('a custom portrait name that is not a content hash is never turned into a U
         assert.equal(resolveArtwork(base).name,'Wren Calloway');
     }finally{setCustomCharacter(null,null);}
 });
+import {preservedConditions,MAX_CARDS,SIZE_HELP} from '../../src/js/ai/character-builder.js';
+import {messageBytes,MESSAGE_LIMIT_BYTES} from '../../src/js/ai/connection.js';
+test('conditions the editor cannot edit are named so the player knows they are kept',()=>{
+    assert.deepEqual(preservedConditions({}),[]);
+    assert.deepEqual(preservedConditions({statuses:['RUNNING','RAMPDOWN'],requires_hr:false,hr_trends:null,requires_story_welcome:false}),[]);
+    assert.deepEqual(preservedConditions({requires_hr:true,hr_trends:['rising'],requires_story_welcome:true,statuses:['RAMPDOWN']}),
+        ['needs a live heart rate (rising)','only when story is welcome','only while rampdown']);
+});
+test('limits are the observer limits, counted in UTF-8 bytes',()=>{
+    assert.equal(MAX_CARDS,16);assert.equal(MESSAGE_LIMIT_BYTES,16384);
+    assert.equal(messageBytes('abc'),3);assert.equal(messageBytes('ž'),2);assert.equal(messageBytes('🌊'),4);
+    assert.match(SIZE_HELP,/before the deck has 16 cards/);
+});

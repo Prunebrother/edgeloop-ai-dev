@@ -90,7 +90,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
         } else if(m.type==='model_selected'){
             // A custom character is identified by its package, so switching it on the same model is a switch too.
             const characterKey=m.character?m.character.content_sha256:null;const sameModel=selected===m.model&&activeCharacter===characterKey;activeCharacter=characterKey;
-            setCustomCharacter(m.model,m.character,observerOrigin());changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;canDisableThinking=m.can_disable_thinking!==false;el('selected').textContent='Active: '+(m.character?m.character.name+' (custom) · '+m.model:m.model);el('name').textContent=resolveArtwork(m.model).name==='Your companion'?m.model:resolveArtwork(m.model).name;el('name').title=m.model;el('model').value=m.model;
+            setCustomCharacter(m.model,m.character,observerOrigin());settingsControl?.selectProfile?.(m.character?.identity??null,m.character?.name);changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;canDisableThinking=m.can_disable_thinking!==false;el('selected').textContent='Active: '+(m.character?m.character.name+' (custom) · '+m.model:m.model);el('name').textContent=resolveArtwork(m.model).name==='Your companion'?m.model:resolveArtwork(m.model).name;el('name').title=m.model;el('model').value=m.model;
             queueMicrotask(()=>menus.refresh());
             Object.assign(diagnostic,{id:null,responder:{model:m.model},model_selected_expression:null,validated_expression:null,expression_valid:null});
             presentation.select(m.model,m.history||[]);
@@ -132,8 +132,15 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
             if(m.selection_failed&&!m.active){selected=null;thinking=null;supportsThinking=false;}finish();error((m.detail||'AI unavailable')+(m.errors?.length?' · '+m.errors.map(e=>e.path.join('.')+': '+e.code).join(', '):''));activity('error',selected?'Ready · last request failed':'AI unavailable');if(m.type==='ai_error')el('ollama').textContent='Ollama request unavailable';}
     }});
     const menus=mountCharacterMenus(artwork,{send:m=>connection.send(m),onReset:()=>{presentation.cancel();finish();}});
-    const builderSlot=document.createElement('div');panel.querySelector('.model-picker').after(builderSlot);
-    const builder=mountCharacterBuilder(builderSlot,{send:m=>{builder.setOrigin(observerOrigin());return connection.send(m);},models:()=>[...discovered]});
+    // Character Builder opens as its own workspace in the centre column. The conversation panel is
+    // only hidden meanwhile, so its history, scroll position and active character are untouched.
+    const builderHost=panel.parentElement||panel;
+    const builder=mountCharacterBuilder(builderHost,{send:m=>{builder.setOrigin(observerOrigin());return connection.send(m);},models:()=>[...discovered],
+        onClose:()=>{panel.querySelector('[data-open-builder]')?.focus();scroll();}});
+    const openBuilder=document.createElement('button');openBuilder.type='button';openBuilder.dataset.openBuilder='';openBuilder.textContent='Character Builder';
+    openBuilder.onclick=()=>{const dashboard=document.getElementById('companion-dashboard');
+        if(dashboard&&dashboard.dataset.view!=='chat')dashboard.dispatchEvent(new CustomEvent('companion-view',{detail:'chat'}));builder.open();};
+    panel.querySelector('.model-picker').append(openBuilder);
     // AI Settings Control: the engine-side gate decides; this layer only forwards and shows the result.
     const settingsName=()=>selected?(resolveArtwork(selected).name==='Your companion'?selected:resolveArtwork(selected).name):'Companion';
     const settingsChip=outcome=>{if(!settingsControl?.chip)return;el('empty')?.remove();el('history').append(settingsControl.chip(outcome,{name:settingsName(),send:r=>connection.send(r)}));scroll();};

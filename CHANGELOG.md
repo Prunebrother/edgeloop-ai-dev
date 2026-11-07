@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.7.0 — draft, unreleased
+
+<!-- DRAFT: not tagged or published. Target confirmed against the release plan: v0.6.0 is in release-candidate testing, so the Character Builder is the next minor release. Rebase onto the commit that passes the Nov 9 feature test before release. -->
+
+- Character Builder: create your own world and companion on this computer. You write the setting, lore, ground rules, name, personality, voice and relationship, choose a portrait, and write up to 16 Character Cards for the Director to deal.
+  - It opens in its own workspace from the model picker. "Back to chat" returns you to the same conversation and the same active character.
+  - Saving checks everything first and lists each problem by field. A preview shows the persona, the deck, theme weights and the portrait before you activate.
+  - The custom persona replaces the model's built-in identity in every request, so no model rebuild is needed and the built-in companion never speaks under the new name.
+  - Each custom character has its own conversation history, Story Memory, deck settings and Session Journal. Switching back to a built-in companion through the model picker restores it unchanged.
+  - Cards are dialogue only. A card that asks for a speed, setting, device or session change, or mentions the emergency stop, is refused. Session controls and the emergency stop stay with EdgeLoop.
+  - The shared start, closing, arrival and milestone cards still play for custom characters.
+- AI Settings Control is off for each new custom character, even when it is on for the built-in companions. Turning it on applies to that character only, and switching characters restores each one's own choice.
+- Event preferences have a separate entry for each custom character, starting at normal defaults, so a custom character on a built-in companion's model does not inherit that companion's preferences.
+- Limits shown in the builder: the card count (up to 16) and the size of each save (up to 16 KiB). An oversize save is refused with an explanation and nothing is written.
+- Portraits are added by placing an image (PNG, JPEG or WebP, up to 8 MB) in the art folder the builder shows. One portrait is used for every expression. Portraits are served only to this computer, and only after they pass the image check.
+- Not yet included: a set of portraits for different expressions, uploading a portrait directly, and builder controls for heart-rate and story conditions. Conditions written in a character file are kept when the deck is opened and saved in the builder.
+
 ## v0.6.0-rc3 — Windows installer recovery fixes (pre-release)
 
 Windows-only packaging update. Models and application behavior are unchanged; the Linux download remains v0.6.0-rc2.

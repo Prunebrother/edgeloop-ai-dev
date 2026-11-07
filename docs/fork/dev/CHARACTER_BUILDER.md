@@ -1,4 +1,4 @@
-# Character Builder (first increment)
+# Character Builder
 
 Players create their own world, character, portrait and card deck. EdgeLoop validates
 the result, composes a versioned package and runs that character on an installed Ollama
@@ -6,8 +6,9 @@ model, with its persona replacing the model's built-in identity. Model weights a
 rebuilt.
 
 Status: built on `feature/character-builder` from `experiment/ai-companion` `ec5b203`,
-before the November 9 live feature test. If the test picks a different baseline, rebase
-onto it and rerun the checks below.
+before the November 9 live feature test. Target release: v0.7.0 (v0.6.0 is in
+release-candidate testing). Once the test names its passing commit, rebase onto it and
+rerun the checks below.
 
 ## Where things live
 
@@ -19,7 +20,9 @@ onto it and rerun the checks below.
 | Memory, deck, pacing and journal scope | `ConversationService.adapter_scope()` and `sync_character_deck()` |
 | Protocol command | `character_builder` in `ai_observer/protocol.py` |
 | Server handler and portrait route | `ai_observer/server.py` (`/character-art/<sha256>.<ext>`) |
-| Editor | `src/js/ai/character-builder.js`, mounted under the model picker |
+| Editor workspace | `src/js/ai/character-builder.js`, opened from **Character Builder** in the model picker |
+| Per-character AI Settings | `selectProfile()` in `src/js/ai-settings/control.js`; storage key `edgeloop_ai_settings:custom.<id>` in `src/js/app.js` |
+| Per-character event preferences | `relevance_for()` in `companion_ai/event_intelligence.py`; `relevance_identity()` in `companion_ai/conversation.py` |
 | Portrait overlay | `setCustomCharacter()` in `src/js/ai/artwork-manifest.js` |
 | Fixture | `tests/fixtures/character-builder/` (Saltglass Reach world, Wren Calloway) |
 
@@ -121,6 +124,51 @@ Proof: unit tests run Wren on Daisy's model and check the wire request. The live
 did the same with the real `daisy-narrative-f29-v014` model: Wren answered as Wren, with
 no Daisy canon, and plain Daisy came back afterwards on the same model.
 
+## Workspace
+
+The model picker stays the way in. **Character Builder** there hides the conversation and
+opens the editor in the same column (on a phone it switches to the chat view first).
+**Back to chat** shows the conversation again. The conversation stays in the page and
+nothing is re-requested, so its history and the active character are exactly as they
+were.
+
+## Per-character preferences
+
+- **AI Settings Control** is stored per custom character under
+  `edgeloop_ai_settings:custom.<id>`, and the built-in companions keep the original
+  key. A custom character starts with it off even if it is on for the built-ins. The
+  player opts in through the existing AI Settings panel, which says which character the
+  setting applies to. On a character switch the control loads that character's stored
+  setting, or the off default, clears any pending request and restarts pacing only if
+  enabled.
+- **Event preferences** are keyed `custom.<id>`. A custom character without stored
+  preferences uses the normal defaults (every category at 1). It never uses the
+  preferences of the built-in companion whose model it runs on. Settings show it as
+  "Custom character: <id>".
+
+## Limits
+
+- **16 cards per deck** (`MAX_CARDS`). The builder shows "N of 16 cards" and disables
+  **Add card** at 16.
+- **16 KiB per message.** The observer closes a socket (1009) on a larger inbound
+  message, so the client counts UTF-8 bytes, not characters. World and character are
+  saved as separate messages, and the builder shows the size of each. Before saving it
+  checks both, so an oversize character never leaves a half-saved pair. The error
+  explains that long text can reach the limit before 16 cards.
+- **Portraits** come from the art folder the builder shows (PNG, JPEG or WebP, up to
+  8 MB). There is no direct upload yet.
+
+## Portrait route
+
+`/character-art/<sha256>.<ext>` has no pairing token, so it is restricted:
+
+- it answers only a loopback peer (`127.0.0.1` or `::1`), and anything else gets 404;
+- the observer binds to 127.0.0.1, and the existing Host and Origin checks still apply;
+- the file is served only if its SHA-256 matches its name and the detected image type
+  matches the extension, so a renamed SVG or other file is refused.
+
+Knowing a hash grants nothing beyond what is already on the local disk.
+
 ## What stays with the engine
 
 Custom cards are dialogue and story briefs only. The card schema has no action, setting
@@ -158,29 +206,50 @@ from every other custom character. Editing a character keeps its ID and its memo
 1. Start the dev Ollama and the observer as usual, and open the app.
 2. Start a simulated session: HR Monitor → Manual Simulator, connect a Handy (a real one
    or the browser fixture mock), then Play.
-3. Pair the AI companion, then open **Character Builder** under the model picker.
-4. Copy `tests/fixtures/character-builder/wren.png` into the art folder the panel shows.
-   Close and reopen the panel.
+3. Pair the AI companion, then press **Character Builder** next to the model picker.
+4. Copy `tests/fixtures/character-builder/wren.png` into the art folder the builder shows.
+   Go back to chat and reopen the builder.
 5. Fill in the world and character, for example from the fixture JSON files, choose
    `wren.png`, and add cards.
 6. Press **Preview**. It saves, then shows any validation errors with field paths, or
    the persona, cards, theme counts, shared lifecycle cards and portrait.
-7. Press **Activate**. The character panel shows Wren, and the chat runs on her persona.
+7. Press **Activate**, then **Back to chat**. The character panel shows Wren, and the chat
+   runs on her persona.
    After the opening card, custom cards are drawn once the session passes their `when`
    rules (the fixture cards need 60 s).
 8. To return to a built-in companion, choose its model in the picker and press
    **Switch model**.
 
+## Conditions the editor does not show
+
+The editor edits time, edge, conversation and enabled conditions. Other conditions
+written in a character file (`requires_hr`, `hr_trends`, `statuses`,
+`requires_story_welcome` and the rest) are listed on the card as "kept as written". They
+are sent back unchanged when the deck is saved.
+
+## Follow-ups
+
+- A set of portraits for different expressions (one portrait serves all of them now).
+- Uploading a portrait directly instead of using the art folder.
+- Builder controls for heart-rate and story conditions.
+
 ## Tests
 
-- `tests/ai/test_character_builder.py` (41): composer determinism and versioning,
+- `tests/ai/test_character_builder.py` (46): composer determinism and versioning,
   malformed cards, artwork paths and content, adult checks, save and reopen, revisions,
   symlinks, persona replacement on the wire, memory isolation, restore after restart,
-  deck composition, the theme ratio, a Director draw in the event replay, and the full
-  editor flow over the observer protocol.
-- `tests/fork/character-builder.test.mjs`: the portrait overlay and URL safety.
+  deck composition, the theme ratio, a Director draw in the event replay, the full
+  editor flow over the observer protocol, per-character event preferences, the
+  loopback-only portrait route, and conditions kept on reopen and resave.
+- `tests/fork/character-builder.test.mjs`: the portrait overlay, URL safety, kept
+  conditions and UTF-8 message sizes.
+- `src/js/ai-settings/control.test.js`: per-character AI Settings profiles.
 - `tests/fork/character-builder-browser.mjs`: the in-app flow with the Manual Simulator,
-  mocked Handy and mocked Ollama. Run it with `node tests/fork/character-builder-browser.mjs`;
+  mocked Handy and mocked Ollama. It covers the workspace, the card count and size
+  meters, a malformed card, preview and activation, AI Settings off for the custom
+  character and its opt-in, its event-preference entry, chat kept across the workspace,
+  a custom card draw, the 16-card cap, an oversize save refused, conditions kept on
+  resave, and the switch back to Daisy with her own AI Settings. Run it with `node tests/fork/character-builder-browser.mjs`;
   in a worktree, set `EDGELOOP_TEST_PYTHON` or symlink `.venv`.
 - `tests/fork/character_builder_smoke.py`: opt-in live run on real models
   (`EDGELOOP_LIVE_ACCEPTANCE=1`, port 11435).

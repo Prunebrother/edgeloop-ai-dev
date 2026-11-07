@@ -44,6 +44,8 @@ export function mountLayout(chat,character) {
         setView(button.dataset.view==='character'&&same?'chat':button.dataset.view);
     };
     mountPlayerWorkspace(shell,center,chat,emergencyStop,setView);
+    // Layout-only request from a workspace (Character Builder) to show the centre column on a phone.
+    shell.addEventListener('companion-view',event=>{if(['session','chat','character'].includes(event.detail))setView(event.detail);});
     // Keyboard-adjustable splitters are optional at wide desktop sizes.
     for(const [label,property,initial,min,max] of [['Session width','--session-width',27,23,34],['Character width','--character-width',33,25,36]]) {
         const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.value=initial;

@@ -6247,8 +6247,9 @@ function applyAiSettingsChange(change) {
     updateEngine();
 }
 const aiSettingsControl = isRemotePage ? null : createAiSettingsControl({
-    load: () => safeParse(AI_SETTINGS_STORAGE_KEY, null),
-    save: (value) => safeSet(AI_SETTINGS_STORAGE_KEY, value),
+    // A Character Builder persona keeps its own setting under a suffixed key; built-ins use the original key.
+    load: (profile) => safeParse(profile ? AI_SETTINGS_STORAGE_KEY + ':' + profile : AI_SETTINGS_STORAGE_KEY, null),
+    save: (value, profile) => safeSet(profile ? AI_SETTINGS_STORAGE_KEY + ':' + profile : AI_SETTINGS_STORAGE_KEY, value),
     context: aiSettingsContext,
     apply: applyAiSettingsChange
 });

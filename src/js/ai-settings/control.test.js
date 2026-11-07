@@ -146,3 +146,36 @@ test('pacing options, and Never leaves only changes the user asks for', () => {
     assert.equal(never.control.snapshot().own_ready, false);
     assert.equal(never.ask('endgame', 'denial', 'req_never002', 'user').status, 'applied');
 });
+
+test('a custom persona has its own profile that starts off and is restored on switching', () => {
+    const store = new Map([[null, { enabled: true }]]);
+    let clock = 1000000;
+    const engine = { status: 'RUNNING', signal: 'ok', toyReady: true, current: { play_style: 'classic', game: 'off', endgame: 'orgasm', orgasm: false, intensity: 50 } };
+    const control = createAiSettingsControl({
+        load: (profile) => store.get(profile ?? null) ?? null, save: (value, profile) => store.set(profile ?? null, value), now: () => clock,
+        context: () => ({ status: engine.status, signal: engine.signal, toyReady: engine.toyReady, current: { ...engine.current } }),
+        apply: (change) => { engine.current[change.setting] = change.to; } });
+    const ask = () => control.request({ version: 1, type: 'settings_request', id: 'req_00000099', session_id: 's1', setting: 'intensity', value: 60, trigger: 'user', reason: 'Because.' }, { sessionId: 's1' });
+    assert.equal(control.settings().enabled, true);
+    // Wren on any model: her own profile, off although the built-ins are on.
+    control.selectProfile('custom.wren-calloway', 'Wren Calloway');
+    assert.equal(control.settings().enabled, false);
+    assert.deepEqual(control.profile(), { key: 'custom.wren-calloway', label: 'Wren Calloway' });
+    assert.equal(ask().status, 'rejected');
+    // Explicit opt-in is stored for Wren only.
+    control.configure({ enabled: true });
+    assert.equal(store.get('custom.wren-calloway').enabled, true);
+    control.selectProfile('custom.ilse', 'Ilse');
+    assert.equal(control.settings().enabled, false);
+    control.selectProfile(null);
+    assert.equal(control.settings().enabled, true);
+    assert.equal(control.profile().key, null);
+    control.configure({ enabled: false });
+    assert.equal(store.get(null).enabled, false);
+    control.selectProfile('custom.wren-calloway', 'Wren Calloway');
+    assert.equal(control.settings().enabled, true);
+    // Anything that is not a custom identity falls back to the built-in profile.
+    control.selectProfile('daisy');
+    assert.equal(control.profile().key, null);
+    assert.equal(control.settings().enabled, false);
+});

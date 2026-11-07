@@ -99,8 +99,12 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
     library=CharacterLibrary(store)
 
     @app.get('/character-art/{name}')
-    async def character_art(name:str):
-        # Content-addressed copies made by the composer only: the name is the image's SHA-256.
+    async def character_art(name:str,request:Request):
+        # Content-addressed copies made by the composer only. The name is the image's SHA-256: it
+        # identifies the image and grants nothing. Access control is the loopback-only listener,
+        # the trusted-host and origin guards above, and this peer check.
+        if (request.client.host if request.client else None) not in {'127.0.0.1','::1'}:
+            return JSONResponse({'detail':'Not found'},status_code=404)
         data=library.stored_art(name)
         if data is None:return JSONResponse({'detail':'Not found'},status_code=404)
         kind={'png':'image/png','jpg':'image/jpeg','webp':'image/webp'}[name.rsplit('.',1)[1]]
@@ -234,7 +238,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             observation,eligible=speech.event_intelligence.authoritative(event.kind,details,state,priority)
                             details.update(category='authoritative',observation=observation.model_dump())
                             narrative_priority=observation.significance
-                            relevance=speech.event_intelligence.config.relevance(manager.config.model,'configuration' if observation.detector_id=='configuration' else 'session')
+                            relevance=speech.event_intelligence.config.relevance_for(manager.config.model,identity=speech.relevance_identity(),category='configuration' if observation.detector_id=='configuration' else 'session')
                             if priority!='critical':rank+=5*(relevance-1)
                             if not eligible or not relevance:
                                 speech.event_intelligence.decision(event.id,'context_only:disabled_or_character_preference')

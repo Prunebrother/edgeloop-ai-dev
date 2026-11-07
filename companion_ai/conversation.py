@@ -444,6 +444,19 @@ class ConversationService:
         character = getattr(self.adapter, 'character', None)
         return scope + '#character=' + character.id if character else scope
 
+    def event_intelligence_snapshot(self):
+        """The active custom persona always has a visible entry, at stock defaults until saved."""
+        data=self.event_intelligence.snapshot()
+        identity=self.relevance_identity()
+        if identity and identity not in data['config']['preferences']:
+            from .event_intelligence import DEFAULT_PREFERENCES
+            data['config']['preferences'][identity]=dict(DEFAULT_PREFERENCES)
+        return data|{'active_identity':identity}
+
+    def relevance_identity(self):
+        character = getattr(self.adapter, 'character', None)
+        return character.identity if character else None
+
     def deck_speaker(self):
         """The name a card turn speaks as; a custom character uses its authored short name."""
         character = getattr(self.adapter, 'character', None)
@@ -684,9 +697,9 @@ class ConversationService:
             quiet=memory['quiet_requested'],user_active=now<self.director.typing_until or generating and self.active_source=='user' or now-self.last_user<config.reaction_user_grace_seconds,
             output_busy=generating or now<self.busy_until or now<self.deck_hold_until,conversation_active=now-memory['last_user']<config.user_idle_before_spontaneous_seconds,
             unsolicited_limit_reached=not config.unlimited_unsolicited and memory['consecutive_unsolicited']>=config.max_consecutive_unsolicited,
-            story_welcome=self.memory_config.enabled and self.narrative.state['initiative_allowed'] and self.event_intelligence.config.relevance(self.responder().get('model'),'story')>0,
+            story_welcome=self.memory_config.enabled and self.narrative.state['initiative_allowed'] and self.event_intelligence.config.relevance_for(self.responder().get('model'),identity=self.relevance_identity(),category='story')>0,
             # Heart-rate cards obey the existing Event Intelligence and per-character physiology choices.
-            hr_current=getattr(self.state,'hr_current',lambda:False)() and self.event_intelligence.config.enabled and self.event_intelligence.config.relevance(self.responder().get('model'),'physiology')>0,
+            hr_current=getattr(self.state,'hr_current',lambda:False)() and self.event_intelligence.config.enabled and self.event_intelligence.config.relevance_for(self.responder().get('model'),identity=self.relevance_identity(),category='physiology')>0,
             hr_trend=getattr(self.state,'trend','unknown'),has_conversation=any(m.get('role')=='user' and m.get('session_id')==report['session_id'] for m in self.history),proactive_enabled=config.spontaneous_enabled,event_reactions_enabled=self.event_intelligence.config.enabled)
 
     @deck_guarded(None)
@@ -822,7 +835,7 @@ class ConversationService:
         if narrative is not None:
             narrative=narrative | {key:list(self.narrative.state[key]) for key in ('developments','choices','commitments')} | {'recent_updates':self.narrative.state['developments'][-3:]}
         return {'type':'character_state','model':self.responder()['model'],'state_sequence':sequence,
-            'event_intelligence':self.event_intelligence.snapshot(),
+            'event_intelligence':self.event_intelligence_snapshot(),
             **self.deck_diagnostics(),
             'event_lifecycle':list(getattr(self.state,'event_diagnostics',[]))[-8:],
             'completed_sessions':self.state.completed() if hasattr(self.state,'completed') else [],
@@ -890,7 +903,7 @@ class ConversationService:
         if detected is None:detected=self.event_intelligence.evaluate(self.state)
         eligible=[]
         for event in detected:
-            relevance=self.event_intelligence.config.relevance(self.responder().get('model'),'physiology')
+            relevance=self.event_intelligence.config.relevance_for(self.responder().get('model'),identity=self.relevance_identity(),category='physiology')
             if event.significance=='routine' or not relevance:
                 self.event_intelligence.decision(event.id,'context_only:low_significance' if relevance else 'context_only:character_preference');continue
             eligible.append(event)
@@ -903,7 +916,7 @@ class ConversationService:
         for old in list(self.pending):
             if old.get('category')=='derived' and old.get('event_id')!=chosen.id:
                 self.pending.remove(old);self.event_intelligence.decision(old.get('event_id'),'coalesced:'+chosen.id)
-        self.enqueue(chosen.kind,40+5*self.event_intelligence.config.relevance(self.responder().get('model'),'physiology'),
+        self.enqueue(chosen.kind,40+5*self.event_intelligence.config.relevance_for(self.responder().get('model'),identity=self.relevance_identity(),category='physiology'),
             {'event_id':chosen.id,'session_id':chosen.session_id,'category':'derived','observation':chosen.model_dump(),'config_revision':chosen.config_revision,'narrative_epoch':self.narrative.state['epoch']})
         if any(e.get('event_id')==chosen.id for e in self.pending):self.event_intelligence.decision(chosen.id,'queued')
 
@@ -1046,7 +1059,7 @@ class ConversationService:
             self.deck_context_only(kind,priority,details,'context_only:deck_fault');return
         if deck and (details or {}).get('session_result'):
             self.deck_finish(deck,kind,details);return
-        if kind in PLAYER_EVENTS and (not deck or not self.event_intelligence.config.enabled or not self.event_intelligence.config.relevance(self.responder().get('model'),'session')):
+        if kind in PLAYER_EVENTS and (not deck or not self.event_intelligence.config.enabled or not self.event_intelligence.config.relevance_for(self.responder().get('model'),identity=self.relevance_identity(),category='session')):
             self.deck_context_only(kind,priority,details,'context_only:disabled_or_character_preference' if deck else 'context_only:no_card_dealer');return
         if kind not in SELECTION_EVENTS | PLAYER_EVENTS or deck and deck.subscribes(kind):
             # The deck is the only proactive scheduler: with it off there is no unsolicited commentary.

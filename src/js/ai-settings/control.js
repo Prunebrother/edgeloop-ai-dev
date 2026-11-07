@@ -13,7 +13,10 @@ const PENDING_TTL_MS = 60000;
 
 export function createAiSettingsControl({ load = () => null, save = () => {}, now = () => Date.now(),
     context, apply, remotePage = false } = {}) {
-    let settings = sanitizeAiSettings(load());
+    // Profiles: null is the built-in companions' shared setting (the original storage key);
+    // a Character Builder persona has its own, which starts off until the user opts in.
+    let profile = null, profileLabel = null;
+    let settings = sanitizeAiSettings(load(profile));
     let revoked = false;
     let lastAppliedAt = null;
     let lastAiAt = null;
@@ -72,10 +75,27 @@ export function createAiSettingsControl({ load = () => null, save = () => {}, no
             // Switching it on mid-session starts the pacing clock, so nothing changes the moment it is enabled.
             if (settings.enabled && !wasEnabled) lastAiAt = now();
             if (!settings.enabled) pending = null;
-            try { save(settings); } catch { /* storage is optional */ }
+            try { save(settings, profile); } catch { /* storage is optional */ }
             emit({ kind: 'settings', settings: { ...settings } });
             return { ...settings };
         },
+        // Called by the companion layer when the active character changes. Only an explicit
+        // configure() by the user ever turns a profile on; a new profile loads as stored or off.
+        selectProfile(next, label = null) {
+            const key = typeof next === 'string' && /^custom\.[a-z0-9][a-z0-9-]{0,23}$/.test(next) ? next : null;
+            profileLabel = key ? (typeof label === 'string' ? label.slice(0, 60) : key) : null;
+            if (key === profile) { emit({ kind: 'settings', settings: { ...settings } }); return { ...settings }; }
+            profile = key;
+            let stored = null;
+            try { stored = load(profile); } catch { stored = null; }
+            settings = sanitizeAiSettings(stored);
+            pending = null;
+            // A profile that is already on restarts its pacing clock, as if it had just been enabled.
+            if (settings.enabled) lastAiAt = now();
+            emit({ kind: 'settings', settings: { ...settings } });
+            return { ...settings };
+        },
+        profile: () => ({ key: profile, label: profileLabel }),
         // Called by the companion layer with a request from the observer.
         request(raw, { sessionId } = {}) {
             const id = typeof raw?.id === 'string' ? raw.id.slice(0, 64) : null;

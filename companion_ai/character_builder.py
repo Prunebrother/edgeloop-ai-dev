@@ -513,7 +513,10 @@ class Library:
             data = path.read_bytes()
         except OSError:
             return None
-        return data if sha256(data).hexdigest() == name.split('.')[0] else None
+        # Only bytes that still hash to their name and are still the image type the composer stored.
+        if sha256(data).hexdigest() != name.split('.')[0] or (detect_art(data) or ('',))[0] != name.rsplit('.', 1)[1]:
+            return None
+        return data
 
 
 def preview(package, base_definition):

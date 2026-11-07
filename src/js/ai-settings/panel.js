@@ -66,11 +66,14 @@ export function withAiSettingsPanel(control) {
         const pace = element('label', 'ai-settings-row', 'Minimum seconds between any changes ');
         pace.append(interval);
         const status = element('p', 'ai-settings-status'); status.setAttribute('role', 'status');
-        box.append(summary, note, enabledLabel, modeLabel, pacingLabel, band, pace, status);
+        const scope = element('p', 'ai-settings-note'); scope.dataset.aiSettingsProfile = '';
+        box.append(summary, note, scope, enabledLabel, modeLabel, pacingLabel, band, pace, status);
         container.append(box);
 
         const paint = () => {
             const s = control.settings();
+            const who = control.profile?.() || { key: null };
+            scope.textContent = who.key ? 'Applies to ' + who.label + ' only. Custom characters start with this off.' : 'Applies to the built-in companions.';
             enabled.checked = s.enabled; mode.value = s.mode; pacing.value = s.pacing;
             low.value = String(s.intensity_min); high.value = String(s.intensity_max); interval.value = String(s.min_interval_seconds);
             const snap = control.snapshot();
