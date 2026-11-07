@@ -5,10 +5,10 @@ the result, composes a versioned package and runs that character on an installed
 model, with its persona replacing the model's built-in identity. Model weights are not
 rebuilt.
 
-Status: built on `feature/character-builder` from `experiment/ai-companion` `ec5b203`,
-before the November 9 live feature test. Target release: v0.7.0 (v0.6.0 is in
-release-candidate testing). Once the test names its passing commit, rebase onto it and
-rerun the checks below.
+Status: target release v0.7.0. Built on `feature/character-builder` from
+`experiment/ai-companion` `ec5b203`, then combined with v0.6.0-rc3 (`7c42ed5`) on
+`integration/nov9-character-builder` for the November 9 live test. The commit that passes
+that test becomes the v0.7.0 candidate.
 
 ## Where things live
 

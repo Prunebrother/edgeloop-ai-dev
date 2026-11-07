@@ -2,7 +2,7 @@
 
 ## v0.7.0 — draft, unreleased
 
-<!-- DRAFT: not tagged or published. Target confirmed against the release plan: v0.6.0 is in release-candidate testing, so the Character Builder is the next minor release. Rebase onto the commit that passes the Nov 9 feature test before release. -->
+<!-- DRAFT: not tagged or published. Target confirmed against the release plan: v0.6.0 is in release-candidate testing, so the Character Builder is the next minor release. Combined with v0.6.0-rc3 for the Nov 9 live test; the commit that passes it becomes the v0.7.0 candidate. -->
 
 - Character Builder: create your own world and companion on this computer. You write the setting, lore, ground rules, name, personality, voice and relationship, choose a portrait, and write up to 16 Character Cards for the Director to deal.
   - It opens in its own workspace from the model picker. "Back to chat" returns you to the same conversation and the same active character.
