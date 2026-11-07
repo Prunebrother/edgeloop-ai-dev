@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.0-rc3 — Windows installer recovery fixes (pre-release)
+
+Windows-only packaging update. Models and application behavior are unchanged; the Linux download remains v0.6.0-rc2.
+
+- Windows setup restores the working backup before retrying an interrupted repair, and rolls back if Python preparation or settings configuration fails.
+- Previous installations and downloaded parts are kept until Windows setup finishes installing shortcuts and uninstall information. Interrupted cleanup cannot turn a partially deleted backup into a recovery target.
+- Truncated Windows downloads retain their partial files and resume on retry. Resumed responses are checked before data is appended.
+
 ## v0.6.0-rc2 — test build with Windows installer (pre-release)
 
 <!-- Release candidate for testers, published on the dev repository only. Hardware testing is still to do; v0.5.0 was never released and is folded into this version. -->

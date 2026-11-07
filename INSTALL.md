@@ -23,13 +23,13 @@ Use **EdgeLoop AI** to start and **Stop EdgeLoop AI** to stop. The command `~/.l
 
 ## Windows (experimental)
 
-Windows 10 (1809 or later) or Windows 11, x86_64. Download `EdgeLoop-AI-Setup-v0.6.0-rc2.exe` from the [release page](https://github.com/Prunebrother/edgeloop-ai-dev/releases/tag/v0.6.0-rc2) and run it. Setup downloads about 9 GB, checks every part against SHA-256 sums built into the setup program, installs for your Windows user only (no administrator rights) and adds **EdgeLoop AI** and **Stop EdgeLoop AI** to the Start menu. Keep about 25 GB free. An interrupted download resumes when you run setup again.
+Windows 10 (1809 or later) or Windows 11, x86_64. Download `EdgeLoop-AI-Setup-v0.6.0-rc3.exe` from the [release page](https://github.com/Prunebrother/edgeloop-ai-dev/releases/tag/v0.6.0-rc3) and run it. Setup downloads about 9 GB, checks every part against SHA-256 sums built into the setup program, installs for your Windows user only (no administrator rights) and adds **EdgeLoop AI** and **Stop EdgeLoop AI** to the Start menu. Keep about 25 GB free. An interrupted download resumes when you run setup again.
 
 The setup program is not code-signed yet, so Windows SmartScreen may say it is from an unknown publisher. Choose **More info**, then **Run anyway**, only for a file downloaded from the release page above.
 
 The Windows build has been tested on Windows without a GPU and without toys, not yet on real hardware. Use Google Chrome or Microsoft Edge: device and heart-rate connections need Web Bluetooth or Web Serial. A recent NVIDIA GPU with 8 GB or more is recommended.
 
-- Program: `%LOCALAPPDATA%\Programs\EdgeLoop AI\v0.6.0-rc2`. Settings and history: `%LOCALAPPDATA%\EdgeLoop AI\data` (kept when you uninstall). Logs: `%LOCALAPPDATA%\EdgeLoop AI\logs`, including `setup.log`.
+- Program: `%LOCALAPPDATA%\Programs\EdgeLoop AI\v0.6.0-rc3`. Settings and history: `%LOCALAPPDATA%\EdgeLoop AI\data` (kept when you uninstall). Logs: `%LOCALAPPDATA%\EdgeLoop AI\logs`, including `setup.log`.
 - Offline install: put all `edgeloop-ai-windows-x86_64.tar.gz.partNN` files from the release in the same folder as the setup program; setup uses them instead of downloading.
 - The services listen only on 127.0.0.1 ports 11435 (Ollama), 8768 (observer) and 8770 (web). If one of these ports is in use, EdgeLoop AI says so and stops nothing else.
 - Uninstall from Windows Settings → Apps. It stops EdgeLoop AI first and keeps your data folder.

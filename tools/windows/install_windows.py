@@ -6,10 +6,12 @@ offline Python environment. Parts placed next to the setup program are used inst
 """
 import argparse
 import hashlib
+from http.client import IncompleteRead
 import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -51,8 +53,14 @@ def download(url, target, size, sha256, attempts=5):
             if have < size:
                 request = Request(url, headers={'Range': f'bytes={have}-'} if have else {})
                 with HTTP.open(request, timeout=60) as response:
-                    if have and response.status != 206:
+                    if response.status == 206:
+                        match = re.fullmatch(r'bytes (\d+)-(\d+)/(\d+)', response.headers.get('Content-Range', ''))
+                        if not match or not (int(match[1]) == have <= int(match[2]) < size == int(match[3])):
+                            raise OSError('Server returned an unexpected download range; partial file kept')
+                    elif response.status == 200:
                         have = 0  # The server ignored the range: start over.
+                    else:
+                        raise OSError(f'Unexpected download response: HTTP {response.status}')
                     with partial.open('ab' if have else 'wb') as stream:
                         last = 0
                         while chunk := response.read(CHUNK):
@@ -61,6 +69,8 @@ def download(url, target, size, sha256, attempts=5):
                             if time.monotonic() - last > 1:
                                 last = time.monotonic()
                                 say(f'\r  {target.name}: {have * 100 // size}% ({gib(have)} of {gib(size)})   ', end='')
+            if partial.stat().st_size < size:
+                raise OSError(f'Response ended after {partial.stat().st_size} of {size} bytes; partial file kept')
             say(f'\r  {target.name}: checking...                              ', end='')
             if partial.stat().st_size == size and digest(partial) == sha256:
                 partial.replace(target)
@@ -68,9 +78,10 @@ def download(url, target, size, sha256, attempts=5):
                 return
             partial.unlink()
             say(f'\n  {target.name} failed its checksum; downloading again.')
-        except OSError as exc:
+        except (OSError, IncompleteRead) as exc:
             say(f'\n  Download interrupted ({exc}); retrying ({attempt}/{attempts})...')
-            time.sleep(min(30, 3 * attempt))
+            if attempt < attempts:
+                time.sleep(min(30, 3 * attempt))
     raise RuntimeError(f'Could not download {target.name}. Check the connection and run setup again; finished parts are kept.')
 
 
@@ -178,9 +189,40 @@ def remove_older(folder, keep):
             shutil.rmtree(release, ignore_errors=True)
 
 
+def recover_previous(destination):
+    """A .previous directory is an uncommitted repair, never disposable scratch space."""
+    previous = destination.with_name(destination.name + '.previous')
+    if previous.exists():
+        say('Restoring the previous installation before retrying setup...')
+        stop_installed(destination.parent)
+        if destination.exists():
+            shutil.rmtree(destination)
+        previous.rename(destination)
+
+
+def finalize(destination, manifest=None, cache=None):
+    """Called only after Inno has successfully installed shortcuts and uninstall information."""
+    if not destination.is_dir():
+        raise RuntimeError('Cannot finalize a missing installation')
+    previous = destination.with_name(destination.name + '.previous')
+    if previous.exists():
+        # Commit with a rename before deleting anything: interrupted cleanup must not
+        # leave a half-deleted .previous that the next setup would try to restore.
+        retired = destination.with_name(destination.name + '.retired')
+        if retired.exists():
+            shutil.rmtree(retired)
+        previous.rename(retired)
+    remove_older(destination.parent, destination)
+    if manifest is not None and cache is not None:
+        for part in manifest['parts']:
+            (cache / part['name']).unlink(missing_ok=True)
+    say('Setup completed; previous installation files and cached downloads cleaned up.')
+
+
 def install(manifest, destination, cache, offline, data):
     cache.mkdir(parents=True, exist_ok=True)
     destination.parent.mkdir(parents=True, exist_ok=True)
+    recover_previous(destination)
     parts = acquire(manifest['parts'], manifest['base_url'], cache, offline)
     incoming = extract(parts, destination)
     try:
@@ -191,41 +233,43 @@ def install(manifest, destination, cache, offline, data):
     stop_installed(destination.parent)
     # Python and pip record absolute paths, so the environment is built in its final place.
     previous = destination.with_name(destination.name + '.previous')
-    if previous.exists():
-        shutil.rmtree(previous)
     if destination.exists():
         destination.rename(previous)
-    incoming.rename(destination)
     try:
+        incoming.rename(destination)
         prepare_python(destination)
+        configure(destination, data)
     except BaseException:
-        shutil.rmtree(destination, ignore_errors=True)
+        if destination.exists():
+            shutil.rmtree(destination)
         if previous.exists():
             previous.rename(destination)
         raise
-    shutil.rmtree(previous, ignore_errors=True)
-    remove_older(destination.parent, destination)
-    configure(destination, data)
-    for part in parts:
-        if part.parent == cache:
-            part.unlink()
-    say('EdgeLoop AI is installed.')
+    # Keep backups, older versions and downloads until Inno confirms successful
+    # integration. A failure/cancellation there must leave the old shortcuts usable.
+    say('EdgeLoop AI is prepared; Windows setup will finish the installation.')
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--manifest', type=Path, required=True)
+    parser.add_argument('--manifest', type=Path)
     parser.add_argument('--dest', type=Path, required=True)
-    parser.add_argument('--cache', type=Path, required=True)
+    parser.add_argument('--cache', type=Path)
     parser.add_argument('--offline', type=Path, help='Folder that may already hold the parts')
-    parser.add_argument('--data', type=Path, required=True)
+    parser.add_argument('--data', type=Path)
+    parser.add_argument('--finalize', action='store_true', help='Clean up after successful Windows setup')
     parser.add_argument('--log', type=Path, help='Also write progress to this file')
     args = parser.parse_args(argv)
+    if not args.finalize and any(value is None for value in (args.manifest, args.cache, args.data)):
+        parser.error('--manifest, --cache and --data are required for installation')
     global LOG
     if args.log:
         args.log.parent.mkdir(parents=True, exist_ok=True)
         LOG = args.log.open('a', encoding='utf-8')
-    manifest = json.loads(args.manifest.read_text())
+    manifest = json.loads(args.manifest.read_text()) if args.manifest else None
+    if args.finalize:
+        finalize(args.dest, manifest, args.cache)
+        return
     say(f'EdgeLoop AI {manifest["version"]} setup. Download about {gib(sum(p["bytes"] for p in manifest["parts"]))}.')
     install(manifest, args.dest, args.cache, args.offline, args.data)
 

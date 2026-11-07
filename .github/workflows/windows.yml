@@ -82,6 +82,19 @@ jobs:
           if ($p.ExitCode) { Get-Content setup-inno.log -Tail 40; exit $p.ExitCode }
           Get-ChildItem "$env:LOCALAPPDATA\Programs\EdgeLoop AI"
           Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Filter 'EdgeLoop*'
+      - name: Repair the same version and verify successful finalization
+        shell: pwsh
+        run: |
+          $data = "$env:LOCALAPPDATA\EdgeLoop AI\data"
+          $before = (Get-FileHash "$data\selection.json" -Algorithm SHA256).Hash
+          $setup = Get-ChildItem lite\dist\EdgeLoop-AI-Setup-*.exe | Select-Object -First 1
+          $p = Start-Process $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/LOG=$PWD\repair-inno.log" -Wait -PassThru
+          if ($p.ExitCode) { Get-Content repair-inno.log -Tail 40; exit $p.ExitCode }
+          if ((Get-FileHash "$data\selection.json" -Algorithm SHA256).Hash -ne $before) { throw 'Repair changed saved model selection' }
+          $leftovers = Get-ChildItem "$env:LOCALAPPDATA\Programs\EdgeLoop AI" -Directory | Where-Object Name -match '\.(previous|incoming|retired)$'
+          if ($leftovers) { throw "Repair did not finalize: $($leftovers.Name)" }
+          $setupLog = Get-Content "$env:LOCALAPPDATA\EdgeLoop AI\logs\setup.log" -Raw
+          if ($setupLog -notmatch 'Setup completed; previous installation files and cached downloads cleaned up') { throw 'Setup finalization hook did not run' }
       - name: Start, check every service, stop
         shell: pwsh
         env:
@@ -124,6 +137,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force logs | Out-Null
           Copy-Item setup-inno.log logs -ErrorAction SilentlyContinue
+          Copy-Item repair-inno.log logs -ErrorAction SilentlyContinue
           Copy-Item "$env:LOCALAPPDATA\EdgeLoop AI\logs\*" logs -ErrorAction SilentlyContinue
       - uses: actions/upload-artifact@v4
         if: always()

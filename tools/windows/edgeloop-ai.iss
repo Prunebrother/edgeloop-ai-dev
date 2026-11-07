@@ -54,6 +54,9 @@ Filename: "{app}\{#Version}\.venv\Scripts\python.exe"; Parameters: """{app}\{#Ve
 [UninstallDelete]
 ; The bundle is extracted by setup, not copied by it, so remove it explicitly. User data is kept.
 Type: filesandordirs; Name: "{app}\{#Version}"
+Type: filesandordirs; Name: "{app}\{#Version}.previous"
+Type: filesandordirs; Name: "{app}\{#Version}.incoming"
+Type: filesandordirs; Name: "{app}\{#Version}.retired"
 Type: filesandordirs; Name: "{localappdata}\EdgeLoop AI\downloads"
 Type: filesandordirs; Name: "{localappdata}\EdgeLoop AI\runtime"
 Type: dirifempty; Name: "{app}"
@@ -64,8 +67,18 @@ begin
   Result := '"' + S + '"';
 end;
 
-// The download and installation run before any file is placed, so a failure leaves nothing behind
-// and setup can simply be run again (finished downloads are kept and resumed).
+function InstallerParams: String;
+begin
+  Result := '-I -X utf8 ' + Quote(ExpandConstant('{tmp}\install_windows.py')) +
+    ' --manifest ' + Quote(ExpandConstant('{tmp}\parts.json')) +
+    ' --dest ' + Quote(ExpandConstant('{app}\{#Version}')) +
+    ' --cache ' + Quote(ExpandConstant('{localappdata}\EdgeLoop AI\downloads')) +
+    ' --offline ' + Quote(ExpandConstant('{src}')) +
+    ' --data ' + Quote(ExpandConstant('{localappdata}\EdgeLoop AI\data')) +
+    ' --log ' + Quote(ExpandConstant('{localappdata}\EdgeLoop AI\logs\setup.log'));
+end;
+
+// Backups and downloads are retained until setup has installed its integration files.
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   Code: Integer;
@@ -76,17 +89,26 @@ begin
   ExtractTemporaryFile('install_windows.py');
   ExtractTemporaryFile('parts.json');
   Python := ExpandConstant('{tmp}\setup-python\python.exe');
-  Params := '-I -X utf8 ' + Quote(ExpandConstant('{tmp}\install_windows.py')) +
-    ' --manifest ' + Quote(ExpandConstant('{tmp}\parts.json')) +
-    ' --dest ' + Quote(ExpandConstant('{app}\{#Version}')) +
-    ' --cache ' + Quote(ExpandConstant('{localappdata}\EdgeLoop AI\downloads')) +
-    ' --offline ' + Quote(ExpandConstant('{src}')) +
-    ' --data ' + Quote(ExpandConstant('{localappdata}\EdgeLoop AI\data')) +
-    ' --log ' + Quote(ExpandConstant('{localappdata}\EdgeLoop AI\logs\setup.log'));
+  Params := InstallerParams;
   if not Exec(Python, Params, ExpandConstant('{tmp}'), SW_SHOW, ewWaitUntilTerminated, Code) then
     Result := 'Setup could not start its installer: ' + SysErrorMessage(Code)
   else if Code <> 0 then
     Result := 'EdgeLoop AI could not be installed. The reason is in ' +
       ExpandConstant('{localappdata}\EdgeLoop AI\logs\setup.log') +
       '. Finished downloads are kept; run setup again to resume.';
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  Code: Integer;
+  Python, Params: String;
+begin
+  if CurStep = ssDone then begin
+    Python := ExpandConstant('{tmp}\setup-python\python.exe');
+    Params := InstallerParams + ' --finalize';
+    if not Exec(Python, Params, ExpandConstant('{tmp}'), SW_HIDE, ewWaitUntilTerminated, Code) then
+      Log('Could not start cleanup; previous installation files and downloads were kept.')
+    else if Code <> 0 then
+      Log('Cleanup incomplete; see setup.log. Installation succeeded; leftover files can be cleaned up by the next setup.');
+  end;
 end;
