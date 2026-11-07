@@ -5,7 +5,7 @@ name: Windows
 
 on:
   push:
-    branches: ['feature/windows-**', 'release/**']
+    branches: ['feature/windows-**', 'release/**', 'ci/windows-full-**']
   workflow_dispatch:
 
 permissions:
@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   python-tests:
+    if: ${{ !startsWith(github.ref_name, 'ci/windows-full-') }}
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
@@ -37,6 +38,7 @@ jobs:
           path: pytest-windows.xml
 
   build-lite:
+    if: ${{ !startsWith(github.ref_name, 'ci/windows-full-') }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -127,4 +129,92 @@ jobs:
         if: always()
         with:
           name: setup-cycle-logs
+          path: logs/
+
+  # Full bundle from a draft release (assets staged before publication): install offline from the
+  # downloaded parts, start, and get a real companion reply on the runner's CPU. Push a branch named
+  # ci/windows-full-<tag> to run it; it reads the draft with this repository's token and publishes nothing.
+  full-cycle:
+    if: startsWith(github.ref_name, 'ci/windows-full-')
+    runs-on: windows-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write   # Draft releases are only visible with write access; nothing is written.
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download the staged release
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'.Substring('ci/windows-full-'.Length)
+          New-Item -ItemType Directory -Force D:\rel | Out-Null
+          # Draft releases are not found by tag, so look the release up in the list.
+          $release = gh api "repos/${{ github.repository }}/releases?per_page=30" | ConvertFrom-Json | Where-Object tag_name -eq $tag | Select-Object -First 1
+          if (-not $release) { throw "No release for $tag" }
+          foreach ($asset in $release.assets) {
+            if ($asset.name -match '^(EdgeLoop-AI-Setup-.*\.exe|edgeloop-ai-windows-x86_64\.tar\.gz\.part\d\d|SHA256SUMS)$') {
+              curl.exe -fsSL --retry 3 -H "Authorization: Bearer $env:GH_TOKEN" -H 'Accept: application/octet-stream' $asset.url -o "D:\rel\$($asset.name)"
+              if ($LASTEXITCODE) { throw "Download failed: $($asset.name)" }
+            }
+          }
+          Get-ChildItem D:\rel | Format-Table Name, Length
+          Get-PSDrive C, D | Format-Table Name, Free
+      - name: Check the downloads against SHA256SUMS
+        shell: pwsh
+        run: |
+          foreach ($line in Get-Content D:\rel\SHA256SUMS) {
+            $sum, $name = $line -split '\s+', 2
+            if (Test-Path "D:\rel\$name") {
+              $actual = (Get-FileHash "D:\rel\$name" -Algorithm SHA256).Hash.ToLower()
+              if ($actual -ne $sum) { throw "Checksum mismatch: $name" }
+              "ok $name"
+            }
+          }
+      - name: Install silently from the parts next to setup
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem D:\rel\EdgeLoop-AI-Setup-*.exe | Select-Object -First 1
+          $p = Start-Process $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/LOG=D:\setup-inno.log" -Wait -PassThru
+          Get-Content "$env:LOCALAPPDATA\EdgeLoop AI\logs\setup.log"
+          if ($p.ExitCode) { Get-Content D:\setup-inno.log -Tail 40; exit $p.ExitCode }
+          Remove-Item D:\rel\*.part* -Force
+      - name: Start and get a companion reply
+        shell: pwsh
+        env:
+          EDGELOOP_WINDOWS_QUIET: '1'
+        run: |
+          $root = Get-ChildItem "$env:LOCALAPPDATA\Programs\EdgeLoop AI" -Directory | Where-Object Name -like 'v*' | Select-Object -First 1
+          $py = Join-Path $root.FullName '.venv\Scripts\python.exe'
+          $launcher = Join-Path $root.FullName 'tools\windows\edgeloop_ai_windows.py'
+          & $py $launcher start --no-browser --quiet
+          if ($LASTEXITCODE) { Get-Content "$env:LOCALAPPDATA\EdgeLoop AI\logs\*.log" -Tail 30; exit 1 }
+          $names = (Invoke-RestMethod http://127.0.0.1:11435/api/tags).models.name
+          $names
+          foreach ($c in 'nova-narrative-f29-v011:latest','evelyn-narrative-f29-v013:latest','daisy-narrative-f29-v014:latest','celeste-narrative-f29-v012:latest') {
+            if ($names -notcontains $c) { throw "Missing companion $c" }
+          }
+          $body = @{ model = 'nova-narrative-f29-v011'; stream = $false; think = $false; options = @{ num_predict = 40 };
+                     messages = @(@{ role = 'user'; content = 'Say hello and introduce yourself in one sentence.' }) } | ConvertTo-Json -Depth 5
+          $reply = Invoke-RestMethod http://127.0.0.1:11435/api/chat -Method Post -Body $body -ContentType 'application/json' -TimeoutSec 1200
+          "Reply: $($reply.message.content)"
+          if (-not $reply.message.content) { throw 'Empty reply' }
+          & $py $launcher stop --quiet
+      - name: Uninstall silently
+        shell: pwsh
+        run: |
+          $u = Get-ChildItem "$env:LOCALAPPDATA\Programs\EdgeLoop AI\unins*.exe" | Select-Object -First 1
+          Start-Process $u.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
+          Start-Sleep 5
+          if (Test-Path "$env:LOCALAPPDATA\Programs\EdgeLoop AI\v*") { throw 'Bundle left behind after uninstall' }
+      - name: Collect logs
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force logs | Out-Null
+          Copy-Item D:\setup-inno.log logs -ErrorAction SilentlyContinue
+          Copy-Item "$env:LOCALAPPDATA\EdgeLoop AI\logs\*" logs -ErrorAction SilentlyContinue
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-cycle-logs
           path: logs/
