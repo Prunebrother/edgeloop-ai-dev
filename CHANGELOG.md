@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.7.0-rc2 — test build: Character Builder fixes (pre-release)
+
+<!-- Release candidate for testers on the dev repository. Linux and Windows. Same as v0.7.0-rc1 plus the fixes below. Models are unchanged since v0.6.0-rc2. -->
+
+- Character Builder: card edits made after saving are now saved too. Before, a second edit to an existing card showed on screen but was silently dropped on the next save. Edits you make while a save is still in progress are kept.
+- Event Intelligence settings: preferences for a custom character now show their saved values and can be saved. Before, any save of the event settings failed once a custom character's entry appeared.
+- Reactivating a character you edited now uses its new and changed cards right away, not only after switching away or restarting. Its conversation memory is kept.
+
 ## v0.7.0-rc1 — test build: Character Builder (pre-release)
 
 <!-- Release candidate for testers on the dev repository. Linux and Windows. Includes everything in v0.6.0-rc3. Models are unchanged since v0.6.0-rc2. -->
