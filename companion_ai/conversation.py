@@ -481,10 +481,25 @@ class ConversationService:
             if base is None:raise ValueError(error)
         self.deck_definition = compose_definition(base, character)
 
+    def refresh_character_package(self):
+        """A new revision of the active custom character keeps its memory scope (same model and
+        ID), so activation returns early; the package-dependent state is refreshed here instead:
+        the composed deck (its registry and any dealt card are rebuilt on the next deal) and the
+        persona canon that Story Memory checks facts against."""
+        character = getattr(self.adapter, 'character', None)
+        if (character.content_sha256 if character else None) == getattr(self, 'deck_package', None):return
+        try:
+            self.sync_character_deck()
+            self.deck_faults.pop(self.active_model_id, None)
+        except (ValueError,OSError) as exc:self.deck_faults[self.active_model_id]='Custom character deck unavailable: '+str(exc)[:120]
+        self.sync_narrative()
+        self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
+
     def activate_model(self):
         config = getattr(self.adapter, 'config', AIConfig())
         scope = self.adapter_scope()
         if scope == self.active_model_id:
+            self.refresh_character_package()
             return
         if self.active_model_id is not None:
             self.model_histories[self.active_model_id] = list(self.history)

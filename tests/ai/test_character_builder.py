@@ -301,6 +301,30 @@ async def test_memory_is_isolated_per_character_on_a_shared_model(tmp_path):
     assert companion(scopes['wren']) == 'custom.wren-calloway' and companion(scopes['builtin']) == BASE_MODEL
 
 
+async def test_reactivating_a_revised_character_refreshes_its_deck_and_canon_but_keeps_memory(tmp_path):
+    """Same model and ID means the same memory scope, but a new revision is a new package."""
+    wire = []
+    manager = ModelManager(transport=ollama(wire), store=SettingsStore(tmp_path))
+    first = cb.load_package(cb.compose(WORLD, WREN, ART))
+    await manager.select(AIConfig(model=BASE_MODEL), character=first)
+    speech = ConversationService(Replay().observation, lambda m: None, manager)
+    speech.request('Remember the lamp', True)
+    await speech.task
+    scope = speech.active_model_id
+    revised = deepcopy(WREN)
+    revised['deck']['cards'][0]['brief'] = 'Newly revised brief about the salt flats.'
+    revised['revision'] = (WREN.get('revision') or 1) + 1
+    second = cb.load_package(cb.compose(WORLD, revised, ART))
+    assert second.content_sha256 != first.content_sha256
+    await manager.select(AIConfig(model=BASE_MODEL), character=second)
+    speech.activate_model()
+    assert speech.active_model_id == scope
+    assert speech.deck_package == second.content_sha256
+    assert any(c.brief == 'Newly revised brief about the salt flats.' for c in speech.deck_definition.normal)
+    assert speech.deck_registry is None
+    assert [m['content'] for m in speech.history if m['role'] == 'user'] == ['Remember the lamp']
+
+
 async def test_activation_is_restored_after_restart_only_on_the_same_model(tmp_path):
     store = SettingsStore(tmp_path)
     lib = library(tmp_path)

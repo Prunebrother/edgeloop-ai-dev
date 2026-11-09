@@ -67,7 +67,9 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
       </div>`;
     host.append(root);
     const q=s=>root.querySelector(s);
-    let world=blankWorld(),character=blankCharacter(),previewed=null,saving=0,previewAfterSave=false;
+    // edits counts every change on screen; savedAt is its value when the last save was sent, so a
+    // save response can tell whether the player kept editing while it was in flight.
+    let world=blankWorld(),character=blankCharacter(),previewed=null,saving=0,previewAfterSave=false,edits=0,savedAt=0;
     const status=t=>{q('[data-b-status]').textContent=t;};
     const showErrors=errors=>{const list=q('[data-b-errors]');list.replaceChildren();list.hidden=!errors?.length;
         for(const e of errors||[]){const li=document.createElement('li');li.textContent=(e.path||[]).join(' › ')+': '+e.message;list.append(li);}};
@@ -127,7 +129,7 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
         // Edited in place: the card editors hold these objects, so they must never be replaced here.
         for(const card of character.deck.cards)if(!card.occasion)delete card.occasion;
     }
-    function dirty(){previewed=null;q('[data-b-activate]').disabled=true;q('[data-b-preview-out]').hidden=true;meters();}
+    function dirty(){edits++;previewed=null;q('[data-b-activate]').disabled=true;q('[data-b-preview-out]').hidden=true;meters();}
     root.addEventListener('input',e=>{if(e.target.matches('[data-w],[data-c]'))dirty();});
     q('[data-b-art]').onchange=dirty;q('[data-b-shared]').onchange=dirty;
     const request=(action,body={})=>{const m=message(action,body),bytes=sizeOf(m);
@@ -135,7 +137,7 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
         if(!send(m)){showErrors([{path:[action],message:'Not sent: the AI connection is not ready.'}]);return false;}
         return true;};
     q('[data-b-add]').onclick=()=>{if(character.deck.cards.length>=MAX_CARDS)return;character.deck.cards.push(blankCard(character.deck.cards.length+1));renderCards();dirty();};
-    const save=()=>{collect();showErrors([]);saving=2;status('Saving…');
+    const save=()=>{collect();showErrors([]);saving=2;savedAt=edits;status('Saving…');
         // Check both sizes first, so a too-large character never leaves a half-saved pair.
         const pair=[['save_world',{world}],['save_character',{character}]];
         const over=pair.find(([action,body])=>sizeOf(message(action,body))>MESSAGE_LIMIT_BYTES);
@@ -177,8 +179,15 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
                 q('[data-b-art-folder]').textContent='Put portrait images (PNG, JPEG or WebP, up to 8 MB) in '+m.art_folder+', then reopen Character Builder. Direct upload is not available yet.';}
             else if(m.action==='get'&&m.kind==='character'){character=m.value;if(!character.deck.cards.length)character.deck.cards.push(blankCard(1));request('get',{kind:'world',id:character.world});render();dirty();status('Opened '+character.name+'.');}
             else if(m.action==='get'&&m.kind==='world'){world=m.value;render();dirty();}
-            else if(m.action==='save_world'||m.action==='save_character'){if(m.action==='save_character')character=m.value;if(--saving===0){status('Saved locally · revision '+character.revision+'.');refresh();
-                if(previewAfterSave&&request('preview',{id:character.id}))status('Composing preview…');previewAfterSave=false;}}
+            else if(m.action==='save_world'||m.action==='save_character'){
+                // The card editors close over the card objects, so the saved (canonical) character
+                // is only adopted together with a re-render that rebinds them. If the player edited
+                // while the save was in flight, the newer on-screen work wins and only the revision
+                // is taken; it is sent with the next save.
+                const current=edits===savedAt;
+                if(m.action==='save_character'){if(current){character=m.value;render();}else character.revision=m.value.revision;}
+                if(--saving===0){status(current?'Saved locally · revision '+character.revision+'.':'Saved revision '+character.revision+'; newer edits are not saved yet.');refresh();
+                if(current&&previewAfterSave&&request('preview',{id:character.id}))status('Composing preview…');previewAfterSave=false;}}
             else if(m.action==='preview'){previewed=m.preview;showPreview(m.preview);q('[data-b-activate]').disabled=false;status('Preview ready. Activate to start talking with '+m.preview.short_name+'.');}
             else if(m.action==='activate'){status(m.character.name+' is active. Go back to chat to talk.');refresh();}
         },

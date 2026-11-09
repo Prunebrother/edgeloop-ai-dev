@@ -251,5 +251,8 @@ are sent back unchanged when the deck is saved.
   a custom card draw, the 16-card cap, an oversize save refused, conditions kept on
   resave, and the switch back to Daisy with her own AI Settings. Run it with `node tests/fork/character-builder-browser.mjs`;
   in a worktree, set `EDGELOOP_TEST_PYTHON` or symlink `.venv`.
+- `tests/fork/character-builder-regressions-browser.mjs`: fast, server-free checks from the
+  v0.7.0-rc1 review: card edits made after a save (and during one) reach the next save, and
+  `custom.<id>` event preferences reload and save under their full identity.
 - `tests/fork/character_builder_smoke.py`: opt-in live run on real models
   (`EDGELOOP_LIVE_ACCEPTANCE=1`, port 11435).
