@@ -15,7 +15,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import ValidationError
-from companion_ai.conversation import ModelManager, ConversationService
+from companion_ai.conversation import ModelManager, ConversationService, SETTINGS_CANCELLED
 from companion_ai.director import transition_occurrence, ConversationDirector, DirectorConfig
 from companion_ai.llm import thinking_support, InferenceCompatibilityError
 from companion_ai.player_events import PLAYER_EVENTS
@@ -400,6 +400,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 publish({'type':'ai_error','detail':'Select an installed model before sending; no simulator reply substituted'});continue
                             # A message about the settings is decided first, so the reply can announce the verified change.
                             settings_result=await speech.decide_for_user(message.text)
+                            if settings_result is SETTINGS_CANCELLED:continue
                             speech.request(message.text,user=True,settings_result=settings_result)
             tasks=[asyncio.create_task(send()),asyncio.create_task(receive()),asyncio.create_task(process_ai())]
             done,_=await asyncio.wait(tasks,return_when=asyncio.FIRST_COMPLETED)

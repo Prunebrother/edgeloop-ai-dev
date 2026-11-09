@@ -240,6 +240,15 @@ class SettingsControl:
     async def settled(self,request_id,report_now,timeout=4.):
         """Wait for the gate's outcome and the snapshot's confirmation. Returns the entry once confirmed,
         'rejected' with the gate's reason, or None when it is still unconfirmed (the card path then announces it)."""
+        try:return await self._settled(request_id,report_now,timeout)
+        except asyncio.CancelledError:
+            # The turn was cancelled after the proposal was sent: the gate may still apply it, so
+            # the card path announces it once confirmed.
+            entry=self.ledger.get(request_id)
+            if entry:entry['awaited']=False
+            raise
+
+    async def _settled(self,request_id,report_now,timeout):
         for _ in range(max(1,int(timeout/.05))):
             entry=self.ledger.get(request_id)
             if entry is None:return None

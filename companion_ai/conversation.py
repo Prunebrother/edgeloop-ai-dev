@@ -26,6 +26,9 @@ from .event_deck import Arrival, DeckContext, DeckLifecycleError, DeckRegistry, 
 from .session_history import compare, previous_session, outcome as session_outcome
 from .character_builder import Library as CharacterLibrary, BuilderError
 
+# decide_for_user() result when the user cancelled the turn: no proposal, and no reply.
+SETTINGS_CANCELLED = ('cancelled', None)
+
 
 class OllamaAdapter(OllamaProvider):
     """Backwards-compatible facade; transport is implemented once by OllamaProvider."""
@@ -967,11 +970,24 @@ class ConversationService:
         if not settings_intent(text) or not settings_available(report) or self.state.emergency:return None
         if not hasattr(self.adapter,'decide_settings') or getattr(self.adapter,'mode',None) in {'mock','stopped'}:return None
         if self.settings.task and not self.settings.task.done():self.settings.task.cancel()
-        request=await self.settings.run(self.adapter,report,self.responder().get('model'),self.publish,user_text=text)
-        if request is None:return None
-        entry=await self.settings.settled(request['id'],lambda:getattr(self.state,'report',None))
-        if entry is None:return None
-        return ('rejected' if entry['status']=='rejected' else 'applied',entry)
+        # The decision and its settlement are one task owned as settings.task, so Cancel (interrupt())
+        # stops it before it can propose anything. It is awaited with wait() so cancelling it never
+        # cancels the caller (the WebSocket's AI worker). A cancelled turn returns SETTINGS_CANCELLED
+        # and gets no reply either.
+        generation=self.generation
+        async def decide():
+            request=await self.settings.run(self.adapter,report,self.responder().get('model'),self.publish,user_text=text)
+            if request is None:return None
+            entry=await self.settings.settled(request['id'],lambda:getattr(self.state,'report',None))
+            if entry is None:return None
+            return ('rejected' if entry['status']=='rejected' else 'applied',entry)
+        task=self.settings.task=asyncio.create_task(decide())
+        self.tasks.add(task);task.add_done_callback(self.tasks.discard)
+        try:await asyncio.wait({task})
+        except asyncio.CancelledError:
+            task.cancel();raise
+        if task.cancelled() or generation!=self.generation:return SETTINGS_CANCELLED
+        return task.result()
 
     def settings_outcome(self,message):
         self.settings.outcome(message)
@@ -1490,12 +1506,17 @@ class ConversationService:
                 self.history.append({'role':'assistant', 'content':text, 'origin':'assistant_dialogue',
                     'trigger_origin':'real_user' if user else 'system_event','event_id':trigger.get('event_id'),'initiative_intent':(summary.get('director_opportunity') or {}).get('intent') or ('legacy_narrative' if summary.get('narrative_initiative') else None), 'expression':expression, 'session_id':getattr(self.state,'session_id',None), 'narrative_epoch':self.narrative.state['epoch'], 'at':self.clock()})
             # Delivered cards stay in the transcript above; routine ones never become Story Memory.
+            # Saving memory is optional: a storage failure (full disk, read-only data folder) is
+            # reported after the reply is delivered, and the in-process memory is kept.
+            storage_errors=[]
             if summary.get('narrative_scope')==self.narrative_scope() and memory.enabled and (card or {}).get('memory')!='none':
                 self.narrative.set_canon((getattr(self.adapter,'model_metadata',None) or {}).get('system',''))
-                self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False),story=(card or {}).get('memory')=='story')
-                self.curator.note(self.narrative,prompt,text,user)
-                trigger=summary.get('trigger_event',{})
-                if trigger.get('event_id'):self.narrative.reference_event(trigger)
+                try:
+                    self.narrative.accepted(prompt,text,user,summary.get('trigger_event',{}).get('kind'),summary.get('narrative_initiative',False),story=(card or {}).get('memory')=='story')
+                    self.curator.note(self.narrative,prompt,text,user)
+                    story_trigger=summary.get('trigger_event',{})
+                    if story_trigger.get('event_id'):self.narrative.reference_event(story_trigger)
+                except OSError as exc:storage_errors.append('Story Memory: '+type(exc).__name__)
             self.event_intelligence.decision(summary.get('trigger_event',{}).get('event_id'),'acknowledged')
             if trigger:self.director.mark_event(trigger,'acknowledged')
             self.director.accepted(text,user,trigger,(summary.get('director_opportunity') or {}).get('intent'))
@@ -1505,11 +1526,16 @@ class ConversationService:
             self.publish(self.character_state())
             store = getattr(self.adapter, 'store', None)
             if store and memory.enabled and memory.persist_between_sessions:
-                store.write(self.memory_path(), list(self.history))
+                try:store.write(self.memory_path(), list(self.history))
+                except OSError as exc:storage_errors.append('conversation history: '+type(exc).__name__)
             if card and getattr(self.adapter,'closing_corrected',None):self.director.log('closing_corrected',card_id=card.get('card_id'),codes=list(self.adapter.closing_corrected['codes']))
             self.busy_until = self.clock() + min(30, max(2, len(text.split()) / 2.5));self.busy_from_user=user
             publish({"type": "speech", "id": request_id, "source": "user" if user else "event",
                 "text": text, "responder": responder, 'expression':expression, 'expression_source':'model' if expression else 'fallback', "speak": self.policy.enabled, "interrupt": user or (self.policy.interruption == "interrupt" and not card)})
+            if storage_errors:
+                self.director.log('memory_storage_failed',errors=storage_errors)
+                publish({'type':'ai_diagnostics','id':request_id,'responder':responder,
+                         'storage_error':'Reply delivered, but memory could not be saved ('+'; '.join(storage_errors)+'). Check free disk space and that the data folder is writable.'})
             # Delivery means published. busy_until is only an estimate of when output ends.
             self.deck_transition(card,'delivered')
             if user:self.settings_reply_finished(summary,prompt,text)
