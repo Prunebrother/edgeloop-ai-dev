@@ -91,7 +91,71 @@ export function scanLibrary(dir, { max = MAX_LIBRARY } = {}) {
     return { root, files: found };
 }
 
+// Only the files the page needs are served, mirroring tools/serve_local.py's public_file():
+// never Git metadata, AI memory (.ai-data), app/app-state.json (which can hold the VLC
+// password), Python sources or anything reached through a symlink or outside the root.
+const PUBLIC_FILES = new Set(['index.html', 'sw.js', 'manifest.json', 'README.md', 'CHANGELOG.md', 'LICENSE', 'FORK_README.md', 'NOTICE_FORK.md', 'src/assets/characters/manifest.json']);
+const IMAGE = new Set(['.png', '.jpg', '.jpeg', '.webp']);
+
+function referencedArt(root) {
+    try {
+        const catalog = JSON.parse(fs.readFileSync(path.join(root, 'src/assets/characters/manifest.json'), 'utf8'));
+        return new Set(Object.values(catalog.characters).flatMap((c) => Object.values(c.expressions)).filter((a) => typeof a === 'string').map((a) => a.replace(/^\/+/, '')));
+    } catch {
+        return new Set();
+    }
+}
+
+export function publicFile(rawPath, root) {
+    let rel;
+    try {
+        rel = decodeURIComponent(rawPath).replace(/^\/+/, '') || 'index.html';
+    } catch {
+        return null;
+    }
+    if (rel.includes('\\') || rel.includes(':') || rel.includes('\0')) return null;
+    const parts = rel.split('/');
+    if (parts.some((p) => p === '' || p === '.' || p === '..' || p.startsWith('.'))) return null;
+    const ext = path.extname(rel).toLowerCase();
+    let allowed = PUBLIC_FILES.has(rel)
+        || (parts.length === 1 && rel.startsWith('icon') && (ext === '.svg' || ext === '.png'))
+        || (rel.startsWith('src/js/') && ext === '.js')
+        || (rel.startsWith('src/css/') && ext === '.css')
+        || (rel.startsWith('src/assets/characters/') && (IMAGE.has(ext) || ext === '.svg'));
+    if (rel.startsWith('Character_Art/')) allowed = IMAGE.has(ext) && referencedArt(root).has(rel);
+    if (!allowed) return null;
+    let realRoot, target;
+    try {
+        realRoot = fs.realpathSync(root);
+        const candidate = path.join(realRoot, ...parts);
+        target = fs.realpathSync(candidate);
+        // Any symlink on the way (inside or out of the root) changes the real path.
+        if (target !== candidate) return null;
+    } catch {
+        return null;
+    }
+    const inside = path.relative(realRoot, target);
+    if (!inside || inside.startsWith('..') || path.isAbsolute(inside)) return null;
+    return fs.statSync(target).isFile() ? target : null;
+}
+
+// Requests must name this host on its own port; a foreign Host is DNS rebinding and a foreign
+// Origin is another site. State-changing requests also need X-EdgeLoop-App: 1 and JSON, which a
+// cross-origin page cannot send without a CORS preflight this host never answers.
+export function requestAllowed(req, port) {
+    const own = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
+    const host = String(req.headers.host || '').toLowerCase();
+    if (!own.has(host)) return false;
+    const origin = req.headers.origin;
+    if (origin !== undefined && origin !== `http://${host}`) return false;
+    if (req.method === 'GET' || req.method === 'HEAD') return true;
+    return origin === `http://${host}` && req.headers['x-edgeloop-app'] === '1';
+}
+
 function readBody(req) {
+    if (!/^application\/json(;|$)/i.test(String(req.headers['content-type'] || ''))) {
+        return Promise.reject(new Error('JSON body required'));
+    }
     return new Promise((resolve, reject) => {
         const chunks = [];
         let size = 0;
@@ -306,6 +370,11 @@ export function createAppHost({ port = 8787, root = ROOT, openBrowser = false, s
 
     const server = http.createServer(async (req, res) => {
         const url = new URL(req.url || '/', 'http://127.0.0.1');
+        const address = server.address();
+        if (!requestAllowed(req, address && address.port)) {
+            res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' }).end('forbidden');
+            return;
+        }
         try {
             if (req.method === 'GET' && url.pathname === '/edgeloop-app.json') {
                 sendJson(res, 200, { app: true, version: 1 });
@@ -387,14 +456,8 @@ export function createAppHost({ port = 8787, root = ROOT, openBrowser = false, s
                 sendJson(res, 405, { ok: false });
                 return;
             }
-            let rel = decodeURIComponent(url.pathname);
-            if (rel === '/') rel = '/index.html';
-            const filePath = path.resolve(root, '.' + rel);
-            if (!filePath.startsWith(root)) {
-                res.writeHead(403).end();
-                return;
-            }
-            if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+            const filePath = publicFile(url.pathname, root);
+            if (!filePath) {
                 res.writeHead(404).end('not found');
                 return;
             }
@@ -403,6 +466,10 @@ export function createAppHost({ port = 8787, root = ROOT, openBrowser = false, s
             if (req.method === 'HEAD') res.end();
             else fs.createReadStream(filePath).pipe(res);
         } catch (err) {
+            if (err && err.message === 'JSON body required') {
+                if (!res.headersSent) sendJson(res, 415, { ok: false, error: 'Expected JSON.' });
+                return;
+            }
             if (!res.headersSent) sendJson(res, 500, { ok: false, error: 'The local app hit an error.' });
         }
     });

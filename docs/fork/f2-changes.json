@@ -26,8 +26,8 @@
   },
   "src/js/app.js": {
     "base_sha256": "2efd140221b42013159e93001932e03ffa1b46b768664ec2df21d1c207afe1d8",
-    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged; F2.5.1 projects existing learning-release counter only; original handlers and safety unchanged; F2.8.1 adds post-motor-stop/pre-counter-reset read-only final projection and Survival restart observation only; reset cancellation final projection after stop dispatch; upstream 1.1.4.31 sync: one history record merges the fork completion report with the upstream opt-in session log, and a failed companion mount is logged (the session is unaffected); player workspace: loading or clearing a funscript records the play style it switches to (state.mediaSelection) just before upstream applies it, so the observer can tell that change from a selection; the switch itself is unchanged",
-    "sha256": "c7bf1fd421176a834752b5e412614c95a7d03d1a53160c4113460a6fa860486a"
+    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged; F2.5.1 projects existing learning-release counter only; original handlers and safety unchanged; F2.8.1 adds post-motor-stop/pre-counter-reset read-only final projection and Survival restart observation only; reset cancellation final projection after stop dispatch; upstream 1.1.4.31 sync: one history record merges the fork completion report with the upstream opt-in session log, and a failed companion mount is logged (the session is unaffected); player workspace: loading or clearing a funscript records the play style it switches to (state.mediaSelection) just before upstream applies it, so the observer can tell that change from a selection; the switch itself is unchanged; v0.7.0-rc3: the local player app sends X-EdgeLoop-App on its state-changing requests (host Origin check)",
+    "sha256": "2eb0f21550c106f1fa60e1345fd0664218175fd551508317acadc664d224a761"
   },
   "src/js/backup.test.js": {
     "base_sha256": "1db725797ba3792abe91d18da49950904c5dd395a51089175ad8ce45f645ea56",

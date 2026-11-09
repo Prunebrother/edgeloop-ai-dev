@@ -6767,7 +6767,7 @@ function startLocalApp() {
         document.getElementById('appConnectBtn')?.addEventListener('click', () => {
             fetch('/app/connect', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-EdgeLoop-App': '1' },
                 body: JSON.stringify({
                     kind: kindInput ? kindInput.value : 'headset',
                     host: hostInput ? hostInput.value : '',
@@ -6782,12 +6782,12 @@ function startLocalApp() {
         });
         document.getElementById('appQuitBtn')?.addEventListener('click', () => {
             if (status) status.textContent = 'EdgeLoop is closing. The player connection closes with it.';
-            fetch('/app/quit', { method: 'POST' }).catch(() => {});
+            fetch('/app/quit', { method: 'POST', headers: { 'X-EdgeLoop-App': '1' } }).catch(() => {});
         });
         document.getElementById('appLibraryBtn')?.addEventListener('click', () => {
             fetch('/app/library', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-EdgeLoop-App': '1' },
                 body: JSON.stringify({ path: libraryInput ? libraryInput.value : '' })
             }).then((response) => response.json()).then((body) => {
                 if (status && body && body.error) status.textContent = body.error;
