@@ -16,8 +16,8 @@
   },
   "index.html": {
     "base_sha256": "b5e1bbe949cfdf489219b82bed99c3b3d63b6374f0f3979737073c0dc21b57f0",
-    "reason": "F2.1 stylesheet link and accessible viewport zoom; original controls preserved; v0.3.0 includes art, local browser libraries and complete runtime installer; upstream 1.1.4.31 sync: local-app library placeholder uses ~/Videos instead of an absolute home path (release privacy scan)",
-    "sha256": "88050bdfa9540d2cc9c23650d20027d846f5609038cf303833f35f7502559467"
+    "reason": "F2.1 stylesheet link and accessible viewport zoom; original controls preserved; v0.3.0 includes art, local browser libraries and complete runtime installer; upstream 1.1.4.31 sync: local-app library placeholder uses ~/Videos instead of an absolute home path (release privacy scan); v0.7.0: footer names the fork version (EdgeLoop AI vX) beside the engine version",
+    "sha256": "b447c1a930b202f6c7eef70b42888575ceadbd2576f500c49d24e9749d539791"
   },
   "package.json": {
     "base_sha256": "4530b83fb523fb476390b151a0da7f7d0134d5a38fd4eabdb892c156fc204872",
