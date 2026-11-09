@@ -136,7 +136,7 @@ def test_deck_level_errors():
         cb.compose(deepcopy(WORLD), none_enabled, ART)
 
 
-@pytest.mark.parametrize('name', ['../wren.png', 'art/wren.png', '/home/x/wren.png', 'wren.gif', 'wren', '..png.png/..'])
+@pytest.mark.parametrize('name', ['../wren.png', 'art/wren.png', '/srv/art/wren.png', 'wren.gif', 'wren', '..png.png/..'])
 def test_artwork_must_be_a_plain_image_name_in_the_art_folder(name):
     errors = errors_for(portrait={'file': name})
     assert errors[0]['path'][:3] == ['character', 'portrait', 'file'], errors
