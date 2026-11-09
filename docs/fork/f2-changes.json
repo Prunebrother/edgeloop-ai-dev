@@ -7,7 +7,7 @@
   "CHANGELOG.md": {
     "base_sha256": "6a6139fe22de0953008e09984134644b1b3dbc8a0b5562ad8cc26c5b906da16d",
     "reason": "F2.10 public release documentation/dependency configuration",
-    "sha256": "c8219064384f6ea324e70727c934b99aa70658bac5ac29d5a9fff4184a014580"
+    "sha256": "a96050d98a828d1975744eb92536594104ec6427dcb4d41d50665c1fcb1203b4"
   },
   "README.md": {
     "base_sha256": "31e06342d10aa4d7001bee7f037a1da28587a611d40ed5ca7c22785643de8c8c",
@@ -17,7 +17,7 @@
   "index.html": {
     "base_sha256": "b5e1bbe949cfdf489219b82bed99c3b3d63b6374f0f3979737073c0dc21b57f0",
     "reason": "F2.1 stylesheet link and accessible viewport zoom; original controls preserved; v0.3.0 includes art, local browser libraries and complete runtime installer; upstream 1.1.4.31 sync: local-app library placeholder uses ~/Videos instead of an absolute home path (release privacy scan); v0.7.0: footer names the fork version (EdgeLoop AI vX) beside the engine version",
-    "sha256": "b447c1a930b202f6c7eef70b42888575ceadbd2576f500c49d24e9749d539791"
+    "sha256": "78179059614fe5730f287dfe49b6f59971d053cefe8933225447d3bebb95309d"
   },
   "package.json": {
     "base_sha256": "4530b83fb523fb476390b151a0da7f7d0134d5a38fd4eabdb892c156fc204872",
