@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.7.0-rc3 — test build: review fixes (pre-release)
+
+<!-- Release candidate for testers on the dev repository. Linux and Windows. Same as v0.7.0-rc2 plus the fixes below. Models are unchanged since v0.6.0-rc2. -->
+
+- Character Builder: pressing Save again before the previous save finished could bring back older card text and later save it. Saves now run one at a time; a second Save or Preview waits and then saves what is on screen.
+- AI Settings Control: pressing Cancel while the companion was deciding on a settings change could still send that change and a reply afterwards. Cancel now stops both.
+- If conversation history or Story Memory cannot be saved (for example, a full disk), the reply is still shown and spoken, and the diagnostics say what could not be saved. Before, the reply was lost and the companion stayed in its generating state.
+- Optional local player app (`node app/host.mjs`, from the source only; not in the release downloads): it now serves only the app's public files, never private data or files outside its folder, and refuses requests from other sites or host names.
+
 ## v0.7.0-rc2 — test build: Character Builder fixes (pre-release)
 
 <!-- Release candidate for testers on the dev repository. Linux and Windows. Same as v0.7.0-rc1 plus the fixes below. Models are unchanged since v0.6.0-rc2. -->
