@@ -67,9 +67,11 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
       </div>`;
     host.append(root);
     const q=s=>root.querySelector(s);
-    // edits counts every change on screen; savedAt is its value when the last save was sent, so a
-    // save response can tell whether the player kept editing while it was in flight.
-    let world=blankWorld(),character=blankCharacter(),previewed=null,saving=0,previewAfterSave=false,edits=0,savedAt=0;
+    // Only one save (a world + character message pair) is in flight at a time. edits counts every
+    // change on screen and savedAt is its value when that save was sent, so its response can tell
+    // whether the player kept editing meanwhile. A save or preview asked for while one is in flight
+    // is queued and sent when it completes, with whatever is on screen then.
+    let world=blankWorld(),character=blankCharacter(),previewed=null,saving=0,previewAfterSave=false,edits=0,savedAt=0,queued=null;
     const status=t=>{q('[data-b-status]').textContent=t;};
     const showErrors=errors=>{const list=q('[data-b-errors]');list.replaceChildren();list.hidden=!errors?.length;
         for(const e of errors||[]){const li=document.createElement('li');li.textContent=(e.path||[]).join(' › ')+': '+e.message;list.append(li);}};
@@ -137,15 +139,17 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
         if(!send(m)){showErrors([{path:[action],message:'Not sent: the AI connection is not ready.'}]);return false;}
         return true;};
     q('[data-b-add]').onclick=()=>{if(character.deck.cards.length>=MAX_CARDS)return;character.deck.cards.push(blankCard(character.deck.cards.length+1));renderCards();dirty();};
-    const save=()=>{collect();showErrors([]);saving=2;savedAt=edits;status('Saving…');
+    const save=preview=>{
+        if(saving){queued={preview:preview||!!queued?.preview};status('Saving… your newer changes will be saved next.');return;}
+        previewAfterSave=preview;collect();showErrors([]);saving=2;savedAt=edits;status('Saving…');
         // Check both sizes first, so a too-large character never leaves a half-saved pair.
         const pair=[['save_world',{world}],['save_character',{character}]];
         const over=pair.find(([action,body])=>sizeOf(message(action,body))>MESSAGE_LIMIT_BYTES);
         if(over){request(...over);saving=0;previewAfterSave=false;status('Not saved.');return;}
         if(!pair.every(([action,body])=>request(action,body))){saving=0;previewAfterSave=false;}};
-    q('[data-b-save]').onclick=()=>{previewAfterSave=false;save();};
+    q('[data-b-save]').onclick=()=>save(false);
     // Preview always composes what is on screen: it saves first and composes only if both saves succeed.
-    q('[data-b-preview]').onclick=()=>{previewAfterSave=true;save();};
+    q('[data-b-preview]').onclick=()=>save(true);
     q('[data-b-activate]').onclick=()=>{if(previewed&&request('activate',{id:previewed.id}))status('Activating '+previewed.name+'…');};
     q('[data-b-load]').onclick=()=>{const id=q('[data-b-open]').value;if(!id){world=blankWorld();character=blankCharacter();render();dirty();return;}request('get',{kind:'character',id});};
     q('[data-b-worlds]').onchange=e=>{if(e.target.value)request('get',{kind:'world',id:e.target.value});};
@@ -173,13 +177,14 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
         setOrigin(value){originValue=value;},
         receive(m){
             if(m.type!=='character_builder')return;
-            if(!m.ok){showErrors(m.errors);status(m.action==='activate'?'Not activated.':'Fix the problems listed below.');if(m.action.startsWith('save')){saving=0;previewAfterSave=false;}return;}
+            if(!m.ok){showErrors(m.errors);status(m.action==='activate'?'Not activated.':'Fix the problems listed below.');if(m.action.startsWith('save')){saving=0;previewAfterSave=false;queued=null;}return;}
             if(m.action==='list'){fillSelect(q('[data-b-open]'),m.characters,'New character');fillSelect(q('[data-b-worlds]'),m.worlds,'New world');
                 const art=q('[data-b-art]'),want=character.portrait?.file||art.value;fillSelect(art,m.art,'No portrait');art.value=m.art.includes(want)?want:'';
                 q('[data-b-art-folder]').textContent='Put portrait images (PNG, JPEG or WebP, up to 8 MB) in '+m.art_folder+', then reopen Character Builder. Direct upload is not available yet.';}
             else if(m.action==='get'&&m.kind==='character'){character=m.value;if(!character.deck.cards.length)character.deck.cards.push(blankCard(1));request('get',{kind:'world',id:character.world});render();dirty();status('Opened '+character.name+'.');}
             else if(m.action==='get'&&m.kind==='world'){world=m.value;render();dirty();}
             else if(m.action==='save_world'||m.action==='save_character'){
+                if(!saving)return; // a late reply to a save that already failed
                 // The card editors close over the card objects, so the saved (canonical) character
                 // is only adopted together with a re-render that rebinds them. If the player edited
                 // while the save was in flight, the newer on-screen work wins and only the revision
@@ -187,7 +192,10 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
                 const current=edits===savedAt;
                 if(m.action==='save_character'){if(current){character=m.value;render();}else character.revision=m.value.revision;}
                 if(--saving===0){status(current?'Saved locally · revision '+character.revision+'.':'Saved revision '+character.revision+'; newer edits are not saved yet.');refresh();
-                if(current&&previewAfterSave&&request('preview',{id:character.id}))status('Composing preview…');previewAfterSave=false;}}
+                    const next=queued;queued=null;
+                    if(next)save(next.preview||previewAfterSave);
+                    else if(current&&previewAfterSave&&request('preview',{id:character.id}))status('Composing preview…');
+                    if(!next)previewAfterSave=false;}}
             else if(m.action==='preview'){previewed=m.preview;showPreview(m.preview);q('[data-b-activate]').disabled=false;status('Preview ready. Activate to start talking with '+m.preview.short_name+'.');}
             else if(m.action==='activate'){status(m.character.name+' is active. Go back to chat to talk.');refresh();}
         },
