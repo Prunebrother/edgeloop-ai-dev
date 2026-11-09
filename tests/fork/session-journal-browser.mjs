@@ -21,7 +21,9 @@ try{
  await page.waitForFunction(()=>document.querySelector('#session-journal tbody').textContent.includes('120 s'));
  await page.locator('#session-journal tbody button').first().click();await page.waitForFunction(()=>document.querySelector('#session-journal [data-detail]').textContent.includes('selected/applied engine'));
  await page.locator('#session-journal [data-access]').uncheck();await page.waitForTimeout(200);
- await shot('journal-desktop.png',1920,1080);await shot('journal-mobile.png',390,844);
+ await shot('journal-desktop.png',1920,1080);
+ // On a phone the Character column is its own tab, hidden while Chat is selected.
+ await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'Character',exact:true}).click();await shot('journal-mobile.png',390,844);
  assert(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)),'Mobile overflow');
  await page.getByRole('button',{name:'Delete this record'}).click();await page.waitForFunction(()=>document.querySelector('#session-journal [data-page]').textContent.includes('of 0'));
  assert(errors.length===0,errors.join('; '));report.steps.push('Opt-in privacy, observer-captured record, table, detail, AI access toggle, deletion, desktop/mobile layout');report.passed=true;
