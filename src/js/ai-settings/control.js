@@ -168,6 +168,7 @@ export function createAiSettingsControl({ load = () => null, save = () => {}, no
         // Projection for the read-only snapshot, used by the observer to confirm a change.
         snapshot: () => ({ enabled: settings.enabled, revoked, applied, last_id: last?.id ?? null, last_setting: last?.setting ?? null,
             applying_id: applying, pacing: settings.pacing,
+            recovery_seconds: settings.recovery_seconds, round_rest_seconds: settings.round_rest_seconds,
             own_ready: settings.enabled && !revoked && ownChangeReady(settings, now(), lastAiAt) }),
         audit: () => audit.map((entry) => ({ ...entry })),
         pending: () => (pending ? { ...pending.change } : null),

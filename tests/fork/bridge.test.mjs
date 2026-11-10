@@ -156,10 +156,13 @@ test('I came: every orgasm count increase is one orgasm_reported event; the sess
   assert.equal(p.snapshot.details.last_orgasm_seconds,s.sessionSeconds);assert.equal(p.snapshot.status,'RUNNING');
   now+=500;assert(!c.project(s,devices,{orgasm_count:n,last_orgasm_seconds:s.sessionSeconds}).events.some(e=>e.kind==='orgasm_reported'));
  }
- const src=readFileSync(new URL('../../src/js/app.js',import.meta.url),'utf8');
- assert.match(src,/label\.textContent = coming \? 'I came'/);
- assert.match(src,/if \(orgasmReportOpen\(\)\) \{\s*reportOrgasm\(\);/);
- assert.match(src,/beginSettle\(\{ restartWarmup: true \}\)/);
+ const src=readFileSync(new URL('../../src/js/app.js',import.meta.url),'utf8'),html=readFileSync(new URL('../../index.html',import.meta.url),'utf8');
+ // Its own button, open the whole running session with or without Force Orgasm; Came Early stays accidental.
+ assert.match(html,/id="iCameBtn"/);
+ assert.match(src,/iCameBtn\?\.addEventListener\('click', \(\) => reportOrgasm\(\)\)/);
+ assert.doesNotMatch(src,/function orgasmReportOpen\(\) \{[^}]*orgasmMode/);
+ assert.match(src,/beginSettle\(state\.activeMode === 'survival' \? \{ restartSurvival: true \} : \{ restartWarmup: true \}\)/);
+ assert.doesNotMatch(src,/label\.textContent = coming/);
 });
 
 test('a selection reaction cannot update the UI after a newer local engine projection, even before network acknowledgement',()=>{

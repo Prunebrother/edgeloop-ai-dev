@@ -285,6 +285,14 @@ body.companion-app {margin:0;padding:0;display:block;height:100dvh;min-height:0;
 .ai-settings-panel input[type=number] {width:58px!important;padding:3px 6px!important;margin:0!important;font-size:11px!important}
 .ai-settings-panel select {width:auto!important;padding:3px 6px!important;margin:0!important;font-size:11px!important}
 .ai-settings-status {font-size:10px;color:#8393ab;margin:4px 0 0}
+.ai-settings-after {border:1px solid #253043;border-radius:8px;margin:8px 0 4px;padding:6px 10px 8px;display:grid;gap:8px;min-width:0}
+.ai-settings-after legend {padding:0 4px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fda4af}
+.ai-settings-slider {display:grid;gap:3px;font-size:11px;color:#b7c2d6}
+.ai-settings-slider-head {display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ai-settings-slider-value {font-weight:700;color:#f1f5f9;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ai-settings-panel input[type=range] {width:100%!important;margin:0!important;padding:0!important;height:18px;accent-color:#f472b6;background:transparent!important;border:0!important;box-shadow:none!important}
+.ai-settings-panel input[type=range]:focus-visible {outline:2px solid #c4b5fd;outline-offset:2px}
+.ai-settings-hint {font-size:10px;line-height:1.4;color:#8393ab}
 .ai-settings-chip {display:flex;align-items:center;gap:10px;align-self:center;margin:6px auto;padding:6px 12px;border:1px solid #4c3d7a;background:#1b1530;border-radius:999px;font-size:11px;color:#ddd6fe;max-width:92%}
 .ai-settings-chip-actions {display:flex;gap:6px;font-size:10px;color:#a3a9c2}
 .ai-settings-chip button {padding:2px 10px;font-size:10px;border-radius:999px}

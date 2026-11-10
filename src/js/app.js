@@ -524,6 +524,7 @@ function pauseSession(voiceText = 'Paused.', source = 'button') {
 // pause, stop / reset and the remote controller's telemetry renderer.
 function renderTransport(status) {
     paintEdgedButton();
+    renderICameButton();
     if (!playPauseBtn) return;
     playPauseBtn.disabled = false;
     if (status === 'RUNNING' || status === 'RAMPDOWN') {
@@ -577,6 +578,7 @@ function countManualEdge() {
 // Grey out the transport with a reason while the hardware is not ready.
 function renderTransportWaiting(reason) {
     paintEdgedButton();
+    renderICameButton();
     if (!playPauseBtn) return;
     playPauseBtn.disabled = true;
     if (playPauseText) playPauseText.textContent = reason;
@@ -1607,14 +1609,11 @@ function renderCameEarlyButton() {
     const kicker = document.getElementById('cameEarlyKicker');
     const label = document.getElementById('cameEarlyLabel');
     if (!cameEarlyBtn || !kicker || !label) return;
-    const coming = orgasmReportOpen();
-    const finishing = coming || (!isRemotePage && (state.activeMode === 'survival' || state.activeMode === 'calibrate'));
+    const finishing = !isRemotePage && (state.activeMode === 'survival' || state.activeMode === 'calibrate');
     const calibrating = state.activeMode === 'calibrate';
-    kicker.textContent = coming ? 'Force Orgasm' : finishing ? 'The app' : 'Accidental';
-    label.textContent = coming ? 'I came' : finishing ? 'Finished me' : 'Came Early';
-    cameEarlyBtn.title = coming
-        ? 'Count this orgasm. The toys ease down, the warm-up starts again and the session keeps going.'
-        : calibrating
+    kicker.textContent = finishing ? 'The app' : 'Accidental';
+    label.textContent = finishing ? 'Finished me' : 'Came Early';
+    cameEarlyBtn.title = calibrating
         ? (state.calibrationPass === 'dual'
             ? 'Both toys finished you. This heart rate becomes your dual-stim max.'
             : 'The primary toy finished you. This heart rate becomes your single-stim max.')
@@ -1633,16 +1632,36 @@ function renderCameEarlyButton() {
     cameEarlyBtn.classList.toggle('text-amber-300', !finishing);
 }
 
-// While Force Orgasm is on in a tease mode, the Came Early button reports a
-// wanted orgasm instead: it is counted, the toys ease down, the warm-up starts
-// again and the session keeps running, so a session can hold several.
-// Matches the companion's recovery phase (event_deck.RECOVERY_SECONDS).
-const ORGASM_RECOVERY_SECONDS = 90;
+// I came: a wanted orgasm, with or without Force Orgasm. It is counted, the
+// toys ease down, the warm-up starts again (Survival restarts its climb) and
+// the session keeps running, so a session can hold several. Came Early stays
+// the accidental release that ends the session. Calibration records its
+// orgasm with Finished me, so I came is not offered there.
+const iCameBtn = document.getElementById('iCameBtn');
+
+function settling() {
+    return Boolean(state.settleEndsSession || state.settleRestartsWarmup || state.settleRestartsSurvival);
+}
 
 function orgasmReportOpen() {
-    return !isRemotePage && Boolean(state.orgasmMode)
-        && !['survival', 'calibrate'].includes(state.activeMode)
-        && ['RUNNING', 'PAUSED'].includes(state.sessionStatus);
+    return !isRemotePage && state.activeMode !== 'calibrate'
+        && ['RUNNING', 'PAUSED'].includes(state.sessionStatus) && !settling();
+}
+
+function renderICameButton() {
+    if (!iCameBtn) return;
+    const open = orgasmReportOpen();
+    iCameBtn.classList.toggle('hidden', isRemotePage);
+    iCameBtn.disabled = !open;
+    // The tap is acknowledged on the button itself while the toys ease down.
+    const counted = Boolean(state.settleRestartsWarmup || state.settleRestartsSurvival);
+    const kicker = document.getElementById('iCameKicker'), label = document.getElementById('iCameLabel');
+    if (kicker) kicker.textContent = counted ? `Orgasm ${state.orgasmCount || 1}` : 'Orgasm';
+    if (label) label.textContent = counted ? 'Counted ✓' : 'I came';
+    iCameBtn.title = open
+        ? 'You came, and the session keeps going. The orgasm is counted, the toys ease down and the warm-up starts again.'
+        : state.activeMode === 'calibrate' ? 'Calibration records its orgasm with Finished me.'
+            : settling() ? 'Easing down after the orgasm.' : 'Start a session first.';
 }
 
 function countOrgasm() {
@@ -1656,10 +1675,10 @@ function countOrgasm() {
 }
 
 function reportOrgasm() {
-    if (!orgasmReportOpen() || state.settleEndsSession || state.settleRestartsWarmup) return;
+    if (!orgasmReportOpen()) return;
     countOrgasm();
-    beginSettle({ restartWarmup: true });
-    renderCameEarlyButton();
+    beginSettle(state.activeMode === 'survival' ? { restartSurvival: true } : { restartWarmup: true });
+    renderICameButton();
     syncAiObservation();
     syncTelemetry();
 }
@@ -2595,6 +2614,7 @@ function clearSettle() {
     state.settleRestartsWarmup = false;
     state.settleOutcome = null;
     state.settleVoice = null;
+    renderICameButton();
 }
 
 function restartSurvivalAfterOrgasm() {
@@ -2678,6 +2698,7 @@ function beginSettle({ endsSession = false, restartSurvival = false, restartWarm
         notice.classList.remove('hidden');
     }
     if (voiceText) cueVoice(voiceText, true);
+    renderICameButton();
     updateEngine();
     syncTelemetry();
     return true;
@@ -3045,13 +3066,11 @@ function offerCalibration() {
     return true;
 }
 
+iCameBtn?.addEventListener('click', () => reportOrgasm());
+
 cameEarlyBtn?.addEventListener('click', () => {
     // The learning profile and the typed max belong to the host.
     if (isRemotePage || isRemoteViewer) return;
-    if (orgasmReportOpen()) {
-        reportOrgasm();
-        return;
-    }
     if (['calibrate', 'survival'].includes(state.activeMode) && ['RUNNING', 'PAUSED'].includes(state.sessionStatus)) {
         if (state.settleEndsSession || state.settleRestartsSurvival) return;
         if (!state.completionReported) {
@@ -3139,7 +3158,6 @@ function setOrgasmMode(on, { voice = false, settle = false } = {}) {
             : 'bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl p-1.5 transition text-xs flex flex-col items-center justify-center cursor-pointer shadow-lg shadow-amber-950/30';
     }
     if (changed && !next && settle) beginSettle({ endsSession: false });
-    if (changed) renderCameEarlyButton();
     if (!changed || !voice) return;
     if (next) {
         cueVoice('forceOrgasm');
@@ -3483,6 +3501,7 @@ function runKeyAction(action) {
     else if (action === 'toggleSession') document.getElementById('sessionPlayPauseBtn')?.click();
     else if (action === 'stop') document.getElementById('sessionStopBtn')?.click();
     else if (action === 'cameEarly') document.getElementById('cameEarlyBtn')?.click();
+    else if (action === 'iCame') iCameBtn?.click();
     else if (action === 'forceOrgasm') document.getElementById('orgasmBtn')?.click();
     else if (action === 'offsetEarlier') player?.nudgeOffset(-OFFSET_NUDGE_MS);
     else if (action === 'offsetLater') player?.nudgeOffset(OFFSET_NUDGE_MS);
@@ -6282,9 +6301,9 @@ function aiSettingsContext() {
         : state.hrNoContact ? 'no_contact' : (state.hrSignalState || 'ok');
     return {
         status: state.sessionStatus, signal, toyReady: readiness.toyReady,
-        // One invited round decision per reported orgasm, once its recovery is over.
-        roundOpen: (state.orgasmCount || 0) > (state.roundsGranted || 0) && Number.isFinite(state.lastOrgasmSeconds)
-            && (state.sessionSeconds || 0) - state.lastOrgasmSeconds >= ORGASM_RECOVERY_SECONDS && !state.orgasmMode,
+        // The gate opens one invited round decision per reported orgasm once the user's recovery time is over.
+        roundPending: (state.orgasmCount || 0) > (state.roundsGranted || 0),
+        sinceOrgasm: Number.isFinite(state.lastOrgasmSeconds) ? Math.max(0, (state.sessionSeconds || 0) - state.lastOrgasmSeconds) : null,
         current: { play_style: state.teaseMode, game: state.gameMode || 'off', endgame: state.endgameType || 'orgasm',
             orgasm: Boolean(state.orgasmMode), intensity: state.intensityValue }
     };

@@ -376,7 +376,7 @@
     @media (min-width: 640px) {
       #sessionControlBar #sessionTransport > div,
       #hudSessionSlot #sessionTransport > div {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
       }
     }
     #sessionControlBar #sessionPlayPauseBtn,
@@ -1045,7 +1045,11 @@
               <span id="cameEarlyKicker" class="text-[8px] text-amber-400 font-semibold uppercase">Accidental</span>
               <span id="cameEarlyLabel" class="font-bold text-[10px] mt-0.5">Came Early</span>
             </button>
-            <button id="orgasmBtn" class="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl p-1.5 transition text-xs flex flex-col items-center justify-center cursor-pointer shadow-lg shadow-amber-950/30">
+            <button id="iCameBtn" type="button" disabled class="bg-fuchsia-950/70 hover:bg-fuchsia-900 border border-fuchsia-600 text-fuchsia-100 font-bold rounded-xl p-1.5 transition text-xs flex flex-col items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" title="You came, and the session keeps going. The orgasm is counted, the toys ease down and the warm-up starts again. Start a session first.">
+              <span id="iCameKicker" class="text-[8px] uppercase tracking-wider text-fuchsia-300 font-semibold">Orgasm</span>
+              <span id="iCameLabel" class="font-bold text-[10px] mt-0.5">I came</span>
+            </button>
+            <button id="orgasmBtn" class=""bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl p-1.5 transition text-xs flex flex-col items-center justify-center cursor-pointer shadow-lg shadow-amber-950/30">
               <span class="text-[8px] uppercase tracking-wider text-amber-200">Overdrive</span>
               <span id="orgasmBtnText" class="font-bold text-[10px] mt-0.5">Force Orgasm</span>
             </button>

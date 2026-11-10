@@ -38,6 +38,14 @@ Lane = Literal['session_start', 'normal', 'narrative', 'mission', 'session_end',
 Phase = Literal['building', 'finishing', 'recovery']
 PHASES = ('building', 'finishing', 'recovery')
 RECOVERY_SECONDS = 90
+RECOVERY_RANGE = (30, 300)
+
+
+def recovery_seconds(report):
+    """The user's recovery time from the AI Settings panel (After an orgasm), else the default."""
+    ai = (((report or {}).get('details') or {}).get('ai_settings') or {})
+    value = ai.get('recovery_seconds')
+    return value if isinstance(value, int) and not isinstance(value, bool) and RECOVERY_RANGE[0] <= value <= RECOVERY_RANGE[1] else RECOVERY_SECONDS
 # A card without a phase rule plays while building only, so ordinary chat, wagers and "how many more"
 # remarks never talk over a finish. Mission milestones keep playing; their prompt states the phase.
 DEFAULT_PHASES = frozenset({'building'})
@@ -247,7 +255,7 @@ def session_phase(report):
     if details.get('orgasm_mode') is True:
         return 'finishing'
     last, seconds = details.get('last_orgasm_seconds'), report.get('seconds')
-    if (details.get('orgasm_count') or 0) > 0 and isinstance(last, int) and isinstance(seconds, int) and 0 <= seconds - last < RECOVERY_SECONDS:
+    if (details.get('orgasm_count') or 0) > 0 and isinstance(last, int) and isinstance(seconds, int) and 0 <= seconds - last < recovery_seconds(report):
         return 'recovery'
     return 'building'
 

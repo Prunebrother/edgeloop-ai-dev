@@ -187,3 +187,28 @@ async def test_the_round_card_is_told_the_count_and_that_nothing_was_changed_wit
 async def test_a_new_force_orgasm_after_recovery_needs_no_round_card():
     r, s, wire, frames = await service(seconds=400, orgasms=1, last_orgasm=300, orgasm_mode=True)
     assert s.maybe_start_round(s.state.report) is False and s.rounds_started[s.state.session_id] == 1
+
+
+# The user's After an orgasm settings (AI Settings panel) drive the companion too.
+
+def with_settings(report, **ai):
+    report['details']['ai_settings'] = {'enabled': True, 'revoked': False, 'applied': 0, 'pacing': 'sometimes', **ai}
+    return report
+
+
+@pytest.mark.parametrize('recovery,seconds,phase', [(150, 280 + 149, 'recovery'), (150, 280 + 150, 'building'), (30, 280 + 30, 'building'),
+                                                    (999, 280 + RECOVERY_SECONDS, 'building')])
+def test_the_recovery_follows_the_users_setting(recovery, seconds, phase):
+    assert session_phase(with_settings(running(seconds), recovery_seconds=recovery)) == phase
+
+
+@pytest.mark.parametrize('rest,since,allowed', [(300, 299, False), (300, 300, True), (0, 0, True)])
+def test_the_own_force_orgasm_block_follows_the_users_setting(rest, since, allowed):
+    proposal = Proposal.model_validate({'change': 'orgasm', 'value': True, 'reason': 'Another one.'})
+    report = with_settings(running(300 + since, 1, 300), round_rest_seconds=rest)
+    assert (proposal_request(proposal, report, 'own') is not None) is allowed
+
+
+def test_the_decision_step_states_the_users_block_or_none():
+    assert 'never within 5 minutes of the last orgasm' in decision_content(with_settings(running(300, 1, 200), round_rest_seconds=300))
+    assert 'never within' not in decision_content(with_settings(running(300, 1, 200), round_rest_seconds=0))

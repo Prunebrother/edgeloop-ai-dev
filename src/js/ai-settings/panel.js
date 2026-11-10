@@ -3,7 +3,7 @@
 // chips shown in the conversation. Engine side, so the AI layer receives these
 // as functions and never imports engine modules. Model text is assigned with
 // textContent only. Every button here is a user action.
-import { sanitizeAiSettings } from './gate.js';
+import { sanitizeAiSettings, AI_RECOVERY_RANGE, AI_ROUND_REST_RANGE } from './gate.js';
 
 export const SETTING_LABELS = Object.freeze({
     play_style: 'Play style', game: 'Game', endgame: 'Endgame', orgasm: 'Force Orgasm', intensity: 'Intensity', pause: 'Session', stop: 'Session'
@@ -26,6 +26,14 @@ export function describeChange(change) {
     if (change.setting === 'pause') return 'Paused the session';
     if (change.setting === 'stop') return 'Stopped the session';
     return `${label}: ${describeValue(change.setting, change.from)} → ${describeValue(change.setting, change.to)}`;
+}
+
+// 90 -> '1 min 30 s', 0 -> 'Off'.
+export function describeSeconds(seconds, zero = '0 s') {
+    const n = Math.max(0, Math.round(Number(seconds) || 0));
+    if (n === 0) return zero;
+    const m = Math.floor(n / 60), s = n % 60;
+    return m && s ? `${m} min ${s} s` : m ? `${m} min` : `${s} s`;
 }
 
 function element(tag, className, text) {
@@ -65,9 +73,30 @@ export function withAiSettingsPanel(control) {
         band.append(low, document.createTextNode(' to '), high);
         const pace = element('label', 'ai-settings-row', 'Minimum seconds between any changes ');
         pace.append(interval);
+        // After an orgasm (I came): two sliders, each with its value read out next to its name.
+        const after = element('fieldset', 'ai-settings-after');
+        after.append(element('legend', '', 'After an orgasm'));
+        const slider = (key, range, name, hint, zero) => {
+            const row = element('label', 'ai-settings-slider');
+            const head = element('span', 'ai-settings-slider-head');
+            const value = element('output', 'ai-settings-slider-value');
+            head.append(element('span', '', name), value);
+            const input = element('input'); input.type = 'range';
+            input.min = String(range.min); input.max = String(range.max); input.step = String(range.step);
+            input.dataset.aiSettingsField = key;
+            const show = () => { value.textContent = describeSeconds(input.value, zero); input.setAttribute('aria-valuetext', value.textContent); };
+            input.addEventListener('input', show);
+            row.append(head, input, element('span', 'ai-settings-hint', hint));
+            after.append(row);
+            return { input, show };
+        };
+        const recovery = slider('recovery_seconds', AI_RECOVERY_RANGE, 'Recovery',
+            'Time to come down before your companion sets up the next round.');
+        const rest = slider('round_rest_seconds', AI_ROUND_REST_RANGE, 'No Force Orgasm on its own for',
+            'Your companion will not turn Force Orgasm on by itself this soon. You can still ask for it.', 'No block');
         const status = element('p', 'ai-settings-status'); status.setAttribute('role', 'status');
         const scope = element('p', 'ai-settings-note'); scope.dataset.aiSettingsProfile = '';
-        box.append(summary, note, scope, enabledLabel, modeLabel, pacingLabel, band, pace, status);
+        box.append(summary, note, scope, enabledLabel, modeLabel, pacingLabel, band, pace, after, status);
         container.append(box);
 
         const paint = () => {
@@ -76,6 +105,8 @@ export function withAiSettingsPanel(control) {
             scope.textContent = who.key ? 'Applies to ' + who.label + ' only. Custom characters start with this off.' : 'Applies to the built-in companions.';
             enabled.checked = s.enabled; mode.value = s.mode; pacing.value = s.pacing;
             low.value = String(s.intensity_min); high.value = String(s.intensity_max); interval.value = String(s.min_interval_seconds);
+            recovery.input.value = String(s.recovery_seconds); rest.input.value = String(s.round_rest_seconds);
+            recovery.show(); rest.show();
             const snap = control.snapshot();
             status.textContent = !s.enabled ? 'Off' : snap.revoked ? 'Paused after emergency stop until you start a new session'
                 : s.mode === 'auto' ? 'On · auto' : 'On · asks first';
@@ -84,7 +115,7 @@ export function withAiSettingsPanel(control) {
         enabled.addEventListener('change', () => { control.configure({ enabled: enabled.checked }); });
         mode.addEventListener('change', () => { control.configure({ mode: mode.value }); });
         pacing.addEventListener('change', () => { control.configure({ pacing: pacing.value }); });
-        for (const input of [low, high, interval]) {
+        for (const input of [low, high, interval, recovery.input, rest.input]) {
             input.addEventListener('change', () => {
                 const next = sanitizeAiSettings({ ...control.settings(), [input.dataset.aiSettingsField]: Number(input.value) });
                 control.configure(next);

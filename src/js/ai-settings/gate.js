@@ -29,8 +29,14 @@ export const AI_SETTINGS_DEFAULTS = Object.freeze({
     pacing: 'sometimes',
     intensity_min: 20,
     intensity_max: 80,
-    min_interval_seconds: 45
+    min_interval_seconds: 45,
+    // After a reported orgasm: the recovery before a new round can be set up, and how long the
+    // companion may not turn Force Orgasm on by its own choice. The user's own request is not blocked.
+    recovery_seconds: 90,
+    round_rest_seconds: 180
 });
+export const AI_RECOVERY_RANGE = Object.freeze({ min: 30, max: 300, step: 10 });
+export const AI_ROUND_REST_RANGE = Object.freeze({ min: 0, max: 600, step: 30 });
 
 const REASON_MAX = 240;
 const ID_PATTERN = /^[A-Za-z0-9_-]{8,64}$/;
@@ -57,6 +63,8 @@ export function sanitizeAiSettings(raw) {
         out.intensity_max = AI_SETTINGS_DEFAULTS.intensity_max;
     }
     if (wholeInRange(src.min_interval_seconds, 15, 600)) out.min_interval_seconds = src.min_interval_seconds;
+    if (wholeInRange(src.recovery_seconds, AI_RECOVERY_RANGE.min, AI_RECOVERY_RANGE.max)) out.recovery_seconds = src.recovery_seconds;
+    if (wholeInRange(src.round_rest_seconds, AI_ROUND_REST_RANGE.min, AI_ROUND_REST_RANGE.max)) out.round_rest_seconds = src.round_rest_seconds;
     return out;
 }
 
@@ -102,7 +110,15 @@ export function ownChangeReady(settings, now, lastAiAt) {
     return !Number.isFinite(lastAiAt) || now - lastAiAt >= gap * 1000;
 }
 
+// A new round may be set up once per reported orgasm, after its recovery, and not while Force Orgasm is on.
+export function roundOpen(settings, ctx) {
+    const s = sanitizeAiSettings(settings);
+    return Boolean(ctx?.roundPending) && Number.isFinite(ctx?.sinceOrgasm) && ctx.sinceOrgasm >= s.recovery_seconds
+        && !(isPlainObject(ctx.current) && ctx.current.orgasm === true);
+}
+
 // ctx: {settings, revoked, remotePage, sessionId, status, signal, toyReady, now (ms), lastAppliedAt (ms|null), lastAiAt (ms|null),
+//       sinceOrgasm (session seconds since the last reported orgasm, or null), roundPending (an orgasm has no round yet),
 //       current: {play_style, game, endgame, orgasm, intensity}}
 export function authorize(raw, ctx) {
     const request = parseRequest(raw);
@@ -131,8 +147,11 @@ export function authorize(raw, ctx) {
         // The invited round decision skips the pacing gap (it is not unprompted), but 'never' still means never.
         if (request.trigger === 'round') {
             if (settings.pacing === 'never') return reject('own_changes_off');
-            if (!ctx.roundOpen) return reject('no_round_open');
+            if (!roundOpen(settings, ctx)) return reject('no_round_open');
         }
+        if (request.trigger === 'own' && setting === 'orgasm' && request.value === true
+            && Number.isFinite(ctx.sinceOrgasm) && ctx.sinceOrgasm < settings.round_rest_seconds)
+            return reject('orgasm_rest');
     }
     const current = isPlainObject(ctx.current) ? ctx.current : {};
     let to = request.value;

@@ -52,6 +52,9 @@ class AiSettingsFacts(StrictModel):
     pacing: Literal['never','rarely','sometimes','often'] = 'sometimes'
     # The engine-side gate's own answer: may the companion change something unprompted right now?
     own_ready: bool = False
+    # The user's After an orgasm settings: recovery before a new round, and the block on an own Force Orgasm.
+    recovery_seconds: int = Field(default=90,ge=30,le=300)
+    round_rest_seconds: int = Field(default=180,ge=0,le=600)
 
 class ProjectionDetails(StrictModel):
     player: PlayerFacts | None = None

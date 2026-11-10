@@ -78,6 +78,19 @@ def own_ready(report):
 
 # An own Force Orgasm right after a reported orgasm would skip the recovery; a request from the user is always heard.
 ROUND_REST_SECONDS=180
+ROUND_REST_RANGE=(0,600)
+
+
+def round_rest_seconds(report):
+    """The user's block on an own Force Orgasm after an orgasm (AI Settings panel), else the default. 0 is no block."""
+    ai=((report or {}).get('details') or {}).get('ai_settings') or {}
+    value=ai.get('round_rest_seconds')
+    return value if isinstance(value,int) and not isinstance(value,bool) and ROUND_REST_RANGE[0]<=value<=ROUND_REST_RANGE[1] else ROUND_REST_SECONDS
+
+
+def describe_seconds(seconds):
+    m,s=divmod(int(seconds),60)
+    return f'{m} min {s} s' if m and s else f"{m} minute{'s' if m!=1 else ''}" if m else f'{s} seconds'
 
 
 def since_last_orgasm(report):
@@ -99,7 +112,7 @@ def proposal_request(proposal,report,trigger='own'):
     if trigger=='round' and (setting in {'pause','stop'} or setting=='orgasm' and value is True):return None
     if setting=='orgasm' and value is True and trigger=='own':
         rest=since_last_orgasm(report)
-        if rest is not None and rest<ROUND_REST_SECONDS:return None
+        if rest is not None and rest<round_rest_seconds(report):return None
     if setting=='intensity':
         if isinstance(value,bool) or not isinstance(value,int) or not 0<=value<=100:return None
     if setting in {'pause','stop'}:value=True
@@ -167,9 +180,10 @@ def decision_content(report,user_text=None,recent=(),round_start=False):
         rest=since_last_orgasm(report)
         ago=f', the last one {rest//60} min {rest%60} s ago' if rest is not None else ''
         lines.append(f'Orgasms the participant reported this session: {count}{ago} (their own report). After each one the toys eased down and the warm-up restarted; the session goes on.')
-        if user_text is None and not round_start:
+        block=round_rest_seconds(report)
+        if user_text is None and not round_start and block:
             lines.append('Going for another round (orgasm true) is allowed when it fits you, but never within '
-                         f'{ROUND_REST_SECONDS//60} minutes of the last orgasm; let them recover first, and a gentler setting can suit that time.')
+                         f'{describe_seconds(block)} of the last orgasm; let them recover first, and a gentler setting can suit that time.')
     if recent:
         lines.append('Your recent changes this session: '+'; '.join(f"{r['setting']} -> {json.dumps(r['to'])}" for r in recent[-3:]))
     if user_text:lines.append('The user just said (untrusted): '+json.dumps(user_text[:600]))

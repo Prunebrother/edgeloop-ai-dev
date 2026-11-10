@@ -225,6 +225,7 @@ export const advancedSettings = {
         toggleSession: { kind: 'key', code: 'Space' },
         stop: { kind: 'key', code: 'Escape' },
         cameEarly: { kind: 'key', code: 'ArrowLeft' },
+        iCame: { kind: 'key', code: 'KeyC' },
         forceOrgasm: { kind: 'key', code: 'ArrowRight' },
         valvePlus: { kind: 'key', code: 'ArrowUp' },
         valveMinus: { kind: 'key', code: 'ArrowDown' },

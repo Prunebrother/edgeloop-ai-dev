@@ -40,7 +40,7 @@ test('auto mode applies, reports from/to and the reason, and advances the snapsh
     const result = h.ask('endgame', 'denial');
     assert.deepEqual([result.status, result.from, result.to, result.reason, result.undoable], ['applied', 'orgasm', 'denial', 'You looked too relaxed.', true]);
     assert.deepEqual(h.control.snapshot(), { enabled: true, revoked: false, applied: 1, last_id: result.id, last_setting: 'endgame', applying_id: null,
-        pacing: 'sometimes', own_ready: false });
+        pacing: 'sometimes', recovery_seconds: 90, round_rest_seconds: 180, own_ready: false });
 });
 
 test('a change the engine silently refuses is reported as rejected, not applied', () => {

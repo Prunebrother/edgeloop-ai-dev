@@ -122,14 +122,32 @@ test('a request without a trigger counts as the companion\'s own idea; unknown t
 test('round: the invited next-round decision skips pacing once a round is open, and never ends, pauses or forces', () => {
     const paced = { lastAiAt: 99000, settings: { enabled: true, pacing: 'sometimes' } };
     assert.equal(authorize(request('play_style', 'milker', { trigger: 'own' }), context(paced)).reason, 'paced');
-    const result = authorize(request('play_style', 'milker', { trigger: 'round' }), context({ ...paced, roundOpen: true }));
+    const result = authorize(request('play_style', 'milker', { trigger: 'round' }), context({ ...paced, roundPending: true, sinceOrgasm: 90 }));
     assert.equal(result.ok, true);
     assert.equal(result.change.trigger, 'round');
     assert.equal(authorize(request('play_style', 'milker', { trigger: 'round' }), context(paced)).reason, 'no_round_open');
     assert.equal(authorize(request('play_style', 'milker', { trigger: 'round' }),
-        context({ roundOpen: true, settings: { enabled: true, pacing: 'never' } })).reason, 'own_changes_off');
+        context({ roundPending: true, sinceOrgasm: 90, settings: { enabled: true, pacing: 'never' } })).reason, 'own_changes_off');
     for (const [setting, value] of [['orgasm', true], ['pause', true], ['stop', true]])
-        assert.equal(authorize(request(setting, value, { trigger: 'round' }), context({ roundOpen: true })).reason, 'invalid_request');
+        assert.equal(authorize(request(setting, value, { trigger: 'round' }), context({ roundPending: true, sinceOrgasm: 90 })).reason, 'invalid_request');
     assert.equal(authorize(request('play_style', 'milker', { trigger: 'round' }),
-        context({ roundOpen: true, lastAppliedAt: 99000 })).reason, 'rate_limited');
+        context({ roundPending: true, sinceOrgasm: 90, lastAppliedAt: 99000 })).reason, 'rate_limited');
+});
+
+test('after an orgasm: the recovery and the own Force Orgasm rest follow the user settings', () => {
+    const settings = { enabled: true, pacing: 'often', recovery_seconds: 120, round_rest_seconds: 300 };
+    const round = (since) => authorize(request('play_style', 'milker', { trigger: 'round' }), context({ settings, roundPending: true, sinceOrgasm: since }));
+    assert.equal(round(119).reason, 'no_round_open');
+    assert.equal(round(120).ok, true);
+    const own = (since, trigger = 'own') => authorize(request('orgasm', true, { trigger }), context({ settings, sinceOrgasm: since }));
+    assert.equal(own(299).reason, 'orgasm_rest');
+    assert.equal(own(300).ok, true);
+    assert.equal(own(10, 'user').ok, true);
+    assert.equal(own(null).ok, true);
+    assert.equal(authorize(request('orgasm', true), context({ settings: { ...settings, round_rest_seconds: 0 }, sinceOrgasm: 0 })).ok, true);
+});
+
+test('the after-orgasm settings are sanitized into their ranges', () => {
+    assert.deepEqual([sanitizeAiSettings({ recovery_seconds: 29 }).recovery_seconds, sanitizeAiSettings({ recovery_seconds: 300 }).recovery_seconds,
+        sanitizeAiSettings({ round_rest_seconds: 601 }).round_rest_seconds, sanitizeAiSettings({ round_rest_seconds: 0 }).round_rest_seconds], [90, 300, 180, 0]);
 });
