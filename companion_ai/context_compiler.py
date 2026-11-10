@@ -220,7 +220,8 @@ def orgasm_facts(card,lane,result):
     about=card.get('intent') in ORGASM_INTENTS
     lines=[]
     if session or about:
-        lines.append(f"Orgasms the participant reported this session: {session}. That is their own report, not a measurement.")
+        lines.append(f"Orgasms the participant reported this session: {session}. That is their own report, not a measurement. "
+                     "Never say or suggest there were more; a finish you promised or asked for has not happened until they report it.")
     # The total only where it is the point: mixed into a reaction, the model reported it as this session's count.
     wants_total=card.get('intent')=='orgasm_total' or lane in {'session_end','arrival'}
     if total is not None and wants_total and (total or about):

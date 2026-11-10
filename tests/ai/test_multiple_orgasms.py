@@ -212,3 +212,17 @@ def test_the_own_force_orgasm_block_follows_the_users_setting(rest, since, allow
 def test_the_decision_step_states_the_users_block_or_none():
     assert 'never within 5 minutes of the last orgasm' in decision_content(with_settings(running(300, 1, 200), round_rest_seconds=300))
     assert 'never within' not in decision_content(with_settings(running(300, 1, 200), round_rest_seconds=0))
+
+
+def test_a_second_finish_request_is_told_force_orgasm_reset_itself():
+    content = decision_content(running(600, 1, 290), user_text='Make me cum again, please.', recent=[{'setting': 'orgasm', 'to': True}])
+    assert 'also again after an earlier orgasm -> orgasm true' in content
+    assert content.rstrip().endswith('Force Orgasm is off since their last orgasm.')
+    assert 'orgasm -> true' not in content
+    assert 'is off since their last orgasm' not in decision_content(running(600, 1, 290, orgasm_mode=True), user_text='harder')
+    assert 'is off since their last orgasm' not in decision_content(running(600, 0, None), user_text='Make me cum.')
+
+
+def test_the_session_count_forbids_inventing_more():
+    text = '\n'.join(orgasm_facts({'intent': 'general_conversation', 'orgasms': 1, 'total_orgasms': 1, 'total_known': True}, 'normal', None))
+    assert 'Never say or suggest there were more' in text
