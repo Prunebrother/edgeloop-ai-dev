@@ -41,7 +41,7 @@ async def test_the_grounding_boundaries_still_reach_the_model():
  r,s,wire,frames=await service(edges=3);play_only(s,EDGE)
  await turn(s)
  system=messages(wire)[0]['content']
- assert 'Simulator values are not the user' in system and 'No hardware-control tools exist' in system and 'Never claim you will adjust' in system
+ assert 'A simulated heart rate is not the user\'s body' in system and 'You have no tools and cannot change the session' in system and 'Never say you changed, or will change' in system
 
 @pytest.mark.parametrize('lane_card,wanted',[(EDGE,'about 15 to 35 words'),('general-remark','about 15 to 35 words')])
 async def test_normal_cards_ask_for_short_form(lane_card,wanted):

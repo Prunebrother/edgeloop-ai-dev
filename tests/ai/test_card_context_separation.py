@@ -83,8 +83,8 @@ def test_ranked_history_and_card_narrative_stay_outside_current_user_turn():
 def test_no_history_card_retains_two_messages_and_hardware_boundaries():
     messages, _, _ = compile(inputs())
     assert [m['role'] for m in messages] == ['system', 'user']
-    assert 'No hardware-control tools exist' in messages[0]['content']
-    assert 'Never claim you will adjust' in messages[0]['content']
+    assert 'You have no tools and cannot change the session' in messages[0]['content']
+    assert 'Never say you changed, or will change' in messages[0]['content']
 
 
 def test_role_overhead_is_included_in_existing_hard_budget():
@@ -94,12 +94,13 @@ def test_role_overhead_is_included_in_existing_hard_budget():
     assert diagnostics['estimated_prompt_tokens'] <= diagnostics['budget']['hard_prompt_tokens']
 
 
-# Message digests captured from checkpoint 07f9d5d on these deterministic inputs.
+# Message digests captured from checkpoint 07f9d5d on these deterministic inputs; re-captured for the
+# system rules rewrite (feature/system-prompt-v2), where restoring the old system text gives the old digests.
 # These cover the complete messages, not only the roles or the final user text.
 @pytest.mark.parametrize('policy,narrative,expected', [
-    ('last_user', False, 'e8350b58543bff0d58866166a6a4541347918a621b25d7ce115841b49a754dec'),
-    ('last_user', True, '72ade1fce3a7b55618b43c423d58029ecbe1630cd1641c54b7f399520550d94b'),
-    ('ranked', True, '67cc5446c2a95b088813985c6cd48db76ba77f3d91bf759640c8153477ececdf'),
+    ('last_user', False, 'd67c29505dda8dfae5a1f6658eccecc0258e834f64d89c2140543bc544f8ed6e'),
+    ('last_user', True, '31ccc6fb58db619455d72808b79780117f60fbf35a3ebac6431586b20259bc5c'),
+    ('ranked', True, '81c79f4cbb8a0615cae0e6422454b049eac5c00b39d17fe302459a3760053119'),
 ])
 def test_non_card_messages_are_byte_unchanged(policy, narrative, expected):
     summary = inputs(False)

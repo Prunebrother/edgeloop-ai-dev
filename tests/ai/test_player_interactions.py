@@ -52,7 +52,7 @@ async def test_events_use_card_prompt_history_separation_and_read_only_facts(kin
     assert [m['role'] for m in messages]==['system','assistant','user']
     assert 'Marigold' in messages[-2]['content'] and 'Marigold' not in messages[-1]['content']
     assert 'Verified Player interaction: '+kind in messages[-1]['content']
-    assert 'No hardware-control tools exist' in messages[0]['content'] and not body.get('tools')
+    assert 'You have no tools and cannot change the session' in messages[0]['content'] and not body.get('tools')
     if kind!='player_opened':assert 'Aladdin' in messages[-1]['content'] and 'Source: filename' in messages[-1]['content']
     assert 'Current verified session state: IDLE' in messages[-1]['content']
     assert any(f['type']=='speech' for f in frames)
