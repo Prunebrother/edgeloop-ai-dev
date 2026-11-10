@@ -75,6 +75,9 @@ class ProjectionDetails(StrictModel):
     warmup_remaining_seconds: int | None = Field(ge=0,le=86400)
     learning_release_count: int | None = Field(default=None,ge=0,le=1000000)
     completion_reported: bool = False
+    # Orgasms the participant reported this session (I came / Finished me); their own report, not a measurement.
+    orgasm_count: int = Field(default=0,ge=0,le=1000)
+    last_orgasm_seconds: int | None = Field(default=None,ge=0,le=31536000)
     settle_outcome: Literal['premature_release'] | None = None
     terminal_outcome: Literal['calibration_completed','premature_release','survival_restart','manual_stop','cancelled','other_stop','safety_stop'] | None = None
     ease_down_seconds: int | None = Field(ge=0,le=3600)
@@ -115,7 +118,7 @@ class Snapshot(StrictModel):
         return self
 
 EventKind = Literal['session_started','pause','stop','session_resumed','mode_changed','edge',
-                    'signal_lost','signal_restored','no_contact','device_changed','milestone','experience_changed','goal_changed','intensity_changed','threshold_changed','came_early','completion_accepted','player_opened','video_selected','video_started']
+                    'signal_lost','signal_restored','no_contact','device_changed','milestone','experience_changed','goal_changed','intensity_changed','threshold_changed','came_early','completion_accepted','orgasm_reported','player_opened','video_selected','video_started']
 class Event(StrictModel):
     id: Identifier
     kind: EventKind

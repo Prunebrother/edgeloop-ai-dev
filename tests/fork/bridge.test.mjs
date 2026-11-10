@@ -147,6 +147,21 @@ test('Came Early requires a source counter delta and original accepted ending, n
  now+=500;assert(!c.project(s,devices,{learning_release_count:2}).events.some(e=>e.kind==='came_early'));
 });
 
+test('I came: every orgasm count increase is one orgasm_reported event; the session keeps running',()=>{
+ let now=1000;const c=new Capture({now:()=>now}),s=raw();s.sessionStatus='RUNNING';s.sessionSeconds=200;
+ assert.equal(c.project(s,devices,{orgasm_count:0}).snapshot.details.orgasm_count,0);
+ for(const n of [1,2]){
+  now+=500;s.sessionSeconds+=100;const p=c.project(s,devices,{orgasm_count:n,last_orgasm_seconds:s.sessionSeconds});
+  assert.equal(p.events.filter(e=>e.kind==='orgasm_reported').length,1);assert.equal(p.snapshot.details.orgasm_count,n);
+  assert.equal(p.snapshot.details.last_orgasm_seconds,s.sessionSeconds);assert.equal(p.snapshot.status,'RUNNING');
+  now+=500;assert(!c.project(s,devices,{orgasm_count:n,last_orgasm_seconds:s.sessionSeconds}).events.some(e=>e.kind==='orgasm_reported'));
+ }
+ const src=readFileSync(new URL('../../src/js/app.js',import.meta.url),'utf8');
+ assert.match(src,/label\.textContent = coming \? 'I came'/);
+ assert.match(src,/if \(orgasmReportOpen\(\)\) \{\s*reportOrgasm\(\);/);
+ assert.match(src,/beginSettle\(\{ restartWarmup: true \}\)/);
+});
+
 test('a selection reaction cannot update the UI after a newer local engine projection, even before network acknowledgement',()=>{
  const old={session_id:'s',experience:'headplay',goal:'tease'};
  assert(reactionMatchesLatest(old,{...old}));

@@ -1607,11 +1607,14 @@ function renderCameEarlyButton() {
     const kicker = document.getElementById('cameEarlyKicker');
     const label = document.getElementById('cameEarlyLabel');
     if (!cameEarlyBtn || !kicker || !label) return;
-    const finishing = !isRemotePage && (state.activeMode === 'survival' || state.activeMode === 'calibrate');
+    const coming = orgasmReportOpen();
+    const finishing = coming || (!isRemotePage && (state.activeMode === 'survival' || state.activeMode === 'calibrate'));
     const calibrating = state.activeMode === 'calibrate';
-    kicker.textContent = finishing ? 'The app' : 'Accidental';
-    label.textContent = finishing ? 'Finished me' : 'Came Early';
-    cameEarlyBtn.title = calibrating
+    kicker.textContent = coming ? 'Force Orgasm' : finishing ? 'The app' : 'Accidental';
+    label.textContent = coming ? 'I came' : finishing ? 'Finished me' : 'Came Early';
+    cameEarlyBtn.title = coming
+        ? 'Count this orgasm. The toys ease down, the warm-up starts again and the session keeps going.'
+        : calibrating
         ? (state.calibrationPass === 'dual'
             ? 'Both toys finished you. This heart rate becomes your dual-stim max.'
             : 'The primary toy finished you. This heart rate becomes your single-stim max.')
@@ -1628,6 +1631,46 @@ function renderCameEarlyButton() {
     cameEarlyBtn.classList.toggle('hover:bg-amber-900', !finishing);
     cameEarlyBtn.classList.toggle('border-amber-800', !finishing);
     cameEarlyBtn.classList.toggle('text-amber-300', !finishing);
+}
+
+// While Force Orgasm is on in a tease mode, the Came Early button reports a
+// wanted orgasm instead: it is counted, the toys ease down, the warm-up starts
+// again and the session keeps running, so a session can hold several.
+function orgasmReportOpen() {
+    return !isRemotePage && Boolean(state.orgasmMode)
+        && !['survival', 'calibrate'].includes(state.activeMode)
+        && ['RUNNING', 'PAUSED'].includes(state.sessionStatus);
+}
+
+function countOrgasm() {
+    state.orgasmCount = (state.orgasmCount || 0) + 1;
+    state.lastOrgasmSeconds = state.sessionSeconds || 0;
+    if (!state.completionReported) {
+        state.completionReported = true;
+        try { completionHistoryId = saveSessionToHistory('User-reported completion'); }
+        catch (error) { console.warn('Completion history could not be saved', error); }
+    }
+}
+
+function reportOrgasm() {
+    if (!orgasmReportOpen() || state.settleEndsSession || state.settleRestartsWarmup) return;
+    countOrgasm();
+    beginSettle({ restartWarmup: true });
+    renderCameEarlyButton();
+    syncAiObservation();
+    syncTelemetry();
+}
+
+// After a counted orgasm the session goes on from a fresh warm-up, the way
+// Survival restarts its climb. The session timer and edge count keep going.
+function restartWarmupAfterOrgasm() {
+    state.isEdged = false;
+    state.orgasmBoost = 0;
+    state.warmupOriginSeconds = state.sessionSeconds;
+    updateWarmupBadge();
+    updateEngine();
+    syncAiObservation();
+    syncTelemetry();
 }
 
 function calibrationHintText() {
@@ -1717,6 +1760,8 @@ let completionHistoryId = null;
 
 function resetSessionCounters() {
     state.completionReported = false;
+    state.orgasmCount = 0;
+    state.lastOrgasmSeconds = null;
     completionHistoryId = null;
     state.sessionSeconds = 0;
     state.chosenTargetSeconds = 0;
@@ -2543,6 +2588,7 @@ function clearSettle() {
     state.settleFloor = 0;
     state.settleEndsSession = false;
     state.settleRestartsSurvival = false;
+    state.settleRestartsWarmup = false;
     state.settleOutcome = null;
     state.settleVoice = null;
 }
@@ -2577,7 +2623,7 @@ function ceilingSettleFloor() {
 // Ease from the speed the toys are at down to Crawl or Full Stop. An ending
 // (calibration, Came Early, Survival) stops the session when the ease finishes.
 // Cancelling Force Orgasm eases down and then the mode takes over again.
-function beginSettle({ endsSession = false, restartSurvival = false, outcome = null, voiceText = null } = {}) {
+function beginSettle({ endsSession = false, restartSurvival = false, restartWarmup = false, outcome = null, voiceText = null } = {}) {
     const seconds = clampOrgasmSettleSeconds(advancedSettings.orgasmSettleSeconds);
     if (seconds <= 0) {
         if (voiceText) cueVoice(voiceText, true);
@@ -2587,6 +2633,11 @@ function beginSettle({ endsSession = false, restartSurvival = false, outcome = n
         }
         if (restartSurvival) {
             restartSurvivalAfterOrgasm();
+            return true;
+        }
+        if (restartWarmup) {
+            if (state.orgasmMode) setOrgasmMode(false, { settle: false });
+            restartWarmupAfterOrgasm();
             return true;
         }
         return false;
@@ -2601,6 +2652,7 @@ function beginSettle({ endsSession = false, restartSurvival = false, outcome = n
     state.settleSecondsLeft = seconds;
     state.settleEndsSession = Boolean(endsSession);
     state.settleRestartsSurvival = Boolean(restartSurvival);
+    state.settleRestartsWarmup = Boolean(restartWarmup);
     state.settleOutcome = outcome;
     state.settleVoice = voiceText;
     if (state.sessionStatus === 'PAUSED') {
@@ -2614,6 +2666,8 @@ function beginSettle({ endsSession = false, restartSurvival = false, outcome = n
         const landing = state.settleFloor > 0 ? 'CRAWL' : 'A STOP';
         notice.textContent = restartSurvival
             ? `EASING DOWN TO ${landing}, THEN THE CLIMB STARTS AGAIN`
+            : restartWarmup
+                ? `EASING DOWN TO ${landing}, THEN THE WARM-UP STARTS AGAIN`
             : endsSession
                 ? `EASING DOWN TO ${landing}, THEN THE SESSION STOPS`
                 : `EASING DOWN TO ${landing}`;
@@ -2628,6 +2682,7 @@ function beginSettle({ endsSession = false, restartSurvival = false, outcome = n
 function finishSettle() {
     const ends = state.settleEndsSession;
     const restart = state.settleRestartsSurvival;
+    const rewarm = state.settleRestartsWarmup;
     const outcome = state.settleOutcome;
     const voice = state.settleVoice;
     clearSettle();
@@ -2636,6 +2691,7 @@ function finishSettle() {
     // not say it again. An ending with no line of its own still gets the
     // normal stop cue.
     if (restart) restartSurvivalAfterOrgasm();
+    else if (rewarm) restartWarmupAfterOrgasm();
     else if (ends) stopSession(outcome || 'Stopped', voice ? false : null);
     else updateEngine();
 }
@@ -2988,6 +3044,10 @@ function offerCalibration() {
 cameEarlyBtn?.addEventListener('click', () => {
     // The learning profile and the typed max belong to the host.
     if (isRemotePage || isRemoteViewer) return;
+    if (orgasmReportOpen()) {
+        reportOrgasm();
+        return;
+    }
     if (['calibrate', 'survival'].includes(state.activeMode) && ['RUNNING', 'PAUSED'].includes(state.sessionStatus)) {
         if (state.settleEndsSession || state.settleRestartsSurvival) return;
         if (!state.completionReported) {
@@ -3015,6 +3075,8 @@ cameEarlyBtn?.addEventListener('click', () => {
         }
         const typed = readHrLimits().maxHr;
         if (confirm(`Mark this orgasm? The toys ease down, then Survival starts again from a warm-up. The session timer keeps going. Your Climax HR stays ${typed}.`)) {
+            state.orgasmCount = (state.orgasmCount || 0) + 1;
+            state.lastOrgasmSeconds = state.sessionSeconds || 0;
             beginSettle({ restartSurvival: true });
         }
         return;
@@ -3073,6 +3135,7 @@ function setOrgasmMode(on, { voice = false, settle = false } = {}) {
             : 'bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl p-1.5 transition text-xs flex flex-col items-center justify-center cursor-pointer shadow-lg shadow-amber-950/30';
     }
     if (changed && !next && settle) beginSettle({ endsSession: false });
+    if (changed) renderCameEarlyButton();
     if (!changed || !voice) return;
     if (next) {
         cueVoice('forceOrgasm');
@@ -5782,6 +5845,7 @@ function saveSessionToHistory(outcome) {
         experience: state.teaseMode,
         goal: state.gameMode || 'tease',
         completion_status: state.completionReported ? 'user_reported' : 'unknown',
+        orgasms: state.orgasmCount || 0,
         // Raw 4 Hz timeline; both funscripts are built from it on download.
         samples: [...funscriptSamples]
     };
@@ -5912,7 +5976,7 @@ function renderHistory() {
         item.innerHTML = `
         <div>
         <div class="font-bold text-slate-200">#${idx + 1} — ${s.date}</div>
-        <div class="text-[10px] text-slate-400 mt-0.5">⏱ ${mins}m ${secs}s &bull; ⚡ ${s.edges} Edges &bull; 🔥 ${s.peakHr} BPM &bull; <span class="text-purple-300 font-semibold">${s.outcome}</span></div>
+        <div class="text-[10px] text-slate-400 mt-0.5">⏱ ${mins}m ${secs}s &bull; ⚡ ${s.edges} Edges &bull; ${s.orgasms ? `💦 ${s.orgasms} Orgasm${s.orgasms === 1 ? '' : 's'} &bull; ` : ''}🔥 ${s.peakHr} BPM &bull; <span class="text-purple-300 font-semibold">${s.outcome}</span></div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
         <button onclick="downloadFunscript(${s.id}, 'primary')" class="px-2 py-1 bg-purple-950 hover:bg-purple-800 border border-purple-700 text-purple-200 rounded text-[10px] font-mono transition cursor-pointer flex items-center gap-1" title="Download Primary Stroker Funscript">
@@ -6270,6 +6334,8 @@ function syncAiObservation(readiness = null, terminalOutcome = null) {
             dual_max_bpm: Number.isFinite(dual) && dual > limits.minHr && dual <= 250 ? dual : null,
             warmup_minutes: advancedSettings.warmupMinutes, hr_live: pulseIsLive(),
             completion_reported: Boolean(state.completionReported),
+            orgasm_count: state.orgasmCount || 0,
+            last_orgasm_seconds: Number.isFinite(state.lastOrgasmSeconds) ? state.lastOrgasmSeconds : null,
             learning_release_count: advancedSettings.learningProfile?.breakthroughEvents ?? 0, terminal_outcome: terminalOutcome,
             endgame: state.endgameType || 'orgasm', orgasm_mode: Boolean(state.orgasmMode),
             ai_settings: aiSettingsControl?.snapshot() ?? null });

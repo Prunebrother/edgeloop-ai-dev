@@ -79,6 +79,7 @@ export class Capture {
                 pause_reason:state.sessionStatus==='PAUSED'&&Object.hasOwn(pauseReasons,state.pauseReason)?pauseReasons[state.pauseReason]:null,calibration_pass:['primary','dual'].includes(state.calibrationPass)?state.calibrationPass:'none',
                 warmup_active:warmupActive,warmup_remaining_seconds:warmupActive?Math.ceil(warmup-elapsed):null,
                 completion_reported:Boolean(settings.completion_reported),
+                orgasm_count:optional(settings.orgasm_count,0,1000)??0,last_orgasm_seconds:optional(settings.last_orgasm_seconds,0,31536000),
                 learning_release_count:optional(settings.learning_release_count,0,1000000),
                 settle_outcome:state.settleOutcome==='Premature Release'?'premature_release':null,
                 terminal_outcome:({'Calibration':'calibration_completed','Premature Release':'premature_release','Survival Restart':'survival_restart','Stopped':'manual_stop','Cancelled':'cancelled','Emergency Stop':'safety_stop'})[settings.terminal_outcome]|| (settings.terminal_outcome?'other_stop':null),
@@ -99,6 +100,7 @@ export class Capture {
             if(snapshot.session_id===p.session_id&&Number.isInteger(releases)&&Number.isInteger(prior)&&releases>prior&&
                 ['RUNNING','PAUSED'].includes(p.status)&&!['survival','calibrate'].includes(p.active_mode)&&
                 (snapshot.details.settle_outcome==='premature_release'||snapshot.status==='IDLE'))kinds.push('came_early');
+            if(snapshot.session_id===p.session_id&&snapshot.details.orgasm_count>(p.details?.orgasm_count??0)&&!kinds.includes('completion_accepted'))kinds.push('orgasm_reported');
             if(snapshot.session_id===p.session_id&&snapshot.edges>p.edges)kinds.push('edge');
             if(snapshot.experience!==p.experience)kinds.push('experience_changed');
             if(snapshot.goal!==p.goal)kinds.push('goal_changed');

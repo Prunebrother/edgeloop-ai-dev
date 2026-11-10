@@ -162,7 +162,9 @@ def arrival_facts(history):
     since=since_words(history.get('since_seconds'))
     lines=[f'Last recorded session: ended {since}. That is how long ago it ended, not how long it ran or when you last spoke.' if since else 'Last recorded session: when it ended is not known, so do not say how long ago it was.']
     if not prior['comparable']:return lines+['Previous session: the record is only partial, so state no figures from it.']
-    return lines+['Previous session: '+session_figures(prior['edges'],prior['seconds']),'How it ended: '+outcome_words(prior['outcome'])]
+    lines+=['Previous session: '+session_figures(prior['edges'],prior['seconds']),'How it ended: '+outcome_words(prior['outcome'])]
+    if prior.get('orgasms'):lines.append(f"Orgasms the participant reported in it: {prior['orgasms']}.")
+    return lines
 
 def comparison_facts(history):
     """The finished comparison, one sentence of it. Empty means there is nothing to compare."""
@@ -178,10 +180,11 @@ def comparison_facts(history):
     if prior['outcome'] in {'user_reported','application_event'} or prior['outcome']!=(history.get('current') or {}).get('outcome'):lines.append('How the previous session ended: '+outcome_words(prior['outcome']))
     return lines
 
-def mission_facts(data):
-    """A milestone in finished form, so nothing about it is left to work out."""
+def mission_facts(data,orgasm=False):
+    """A milestone in finished form, so nothing about it is left to work out. An orgasm reaction gets its counts elsewhere."""
     facts=data.facts
     live=lambda name:facts[name].known and facts[name].current
+    if orgasm:return ['Session status: still running.'] if live('status') and facts['status'].value in {'RUNNING','RAMPDOWN','PAUSED'} else []
     lines=[f"Verified result: the participant has reached {facts['edges'].value} edges in this session." if live('edges') else 'Verified result: the current edge count is not available.']
     if live('status') and facts['status'].value=='RUNNING':lines.append('Session status: still running. Completing an objective does not end the session.')
     return lines
@@ -194,7 +197,25 @@ RELATIONSHIP={'returning':'Relationship: you have had sessions together before. 
 # only "still running", and milestone and chat cards pushed for "the next ten" while the participant was finishing.
 PHASE_FACTS={'finishing':'Finish in progress: Force Orgasm is on, so the toys are pushing the participant to finish now. '
     'This is the climax of the session: do not ask for more edges, another round, holding back or anything later in the session. '
-    'Speak to this moment. Their finish has not been reported yet, so do not say it happened.'}
+    'Speak to this moment. Their finish has not been reported yet, so do not say it happened.',
+    'recovery':'Just after an orgasm: the participant reported one moments ago, the toys eased down and the warm-up started again. '
+    'The session is still running, so never say it is over. Another round is possible later, with no rush right now.'}
+ORGASM_INTENTS=frozenset({'orgasm_reaction','orgasm_count','orgasm_total','another_round'})
+
+def orgasm_facts(card,lane,result):
+    """Reported orgasm counts. Only for cards about them, or once there is something to count."""
+    session=(result or {}).get('orgasms') if result else card.get('orgasms')
+    session=session if isinstance(session,int) else 0
+    total=card.get('total_orgasms',0)-card.get('orgasms',0)+session if card.get('total_known') else None
+    about=card.get('intent') in ORGASM_INTENTS
+    lines=[]
+    if session or about:
+        lines.append(f"Orgasms the participant reported this session: {session}. That is their own report, not a measurement.")
+    if total is not None and (about or lane in {'session_end','arrival'}) and (total or about):
+        lines.append(f"Orgasms reported across all your recorded sessions together{', this one included' if lane!='arrival' else ''}: {total}.")
+    elif about and total is None:
+        lines.append('Orgasms in earlier sessions: not available to you, so say nothing about a total.')
+    return lines
 
 COMPANION_ENDED='How it ended: YOU, the companion, stopped this session yourself through AI Settings Control. The participant did not press stop, so never say they stopped or quit. Your reason was: '
 
@@ -202,12 +223,13 @@ def card_instruction(summary,data,selected,brief,history_present,retry,expressio
     """One concise commentary instruction: intention, verified facts, and how to say it."""
     card=summary['deck_card'];lane=card.get('lane');result=(summary.get('trigger_event') or {}).get('session_result')
     history=card.get('history')
-    lines=arrival_facts(history) if lane=='arrival' else mission_facts(data) if lane=='mission' else card_facts(data,selected) if not result else closing_facts(result)
+    lines=arrival_facts(history) if lane=='arrival' else mission_facts(data,card.get('intent') in ORGASM_INTENTS) if lane=='mission' else card_facts(data,selected) if not result else closing_facts(result)
     if result and summary.get('ended_by_companion'):
         lines=[line for line in lines if not line.startswith('How it ended')]+[COMPANION_ENDED+dump(summary['ended_by_companion']['reason'] or 'none given')+'.']
     compared=comparison_facts(history) if history and lane=='session_end' else []
     lines=lines+compared
     if lane not in {'session_end','arrival'} and not result and card.get('phase') in PHASE_FACTS:lines.append(PHASE_FACTS[card['phase']])
+    lines+=orgasm_facts(card,lane,result)
     labelled='\n'.join('- '+line for line in lines)
     known=('Verified facts:\n'+labelled) if lines else 'No measurement matters for this remark, so mention no counts, times or readings.'
     # The heart-rate line carries its own attribution, and a card with no values has nothing to label.

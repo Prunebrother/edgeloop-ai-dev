@@ -104,8 +104,9 @@ class BrowserObservation:
                 'active_running_seconds':final['seconds'] if complete else None,
                 'last_verified_running_ticks':final['seconds'], 'edges':final['edges'],
                 'experience':final['experience'],'goal':final['goal'],'termination':classification,
+                'orgasms':max(((final.get('details') or {}).get('orgasm_count') or 0),((previous.get('details') or {}).get('orgasm_count') or 0)),
                 'final_verified_at_ms':final_stamp,'received_at_ms':int(self.wall()*1000),
-                'completion_status':'user_reported' if details.get('completion_reported') or (previous.get('details') or {}).get('completion_reported') or classification=='accidental_release' else 'accepted_application_event' if classification=='calibration_completed' else 'unknown',
+                'completion_status':'user_reported' if details.get('completion_reported') or (previous.get('details') or {}).get('completion_reported') or classification=='accidental_release' or ((previous.get('details') or {}).get('orgasm_count') or 0)>0 else 'accepted_application_event' if classification=='calibration_completed' else 'unknown',
                 'completion_source':'explicit user report; not sensor evidence' if details.get('completion_reported') or (previous.get('details') or {}).get('completion_reported') else 'validated engine action; not physiological proof' if classification=='calibration_completed' else None,
                 'device_unready_observed':any(s['fault']=='device_unready' for s in (previous['safety'],report['safety'])),
                 'protection_observed':terminal=='safety_stop' or any(s['watchdog_paused'] or s['no_contact'] or s['fault'] in {'signal_lost','no_contact'} for s in (previous['safety'],report['safety'])),
@@ -140,6 +141,12 @@ class BrowserObservation:
             if p['status'] not in {'RUNNING','PAUSED','RAMPDOWN'}:return None
             if outcome=='calibration_completed' and p['active_mode']=='calibrate' and r['status']=='IDLE':return 'Accepted calibration completion; engine ended the session after the confirmed action (not a physiological diagnosis)'
             if outcome=='survival_restart' and (p.get('details') or {}).get('terminal_outcome')!='survival_restart' and p['active_mode']=='survival' and r['status']=='RUNNING':return 'Accepted Survival completion; original engine restarted its climb, session counter continues (not session termination)'
+            return None
+        if kind=='orgasm_reported':
+            before=(p.get('details') or {}).get('orgasm_count') or 0
+            after=(r.get('details') or {}).get('orgasm_count') or 0
+            if p['status'] in {'RUNNING','PAUSED','RAMPDOWN'} and r['status']!='IDLE' and after>before:
+                return f'participant reported an orgasm: session count {before} -> {after}; the session keeps running (their own report, not a measurement)'
             return None
         if kind=='came_early':
             before=(p.get('details') or {}).get('learning_release_count')

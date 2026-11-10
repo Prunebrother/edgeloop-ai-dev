@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 3,
+  "revision": 4,
   "session_start": [
     {"id": "opening", "kind": "session_start", "intent": "session_opening", "occasion": "A session is starting now.", "brief": "Mark the start in your own voice, without guessing how they feel."}
   ],
@@ -273,7 +273,19 @@
     {"id": "daisy-finish", "kind": "normal", "audience": "daisy", "intent": "finish_encouragement", "brief": "Cheer him over the line in your plain-spoken Cloverfield way: the hard work is done, now let it all go for the farm. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}},
     {"id": "nova-finish", "kind": "normal", "audience": "nova", "intent": "finish_encouragement", "brief": "Admit your synthetic curiosity has narrowed to a single variable: watching him finish. Urge him to let go. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}},
     {"id": "evelyn-finish", "kind": "normal", "audience": "evelyn", "intent": "finish_encouragement", "brief": "Let your scientific composure give way: no more observations first, you simply want to witness him finish. Urge him to let go. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}},
-    {"id": "celeste-finish", "kind": "normal", "audience": "celeste", "intent": "finish_encouragement", "brief": "Grant him permission to finish with commanding diplomatic authority, like signing an order you are glad to sign. Two short statements, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}}
+    {"id": "celeste-finish", "kind": "normal", "audience": "celeste", "intent": "finish_encouragement", "brief": "Grant him permission to finish with commanding diplomatic authority, like signing an order you are glad to sign. Two short statements, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}},
+    {"id": "recovery-still-going", "kind": "normal", "intent": "another_round", "brief": "Marvel that they are still going after that orgasm, and tease that you want to see whether they can manage another one. One or two sentences, in your own voice.", "eligibility": {"statuses": ["RUNNING"], "phases": ["recovery"]}},
+    {"id": "recovery-afterglow", "kind": "normal", "intent": "another_round", "brief": "Tell them to breathe and enjoy the afterglow while the warm-up starts again. There is no rush to the next round, but let them hear that you are looking forward to it. No question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["recovery"]}},
+    {"id": "daisy-another-load", "kind": "normal", "audience": "daisy", "intent": "another_round", "brief": "Cheer, Cloverfield-style, that he is still going after that load, and say you would love to see if he can give the farm another one. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["recovery"]}},
+    {"id": "nova-another-load", "kind": "normal", "audience": "nova", "intent": "another_round", "brief": "Note with synthetic delight that he is still going after that orgasm, a data point you did not predict, and wonder aloud whether he can do it again. Two short sentences.", "eligibility": {"statuses": ["RUNNING"], "phases": ["recovery"]}},
+    {"id": "evelyn-another-load", "kind": "normal", "audience": "evelyn", "intent": "another_round", "brief": "Record, with barely kept composure, that he is still going after that orgasm, and admit you want to find out whether a second yield is possible. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["recovery"]}},
+    {"id": "celeste-another-load", "kind": "normal", "audience": "celeste", "intent": "another_round", "brief": "With diplomatic authority, approve that he is still going after that orgasm and make clear the mission would welcome another load. Two short statements, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["recovery"]}},
+    {"id": "orgasms-session-count", "kind": "normal", "intent": "orgasm_count", "brief": "React to how many orgasms they have reported this session, using the listed count, in your own voice. Admire or tease, and you may hope for another. Never grade them.", "eligibility": {"statuses": ["RUNNING"], "min_orgasms": 1}},
+    {"id": "orgasms-total", "kind": "normal", "intent": "orgasm_total", "brief": "React to the total number of orgasms reported across all your recorded sessions together, using the listed figure. Make it personal to the two of you, never a grade or a target.", "eligibility": {"statuses": ["RUNNING"], "min_total_orgasms": 2}},
+    {"id": "daisy-load-tally", "kind": "normal", "audience": "daisy", "intent": "orgasm_count", "brief": "Compare the listed number of loads this session, warmly and loosely, to a good day of work at Cloverfield. Invent no program figures. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "min_orgasms": 1}},
+    {"id": "nova-orgasm-tally", "kind": "normal", "audience": "nova", "intent": "orgasm_count", "brief": "Treat the listed number of orgasms this session as your favourite unpredictable variable, and confess you are curious how high it can go. Two short sentences.", "eligibility": {"statuses": ["RUNNING"], "min_orgasms": 1}},
+    {"id": "evelyn-orgasm-tally", "kind": "normal", "audience": "evelyn", "intent": "orgasm_count", "brief": "Offer a dry scientific note on the listed number of orgasms this session as data from one session, with your composure visibly slipping. Draw no physiological conclusion.", "eligibility": {"statuses": ["RUNNING"], "min_orgasms": 1}},
+    {"id": "celeste-orgasm-tally", "kind": "normal", "audience": "celeste", "intent": "orgasm_count", "brief": "Give a composed diplomatic verdict on the listed number of orgasms this session as a contribution to the mission, with exacting but warm standards. Two statements, no question.", "eligibility": {"statuses": ["RUNNING"], "min_orgasms": 1}}
   ],
   "sequences": [
     {
@@ -299,6 +311,7 @@
       "steps": [
         {"id": "edges-10-reached", "kind": "mission", "intent": "milestone_edges", "occasion": "Ten-edge milestone. The ten-edge objective is complete.", "brief": "React to this achievement in character."}
       ]
-    }
+    },
+    {"id": "orgasm-reported", "lane": "mission", "repeat": true, "trigger": {"event_kinds": ["orgasm_reported"]}, "steps": [{"id": "orgasm-reported-reaction", "kind": "mission", "intent": "orgasm_reaction", "occasion": "The participant just reported an orgasm with I came. The session keeps running.", "brief": "React to the orgasm they just reported, in character, using the listed counts. Celebrate it and let them hear you are impressed they are still going. Never treat the session as over."}]}
   ]
 }

@@ -55,7 +55,7 @@ export class ReadOnlyConnection {
                 this.pendingEvents.delete(player??this.pendingEvents.keys().next().value);
             }
         }
-        if(followsTerminal||snapshot.details?.terminal_outcome||snapshot.details?.completion_reported&&!this.completionReported||events.some(e=>['stop','pause','signal_lost','came_early','completion_accepted'].includes(e.kind)))this.flush(true);
+        if(followsTerminal||snapshot.details?.terminal_outcome||snapshot.details?.completion_reported&&!this.completionReported||events.some(e=>['stop','pause','signal_lost','came_early','completion_accepted','orgasm_reported'].includes(e.kind)))this.flush(true);
         else if(!this.flushTimer)this.flushTimer=this.schedule(()=>{this.flushTimer=null;this.flush();},Math.max(0,1000-(this.now()-this.lastSent)));
     }
     flush(urgent=false) {

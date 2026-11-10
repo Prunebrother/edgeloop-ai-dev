@@ -76,6 +76,16 @@ def own_ready(report):
     return available(report) and report.get('status')=='RUNNING' and bool(ai.get('own_ready'))
 
 
+# An own Force Orgasm right after a reported orgasm would skip the recovery; a request from the user is always heard.
+ROUND_REST_SECONDS=180
+
+
+def since_last_orgasm(report):
+    details=(report or {}).get('details') or {}
+    last,seconds=details.get('last_orgasm_seconds'),(report or {}).get('seconds')
+    return seconds-last if (details.get('orgasm_count') or 0)>0 and isinstance(last,int) and isinstance(seconds,int) and seconds>=last else None
+
+
 def proposal_request(proposal,report,trigger='own'):
     """A well-formed settings_request for a valid, non-empty proposal, or None."""
     setting=proposal.change
@@ -85,6 +95,9 @@ def proposal_request(proposal,report,trigger='own'):
     if setting=='game' and value not in GAMES:return None
     if setting=='endgame' and value not in ENDING_TYPES:return None
     if setting=='orgasm' and not isinstance(value,bool):return None
+    if setting=='orgasm' and value is True and trigger=='own':
+        rest=since_last_orgasm(report)
+        if rest is not None and rest<ROUND_REST_SECONDS:return None
     if setting=='intensity':
         if isinstance(value,bool) or not isinstance(value,int) or not 0<=value<=100:return None
     if setting in {'pause','stop'}:value=True
@@ -141,6 +154,14 @@ def decision_content(report,user_text=None,recent=()):
     for setting in ('play_style','game','endgame','orgasm','intensity'):
         lines.append(f'- {setting}: {json.dumps(current[setting])} ({describe(setting,current[setting])})')
     lines.append(f"Session: running for {report.get('seconds',0)//60} min, {report.get('edges',0)} edges so far.")
+    count=((report.get('details') or {}).get('orgasm_count') or 0)
+    if count:
+        rest=since_last_orgasm(report)
+        ago=f', the last one {rest//60} min {rest%60} s ago' if rest is not None else ''
+        lines.append(f'Orgasms the participant reported this session: {count}{ago} (their own report). After each one the toys eased down and the warm-up restarted; the session goes on.')
+        if user_text is None:
+            lines.append('Going for another round (orgasm true) is allowed when it fits you, but never within '
+                         f'{ROUND_REST_SECONDS//60} minutes of the last orgasm; let them recover first, and a gentler setting can suit that time.')
     if recent:
         lines.append('Your recent changes this session: '+'; '.join(f"{r['setting']} -> {json.dumps(r['to'])}" for r in recent[-3:]))
     if user_text:lines.append('The user just said (untrusted): '+json.dumps(user_text[:600]))

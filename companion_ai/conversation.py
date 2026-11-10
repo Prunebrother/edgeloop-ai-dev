@@ -23,7 +23,7 @@ from .context_compiler import ContextConfig,load_context_config
 from .fidelity import settings_reply_announced, corrected_closing, violations, event_violations, card_language_violations, history_checked, history_records, GroundingError, settings_claims_allowed
 from .director import ConversationDirector, DirectorConfig, silent_response
 from .event_deck import Arrival, DeckContext, session_phase, DeckLifecycleError, DeckRegistry, DeckSettings, load_definition, load_model_settings
-from .session_history import compare, previous_session, outcome as session_outcome
+from .session_history import compare, previous_session, outcome as session_outcome, earlier_orgasms
 from .character_builder import Library as CharacterLibrary, BuilderError
 
 # decide_for_user() result when the user cancelled the turn: no proposal, and no reply.
@@ -637,7 +637,7 @@ class ConversationService:
         if card is None:
             arrival.transition(arrival.id,'cancelled',now,'no_card');return False
         opportunity={'intent':card.intent,'topic_key':'card:'+card.id,'reference_id':None,'session_id':getattr(self.state,'session_id',None),'card_id':card.id,'lane':'arrival','brief':card.brief,'memory':card.memory,'focus_topic':'general'}
-        event={'kind':'deck_card','priority':0,'at':now,'narrative':True,'opportunity':opportunity,'deck_card':{'play_id':arrival.id,'lane':'arrival','card_id':card.id,'memory':card.memory,'brief':card.brief,'occasion':card.occasion,'history':history,'direction':self.story_direction()}}
+        event={'kind':'deck_card','priority':0,'at':now,'narrative':True,'opportunity':opportunity,'deck_card':{'play_id':arrival.id,'lane':'arrival','card_id':card.id,'intent':card.intent,'memory':card.memory,'brief':card.brief,'occasion':card.occasion,'history':history,'direction':self.story_direction()}}
         # The dealt history goes only to the compiler, never into this scheduling text.
         started=self.deck_start(arrival,arrival,'Director card (scheduling data, not telemetry or a user request): '+json.dumps({k:opportunity[k] for k in ('intent','lane','card_id')}),event)
         if started:self.director.log('arrival_started',card_id=card.id,history=history['status'])
@@ -719,7 +719,14 @@ class ConversationService:
             # Heart-rate cards obey the existing Event Intelligence and per-character physiology choices.
             hr_current=getattr(self.state,'hr_current',lambda:False)() and self.event_intelligence.config.enabled and self.event_intelligence.config.relevance_for(self.responder().get('model'),identity=self.relevance_identity(),category='physiology')>0,
             hr_trend=getattr(self.state,'trend','unknown'),has_conversation=any(m.get('role')=='user' and m.get('session_id')==report['session_id'] for m in self.history),proactive_enabled=config.spontaneous_enabled,event_reactions_enabled=self.event_intelligence.config.enabled,
-            phase=session_phase(report))
+            phase=session_phase(report),**{k:v for k,v in self.orgasm_counts(report).items() if k!='total_known'})
+
+    def orgasm_counts(self,report=None):
+        """This session's reported orgasms and, when the Journal may be read, the all-time total with this companion."""
+        report=report or getattr(self.state,'report',None) or {}
+        current=((report.get('details') or {}).get('orgasm_count') or 0) if report.get('status')!='IDLE' else 0
+        earlier=earlier_orgasms(getattr(self.state,'journal',None),self.active_model_id,{report.get('session_id')}-{None})
+        return {'orgasms':current,'total_orgasms':current+(earlier or 0),'total_known':earlier is not None}
 
     @deck_guarded(None)
     def deck_event(self,kind,event_id):
@@ -794,7 +801,7 @@ class ConversationService:
 
     @staticmethod
     def deck_card(play):
-        return {'play_id':play.id,'lane':play.lane,'card_id':play.card.id,'memory':play.card.memory,'brief':play.card.brief,'occasion':play.card.occasion}
+        return {'play_id':play.id,'lane':play.lane,'card_id':play.card.id,'intent':play.card.intent,'memory':play.card.memory,'brief':play.card.brief,'occasion':play.card.occasion}
 
     def closing_card(self,play,details):
         """The finalized result against the session before it, found by stable session identity."""
@@ -1302,7 +1309,7 @@ class ConversationService:
             history=[m for m in history if m.get('trigger_origin') in {None,'real_user'}]
         if summary.get('narrative_initiative'):history=self.idle_context(summary,history)
         if card:
-            summary['deck_card']=card|{'simulated_session':self.deck_settings.simulated_session,'commentary_count':len(self.card_commentary()),'phase':session_phase(getattr(self.state,'report',None))}
+            summary['deck_card']=card|{'simulated_session':self.deck_settings.simulated_session,'commentary_count':len(self.card_commentary()),'phase':session_phase(getattr(self.state,'report',None)),**self.orgasm_counts()}
             history=self.card_history(history,card)
         self.active_event_kind = event['kind'] if event else None
         self.active_source = "user" if user else "event"

@@ -230,6 +230,9 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 continue
                             if event.kind=='completion_accepted':
                                 details.update(label='Accepted original Finished me outcome',meaning=evidence.get('evidence'))
+                            if event.kind=='orgasm_reported':
+                                count=(state.report.get('details') or {}).get('orgasm_count') or 0
+                                details.update(label='I came: participant-reported orgasm',orgasm_count=count,meaning=f'The participant reported orgasm number {count} of this session. EdgeLoop eased the toys down and restarted the warm-up; the session keeps running. This is their own report, not a sensor measurement.')
                             if event.kind=='came_early':
                                 details.update(label='Came Early: user-confirmed premature release',meaning='The user confirmed an accidental climax during the active session. EdgeLoop recorded its learning change and began the normal session-ending sequence. This is a reported action, not a sensor diagnosis.')
                             if event.kind in {'experience_changed','goal_changed'}:
@@ -266,6 +269,10 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 # but it is not the participant's selection, so the Director does not acknowledge it as one.
                                 speech.event_intelligence.decision(event.id,'context_only:media_initialization')
                                 director.observation(event.kind,details,'edgeloop_telemetry')
+                            elif event.kind=='orgasm_reported' and speech.deck():
+                                # The deck's repeatable orgasm sequence reacts; a second, generic reaction would talk over it.
+                                speech.event_intelligence.decision(event.id,'context_only:deck_reaction')
+                                director.observation(event.kind,details,'edgeloop_telemetry')
                             elif narrative_priority=='major' and event.kind not in {'stop','pause','came_early'} and not (event.kind=='completion_accepted' and state.status=='IDLE'):speech.enqueue(event.kind,rank,details)
                             elif narrative_priority=='routine':
                                 speech.event_intelligence.decision(event.id,'context_only:low_significance' if eligible and relevance else 'context_only:disabled_or_character_preference')
@@ -278,7 +285,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             completion_event=next((e for e in message.events if e.kind in {'completion_accepted','came_early'} and e.id in state.accepted_event_ids),None)
                             speech.enqueue(completion_event.kind if completion_event else 'session_ended',70,{'event_id':completion_event.id if completion_event else 'session-ended:'+state.session_id,'session_id':state.session_id,
                                 'at_ms':final['received_at_ms'],'sequence':message.sequence,'category':'authoritative',
-                                'session_result':{k:final.get(k) for k in ('active_running_seconds','last_verified_running_ticks','edges','experience','goal','termination','completion_status','completion_source','completeness')},
+                                'session_result':{k:final.get(k) for k in ('active_running_seconds','last_verified_running_ticks','edges','experience','goal','termination','completion_status','completion_source','completeness','orgasms')},
                                 'evidence':'Session ended; use only the supplied counters and their completeness. Completion status is explicit user report or unknown, never inferred from measurements.'})
                         speech.process_derived()
                         speech.settings_observe()
