@@ -1416,7 +1416,9 @@ class ConversationService:
             # Model habits (wrapping quotes/narration, re-stating the participant, rambling) are
             # removed identically from the stream and from the stored reply.
             cleanup = self.reply_cleanup
-            echo = prompt if user else next((m['content'] for m in reversed(self.history) if m.get('role')=='user' and m.get('session_id')==getattr(self.state,'session_id',None)),None)
+            # The current reply is about to be stored, so the latest stored user line is the previous one.
+            previous_user = next((m['content'] for m in reversed(self.history) if m.get('role')=='user' and m.get('session_id')==getattr(self.state,'session_id',None)),None)
+            echo = [prompt, previous_user] if user else previous_user
             limit = cleanup.user_max_characters if user else cleanup.card_max_characters
             cleaner = ReplyCleaner(echo, limit, cleanup)
             def tidy(value):return clean_reply(value, echo, limit, cleanup)
