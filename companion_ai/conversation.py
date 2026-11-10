@@ -997,9 +997,12 @@ class ConversationService:
             applied=entry if entry and entry['status']=='announced' else None
             self.round_changes[sid]={'count':count,'decided':decide,'change':None if applied is None else
                 {'setting':applied['request']['setting'],'from':applied['outcome'].get('from'),'to':applied['outcome'].get('to'),'reason':applied['request']['reason']}}
-            deck=self.deck()
-            if deck:deck.verified_event('round_ready',f'round:{sid}:{count}',sid,self.clock())
-            elif applied:applied['sent_at']=self.clock();self.settings_cards.append(applied)
+            # The next-round card announces the change. When the deck cannot play it (no deck, spontaneous
+            # commentary off, or the card did not start) the change goes out as an ordinary settings card instead.
+            deck=self.deck();started=[]
+            if deck and self.director.config.spontaneous_enabled:
+                started=deck.verified_event('round_ready',f'round:{sid}:{count}',sid,self.clock())
+            if not started and applied:applied['sent_at']=self.clock();self.settings_cards.append(applied)
         task=self.settings.task=asyncio.create_task(start())
         self.tasks.add(task);task.add_done_callback(self.tasks.discard)
         return True

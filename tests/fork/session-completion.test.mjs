@@ -20,16 +20,18 @@ function rig({accept=false,hr=110}={}){
  const save=source.slice(source.indexOf('function saveSessionToHistory(outcome)'),source.indexOf('// Build the requested channel script'));
  // Upstream 1.1.4.26+ moved the calibration save into a shared function used by Finished me and Edged.
  const commit=source.slice(source.indexOf('function commitCalibrationReading('),source.indexOf('\nfunction markCalibrationEdge('));
- vm.runInNewContext('let completionHistoryId=null;\n'+save+'\n'+commit+'\n'+handler,context);
+ const count=source.slice(source.indexOf('function countOrgasm()'),source.indexOf('\n// A repeat inside this window'));
+ vm.runInNewContext('let completionHistoryId=null;\n'+save+'\n'+count+'\n'+commit+'\n'+handler,context);
  return {click,calls,state,stored,save:outcome=>context.saveSessionToHistory(outcome)};
 }
 test('Finished me persists exact counters and explicit completion before calibration; cancelling retains it',()=>{
- const r=rig();r.click();assert.deepEqual(r.calls,['persist','observe','calibration']);
+ const r=rig();r.click();assert.deepEqual(r.calls,['persist','observe','calibration']);assert.equal(r.state.orgasmCount,undefined);
  assert.equal(r.stored[0].duration,321);assert.equal(r.stored[0].edges,7);assert.equal(r.stored[0].experience,'headplay');assert.equal(r.stored[0].goal,'calibrate');
  assert.equal(r.stored[0].completion_status,'user_reported');assert(!r.calls.includes('calibrate'));assert(!r.calls.includes('settle'));
 });
 test('duplicate click and later stop update one history record',()=>{
  const r=rig({accept:true});r.click();r.click();assert.equal(r.calls.filter(c=>c==='persist').length,1);assert.equal(r.calls.filter(c=>c==='settle').length,1);
+ assert.equal(r.state.orgasmCount,1);assert.equal(r.state.lastOrgasmSeconds,321);  // Finished me is one counted orgasm
  r.state.sessionSeconds=325;r.save('Calibration');assert.equal(r.stored.length,1);assert.equal(r.stored[0].duration,325);assert.equal(r.stored[0].completion_status,'user_reported');
 });
 test('completion is recorded even when no HR reading is available for calibration',()=>{

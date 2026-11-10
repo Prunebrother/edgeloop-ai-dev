@@ -1674,10 +1674,27 @@ function countOrgasm() {
     }
 }
 
+// A repeat inside this window is the same orgasm: a double tap or a held C.
+// It does not rely on the ease-down, which can be set to 0 seconds.
+const ORGASM_REPORT_GAP_MS = 3000;
+let lastOrgasmReportAt = -Infinity;
+
 function reportOrgasm() {
     if (!orgasmReportOpen()) return;
+    const now = Date.now();
+    if (now - lastOrgasmReportAt < ORGASM_REPORT_GAP_MS) return;
+    lastOrgasmReportAt = now;
     countOrgasm();
-    beginSettle(state.activeMode === 'survival' ? { restartSurvival: true } : { restartWarmup: true });
+    const survival = state.activeMode === 'survival';
+    if (state.sessionStatus === 'PAUSED') {
+        // Paused stays paused: count it and reset the climb, but the toys
+        // only move again when the wearer presses Resume.
+        if (state.orgasmMode) setOrgasmMode(false, { settle: false });
+        if (survival) restartSurvivalAfterOrgasm();
+        else restartWarmupAfterOrgasm();
+    } else {
+        beginSettle(survival ? { restartSurvival: true } : { restartWarmup: true });
+    }
     renderICameButton();
     syncAiObservation();
     syncTelemetry();
@@ -2981,7 +2998,9 @@ function commitCalibrationReading(hr, { edge = false } = {}) {
         if (!confirm(line)) return false;
         savePrimaryClimax(hr);
     }
+    // Finished me is an orgasm: count it before the session can end.
     if (edge) countManualEdge();
+    else countOrgasm();
     beginSettle({ endsSession: true, outcome: 'Calibration', voiceText: voice });
     return true;
 }

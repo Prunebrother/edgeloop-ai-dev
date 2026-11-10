@@ -61,6 +61,11 @@ HARDER = 'Make it harder, I can take more.'
     (['I want to finish now, please.', HARDER],
      '"Make it harder, I can take more," you said, and I\'ll be damned if I let you talk me out of it. Since you\'re begging to finish, it\'s on now.',
      "Since you're begging to finish, it's on now."),
+    # Codex review 2026-11-10: a comma-ended echo followed by the real answer, not an attribution, keeps the answer.
+    (HARDER, '"Make it harder, I can take more," I increased the intensity to 70. Tell me if you need a break.',
+     'I increased the intensity to 70. Tell me if you need a break.'),
+    (HARDER, '"Make it harder, I can take more," you asked. Done.', 'Done.'),
+    (HARDER, '"Make it harder, I can take more," begged the brave one. Done.', 'Done.'),
     # Inner quotes after a dropped echo are ordinary text.
     (HARDER, '"Make it harder, I can take more." I like that. "Go on," I said.', 'I like that. "Go on," I said.'),
 ])
@@ -97,6 +102,8 @@ def test_disabled_cleanup_passes_text_through():
     ('Still with me?', 'Still with you? Well, I reckon I\'m still standing. Mr. Barnaby agrees... mostly. Holler if you need me!', 60),
     ('Okay, I\'m going to concentrate for a while now.', '"Right, you\'re going to concentrate for a while now. I like that." I wiped my hands. "Go on."', 600),
     (['I want to finish now, please.', 'Make it harder, I can take more.'], '"Make it harder, I can take more," you said. Fine. It\'s on now, so "go" when ready!', 40),
+    (HARDER, '"Make it harder, I can take more," I increased the intensity to 70. Tell me if you need a break.', None),
+    (HARDER, '"Make it harder, I can take more," I did', None),
 ])
 def test_stream_equals_batch_for_any_chunking(seed, echo, text, limit):
     assert streamed(text, echo, limit, seed) == clean_reply(text, echo, limit)

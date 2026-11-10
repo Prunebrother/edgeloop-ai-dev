@@ -226,3 +226,23 @@ def test_a_second_finish_request_is_told_force_orgasm_reset_itself():
 def test_the_session_count_forbids_inventing_more():
     text = '\n'.join(orgasm_facts({'intent': 'general_conversation', 'orgasms': 1, 'total_orgasms': 1, 'total_known': True}, 'normal', None))
     assert 'Never say or suggest there were more' in text
+
+
+# Codex review 2026-11-10: a round change must be announced even when the next-round card cannot play.
+
+@pytest.mark.parametrize('spontaneous,card,announced', [(True, True, False), (False, False, True)])
+async def test_a_round_change_falls_back_to_a_settings_card_when_the_round_card_cannot_play(monkeypatch, spontaneous, card, announced):
+    import companion_ai.conversation as conversation
+    r, s, wire, frames = await service(seconds=400, orgasms=1, last_orgasm=300)
+    s.deck()._start_done = True
+    s.director.config.spontaneous_enabled = spontaneous
+    entry = {'status': 'announced', 'request': {'id': 'q1', 'setting': 'intensity', 'reason': 'next round'}, 'outcome': {'from': 60, 'to': 70}}
+    monkeypatch.setattr(conversation, 'settings_available', lambda report: True)
+    monkeypatch.setattr(s, 'adapter', RoundAdapter(None))
+    async def run(*args, **kwargs): return {'id': 'q1'}
+    async def settled(*args, **kwargs): return entry
+    monkeypatch.setattr(s.settings, 'run', run); monkeypatch.setattr(s.settings, 'settled', settled)
+    assert s.maybe_start_round(s.state.report); await s.settings.task
+    assert ('next-round' in [a['sequence_id'] for a in s.deck()._activations]) is card
+    assert (entry in s.settings_cards) is announced
+    assert s.round_changes[s.state.session_id]['change']['to'] == 70

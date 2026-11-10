@@ -161,8 +161,43 @@ test('I came: every orgasm count increase is one orgasm_reported event; the sess
  assert.match(html,/id="iCameBtn"/);
  assert.match(src,/iCameBtn\?\.addEventListener\('click', \(\) => reportOrgasm\(\)\)/);
  assert.doesNotMatch(src,/function orgasmReportOpen\(\) \{[^}]*orgasmMode/);
- assert.match(src,/beginSettle\(state\.activeMode === 'survival' \? \{ restartSurvival: true \} : \{ restartWarmup: true \}\)/);
+ assert.match(src,/beginSettle\(survival \? \{ restartSurvival: true \} : \{ restartWarmup: true \}\)/);
  assert.doesNotMatch(src,/label\.textContent = coming/);
+});
+
+// Codex review 2026-11-10: run the real reportOrgasm with the app's helpers stubbed.
+function orgasmReporter(state){
+ const src=readFileSync(new URL('../../src/js/app.js',import.meta.url),'utf8');
+ const start=src.indexOf('const ORGASM_REPORT_GAP_MS'),end=src.indexOf('\n}\n',src.indexOf('function reportOrgasm()'))+3;
+ assert(start>0&&end>start);
+ const calls=[];let now=0;
+ const env={state,calls,Date:{now:()=>now},
+  orgasmReportOpen:()=>['RUNNING','PAUSED'].includes(state.sessionStatus),
+  countOrgasm:()=>{state.orgasmCount=(state.orgasmCount||0)+1;calls.push('count');},
+  beginSettle:o=>{calls.push(['settle',o]);if(state.sessionStatus==='PAUSED')state.sessionStatus='RUNNING';},
+  setOrgasmMode:on=>{state.orgasmMode=on;calls.push(['orgasmMode',on]);},
+  restartWarmupAfterOrgasm:()=>calls.push('warmup'),restartSurvivalAfterOrgasm:()=>calls.push('survival'),
+  renderICameButton:()=>{},syncAiObservation:()=>{},syncTelemetry:()=>{}};
+ const report=new Function(...Object.keys(env),src.slice(start,end)+'\nreturn reportOrgasm;')(...Object.values(env));
+ return {report,calls,advance:ms=>{now+=ms;}};
+}
+
+test('I came while paused counts, resets the warm-up and stays paused: the toys never resume on their own',()=>{
+ for(const [mode,restart] of [['classic','warmup'],['survival','survival']]){
+  const state={sessionStatus:'PAUSED',activeMode:mode,orgasmMode:true},r=orgasmReporter(state);
+  r.report();
+  assert.equal(state.sessionStatus,'PAUSED');assert.equal(state.orgasmCount,1);assert.equal(state.orgasmMode,false);
+  assert(r.calls.includes(restart));assert(!r.calls.some(c=>c[0]==='settle'));
+ }
+ const state={sessionStatus:'RUNNING',activeMode:'classic'},r=orgasmReporter(state);
+ r.report();assert.deepEqual(r.calls.at(-1),['settle',{restartWarmup:true}]);
+});
+
+test('a double tap or held C counts one orgasm, whatever the ease-down time; a later report counts again',()=>{
+ const state={sessionStatus:'RUNNING',activeMode:'classic'},r=orgasmReporter(state);
+ r.report();r.advance(200);r.report();r.advance(2000);r.report();
+ assert.equal(state.orgasmCount,1);
+ r.advance(1000);r.report();assert.equal(state.orgasmCount,2);
 });
 
 test('a selection reaction cannot update the UI after a newer local engine projection, even before network acknowledgement',()=>{

@@ -25,6 +25,30 @@ class CleanupConfig:
     card_max_characters: int = 400
 
 
+# After an echoed quote that ends mid-sentence ("…," you said, and …) only a tail that opens with an
+# attribution is dropped. Anything else ("…," I raised the intensity.) is the real answer and is kept.
+SPEAKERS = {'you', 'u', 'he', 'she', 'they', 'i', 'we'}
+SPEECH_VERBS = {'said', 'say', 'says', 'saying', 'asked', 'ask', 'asks', 'asking', 'begged', 'beg', 'begs', 'begging',
+                'told', 'tell', 'tells', 'whispered', 'whisper', 'moaned', 'moan', 'groaned', 'gasped', 'panted', 'pleaded',
+                'plead', 'insisted', 'claimed', 'demanded', 'typed', 'wrote', 'write', 'murmured', 'breathed', 'sighed',
+                'growled', 'purred', 'boasted', 'bragged', 'announced', 'declared', 'promised', 'swore', 'called', 'cried'}
+
+
+def _attribution(words):
+    """True/False once the opening words decide it, None while more words are needed."""
+    words = [w.strip(',.!?;:…' + QUOTES + "'").lower() for w in words]
+    words = [w for w in words if w]
+    if not words:
+        return None
+    if words[0] in SPEECH_VERBS:
+        return True
+    if words[0] not in SPEAKERS:
+        return False
+    if len(words) < 2:
+        return None
+    return words[1] in SPEECH_VERBS
+
+
 def _words(text):
     return re.findall(r"[a-z0-9']+", text.casefold().replace('’', "'"))
 
@@ -71,6 +95,7 @@ class ReplyCleaner:
         self.held = ''
         self.skipping = False     # dropping the rest of the sentence an echoed quote opened ("…," you said, and)
         self.skipped = ''
+        self.attributed = None    # whether that rest opens with an attribution, once its first words are in
         self.max_characters = max_characters
         self.started = False      # first non-space character seen
         self.quoted = False       # reply opened with a quote: keep only speech inside quotes
@@ -99,7 +124,11 @@ class ReplyCleaner:
         if self.holding:
             self._decide_quote(closed=False)
         if self.skipping and self.skipped.strip():
-            self.dropped.append(self.skipped.strip())
+            if _attribution(self.skipped.split()) is False:
+                self._unskip()
+            else:
+                self.skipping = False
+                self.dropped[-1] += ' ' + self.skipped.strip()
         self._close_sentence(final=True)
         if not self.emitted and self.dropped:  # never reduce a reply to nothing
             self._emit(' '.join(self.dropped))
@@ -155,6 +184,7 @@ class ReplyCleaner:
             core = held.rstrip()
             self.skipping = not core or core[-1] not in TERMINATORS
             self.skipped = ''
+            self.attributed = None
             return
         for char in held:
             self._text_char(char)
@@ -167,7 +197,20 @@ class ReplyCleaner:
             self.skipping = False
             self.dropped[-1] += ' ' + self.skipped.strip()
             return
+        if self.attributed is None and char.isspace() and self.skipped.strip():
+            self.attributed = _attribution(self.skipped.split())
+            if self.attributed is False:
+                self._unskip()
+                self._speech_char(char)
+                return
         self.skipped += char
+
+    def _unskip(self):
+        """The text after the echo is not an attribution: it is the answer, so it goes out as ordinary text."""
+        self.skipping = False
+        held, self.skipped = self.skipped, ''
+        for char in held:
+            self._speech_char(char)
 
     # -- sentence stage ------------------------------------------------
     def _text_char(self, char):
