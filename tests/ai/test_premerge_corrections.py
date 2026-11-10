@@ -675,10 +675,10 @@ def test_the_canonical_header_is_handled_everywhere(expression):
   text,parser=stream([f'[[expression:{expression}]] He looked [proud] of it.'],**kw)
   assert text.strip()=='He looked [proud] of it.' and parser.expression==expression
 
-@pytest.mark.parametrize('tag',['[happy]','[[happy]]','[happy:Daisy]','[expression:happy]'])
-def test_a_malformed_leading_header_goes_on_a_card_turn(tag):
+@pytest.mark.parametrize('tag,expression',[('[happy]',None),('[[happy]]','happy'),('[happy:Daisy]',None),('[expression:happy]',None)])
+def test_a_malformed_leading_header_goes_on_a_card_turn(tag,expression):
  text,parser=stream([tag+' Hello.'],card=True)
- assert text.strip()=='Hello.' and parser.expression is None
+ assert text.strip()=='Hello.' and parser.expression==expression
 
 @pytest.mark.parametrize('director',[True,False])
 async def test_a_user_turn_keeps_brackets_through_the_real_path(director):

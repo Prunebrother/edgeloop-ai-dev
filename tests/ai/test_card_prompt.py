@@ -283,6 +283,9 @@ def test_the_contract_still_offers_all_twelve_expressions():
  assert len(EXPRESSIONS)==12 and all(item in FORMAT_INSTRUCTION for item in EXPRESSIONS) and '[[expression:ID]]' in HEADER_REMINDER and not any(item in HEADER_REMINDER for item in EXPRESSIONS)
 
 MALFORMED=['[[happy:Daisy]]','[[happy:10]]','[[focused:ID]]','[[happy]]','[[HAPPY]]','[[ proud ]]','[[Expression:happy]]','[[expression: happy]]','[[expression:pride]]','[[expression]]','[expression:happy]','[happy:Daisy]','[happy]','[Proud]','[ expression : proud ]']
+# Recognisable double-bracket near misses now resolve to an allowed ID (expressions.ALIASES); the rest fall back.
+RESOLVED={'[[happy:Daisy]]':'happy','[[happy:10]]':'happy','[[focused:ID]]':'focused','[[happy]]':'happy','[[HAPPY]]':'happy',
+          '[[ proud ]]':'proud','[[Expression:happy]]':'happy','[[expression: happy]]':'happy','[[expression:pride]]':'proud'}
 MID_LINE_PROSE=('[[happy]]','[[HAPPY]]','[[ proud ]]','[happy]','[Proud]')
 def scan(chunks):
  stream=ExpressionStream(card=True)
@@ -290,9 +293,9 @@ def scan(chunks):
 
 @pytest.mark.parametrize('tag',MALFORMED)
 @pytest.mark.parametrize('split',[lambda text:[text],list],ids=['whole','per-character'])
-def test_a_malformed_tag_is_never_visible_and_falls_back(tag,split):
+def test_a_malformed_tag_is_never_visible_and_resolves_or_falls_back(tag,split):
  text,stream=scan(split(tag+'\nA quiet line.'))
- assert text=='A quiet line.' and stream.expression is None
+ assert text=='A quiet line.' and stream.expression==RESOLVED.get(tag)
 
 @pytest.mark.parametrize('tag',MALFORMED)
 def test_a_tag_after_a_valid_header_is_removed_and_mid_line_only_when_unmistakable(tag):
@@ -314,7 +317,7 @@ def test_a_truncated_tag_is_not_released(tag):
  assert scan(['Line. '+tag])[0]=='Line.'
 
 @pytest.mark.parametrize('reply,expression,source',[
- ('[[happy:Daisy]]\nA quiet line.',None,'fallback'),('[[happy]]\nA quiet line.',None,'fallback'),('[happy]\nA quiet line.',None,'fallback'),
+ ('[[happy:Daisy]]\nA quiet line.','happy','model'),('[[happy]]\nA quiet line.','happy','model'),('[[expression:curious]]\nA quiet line.','focused','model'),('[happy]\nA quiet line.',None,'fallback'),
  ('[[expression:proud]]\nA quiet line.','proud','model'),('[[expression:playful]]\nA quiet line.','playful','model')])
 async def test_delivered_commentary_is_clean_and_uses_the_existing_fallback(reply,expression,source):
  r,s,wire,frames=await service(reply=reply);play_only(s,'general-remark')
