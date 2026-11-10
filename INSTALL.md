@@ -7,7 +7,7 @@ F2.10.1 regenerates runtime bytecode with neutral filenames and preserves the in
 Supported target: Linux x86_64, a working systemd user session, glibc Linux (not Alpine/musl), and an installed current Chromium browser. The browser and hardware drivers remain system requirements. Plan for approximately 25 GB free during download/extraction. Model inference needs enough RAM/VRAM for a 9B model plus context (a 10 GB GPU is sufficient); CPU execution may be slow. No sudo or system-wide Ollama service is required.
 
 ```bash
-curl -fLO https://github.com/Prunebrother/edgeloop-ai-dev/releases/download/v0.8.0-rc1/install.sh
+curl -fLO https://github.com/Prunebrother/edgeloop-ai/releases/download/v0.8.0-rc1/install.sh
 bash install.sh
 ```
 
@@ -23,7 +23,7 @@ Use **EdgeLoop AI** to start and **Stop EdgeLoop AI** to stop. The command `~/.l
 
 ## Windows (experimental)
 
-Windows 10 (1809 or later) or Windows 11, x86_64. Download `EdgeLoop-AI-Setup-v0.8.0-rc1.exe` from the [release page](https://github.com/Prunebrother/edgeloop-ai-dev/releases/tag/v0.8.0-rc1) and run it. Setup downloads about 9 GB, checks every part against SHA-256 sums built into the setup program, installs for your Windows user only (no administrator rights) and adds **EdgeLoop AI** and **Stop EdgeLoop AI** to the Start menu. Keep about 25 GB free. An interrupted download resumes when you run setup again.
+Windows 10 (1809 or later) or Windows 11, x86_64. Download `EdgeLoop-AI-Setup-v0.8.0-rc1.exe` from the [release page](https://github.com/Prunebrother/edgeloop-ai/releases/tag/v0.8.0-rc1) and run it. Setup downloads about 9 GB, checks every part against SHA-256 sums built into the setup program, installs for your Windows user only (no administrator rights) and adds **EdgeLoop AI** and **Stop EdgeLoop AI** to the Start menu. Keep about 25 GB free. An interrupted download resumes when you run setup again.
 
 The setup program is not code-signed yet, so Windows SmartScreen may say it is from an unknown publisher. Choose **More info**, then **Run anyway**, only for a file downloaded from the release page above.
 

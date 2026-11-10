@@ -22,7 +22,7 @@ Serial, which Firefox does not offer.
 
 Windows may warn that this setup program is from an unknown publisher, because it is not
 code-signed yet. Choose "More info", then "Run anyway", only if you downloaded it from
-https://github.com/Prunebrother/edgeloop-ai-dev/releases
+https://github.com/Prunebrother/edgeloop-ai/releases
 
 EdgeLoop AI is free software under the GNU AGPL version 3. It is a fork of EdgeLoop by its
 original authors, who do not endorse it.

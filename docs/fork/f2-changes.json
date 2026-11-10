@@ -7,12 +7,12 @@
   "CHANGELOG.md": {
     "base_sha256": "6a6139fe22de0953008e09984134644b1b3dbc8a0b5562ad8cc26c5b906da16d",
     "reason": "F2.10 public release documentation/dependency configuration",
-    "sha256": "a7d6f55f0e623ec93201a510c24cde35a950b6113ad3fd7c420d4159e14cdd03"
+    "sha256": "9fd7ec87fc513aae66c2763dc55562c1cf4dac9fa616d9b81fa65881968476c2"
   },
   "README.md": {
     "base_sha256": "31e06342d10aa4d7001bee7f037a1da28587a611d40ed5ca7c22785643de8c8c",
     "reason": "F2.10 public release documentation/dependency configuration; approved Prunebrother source-publication location and status; v0.3.0 includes art, local browser libraries and complete runtime installer",
-    "sha256": "0eebcfabb208b8cc2a6736f8aea37e956a0a1eca6c8672dbba816dc50344e088"
+    "sha256": "f1bb0826ec7a1152f33bd2f037a7da310754d0bf20ee6330d30e4148aa3a1599"
   },
   "index.html": {
     "base_sha256": "b5e1bbe949cfdf489219b82bed99c3b3d63b6374f0f3979737073c0dc21b57f0",

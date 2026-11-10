@@ -2,7 +2,7 @@
 
 ## v0.8.0-rc1 — test build: multiple orgasms, I came button, smarter companions (pre-release)
 
-<!-- Release candidate for testers on the dev repository. Linux and Windows. Same as v0.7.0-rc3 plus the changes below. Models are unchanged since v0.6.0-rc2. -->
+<!-- Public pre-release for testers. Linux and Windows (experimental). Same as v0.7.0-rc3 on the dev repository plus the changes below. Models are unchanged since v0.6.0-rc2. -->
 
 - I came: a new button (keyboard C) to report an orgasm at any point of a running session, with or without Force Orgasm. It counts the orgasm, eases the toys down and starts the warm-up again (Survival restarts its climb); the session keeps going. When paused, it counts and resets but stays paused until you press Resume. A double tap counts once. Came Early is for accidents only again.
 - Several orgasms per session: History and the Session Journal show how many. Companions react to each one, know this session's count and, if they may read the Journal, your total with them.

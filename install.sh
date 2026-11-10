@@ -5,7 +5,7 @@ set -euo pipefail
 # Verification must not rewrite sealed Python caches, including in older bundles.
 export PYTHONDONTWRITEBYTECODE=1
 version=v0.8.0-rc1
-base="https://github.com/Prunebrother/edgeloop-ai-dev/releases/download/$version"
+base="https://github.com/Prunebrother/edgeloop-ai/releases/download/$version"
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/edgeloop-ai/$version"
 destination="$HOME/.local/share/edgeloop-ai/releases/$version"
 [[ $(uname -s) == Linux && $(uname -m) == x86_64 ]] || { echo 'This release supports Linux x86_64.' >&2; exit 1; }
