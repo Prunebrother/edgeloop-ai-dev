@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.8.0-rc1 — test build: multiple orgasms, I came button, smarter companions (pre-release)
+
+<!-- Release candidate for testers on the dev repository. Linux and Windows. Same as v0.7.0-rc3 plus the changes below. Models are unchanged since v0.6.0-rc2. -->
+
+- I came: a new button (keyboard C) to report an orgasm at any point of a running session, with or without Force Orgasm. It counts the orgasm, eases the toys down and starts the warm-up again (Survival restarts its climb); the session keeps going. When paused, it counts and resets but stays paused until you press Resume. A double tap counts once. Came Early is for accidents only again.
+- Several orgasms per session: History and the Session Journal show how many. Companions react to each one, know this session's count and, if they may read the Journal, your total with them.
+- After an orgasm: a recovery period, then the companion starts the next round on its own. With AI Settings Control on, it may change a setting for that round and says what it changed. Two new sliders in AI Settings: Recovery (30 s to 5 min, default 90 s) and how long the companion may not turn Force Orgasm on by itself (0 to 10 min, default 3 min). You can always ask for it sooner.
+- Asking to cum again after an earlier orgasm now turns Force Orgasm back on.
+- Companions' cards follow the finish: once Force Orgasm is on, they stop talking about the next edges.
+- Calibration's Finished me now counts as an orgasm.
+- Rewritten session rules for the companions (system prompt v2): no more contradictions with AI Settings Control, less repetition, and they claim a settings change only once EdgeLoop has made it.
+- Fixed: a reply that opened by quoting your message could be cut down to just that quote, or lose its real answer. More expression names are understood, so fewer replies fall back to the neutral portrait.
+- Fixed: a round change was not announced when spontaneous commentary was off.
+
 ## v0.7.0-rc3 — test build: review fixes (pre-release)
 
 <!-- Release candidate for testers on the dev repository. Linux and Windows. Same as v0.7.0-rc2 plus the fixes below. Models are unchanged since v0.6.0-rc2. -->

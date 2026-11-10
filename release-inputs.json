@@ -1,5 +1,5 @@
 {
-  "version": "v0.7.0-rc3",
+  "version": "v0.8.0-rc1",
   "platform": "linux-x86_64",
   "ollama": {
     "version": "0.40.13",
