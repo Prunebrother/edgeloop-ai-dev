@@ -22,7 +22,7 @@ from .context import compose_messages, ContextBudgetError
 from .context_compiler import ContextConfig,load_context_config
 from .fidelity import settings_reply_announced, corrected_closing, violations, event_violations, card_language_violations, history_checked, history_records, GroundingError, settings_claims_allowed
 from .director import ConversationDirector, DirectorConfig, silent_response
-from .event_deck import Arrival, DeckContext, DeckLifecycleError, DeckRegistry, DeckSettings, load_definition, load_model_settings
+from .event_deck import Arrival, DeckContext, session_phase, DeckLifecycleError, DeckRegistry, DeckSettings, load_definition, load_model_settings
 from .session_history import compare, previous_session, outcome as session_outcome
 from .character_builder import Library as CharacterLibrary, BuilderError
 
@@ -718,7 +718,8 @@ class ConversationService:
             story_welcome=self.memory_config.enabled and self.narrative.state['initiative_allowed'] and self.event_intelligence.config.relevance_for(self.responder().get('model'),identity=self.relevance_identity(),category='story')>0,
             # Heart-rate cards obey the existing Event Intelligence and per-character physiology choices.
             hr_current=getattr(self.state,'hr_current',lambda:False)() and self.event_intelligence.config.enabled and self.event_intelligence.config.relevance_for(self.responder().get('model'),identity=self.relevance_identity(),category='physiology')>0,
-            hr_trend=getattr(self.state,'trend','unknown'),has_conversation=any(m.get('role')=='user' and m.get('session_id')==report['session_id'] for m in self.history),proactive_enabled=config.spontaneous_enabled,event_reactions_enabled=self.event_intelligence.config.enabled)
+            hr_trend=getattr(self.state,'trend','unknown'),has_conversation=any(m.get('role')=='user' and m.get('session_id')==report['session_id'] for m in self.history),proactive_enabled=config.spontaneous_enabled,event_reactions_enabled=self.event_intelligence.config.enabled,
+            phase=session_phase(report))
 
     @deck_guarded(None)
     def deck_event(self,kind,event_id):
@@ -1301,7 +1302,7 @@ class ConversationService:
             history=[m for m in history if m.get('trigger_origin') in {None,'real_user'}]
         if summary.get('narrative_initiative'):history=self.idle_context(summary,history)
         if card:
-            summary['deck_card']=card|{'simulated_session':self.deck_settings.simulated_session,'commentary_count':len(self.card_commentary())}
+            summary['deck_card']=card|{'simulated_session':self.deck_settings.simulated_session,'commentary_count':len(self.card_commentary()),'phase':session_phase(getattr(self.state,'report',None))}
             history=self.card_history(history,card)
         self.active_event_kind = event['kind'] if event else None
         self.active_source = "user" if user else "event"

@@ -33,6 +33,12 @@ from pydantic import ConfigDict, Field, model_validator
 from .models import StrictModel
 
 Lane = Literal['session_start', 'normal', 'narrative', 'mission', 'session_end', 'arrival']
+# Where the session is in its arc. 'finishing': Force Orgasm is pushing the participant to finish now.
+Phase = Literal['building', 'finishing']
+PHASES = ('building', 'finishing')
+# A card without a phase rule plays while building only, so ordinary chat, wagers and "how many more"
+# remarks never talk over a finish. Mission milestones keep playing; their prompt states the phase.
+DEFAULT_PHASES = frozenset({'building'})
 Status = Literal['proposed', 'accepted', 'generated', 'delivered', 'deferred', 'cancelled', 'suppressed', 'failed']
 
 CARD_ID = r'^[a-z0-9][a-z0-9_.-]{0,63}$'
@@ -75,6 +81,7 @@ class Eligibility(_Frozen):
     hr_trends: list[Literal['steady', 'rising', 'falling']] | None = Field(default=None, min_length=1)
     # Needs something the participant actually said this session, not earlier commentary.
     requires_conversation: bool = False
+    phases: list[Phase] | None = Field(default=None, min_length=1)
 
     @model_validator(mode='after')
     def ordered(self):
@@ -216,6 +223,16 @@ class DeckContext(_Frozen):
     has_conversation: bool = False
     proactive_enabled: bool = True
     event_reactions_enabled: bool = True
+    phase: Phase = 'building'
+
+
+def session_phase(report):
+    """The phase from the read-only snapshot: Force Orgasm on (by the user, the AI or a Climax endgame) is a finish."""
+    report = report or {}
+    details = report.get('details') or {}
+    if details.get('orgasm_mode') is True and report.get('status') in {'RUNNING', 'RAMPDOWN', 'PAUSED'}:
+        return 'finishing'
+    return 'building'
 
 
 class DeckModelSettings(_Frozen):
@@ -594,7 +611,9 @@ class EventDeck:
     @staticmethod
     def _eligible(card, context):
         rule = card.eligibility
-        return (context.status in rule.statuses
+        phases = rule.phases or (PHASES if card.kind == 'mission' else DEFAULT_PHASES)
+        return (context.phase in phases
+                and context.status in rule.statuses
                 and (rule.min_seconds is None or context.seconds >= rule.min_seconds)
                 and (rule.max_seconds is None or context.seconds <= rule.max_seconds)
                 and (rule.min_edges is None or context.edges >= rule.min_edges)

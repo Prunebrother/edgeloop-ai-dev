@@ -190,6 +190,12 @@ RELATIONSHIP={'returning':'Relationship: you have had sessions together before. 
               'first':'Relationship: this is your first session together. Introduce yourself in a few words.',
               'unknown':'Relationship: unknown to you. Do not introduce yourself as if you are new, and claim no shared past.'}
 
+# Cards drawn while Force Orgasm is on, from the user, the AI or a Climax endgame. Without this the card prompt says
+# only "still running", and milestone and chat cards pushed for "the next ten" while the participant was finishing.
+PHASE_FACTS={'finishing':'Finish in progress: Force Orgasm is on, so the toys are pushing the participant to finish now. '
+    'This is the climax of the session: do not ask for more edges, another round, holding back or anything later in the session. '
+    'Speak to this moment. Their finish has not been reported yet, so do not say it happened.'}
+
 COMPANION_ENDED='How it ended: YOU, the companion, stopped this session yourself through AI Settings Control. The participant did not press stop, so never say they stopped or quit. Your reason was: '
 
 def card_instruction(summary,data,selected,brief,history_present,retry,expressions=False,background=False):
@@ -201,6 +207,7 @@ def card_instruction(summary,data,selected,brief,history_present,retry,expressio
         lines=[line for line in lines if not line.startswith('How it ended')]+[COMPANION_ENDED+dump(summary['ended_by_companion']['reason'] or 'none given')+'.']
     compared=comparison_facts(history) if history and lane=='session_end' else []
     lines=lines+compared
+    if lane not in {'session_end','arrival'} and not result and card.get('phase') in PHASE_FACTS:lines.append(PHASE_FACTS[card['phase']])
     labelled='\n'.join('- '+line for line in lines)
     known=('Verified facts:\n'+labelled) if lines else 'No measurement matters for this remark, so mention no counts, times or readings.'
     # The heart-rate line carries its own attribution, and a card with no values has nothing to label.

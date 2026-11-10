@@ -134,7 +134,7 @@ async def test_answered_user_message_is_background_not_a_new_card_request(identi
 
 
 def test_common_inventory_and_fixed_state_draw_proportions():
-    assert len([c for c in DEFINITION.normal if c.audience == 'shared']) == 19
+    assert len([c for c in DEFINITION.normal if c.audience == 'shared']) == 21
     # No conversation history: the follow-up card is ineligible in both states.
     target = deck('nova')
     for ctx, expected in ((context(edges=2, seconds=600, signal='missing'), (11, 12)),

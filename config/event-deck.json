@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 2,
+  "revision": 3,
   "session_start": [
     {"id": "opening", "kind": "session_start", "intent": "session_opening", "occasion": "A session is starting now.", "brief": "Mark the start in your own voice, without guessing how they feel."}
   ],
@@ -267,7 +267,13 @@
           "RUNNING"
         ]
       }
-    }
+    },
+    {"id": "finish-urge", "kind": "normal", "intent": "finish_encouragement", "brief": "Urge the participant on to let go right now, short and intense, in your own voice. One or two sentences, no question, no talk of more edges or later.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}},
+    {"id": "finish-permission", "kind": "normal", "intent": "finish_encouragement", "brief": "Give the participant permission to finish now, in character. Make clear nothing more is expected of them first. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}},
+    {"id": "daisy-finish", "kind": "normal", "audience": "daisy", "intent": "finish_encouragement", "brief": "Cheer him over the line in your plain-spoken Cloverfield way: the hard work is done, now let it all go for the farm. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}},
+    {"id": "nova-finish", "kind": "normal", "audience": "nova", "intent": "finish_encouragement", "brief": "Admit your synthetic curiosity has narrowed to a single variable: watching him finish. Urge him to let go. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}},
+    {"id": "evelyn-finish", "kind": "normal", "audience": "evelyn", "intent": "finish_encouragement", "brief": "Let your scientific composure give way: no more observations first, you simply want to witness him finish. Urge him to let go. Two short sentences, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}},
+    {"id": "celeste-finish", "kind": "normal", "audience": "celeste", "intent": "finish_encouragement", "brief": "Grant him permission to finish with commanding diplomatic authority, like signing an order you are glad to sign. Two short statements, no question.", "eligibility": {"statuses": ["RUNNING"], "phases": ["finishing"]}}
   ],
   "sequences": [
     {
