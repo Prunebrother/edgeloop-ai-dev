@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 4,
+  "revision": 5,
   "session_start": [
     {"id": "opening", "kind": "session_start", "intent": "session_opening", "occasion": "A session is starting now.", "brief": "Mark the start in your own voice, without guessing how they feel."}
   ],
@@ -312,6 +312,7 @@
         {"id": "edges-10-reached", "kind": "mission", "intent": "milestone_edges", "occasion": "Ten-edge milestone. The ten-edge objective is complete.", "brief": "React to this achievement in character."}
       ]
     },
-    {"id": "orgasm-reported", "lane": "mission", "repeat": true, "trigger": {"event_kinds": ["orgasm_reported"]}, "steps": [{"id": "orgasm-reported-reaction", "kind": "mission", "intent": "orgasm_reaction", "occasion": "The participant just reported an orgasm with I came. The session keeps running.", "brief": "React to the orgasm they just reported, in character, using the listed counts. Celebrate it and let them hear you are impressed they are still going. Never treat the session as over."}]}
+    {"id": "orgasm-reported", "lane": "mission", "repeat": true, "trigger": {"event_kinds": ["orgasm_reported"]}, "steps": [{"id": "orgasm-reported-reaction", "kind": "mission", "intent": "orgasm_reaction", "occasion": "The participant just reported an orgasm with I came. The session keeps running.", "brief": "React to the orgasm they just reported, in character, using the listed counts. Celebrate it and let them hear you are impressed they are still going. Never treat the session as over."}]},
+    {"id": "next-round", "lane": "mission", "repeat": true, "trigger": {"event_kinds": ["round_ready"]}, "steps": [{"id": "next-round-invite", "kind": "mission", "intent": "next_round", "occasion": "The recovery after their last orgasm is over and the warm-up has started again: a new round begins.", "brief": "Kick off another round in character: let them hear you want to see them go again. If you changed a setting for this round, say what and why, briefly. Claim nothing about their body."}]}
   ]
 }

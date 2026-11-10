@@ -42,7 +42,7 @@ def drawn(target,ctx,limit=120):
 # Inventory
 
 def test_the_shipped_library_is_valid_and_has_a_new_revision():
- assert ERROR is None and DEFINITION.revision==4 and RAW['schema_version']==1
+ assert ERROR is None and DEFINITION.revision==5 and RAW['schema_version']==1
 
 @pytest.mark.parametrize('intent,count',[('edge_commentary',2),('session_duration',2),('hr_trend',3),('encouragement',2),('performance_observation',2),('playful_challenge',2),('recovery',2),('general_conversation',4),('finish_encouragement',2)])
 def test_every_shared_category_is_present(intent,count):
@@ -61,7 +61,7 @@ def test_opening_and_closing_are_single_shared_cards():
  assert [(c.id,c.audience) for c in DEFINITION.session_end]==[('closing','shared')]
 
 def test_the_mission_pack_is_three_counter_milestones_and_a_repeatable_orgasm_reaction():
- assert {k:(v.lane,v.audience,v.trigger.min_edges,v.trigger.min_seconds,v.trigger.event_kinds,len(v.steps),v.repeat) for k,v in missions().items()}=={f'edges-{n}':('mission','shared',n,None,[],1,False) for n in (3,7,10)}|{'orgasm-reported':('mission','shared',None,None,['orgasm_reported'],1,True)}
+ assert {k:(v.lane,v.audience,v.trigger.min_edges,v.trigger.min_seconds,v.trigger.event_kinds,len(v.steps),v.repeat) for k,v in missions().items()}=={f'edges-{n}':('mission','shared',n,None,[],1,False) for n in (3,7,10)}|{'orgasm-reported':('mission','shared',None,None,['orgasm_reported'],1,True),'next-round':('mission','shared',None,None,['round_ready'],1,True)}
 
 
 # Cards are intentions, within the existing boundaries

@@ -82,9 +82,12 @@ export function parseRequest(raw) {
     else if (setting === 'intensity') value = wholeInRange(raw.value, 0, 100) ? raw.value : undefined;
     else value = raw.value === undefined || raw.value === null || raw.value === true ? true : undefined;
     if (value === undefined) return null;
-    // Absent means the companion's own idea: the stricter case.
+    // Absent means the companion's own idea: the stricter case. 'round' is the decision EdgeLoop invites
+    // once per reported orgasm when its recovery is over; it sets up the next round, so it never ends,
+    // pauses or forces anything.
     const trigger = raw.trigger === undefined ? 'own' : raw.trigger;
-    if (trigger !== 'own' && trigger !== 'user') return null;
+    if (trigger !== 'own' && trigger !== 'user' && trigger !== 'round') return null;
+    if (trigger === 'round' && (setting === 'pause' || setting === 'stop' || (setting === 'orgasm' && value === true))) return null;
     return { id: raw.id, session_id: raw.session_id, setting, value, trigger, reason: cleanReason(raw.reason) };
 }
 
@@ -125,6 +128,11 @@ export function authorize(raw, ctx) {
             return reject('rate_limited');
         if (request.trigger === 'own' && !ownChangeReady(settings, ctx.now, ctx.lastAiAt))
             return reject(settings.pacing === 'never' ? 'own_changes_off' : 'paced');
+        // The invited round decision skips the pacing gap (it is not unprompted), but 'never' still means never.
+        if (request.trigger === 'round') {
+            if (settings.pacing === 'never') return reject('own_changes_off');
+            if (!ctx.roundOpen) return reject('no_round_open');
+        }
     }
     const current = isPlainObject(ctx.current) ? ctx.current : {};
     let to = request.value;

@@ -75,7 +75,10 @@ def test_the_all_time_total_counts_only_this_companions_own_sessions_and_needs_p
 # Card prompt facts
 
 @pytest.mark.parametrize('card,lane,result,expected,absent', [
+    # A reaction gets this session's count only: given both, the model reported the total as this session's.
     ({'intent': 'orgasm_reaction', 'orgasms': 2, 'total_orgasms': 7, 'total_known': True}, 'mission', None,
+     ['this session: 2'], ['all your recorded sessions', '7']),
+    ({'intent': 'orgasm_total', 'orgasms': 2, 'total_orgasms': 7, 'total_known': True}, 'normal', None,
      ['this session: 2', 'this one included: 7'], []),
     ({'intent': 'general_conversation', 'orgasms': 1, 'total_orgasms': 4, 'total_known': True}, 'normal', None,
      ['this session: 1'], ['all your recorded sessions']),
@@ -129,3 +132,58 @@ def test_the_decision_step_knows_the_count_and_the_rest_rule():
 def test_an_own_new_round_waits_for_the_rest_but_a_user_request_does_not(trigger, since, allowed):
     proposal = Proposal.model_validate({'change': 'orgasm', 'value': True, 'reason': 'Another one.'})
     assert (proposal_request(proposal, running(300 + since, 1, 300), trigger) is not None) is allowed
+
+
+# Next round: no keyword needed. Recovery over -> invited settings decision -> a card kicks the round off.
+
+from companion_ai.context_compiler import round_facts
+from companion_ai.settings_control import ROUND_DECISION
+
+
+def test_the_round_decision_is_invited_and_never_ends_pauses_or_forces():
+    content = decision_content(running(400, 1, 300), round_start=True)
+    assert ROUND_DECISION in content and 'Nobody asked' not in content and 'never within 3 minutes' not in content
+    for change, value in (('orgasm', True), ('pause', True), ('stop', True)):
+        assert proposal_request(Proposal.model_validate({'change': change, 'value': value, 'reason': 'x'}), running(400, 1, 300), 'round') is None
+    assert proposal_request(Proposal.model_validate({'change': 'play_style', 'value': 'milker', 'reason': 'x'}), running(400, 1, 300), 'round')['trigger'] == 'round'
+
+
+def test_round_facts_claim_only_a_verified_change():
+    applied = round_facts({'change': {'setting': 'play_style', 'from': 'classic', 'to': 'milker', 'reason': 'Round two.'}})[0]
+    assert 'you yourself just changed the play style from' in applied and 'Round two.' in applied
+    assert 'do not say or hint that you changed anything' in round_facts({'change': None})[0]
+    assert 'do not say or hint' in round_facts(None)[0]
+
+
+class RoundAdapter:
+    mode = 'ollama'
+    def __init__(self, reply): self.reply = reply; self.contents = []
+    async def decide_settings(self, content, schema, timeout):
+        self.contents.append(content); return self.reply
+
+
+@pytest.mark.parametrize('seconds,started', [(300 + RECOVERY_SECONDS - 1, False), (300 + RECOVERY_SECONDS, True)])
+async def test_the_round_starts_when_recovery_ends_without_any_user_message(seconds, started):
+    r, s, wire, frames = await service(seconds=seconds, orgasms=1, last_orgasm=300)
+    s.deck()._start_done = True
+    assert s.maybe_start_round(s.state.report) is started
+    if started:
+        await s.settings.task
+        assert s.round_changes[s.state.session_id]['count'] == 1
+        assert [a['sequence_id'] for a in s.deck()._activations].count('next-round') == 1
+        assert s.maybe_start_round(s.state.report) is False  # once per orgasm
+
+
+async def test_the_round_card_is_told_the_count_and_that_nothing_was_changed_without_settings_control():
+    r, s, wire, frames = await service(seconds=400, orgasms=1, last_orgasm=300)
+    s.deck()._start_done = True; s.deck()._counter_baseline = {'edges': 0, 'seconds': 0}
+    assert s.maybe_start_round(s.state.report); await s.settings.task
+    s.pump(); await s.task
+    current = prompt(wire)
+    assert 'a new round begins' in current and 'this session: 1' in current and 'do not say or hint that you changed anything' in current
+    assert 'all your recorded sessions' not in current
+
+
+async def test_a_new_force_orgasm_after_recovery_needs_no_round_card():
+    r, s, wire, frames = await service(seconds=400, orgasms=1, last_orgasm=300, orgasm_mode=True)
+    assert s.maybe_start_round(s.state.report) is False and s.rounds_started[s.state.session_id] == 1

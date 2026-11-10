@@ -13,6 +13,7 @@ from .grounding import SessionFacts,render_facts,MODE_NAMES
 from .expressions import FORMAT_INSTRUCTION,HEADER_REMINDER
 from .narrative import abandonment_requested
 from .narrative_facts import retrieve,operational_text,MAX_FACTS
+from .settings_control import SETTING_NAMES, describe as describe_setting
 from .fact_semantics import significance,fact_tags
 from .session_history import since_words,comparison_words,spoken_time,edges_and_time
 from .fidelity import ANY_DURATION,session_figure
@@ -200,7 +201,16 @@ PHASE_FACTS={'finishing':'Finish in progress: Force Orgasm is on, so the toys ar
     'Speak to this moment. Their finish has not been reported yet, so do not say it happened.',
     'recovery':'Just after an orgasm: the participant reported one moments ago, the toys eased down and the warm-up started again. '
     'The session is still running, so never say it is over. Another round is possible later, with no rush right now.'}
-ORGASM_INTENTS=frozenset({'orgasm_reaction','orgasm_count','orgasm_total','another_round'})
+ORGASM_INTENTS=frozenset({'orgasm_reaction','orgasm_count','orgasm_total','another_round','next_round'})
+
+def round_facts(round_):
+    """What the companion did to set up the next round. Only a verified change may be claimed."""
+    change=(round_ or {}).get('change')
+    if change:
+        what=f"the {SETTING_NAMES.get(change['setting'],change['setting'])} from {describe_setting(change['setting'],change['from'])} to {describe_setting(change['setting'],change['to'])}"
+        return [f"Verified by EdgeLoop: to set up this round you yourself just changed {what} through AI Settings Control; the user did not. "
+                f"Your private reason was: {dump(change['reason'] or 'none given')}. Say what you changed, briefly, as part of kicking off the round."]
+    return ['You made no setting change for this round, so do not say or hint that you changed anything.']
 
 def orgasm_facts(card,lane,result):
     """Reported orgasm counts. Only for cards about them, or once there is something to count."""
@@ -211,9 +221,11 @@ def orgasm_facts(card,lane,result):
     lines=[]
     if session or about:
         lines.append(f"Orgasms the participant reported this session: {session}. That is their own report, not a measurement.")
-    if total is not None and (about or lane in {'session_end','arrival'}) and (total or about):
+    # The total only where it is the point: mixed into a reaction, the model reported it as this session's count.
+    wants_total=card.get('intent')=='orgasm_total' or lane in {'session_end','arrival'}
+    if total is not None and wants_total and (total or about):
         lines.append(f"Orgasms reported across all your recorded sessions together{', this one included' if lane!='arrival' else ''}: {total}.")
-    elif about and total is None:
+    elif wants_total and total is None and about:
         lines.append('Orgasms in earlier sessions: not available to you, so say nothing about a total.')
     return lines
 
@@ -230,6 +242,7 @@ def card_instruction(summary,data,selected,brief,history_present,retry,expressio
     lines=lines+compared
     if lane not in {'session_end','arrival'} and not result and card.get('phase') in PHASE_FACTS:lines.append(PHASE_FACTS[card['phase']])
     lines+=orgasm_facts(card,lane,result)
+    if card.get('intent')=='next_round':lines+=round_facts(card.get('round'))
     labelled='\n'.join('- '+line for line in lines)
     known=('Verified facts:\n'+labelled) if lines else 'No measurement matters for this remark, so mention no counts, times or readings.'
     # The heart-rate line carries its own attribution, and a card with no values has nothing to label.

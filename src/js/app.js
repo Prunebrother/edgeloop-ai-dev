@@ -1636,6 +1636,9 @@ function renderCameEarlyButton() {
 // While Force Orgasm is on in a tease mode, the Came Early button reports a
 // wanted orgasm instead: it is counted, the toys ease down, the warm-up starts
 // again and the session keeps running, so a session can hold several.
+// Matches the companion's recovery phase (event_deck.RECOVERY_SECONDS).
+const ORGASM_RECOVERY_SECONDS = 90;
+
 function orgasmReportOpen() {
     return !isRemotePage && Boolean(state.orgasmMode)
         && !['survival', 'calibrate'].includes(state.activeMode)
@@ -1762,6 +1765,7 @@ function resetSessionCounters() {
     state.completionReported = false;
     state.orgasmCount = 0;
     state.lastOrgasmSeconds = null;
+    state.roundsGranted = 0;
     completionHistoryId = null;
     state.sessionSeconds = 0;
     state.chosenTargetSeconds = 0;
@@ -6278,11 +6282,15 @@ function aiSettingsContext() {
         : state.hrNoContact ? 'no_contact' : (state.hrSignalState || 'ok');
     return {
         status: state.sessionStatus, signal, toyReady: readiness.toyReady,
+        // One invited round decision per reported orgasm, once its recovery is over.
+        roundOpen: (state.orgasmCount || 0) > (state.roundsGranted || 0) && Number.isFinite(state.lastOrgasmSeconds)
+            && (state.sessionSeconds || 0) - state.lastOrgasmSeconds >= ORGASM_RECOVERY_SECONDS && !state.orgasmMode,
         current: { play_style: state.teaseMode, game: state.gameMode || 'off', endgame: state.endgameType || 'orgasm',
             orgasm: Boolean(state.orgasmMode), intensity: state.intensityValue }
     };
 }
 function applyAiSettingsChange(change) {
+    if (change.trigger === 'round') state.roundsGranted = state.orgasmCount || 0;
     if (change.setting === 'play_style') applyModeSelection(change.to);
     else if (change.setting === 'game') applyModeSelection(change.to === 'off' ? 'goal-off' : change.to, true);
     else if (change.setting === 'endgame') {

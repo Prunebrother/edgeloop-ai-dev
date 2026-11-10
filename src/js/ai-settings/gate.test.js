@@ -118,3 +118,18 @@ test('a request without a trigger counts as the companion\'s own idea; unknown t
     assert.equal(ownChangeReady({ pacing: 'often' }, 120000, 0), true);
     assert.equal(ownChangeReady({ pacing: 'never' }, 10 ** 12, 0), false);
 });
+
+test('round: the invited next-round decision skips pacing once a round is open, and never ends, pauses or forces', () => {
+    const paced = { lastAiAt: 99000, settings: { enabled: true, pacing: 'sometimes' } };
+    assert.equal(authorize(request('play_style', 'milker', { trigger: 'own' }), context(paced)).reason, 'paced');
+    const result = authorize(request('play_style', 'milker', { trigger: 'round' }), context({ ...paced, roundOpen: true }));
+    assert.equal(result.ok, true);
+    assert.equal(result.change.trigger, 'round');
+    assert.equal(authorize(request('play_style', 'milker', { trigger: 'round' }), context(paced)).reason, 'no_round_open');
+    assert.equal(authorize(request('play_style', 'milker', { trigger: 'round' }),
+        context({ roundOpen: true, settings: { enabled: true, pacing: 'never' } })).reason, 'own_changes_off');
+    for (const [setting, value] of [['orgasm', true], ['pause', true], ['stop', true]])
+        assert.equal(authorize(request(setting, value, { trigger: 'round' }), context({ roundOpen: true })).reason, 'invalid_request');
+    assert.equal(authorize(request('play_style', 'milker', { trigger: 'round' }),
+        context({ roundOpen: true, lastAppliedAt: 99000 })).reason, 'rate_limited');
+});

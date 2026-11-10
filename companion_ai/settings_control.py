@@ -95,6 +95,8 @@ def proposal_request(proposal,report,trigger='own'):
     if setting=='game' and value not in GAMES:return None
     if setting=='endgame' and value not in ENDING_TYPES:return None
     if setting=='orgasm' and not isinstance(value,bool):return None
+    # The invited round decision sets up the next round; it never ends, pauses or forces the finish.
+    if trigger=='round' and (setting in {'pause','stop'} or setting=='orgasm' and value is True):return None
     if setting=='orgasm' and value is True and trigger=='own':
         rest=since_last_orgasm(report)
         if rest is not None and rest<ROUND_REST_SECONDS:return None
@@ -147,8 +149,14 @@ Rules:
 Reply with JSON only: {{"change": "...", "value": ..., "reason": "..."}}'''
 
 
-def decision_content(report,user_text=None,recent=()):
-    """user_text present: the user just said this. Absent: nobody asked; it would be your own idea."""
+ROUND_DECISION=('The recovery after their last orgasm is over and the warm-up has started again: it is time for another round. '
+    'EdgeLoop asks you to set up this next round. Choose one change that fits how you want this round to go: a play style, a game, the endgame or the intensity. '
+    'Do not choose orgasm true, pause or stop now; the round should build up first. Choose "none" only if the current settings already suit you.')
+
+
+def decision_content(report,user_text=None,recent=(),round_start=False):
+    """user_text present: the user just said this. Absent: nobody asked; it would be your own idea.
+    round_start: EdgeLoop invites a decision because a new round begins after an orgasm."""
     current=current_settings(report)
     lines=[INSTRUCTION.format(styles=', '.join(PLAY_STYLES),games=', '.join(GAMES)),'','Current settings (verified by EdgeLoop):']
     for setting in ('play_style','game','endgame','orgasm','intensity'):
@@ -159,12 +167,13 @@ def decision_content(report,user_text=None,recent=()):
         rest=since_last_orgasm(report)
         ago=f', the last one {rest//60} min {rest%60} s ago' if rest is not None else ''
         lines.append(f'Orgasms the participant reported this session: {count}{ago} (their own report). After each one the toys eased down and the warm-up restarted; the session goes on.')
-        if user_text is None:
+        if user_text is None and not round_start:
             lines.append('Going for another round (orgasm true) is allowed when it fits you, but never within '
                          f'{ROUND_REST_SECONDS//60} minutes of the last orgasm; let them recover first, and a gentler setting can suit that time.')
     if recent:
         lines.append('Your recent changes this session: '+'; '.join(f"{r['setting']} -> {json.dumps(r['to'])}" for r in recent[-3:]))
     if user_text:lines.append('The user just said (untrusted): '+json.dumps(user_text[:600]))
+    elif round_start:lines.append(ROUND_DECISION)
     else:lines.append('Nobody asked for a change. Any change now would be your own idea; "none" is often the right answer, and a change can also make things gentler.')
     return '\n'.join(lines)
 
@@ -209,11 +218,12 @@ class SettingsControl:
         return [{'setting':e['request']['setting'],'to':e['outcome'].get('to')} for e in self.ledger.values()
                 if e['status'] in {'applied','announced'} and e['request']['session_id']==session_id]
 
-    async def run(self,adapter,report,model,publish,user_text=None):
-        """One decision. With user_text it answers that message (trigger 'user'); otherwise it is the character's own idea."""
+    async def run(self,adapter,report,model,publish,user_text=None,round_start=False):
+        """One decision. With user_text it answers that message (trigger 'user'); round_start is EdgeLoop's invitation
+        when a new round begins after an orgasm (trigger 'round'); otherwise it is the character's own idea."""
         self.last_decision=self.clock();self.nudge_text=None
-        trigger='user' if user_text else 'own'
-        content=decision_content(report,user_text,self.recent(report['session_id']))
+        trigger='user' if user_text else 'round' if round_start else 'own'
+        content=decision_content(report,user_text,self.recent(report['session_id']),round_start)
         self.diagnostics={'status':'deciding'}
         try:
             text=await adapter.decide_settings(content,Proposal.model_json_schema(),self.config.timeout_seconds)
@@ -225,7 +235,7 @@ class SettingsControl:
         request=parse(text,report,trigger)
         if request is None:self.diagnostics={'status':'no_change'};return None
         # A chat request is awaited by the reply (settled()), so the card path leaves it alone meanwhile.
-        self.ledger[request['id']]={'request':request,'model':model,'sent_at':self.clock(),'status':'sent','outcome':{},'awaited':bool(user_text)}
+        self.ledger[request['id']]={'request':request,'model':model,'sent_at':self.clock(),'status':'sent','outcome':{},'awaited':bool(user_text or round_start)}
         while len(self.ledger)>50:self.ledger.popitem(last=False)
         self.diagnostics={'status':'requested','setting':request['setting']}
         publish(request)

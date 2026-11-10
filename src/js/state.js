@@ -45,6 +45,7 @@ export const state = {
     settleRestartsWarmup: false,
     orgasmCount: 0,
     lastOrgasmSeconds: null,
+    roundsGranted: 0,
     // Seconds already on the session clock when warm-up last started. Survival
     // sets this after an orgasm so the warm-up runs again without zeroing the timer.
     warmupOriginSeconds: 0,

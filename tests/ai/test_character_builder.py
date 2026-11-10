@@ -345,7 +345,7 @@ def test_composed_deck_has_shared_lifecycle_and_only_this_characters_cards():
     definition = cb.compose_definition(BASE, p)
     assert [c.id for c in definition.session_start] == ['opening'] and [c.id for c in definition.session_end] == ['closing']
     assert {c.audience for c in definition.normal} == {'custom.wren-calloway'}
-    assert {s.id for s in definition.sequences} == {'edges-3', 'edges-7', 'edges-10', 'orgasm-reported'}
+    assert {s.id for s in definition.sequences} == {'edges-3', 'edges-7', 'edges-10', 'orgasm-reported', 'next-round'}
     routine = cb.compose_definition(BASE, cb.load_package(cb.compose(WORLD, WREN | {'deck': WREN['deck'] | {'shared': 'lifecycle+routine'}}, ART)))
     assert {c.audience for c in routine.normal} == {'shared', 'custom.wren-calloway'}
     assert not any(c.audience in {'daisy', 'nova', 'evelyn', 'celeste'} for c in routine.normal)

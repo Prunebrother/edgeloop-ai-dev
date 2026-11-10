@@ -406,6 +406,8 @@ class ConversationService:
         from .memory_curator import MemoryCurator
         self.curator=MemoryCurator(store)
         self.settings=SettingsControl(clock=clock);self.settings_cards=deque(maxlen=4)
+        # Per session: the orgasm count whose next round has been started, and the change made for it.
+        self.rounds_started={};self.round_changes={}
         self.deck_settings=DeckSettings();self.deck_settings_error=None;self.deck_faults={};self.deck_definition=None;self.deck_registry=None
         self.deck_identity='generic';self.deck_closing_event=None;self.deck_hold_until=float('-inf');self.deck_open={};self.busy_from_user=False;self.deck_current=None
         self.arrival=None;self.arrival_delivered={}
@@ -966,10 +968,41 @@ class ConversationService:
         """AI Settings Control: ask the character whether to request one change. Never while it is speaking."""
         report=getattr(self.state,'report',None)
         if self.closed or not report or self.state.emergency or self.task and not self.task.done():return
+        if self.maybe_start_round(report):return
         if not hasattr(self.adapter,'decide_settings') or getattr(self.adapter,'mode',None) in {'mock','stopped'}:return
         if not getattr(self.state,'fresh',lambda:True)() or not self.settings.due(report):return
         self.settings.task=asyncio.create_task(self.settings.run(self.adapter,report,self.responder().get('model'),self.publish))
         self.tasks.add(self.settings.task);self.settings.task.add_done_callback(self.tasks.discard)
+
+    def maybe_start_round(self,report):
+        """After each reported orgasm, once its recovery is over: the companion sets up the next round (an invited
+        settings decision, when AI Settings Control allows one) and then a card kicks the round off. No user wording
+        is involved, so it starts however the player phrases things, or if they say nothing at all."""
+        details=report.get('details') or {};sid=report.get('session_id')
+        count=details.get('orgasm_count') or 0
+        if report.get('status')!='RUNNING' or count<=self.rounds_started.get(sid,0) or not getattr(self.state,'fresh',lambda:True)():return False
+        phase=session_phase(report)
+        if phase=='recovery':return False
+        self.rounds_started[sid]=count
+        if phase=='finishing':return False  # already going again; nothing to set up
+        if self.settings.task and not self.settings.task.done():self.settings.task.cancel()
+        ai=details.get('ai_settings') or {}
+        decide=(settings_available(report) and ai.get('pacing')!='never' and hasattr(self.adapter,'decide_settings')
+                and getattr(self.adapter,'mode',None) not in {'mock','stopped'})
+        async def start():
+            entry=None
+            if decide:
+                request=await self.settings.run(self.adapter,report,self.responder().get('model'),self.publish,round_start=True)
+                if request:entry=await self.settings.settled(request['id'],lambda:getattr(self.state,'report',None))
+            applied=entry if entry and entry['status']=='announced' else None
+            self.round_changes[sid]={'count':count,'decided':decide,'change':None if applied is None else
+                {'setting':applied['request']['setting'],'from':applied['outcome'].get('from'),'to':applied['outcome'].get('to'),'reason':applied['request']['reason']}}
+            deck=self.deck()
+            if deck:deck.verified_event('round_ready',f'round:{sid}:{count}',sid,self.clock())
+            elif applied:applied['sent_at']=self.clock();self.settings_cards.append(applied)
+        task=self.settings.task=asyncio.create_task(start())
+        self.tasks.add(task);task.add_done_callback(self.tasks.discard)
+        return True
 
     async def decide_for_user(self,text):
         """A chat message about the session's settings: decide before replying, so the reply itself can say what was
@@ -1309,7 +1342,8 @@ class ConversationService:
             history=[m for m in history if m.get('trigger_origin') in {None,'real_user'}]
         if summary.get('narrative_initiative'):history=self.idle_context(summary,history)
         if card:
-            summary['deck_card']=card|{'simulated_session':self.deck_settings.simulated_session,'commentary_count':len(self.card_commentary()),'phase':session_phase(getattr(self.state,'report',None)),**self.orgasm_counts()}
+            summary['deck_card']=card|{'simulated_session':self.deck_settings.simulated_session,'commentary_count':len(self.card_commentary()),'phase':session_phase(getattr(self.state,'report',None)),**self.orgasm_counts(),
+                **({'round':self.round_changes.get(getattr(self.state,'session_id',None))} if card.get('intent')=='next_round' else {})}
             history=self.card_history(history,card)
         self.active_event_kind = event['kind'] if event else None
         self.active_source = "user" if user else "event"
