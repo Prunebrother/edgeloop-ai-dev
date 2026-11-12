@@ -204,7 +204,7 @@ jobs:
           if ($LASTEXITCODE) { Get-Content "$env:LOCALAPPDATA\EdgeLoop AI\logs\*.log" -Tail 30; exit 1 }
           $names = (Invoke-RestMethod http://127.0.0.1:11435/api/tags).models.name
           $names
-          foreach ($c in 'nova-narrative-f29-v011:latest','evelyn-narrative-f29-v013:latest','daisy-narrative-f29-v014:latest','celeste-narrative-f29-v012:latest') {
+          foreach ($c in 'nova-narrative-f29-v011:latest','evelyn-narrative-f29-v013:latest','daisy-narrative-f29-v014:latest','celeste-narrative-f29-v012:latest','mira-narrative-v1:latest') {
             if ($names -notcontains $c) { throw "Missing companion $c" }
           }
           $body = @{ model = 'nova-narrative-f29-v011'; stream = $false; think = $false; options = @{ num_predict = 40 };
