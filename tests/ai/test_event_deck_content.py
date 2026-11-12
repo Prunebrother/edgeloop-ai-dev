@@ -88,6 +88,13 @@ def test_challenges_never_ask_for_settings_changes(card):
 def test_no_card_restricts_how_demanding_a_character_may_be(card):
  assert not re.search(r'\b(?:limits?|comfort|discomfort|pain)\b',card.brief,re.I) or card.eligibility.requires_hr
 
+SHARED=[c for c in [*DEFINITION.normal,*[step for s in DEFINITION.sequences for step in s.steps]] if c.audience=='shared']
+
+@pytest.mark.parametrize('card',SHARED,ids=[c.id for c in SHARED])
+def test_a_common_card_leaves_the_attitude_to_the_character(card):
+ # The common deck fits every companion and custom character: it says what to react to, never how to feel.
+ assert not re.search(r'\b(?:tease|marvel|celebrate|impressed|admire|intense|calm|reassure|looking forward)\b',card.brief,re.I)
+
 @pytest.mark.parametrize('card',[c for c in DEFINITION.normal if c.eligibility.requires_hr],ids=lambda c:c.id)
 def test_heart_rate_cards_need_a_verified_trend_and_claim_no_cause(card):
  assert card.eligibility.hr_trends and re.search(r'no cause',card.brief,re.I)
