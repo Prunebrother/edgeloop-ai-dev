@@ -250,6 +250,25 @@
           "webm": "/Character_Art/Nova/animations/nova_comforting.webm"
         }
       }
+    },
+    "mira": {
+      "name": "Mira",
+      "fit": "contain",
+      "position": "50% 50%",
+      "expressions": {
+        "neutral": "/Character_Art/Mira/expressions/mira_neutral.png",
+        "happy": "/Character_Art/Mira/expressions/mira_happy.png",
+        "playful": "/Character_Art/Mira/expressions/mira_playful.png",
+        "flirty": "/Character_Art/Mira/expressions/mira_flirty.png",
+        "mischievous": "/Character_Art/Mira/expressions/mira_mischievous.png",
+        "focused": "/Character_Art/Mira/expressions/mira_focused.png",
+        "excited": "/Character_Art/Mira/expressions/mira_excited.png",
+        "surprised": "/Character_Art/Mira/expressions/mira_surprised.png",
+        "disappointed": "/Character_Art/Mira/expressions/mira_dissapointed.png",
+        "concerned": "/Character_Art/Mira/expressions/mira_concerned.png",
+        "proud": "/Character_Art/Mira/expressions/mira_proud.png",
+        "comforting": "/Character_Art/Mira/expressions/mira_comforting.png"
+      }
     }
   },
   "models": {
@@ -278,7 +297,8 @@
     "nova-narrative-f29-v011:latest": "nova",
     "evelyn-narrative-f29-v013:latest": "evelyn",
     "daisy-narrative-f29-v014:latest": "daisy",
-    "celeste-narrative-f29-v012:latest": "celeste"
+    "celeste-narrative-f29-v012:latest": "celeste",
+    "mira-narrative-v1:latest": "mira"
   },
   "presentation": {
     "animated_characters_enabled": true,

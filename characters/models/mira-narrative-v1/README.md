@@ -1,5 +1,13 @@
 # Mira — HELIX-MORPH/09 (editable narrative draft)
 
+> **Status 2026-11-12: standard companion (dev only, not in a release).** Mira now runs like
+> Nova, Celeste, Evelyn and Daisy: her own Modelfile persona (temperature 0.7, applied by
+> Ollama because the app no longer overrides Modelfile sampling), her twelve portraits in
+> `Character_Art/Mira/expressions/`, and her cards in `config/event-deck.json` (revision 6),
+> shuffled together with the common deck at session start. The custom-character notes below
+> are historical. Before a release she still needs more cards (finishing, another-round and
+> orgasm-tally cards like the other companions) and animated portraits.
+
 New model tag: `mira-narrative-v1:latest`. The legacy `mira:latest` source/tag is
 separate and unchanged. This draft follows the current `experiment/ai-companion`
 conventions at `e4e4acc`, with the standardized authoring template at

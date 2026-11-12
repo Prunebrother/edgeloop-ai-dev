@@ -1,5 +1,11 @@
 # Mira: reusable session deck
 
+> **Status 2026-11-12:** these cards now ship in `config/event-deck.json` as standard cards
+> (`mira-<id>`, audience `mira`), shuffled together with the common deck like the other
+> companions; `mira-uninvited-company` and `mira-until-next-time` replace the shared opening
+> and closing for Mira only. `session-deck.json` stays as the DeckSpec source and as a fixture
+> for the custom-character path (`tests/fork/test_mira_session_deck.py`); it is not loaded at runtime.
+
 `session-deck.json` is a Character Builder `DeckSpec`: ten repeatable normal
 cards plus optional personal `session_start` / `session_end` briefs. It contains
 no narrative sequence, mission, action, Journal objective, media command or

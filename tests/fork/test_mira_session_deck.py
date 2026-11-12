@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 """Mira session content through the real custom composer, dealer and compiler."""
 from copy import deepcopy
-from hashlib import sha256
 import json
 from pathlib import Path
 import re
@@ -14,6 +13,9 @@ ROOT = Path(__file__).resolve().parents[2]
 RAW = json.loads((ROOT / 'characters/models/mira-narrative-v1/session-deck.json').read_text())
 BASE_RAW = json.loads((ROOT / 'config/event-deck.json').read_text())
 BASE = load_definition(BASE_RAW)[0]
+# What a custom character inherits: the shared lifecycle cards, never a built-in companion's own.
+SHARED_START = [c for c in BASE.session_start if c.audience == 'shared']
+SHARED_END = [c for c in BASE.session_end if c.audience == 'shared']
 WORLD = {'id': 'mira-test-world', 'name': 'EdgeLoop fixture', 'setting': 'A fictional adult companion setting with Helix, Asterion, Nova, Cloverfield, Evelyn, Daisy and Celeste.'}
 CHARACTER = {'id': 'mira', 'world': WORLD['id'], 'name': 'Mira', 'short_name': 'Mira', 'model': 'mira-narrative-v1:latest',
              'personality': 'HELIX-MORPH/09, an adult synthetic Helix companion. Witty, mischievous and socially curious.',
@@ -72,9 +74,9 @@ def test_custom_deck_has_no_actions_new_events_or_memory_writes():
     assert all(not c.eligibility.requires_story_welcome for c in d.normal)
 
 
-def test_existing_companion_deck_file_is_unchanged_and_composition_is_pure():
-    # Approved e4e4acc content; composing Mira must not mutate this shared object/file.
-    assert sha256((ROOT / 'config/event-deck.json').read_bytes()).hexdigest() == '98876143f7eea1a5d06ae9f4f5377356db3d171d3f680bc647669b200fb236d7'
+def test_composition_is_pure():
+    # Mira is now a standard companion in config/event-deck.json; this file keeps her DeckSpec as a
+    # custom-path fixture. Composing it must not mutate the shared definition.
     before = BASE.model_dump(mode='json')
     definition()
     assert BASE.model_dump(mode='json') == before
@@ -88,7 +90,7 @@ def test_legacy_custom_package_hash_and_shared_lifecycle_are_unchanged():
     assert p['content_sha256'] == '74b225d3fa418fb5cb5e4781935a96f56ad10478e54f727fc6bde55df6322e73'
     assert set(p['deck']) == {'shared','cards'}
     d = cb.compose_definition(BASE, cb.load_package(p))
-    assert d.session_start == BASE.session_start and d.session_end == BASE.session_end
+    assert d.session_start == SHARED_START and d.session_end == SHARED_END
 
 
 def test_opening_is_once_per_confirmed_session_and_not_replayed_on_late_activation():
@@ -194,7 +196,7 @@ def test_lifecycle_scope_lane_and_conditions_are_validated(lane):
 
 def test_disabled_lifecycle_overrides_retain_shared_cards_and_ids_must_be_unique():
     raw=deepcopy(RAW);raw['session_start']['enabled']=False;raw['session_end']['enabled']=False
-    d=definition(raw);assert d.session_start==BASE.session_start and d.session_end==BASE.session_end
+    d=definition(raw);assert d.session_start==SHARED_START and d.session_end==SHARED_END
     raw=deepcopy(RAW);raw['session_start']['id']=raw['cards'][0]['id']
     with pytest.raises(Exception,match='unique'): cb.compose(WORLD,deepcopy(CHARACTER)|{'deck':raw})
 

@@ -92,7 +92,7 @@ def test_export_refuses_missing_and_unsafe_declared_assets(monkeypatch):
         export_plan(monkeypatch, c, [])
 
 
-def test_release_inventory_accepts_declared_video_but_preserves_all_48_pngs(tmp_path, monkeypatch):
+def test_release_inventory_accepts_declared_video_but_preserves_every_png(tmp_path, monkeypatch):
     module = load('validate-release')
     monkeypatch.setattr(module, 'ROOT', tmp_path)
     c = json.loads((ROOT / 'src/assets/characters/manifest.json').read_text())

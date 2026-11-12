@@ -62,7 +62,8 @@ def validate(approved_identities=()):
                     raise ValueError('Invalid curated animation path or format')
                 animations.add(asset.lstrip('/'))
 
-    if len(portraits)!=48 or any(not (ROOT/p).is_file() for p in portraits):errors.append(('Character_Art','incomplete expression portraits'))
+    # Every manifest character ships the full expression set (12 each), however many characters there are.
+    if len(portraits)!=12*len(catalog['characters']) or any(not (ROOT/p).is_file() for p in portraits):errors.append(('Character_Art','incomplete expression portraits'))
     if any(not (ROOT/p).is_file() for p in animations):errors.append(('Character_Art','missing declared animation'))
     if {n for n in found if n.startswith('Character_Art/')}!=portraits | animations:errors.append(('Character_Art','unexpected unreferenced art'))
     return {'passed':not errors,'packaged_files':len(included),'errors':[{'path':n,'category':c} for n,c in errors],
