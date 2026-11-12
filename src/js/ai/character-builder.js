@@ -80,10 +80,11 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
     const num=v=>v===''||v==null?undefined:Number(v);
     const message=(action,body)=>({version:1,type:'character_builder',action,...body});
     const sizeOf=m=>messageBytes(JSON.stringify(m));
+    const cardCount=()=>character.deck.cards.length+['session_start','session_end'].filter(k=>character.deck[k]).length;
 
     function meters(){
         collect();
-        const n=character.deck.cards.length;
+        const n=cardCount();
         q('[data-b-count]').textContent=n+' of '+MAX_CARDS+' cards'+(n>=MAX_CARDS?' · the deck is full':'');
         q('[data-b-add]').disabled=n>=MAX_CARDS;
         for(const [selector,label,m] of [['[data-b-world-size]','World message',message('save_world',{world})],['[data-b-character-size]','Character and deck message',message('save_character',{character})]]){
@@ -138,7 +139,7 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
         if(bytes>MESSAGE_LIMIT_BYTES){showErrors([{path:[action==='save_world'?'world':'character'],message:'This message is '+KIB(bytes)+', over the '+KIB(MESSAGE_LIMIT_BYTES)+' limit. '+SIZE_HELP}]);return false;}
         if(!send(m)){showErrors([{path:[action],message:'Not sent: the AI connection is not ready.'}]);return false;}
         return true;};
-    q('[data-b-add]').onclick=()=>{if(character.deck.cards.length>=MAX_CARDS)return;character.deck.cards.push(blankCard(character.deck.cards.length+1));renderCards();dirty();};
+    q('[data-b-add]').onclick=()=>{if(cardCount()>=MAX_CARDS)return;character.deck.cards.push(blankCard(character.deck.cards.length+1));renderCards();dirty();};
     const save=preview=>{
         if(saving){queued={preview:preview||!!queued?.preview};status('Saving… your newer changes will be saved next.');return;}
         previewAfterSave=preview;collect();showErrors([]);saving=2;savedAt=edits;status('Saving…');
@@ -167,7 +168,7 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
         const table=document.createElement('table');const head=table.createTHead().insertRow();for(const t of ['Card','Theme','When','Brief'])head.insertCell().textContent=t;
         const body=table.createTBody();for(const c of p.cards){const row=body.insertRow();row.insertCell().textContent=c.id+(c.custom?'':' (shared)');row.insertCell().textContent=c.theme;row.insertCell().textContent=c.when;row.insertCell().textContent=c.brief;}
         out.append(table);
-        const life=document.createElement('p');life.textContent='Shared lifecycle cards: '+[...p.shared_lifecycle.session_start,...p.shared_lifecycle.session_end,...p.shared_lifecycle.arrival,...p.shared_lifecycle.milestones].join(', ');out.append(life);
+        const life=document.createElement('p');life.textContent='Lifecycle cards: '+[...p.shared_lifecycle.session_start,...p.shared_lifecycle.session_end,...p.shared_lifecycle.arrival,...p.shared_lifecycle.milestones].join(', ');out.append(life);
         const persona=document.createElement('details');const s=document.createElement('summary');s.textContent='Persona prompt';const pre=document.createElement('pre');pre.textContent=p.persona_system;persona.append(s,pre);out.append(persona);
     }
     let originValue=null;const origin=()=>originValue;
