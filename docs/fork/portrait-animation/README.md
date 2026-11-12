@@ -1,5 +1,13 @@
 # Optional portrait animation (review build)
 
+> **Status 2026-11-12:** enabled for real-gameplay testing. The catalog flag is `true`
+> and all 48 built-in expressions declare a WebM idle clip in
+> `Character_Art/<Name>/animations/` (8 s, 30 fps, VP9, silent; produced by the
+> offline pipeline in `~/Work/edgeloop-animation-pipeline`). No MP4 fallbacks are
+> shipped (+83 MB). Browsers without VP9 fall back to the PNG. The text below describes
+> the original default-off review build. Rollback: set the flag to `false`. Known
+> issue: background warping near the figure, see [BACKLOG.md](BACKLOG.md) PA-1.
+
 The default remains PNG-only. `src/assets/characters/manifest.json` has
 `presentation.animated_characters_enabled: false`. No runtime clips are declared
 or shipped in this change. Nova's independently produced clip needs a separate
