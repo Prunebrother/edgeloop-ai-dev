@@ -7,17 +7,17 @@
   "CHANGELOG.md": {
     "base_sha256": "6a6139fe22de0953008e09984134644b1b3dbc8a0b5562ad8cc26c5b906da16d",
     "reason": "F2.10 public release documentation/dependency configuration",
-    "sha256": "a7d6f55f0e623ec93201a510c24cde35a950b6113ad3fd7c420d4159e14cdd03"
+    "sha256": "8f290eda5e6b346370a8557dba2d2df2084cd8a75d8823ce4d3e52f6bc4fd5c3"
   },
   "README.md": {
     "base_sha256": "31e06342d10aa4d7001bee7f037a1da28587a611d40ed5ca7c22785643de8c8c",
     "reason": "F2.10 public release documentation/dependency configuration; approved Prunebrother source-publication location and status; v0.3.0 includes art, local browser libraries and complete runtime installer",
-    "sha256": "0eebcfabb208b8cc2a6736f8aea37e956a0a1eca6c8672dbba816dc50344e088"
+    "sha256": "350f2f263820aa4797f6265281d01160fbaf67c14ceab2f12a72db8c7bc3f4e3"
   },
   "index.html": {
     "base_sha256": "b5e1bbe949cfdf489219b82bed99c3b3d63b6374f0f3979737073c0dc21b57f0",
     "reason": "F2.1 stylesheet link and accessible viewport zoom; original controls preserved; v0.3.0 includes art, local browser libraries and complete runtime installer; upstream 1.1.4.31 sync: local-app library placeholder uses ~/Videos instead of an absolute home path (release privacy scan); v0.7.0: footer names the fork version (EdgeLoop AI vX) beside the engine version; v0.8.0: I came button in the transport row",
-    "sha256": "7817320fac4e7fb8706b14d0fe67ad293b45d9e1ebb05f6d5dd7c20e86543c61"
+    "sha256": "963dcd1ee22f0bc34860c4de474ec3ccaee10aa0f1184fa099c5c861fd8dc02d"
   },
   "package.json": {
     "base_sha256": "4530b83fb523fb476390b151a0da7f7d0134d5a38fd4eabdb892c156fc204872",
@@ -27,7 +27,7 @@
   "src/js/app.js": {
     "base_sha256": "2efd140221b42013159e93001932e03ffa1b46b768664ec2df21d1c207afe1d8",
     "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged; F2.5.1 projects existing learning-release counter only; original handlers and safety unchanged; F2.8.1 adds post-motor-stop/pre-counter-reset read-only final projection and Survival restart observation only; reset cancellation final projection after stop dispatch; upstream 1.1.4.31 sync: one history record merges the fork completion report with the upstream opt-in session log, and a failed companion mount is logged (the session is unaffected); player workspace: loading or clearing a funscript records the play style it switches to (state.mediaSelection) just before upstream applies it, so the observer can tell that change from a selection; the switch itself is unchanged; v0.7.0-rc3: the local player app sends X-EdgeLoop-App on its state-changing requests (host Origin check)",
-    "sha256": "2eb0f21550c106f1fa60e1345fd0664218175fd551508317acadc664d224a761"
+    "sha256": "4bf45d7c13729ecf5303911e981fd89d766c0ad9ec3f116661dcd9d9dd128971"
   },
   "src/js/backup.test.js": {
     "base_sha256": "1db725797ba3792abe91d18da49950904c5dd395a51089175ad8ce45f645ea56",
@@ -47,6 +47,41 @@
   "sw.js": {
     "base_sha256": "1ad54fe27a2ad00ee8abb242716fcb77ae37326d52ef56e069d6dbb517779c9d",
     "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only; F2.5.1 cache version only; F2.6 cache version only; F2.6.1 character menu module and cache invalidation; F2.7 event settings module and cache invalidation; F2.8 context tools precache and cache invalidation; F2.8.1 cache invalidation only; F2.8.2 context diagnostics cache invalidation only; free-form objective guidance cache invalidation only; F2.8.3 memory diagnostics cache invalidation; F2.8.4 public journal UI module precache and cache invalidation (journal records remain private observer data); F2.8.4.1 curator controls and memory diagnostics cache invalidation only; Nova character registration cache invalidation only; F2.8.5 Director controls cache invalidation only; v0.3.0 includes art, local browser libraries and complete runtime installer; upstream 1.1.4.31 sync: union of upstream player/page-focus precache and fork modules, cache version invalidation",
-    "sha256": "7a0467a10bf61e69701cb106f1791398599c96f59ef7ecc8b7af46626bfc6875"
+    "sha256": "3a751b88eacbc767d2612d6fbdc1db52798b4c1026d52dd8177eb406f14c84e5"
+  },
+  "app/host.mjs": {
+    "base_sha256": "da16fce44adafb5e7eb997a480633b478f0fc3a00602907f1c890a2beba88f41",
+    "reason": "Complete local-app release packaging; original engine and hardware controls preserved.",
+    "sha256": "39830141ef2cebf606f97601f4dcf2382078d7b92dc4a8d240c32930850b2d85"
+  },
+  "app/host.test.mjs": {
+    "base_sha256": "be7d662865d051466d51f71045cecea3fb77c0f13c33e7a7c9f8f05c77e4a55c",
+    "reason": "Complete local-app release packaging; original engine and hardware controls preserved.",
+    "sha256": "1970a67c4c5cf782ea6e395ab8781c7bb6abb3ca9983eb50f48d4d75fd68d0a1"
+  },
+  "src/js/keybinds.js": {
+    "base_sha256": "ab092af1ab401321feda81e3009ac483ee5d0c0c6090376f2ad92b3b073789c8",
+    "reason": "Complete local-app release packaging; original engine and hardware controls preserved.",
+    "sha256": "c8cb471335c5740ed85de4e0639910208cfc4869504562001d414274b808da39"
+  },
+  "src/js/player/player.js": {
+    "base_sha256": "6b8be9b8283d750b24b647de71f04e2dbd43eb343b020e128ae85f025b96b098",
+    "reason": "Complete local-app release packaging; original engine and hardware controls preserved.",
+    "sha256": "a9f2af45b84156465ed72f2594971fb933e549d7a52bb4a2559db98757dec7af"
+  },
+  "src/js/player/player.test.js": {
+    "base_sha256": "9af1fa685950cee022934415c90c0f6173153260a28d5fe6ecd8470ac8e254f8",
+    "reason": "Complete local-app release packaging; original engine and hardware controls preserved.",
+    "sha256": "b8d4f078f75869fbe2a2588b95655263c98dff0e5cbbbc2d2564c4f8c2dcd667"
+  },
+  "src/js/session-telemetry.js": {
+    "base_sha256": "afad5e0a4943b796234c1776585c48ad814d1787a1a997dea93965e6e8e8123e",
+    "reason": "Complete local-app release packaging; original engine and hardware controls preserved.",
+    "sha256": "abb69fbd02e7602a92213413345a0c8709d8743ca72cbd73de251d4eb4553ff9"
+  },
+  "src/js/state.js": {
+    "base_sha256": "e029abaec185a6375e55740e5b9829e4acf371d0e1f97070e70510e93d12598b",
+    "reason": "Complete local-app release packaging; original engine and hardware controls preserved.",
+    "sha256": "466495e2b0fd8a55ca618e590c84670c0e81e4b4d2ac6b7dc34791a87baa9016"
   }
 }
