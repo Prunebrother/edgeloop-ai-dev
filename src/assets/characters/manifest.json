@@ -268,6 +268,44 @@
         "concerned": "/Character_Art/Mira/expressions/mira_concerned.png",
         "proud": "/Character_Art/Mira/expressions/mira_proud.png",
         "comforting": "/Character_Art/Mira/expressions/mira_comforting.png"
+      },
+      "animations": {
+        "neutral": {
+          "webm": "/Character_Art/Mira/animations/mira_neutral.webm"
+        },
+        "happy": {
+          "webm": "/Character_Art/Mira/animations/mira_happy.webm"
+        },
+        "playful": {
+          "webm": "/Character_Art/Mira/animations/mira_playful.webm"
+        },
+        "flirty": {
+          "webm": "/Character_Art/Mira/animations/mira_flirty.webm"
+        },
+        "mischievous": {
+          "webm": "/Character_Art/Mira/animations/mira_mischievous.webm"
+        },
+        "focused": {
+          "webm": "/Character_Art/Mira/animations/mira_focused.webm"
+        },
+        "excited": {
+          "webm": "/Character_Art/Mira/animations/mira_excited.webm"
+        },
+        "surprised": {
+          "webm": "/Character_Art/Mira/animations/mira_surprised.webm"
+        },
+        "disappointed": {
+          "webm": "/Character_Art/Mira/animations/mira_disappointed.webm"
+        },
+        "concerned": {
+          "webm": "/Character_Art/Mira/animations/mira_concerned.webm"
+        },
+        "proud": {
+          "webm": "/Character_Art/Mira/animations/mira_proud.webm"
+        },
+        "comforting": {
+          "webm": "/Character_Art/Mira/animations/mira_comforting.webm"
+        }
       }
     }
   },
