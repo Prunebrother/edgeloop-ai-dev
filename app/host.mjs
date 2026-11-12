@@ -100,7 +100,13 @@ const IMAGE = new Set(['.png', '.jpg', '.jpeg', '.webp']);
 function referencedArt(root) {
     try {
         const catalog = JSON.parse(fs.readFileSync(path.join(root, 'src/assets/characters/manifest.json'), 'utf8'));
-        return new Set(Object.values(catalog.characters).flatMap((c) => Object.values(c.expressions)).filter((a) => typeof a === 'string').map((a) => a.replace(/^\/+/, '')));
+        const images = Object.values(catalog.characters).flatMap(c => Object.values(c.expressions)).filter(a => typeof a === 'string');
+        const clips = Object.values(catalog.characters).flatMap(c => Object.entries(c.animations || {})
+            .filter(([expression]) => catalog.expressions?.includes(expression))
+            .flatMap(([, formats]) => Object.entries(formats).filter(([format, asset]) =>
+                ['webm','mp4'].includes(format) && typeof asset === 'string' &&
+                new RegExp('^/Character_Art/(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+\\.'+format+'$').test(asset)).map(([,asset]) => asset)));
+        return new Set([...images,...clips].map(a => a.replace(/^\/+/, '')));
     } catch {
         return new Set();
     }
@@ -122,7 +128,7 @@ export function publicFile(rawPath, root) {
         || (rel.startsWith('src/js/') && ext === '.js')
         || (rel.startsWith('src/css/') && ext === '.css')
         || (rel.startsWith('src/assets/characters/') && (IMAGE.has(ext) || ext === '.svg'));
-    if (rel.startsWith('Character_Art/')) allowed = IMAGE.has(ext) && referencedArt(root).has(rel);
+    if (rel.startsWith('Character_Art/')) allowed = (IMAGE.has(ext) || ext === '.webm' || ext === '.mp4') && referencedArt(root).has(rel);
     if (!allowed) return null;
     let realRoot, target;
     try {

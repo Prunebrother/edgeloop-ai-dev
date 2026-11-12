@@ -129,6 +129,7 @@
     "celeste-narrative-f29-v012:latest": "celeste"
   },
   "presentation": {
+    "animated_characters_enabled": false,
     "session_reactions": {},
     "cooldown_ms": 6000,
     "chat_hold_ms": 8000
