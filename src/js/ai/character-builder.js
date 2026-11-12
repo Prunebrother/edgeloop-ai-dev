@@ -9,7 +9,7 @@ const KIB=n=>(n/1024).toFixed(1)+' KiB';
 const blankWorld=()=>({schema_version:1,id:'',name:'',setting:'',lore:'',rules:[]});
 const blankCard=n=>({id:'card-'+n,theme:'',brief:'',when:{},repeat:true,enabled:true});
 const blankCharacter=()=>({schema_version:1,id:'',world:'',name:'',short_name:'',personality:'',voice:'',relationship:'',
-    model:'huihui_ai/qwen3.5-abliterated:9b',portrait:null,deck:{shared:'lifecycle',cards:[blankCard(1)]}});
+    model:'huihui_ai/qwen3.5-abliterated:9b',portrait:null,deck:{shared:'lifecycle+routine',cards:[blankCard(1)]}});
 const WHEN=[['min_seconds','From second'],['max_seconds','Until second'],['min_edges','From edge'],['max_edges','Up to edge']];
 // Conditions that the data format supports but this editor does not edit yet. They are shown,
 // and kept exactly as they are when the card is saved again.
@@ -55,7 +55,7 @@ export function mountCharacterBuilder(host,{send,models=()=>[],onClose=()=>{}}){
         <p class="builder-hint">One portrait is used for every expression in this release.</p></fieldset>
       </div>
       <fieldset data-b-deck><legend>Card deck</legend>
-        <label>Shared cards<select data-b-shared><option value="lifecycle">Lifecycle only (start, closing, arrival, milestones)</option><option value="lifecycle+routine">Lifecycle and routine (counts, time, heart rate)</option></select></label>
+        <label>Shared cards<select data-b-shared><option value="lifecycle+routine">Common deck and own cards, shuffled together (like the built-in companions)</option><option value="lifecycle">Own cards only, plus start, closing, arrival and milestones</option></select></label>
         <p class="builder-meter" data-b-count></p>
         <div data-b-cards></div><button type="button" data-b-add>Add card</button>
         <p class="builder-meter" data-b-character-size></p></fieldset>

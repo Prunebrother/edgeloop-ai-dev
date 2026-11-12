@@ -135,9 +135,12 @@ class CardSpec(StrictModel):
 
 
 class DeckSpec(StrictModel):
-    # 'lifecycle': the shared start, closing, arrival and milestone cards plus this deck.
-    # 'lifecycle+routine': also the built-in shared routine cards (edge count, duration, heart rate).
-    shared: Literal['lifecycle', 'lifecycle+routine'] = 'lifecycle'
+    # 'lifecycle+routine' (default): the shared lifecycle cards plus the common routine deck (counts,
+    # time, heart rate, encouragement, conversation, finishing and another-round cards), shuffled
+    # together with this character's own cards, as for the built-in companions.
+    # 'lifecycle': only the shared start, closing, arrival and milestone cards plus this deck.
+    # Saved characters keep the value they were saved with.
+    shared: Literal['lifecycle', 'lifecycle+routine'] = 'lifecycle+routine'
     cards: list[CardSpec] = Field(default_factory=list, max_length=MAX_CARDS)
     # Optional personal wording in existing lifecycle lanes, not new triggers.
     # Omitted overrides retain the shared opening/closing exactly as before.

@@ -50,7 +50,9 @@ shared base `huihui_ai/qwen3.5-abliterated:9b`), `portrait` (`file` name in the 
 inbox, `fit`, `position`), `deck`, and `revision`, which goes up automatically each time
 a save changes the content.
 
-Deck: `shared` is `lifecycle` (the default) or `lifecycle+routine`, plus up to 16
+Deck: `shared` is `lifecycle+routine` (the default for new characters: the common deck is
+shuffled together with the character's own cards, as for the built-in companions) or
+`lifecycle` (own cards only), plus up to 16
 `cards`. A card is:
 
 ```json
@@ -185,8 +187,9 @@ A custom character's runtime deck contains:
 
 - the built-in shared lifecycle cards: `opening`, `closing`, the three `arrival-*`
   cards, and the `edges-3/7/10` milestones;
-- the built-in shared routine cards (edge count, duration, heart rate), only with
-  `"shared": "lifecycle+routine"`;
+- the common routine deck: every built-in shared normal card (edge count, duration, heart
+  rate, encouragement, challenges, conversation, finishing, another round, orgasm counts),
+  with `"shared": "lifecycle+routine"`, the default for new characters;
 - the character's own enabled cards.
 
 Built-in personal cards never reach a custom character, and custom cards never reach
