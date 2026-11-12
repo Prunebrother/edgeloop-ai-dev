@@ -15,7 +15,7 @@ try{
  const page=await browser.newPage({viewport:{width:1500,height:1000}}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',async route=>{
-  const url=new URL(route.request().url());if(url.origin!=='http://portrait.fixture')return route.abort();
+  const url=new URL(route.request().url());if(url.origin!=='http://localhost:9')return route.abort();
   const p=url.pathname;report.requests.push(p);
   if(p==='/')return route.fulfill({contentType:'text/html',body:'<link rel="stylesheet" href="/src/css/companion.css"><style>body{margin:0}#character-panel{position:relative;width:400px;height:650px;display:flex;flex-direction:column}.portrait-stage{min-height:400px}</style><section id="character-panel"></section><video id="ordinary-player" muted></video>'});
   if(p.endsWith('/missing.webm'))return route.fulfill({status:404,body:'missing'});
@@ -24,13 +24,15 @@ try{
   if(!/^(src\/|Character_Art\/|tests\/fixtures\/portrait-animation\/)/.test(file)||file.includes('..'))return route.abort();
   try{return route.fulfill({body:await readFile(path.join(root,file)),contentType:p.endsWith('.js')?'text/javascript':p.endsWith('.json')?'application/json':p.endsWith('.css')?'text/css':p.endsWith('.webm')?'video/webm':p.endsWith('.mp4')?'video/mp4':'image/png'});}catch{return route.fulfill({status:404,body:'not found'});}
  });
- await page.goto('http://portrait.fixture/');
+ await page.goto('http://localhost:9/');
  await page.evaluate(async()=>{
   const {CharacterPresentation}=await import('/src/js/ai/character.js');
   const {CHARACTER_MANIFEST}=await import('/src/js/ai/artwork-manifest.js');
   const {createPlayer}=await import('/src/js/player/player.js');
   window.portraitVideos=[];const create=document.createElement.bind(document);document.createElement=(tag,...args)=>{const el=create(tag,...args);if(tag==='video')portraitVideos.push(el);return el;};
-  window.catalog=structuredClone(CHARACTER_MANIFEST);
+  // Start from the default-off contract whatever the shipped catalog declares.
+  window.catalog=structuredClone(CHARACTER_MANIFEST);catalog.presentation.animated_characters_enabled=false;
+  for(const c of Object.values(catalog.characters))delete c.animations;
   window.character=new CharacterPresentation(document.querySelector('#character-panel'),catalog);
   window.playerEvents=[];
   window.player=createPlayer({els:{video:document.querySelector('#ordinary-player')},handlers:{transport:()=>({coupled:false,sessionStatus:'IDLE'}),onInteraction:e=>playerEvents.push(e)}});
@@ -76,7 +78,7 @@ try{
  for(let i=0;i<8;i++){await select('nova',i%2?'neutral':'focused');await rendered('video',i%2?'neutral':'focused');assert((await page.evaluate(()=>portraitVideos.filter(v=>v.hasAttribute('src')).length))<=2);}
  await page.waitForTimeout(1400);assert.deepEqual(await page.evaluate(()=>player.interactionState()),state);
  report.steps.push('Existing Player open/select/start still work; portrait playback/switches do not change its counters');
- await page.evaluate(()=>{catalog.presentation.animated_characters_enabled=false;character.setState({});});await rendered('image','focused');
+ await page.evaluate(()=>{catalog.presentation.animated_characters_enabled=false;character.setState({});});await rendered('image','neutral');
  await page.evaluate(()=>character.destroy());assert.equal(await page.locator('#character-panel video').count(),0);assert.equal(await page.evaluate(()=>portraitVideos.filter(v=>v.hasAttribute('src')).length),0);assert.deepEqual(errors,[]);
  report.steps.push('Live flag disable returns to PNG; destroy leaves no portrait video or page errors');
  report.passed=true;

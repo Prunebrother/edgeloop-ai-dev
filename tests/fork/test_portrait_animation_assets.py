@@ -97,6 +97,7 @@ def test_release_inventory_accepts_declared_video_but_preserves_all_48_pngs(tmp_
     monkeypatch.setattr(module, 'ROOT', tmp_path)
     c = json.loads((ROOT / 'src/assets/characters/manifest.json').read_text())
     for character in c['characters'].values():
+        character.pop('animations', None)  # Only the fixture clip below is declared.
         for p in character['expressions'].values():
             target = tmp_path / p.lstrip('/')
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -116,3 +117,21 @@ def test_release_inventory_accepts_declared_video_but_preserves_all_48_pngs(tmp_
     clip.write_bytes(b'fixture WebM')
     (tmp_path / 'Character_Art/Nova/unreferenced.mp4').write_bytes(b'private archive')
     assert 'unexpected unreferenced art' in {x['category'] for x in module.validate()['errors']}
+
+
+def test_shipped_clip_declarations_point_at_committed_webm_files():
+    """The curated catalog's clips exist, use the safe path shape and are WebM (EBML) files."""
+    import re
+    c = json.loads((ROOT / 'src/assets/characters/manifest.json').read_text())
+    shape = re.compile(r'^/Character_Art/(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+\.webm$')
+    declared = 0
+    for character in c['characters'].values():
+        for expression, formats in character.get('animations', {}).items():
+            assert expression in c['expressions']
+            src = formats['webm']
+            assert shape.match(src), src
+            data = (ROOT / src.lstrip('/')).read_bytes()[:4]
+            assert data == b'\x1a\x45\xdf\xa3', src
+            declared += 1
+    if c['presentation'].get('animated_characters_enabled'):
+        assert declared > 0
