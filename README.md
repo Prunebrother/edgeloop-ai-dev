@@ -1,21 +1,33 @@
 # EdgeLoop AI
 
-EdgeLoop AI adds local AI companions to [EdgeLoop by marshallmims](https://github.com/marshallmims/edgeloop), based on version 1.1.3, upstream commit `d351e011249079b368ebdc8d46f83b260be7d2a5`. Maintained by Prunebrother. Experimental software for adults; physical safety has not been verified.
+EdgeLoop AI adds local AI companions to [EdgeLoop by marshallmims](https://github.com/marshallmims/edgeloop), based on version 1.1.4.33, upstream commit `d3c5df33834f6106796e3768ad283d0eb5ab1ef9`. Maintained by Prunebrother. Experimental software for adults; physical safety has not been verified.
+
+## Test build: v0.11.0-rc1 (Linux and Windows)
+
+[v0.11.0-rc1](https://github.com/Prunebrother/edgeloop-ai/releases/tag/v0.11.0-rc1) is a public test build for play-testing. It adds **campaign mode** (The Asterion Initiative: three chapters, 14 missions), a new main menu where your companion hosts, and a sixth companion, **VEX-9**, a commanding Helix extraction unit. The Windows build is still experimental. The current release stays v0.10.0-rc1 below. Feedback is very welcome in the [issues](https://github.com/Prunebrother/edgeloop-ai/issues).
+
+**Windows 10/11 (experimental):** download `EdgeLoop-AI-Setup-v0.11.0-rc1.exe` from the [release page](https://github.com/Prunebrother/edgeloop-ai/releases/tag/v0.11.0-rc1) and run it. **Linux:** `curl -fLO https://github.com/Prunebrother/edgeloop-ai/releases/download/v0.11.0-rc1/install.sh && bash install.sh`
+
+## Current release: v0.10.0-rc1 (Linux and Windows)
+
+[v0.10.0-rc1](https://github.com/Prunebrother/edgeloop-ai/releases/tag/v0.10.0-rc1) brings five companions with animated portraits, including **Mira**, a shapeshifting companion with her own agenda. The portraits now move over a still background, companions keep edge and orgasm counts straight, and each companion talks at the temperature set in its own model. The Windows build has not been hardware tested yet, so keep your toy's own stop button within reach. Earlier releases, such as [v0.8.0-rc1](https://github.com/Prunebrother/edgeloop-ai/releases/tag/v0.8.0-rc1) and [v0.4.0](https://github.com/Prunebrother/edgeloop-ai/releases/tag/v0.4.0), stay available. Install instructions for both platforms are in [INSTALL.md](INSTALL.md) and on the release page.
+
+**Windows 10/11 (experimental):** download `EdgeLoop-AI-Setup-v0.10.0-rc1.exe` from the [release page](https://github.com/Prunebrother/edgeloop-ai/releases/tag/v0.10.0-rc1) and run it.
 
 ## Install the complete Linux release
 
 On Linux x86_64 with a systemd user session and a current Chromium browser:
 
 ```bash
-curl -fLO https://github.com/Prunebrother/edgeloop-ai/releases/download/v0.4.0/install.sh
+curl -fLO https://github.com/Prunebrother/edgeloop-ai/releases/download/v0.10.0-rc1/install.sh
 bash install.sh
 ```
 
 The installer downloads and verifies the complete release, installs into your account without sudo, creates **EdgeLoop AI** and **Stop EdgeLoop AI** application shortcuts, and opens the app. Accept the adult-use gate, then chat with Nova or choose another companion. No Python, Node, Ollama or model commands are needed. Keep approximately 25 GB free during installation; the download is about 9 GB, most of it base-model weights. Downloads resume when you rerun the installer. You can remove its download cache after installation.
 
-The complete bundle includes all 48 original character portraits, four prepared character models for Evelyn, Daisy, Celeste and Nova, the base-model weight set, Ollama 0.40.13, portable Python 3.12.16, pinned Python dependencies and local browser libraries. A source ZIP or Git clone includes the artwork and model definitions; use the **Release installer** for runtimes and weights.
+The complete v0.10.0-rc1 bundle includes 60 character portraits with animated idle loops, five prepared character models for Nova, Evelyn, Daisy, Celeste and Mira, the base-model weight set, Ollama 0.40.13, portable Python 3.12.16, pinned Python dependencies and local browser libraries. A source ZIP or Git clone includes the artwork and model definitions; use the **Release installer** for runtimes and weights.
 
-Inference runs locally. A CPU can run the models slowly; compatible NVIDIA hardware can accelerate the bundled runtime. Available RAM/VRAM must accommodate the model and its context. No universal minimum or latency guarantee has been established. AMD ROCm acceleration, Windows, macOS, ARM and non-systemd installation are outside this bundle's tested scope.
+Inference runs locally. A CPU can run the models slowly; compatible NVIDIA hardware can accelerate the bundled runtime. Available RAM/VRAM must accommodate the model and its context. No universal minimum or latency guarantee has been established. Windows is supported experimentally through its own setup program. AMD ROCm acceleration, macOS, ARM and non-systemd installation are outside this bundle's tested scope.
 
 [Installation, offline use and troubleshooting](INSTALL.md) · [Models and artwork](MODELS_AND_ASSETS.md) · [Validation](VALIDATION.md) · [Licenses](THIRD_PARTY_NOTICES.md)
 
