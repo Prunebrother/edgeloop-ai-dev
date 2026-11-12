@@ -7,13 +7,13 @@ F2.10.1 regenerates runtime bytecode with neutral filenames and preserves the in
 Supported target: Linux x86_64, a working systemd user session, glibc Linux (not Alpine/musl), and an installed current Chromium browser. The browser and hardware drivers remain system requirements. Plan for approximately 25 GB free during download/extraction. Model inference needs enough RAM/VRAM for a 9B model plus context (a 10 GB GPU is sufficient); CPU execution may be slow. No sudo or system-wide Ollama service is required.
 
 ```bash
-curl -fLO https://github.com/Prunebrother/edgeloop-ai-dev/releases/download/v0.10.0-rc1/install.sh
+curl -fLO https://github.com/Prunebrother/edgeloop-ai/releases/download/v0.10.0-rc1/install.sh
 bash install.sh
 ```
 
 The installer downloads all release parts with resume support, checks SHA-256 sums, extracts and verifies the bundle, creates a Python environment from offline wheels, installs user services and application shortcuts, starts the dedicated stack and opens http://127.0.0.1:8770/. Accept the adult-use gate and finish or skip the existing hardware setup wizard. Desktop pairing and saved model selection happen automatically; Nova is selected on a new installation. Choosing another installed character uses the Chat model menu.
 
-The bundle includes the base-model weights, four character models (Nova, Evelyn, Daisy and Celeste) already registered with Ollama, 48 expression portraits, portable Python, Ollama, Python wheels and browser libraries. No package manager, Git, Node, model pull or manual token is required. The small downloader needs standard `bash`, `curl`, `tar`, `gzip`, `sha256sum` and `flock` tools.
+The bundle includes the base-model weights, five character models (Nova, Evelyn, Daisy, Celeste and Mira) already registered with Ollama, 60 expression portraits with animated idle loops, portable Python, Ollama, Python wheels and browser libraries. No package manager, Git, Node, model pull or manual token is required. The small downloader needs standard `bash`, `curl`, `tar`, `gzip`, `sha256sum` and `flock` tools.
 
 Installation location: `~/.local/share/edgeloop-ai/releases/v0.10.0-rc1`. Model weights live inside that version's `models/`; this avoids changing a separate Ollama installation. User settings/history live at `~/.local/share/edgeloop-ai/data`. Downloads are cached under `${XDG_CACHE_HOME:-~/.cache}/edgeloop-ai/v0.10.0-rc1`; remove that cache after successful installation to reclaim disk space. Rerunning installation preserves user settings. It does not enable login startup.
 
@@ -23,7 +23,7 @@ Use **EdgeLoop AI** to start and **Stop EdgeLoop AI** to stop. The command `~/.l
 
 ## Windows (experimental)
 
-Windows 10 (1809 or later) or Windows 11, x86_64. Download `EdgeLoop-AI-Setup-v0.10.0-rc1.exe` from the [release page](https://github.com/Prunebrother/edgeloop-ai-dev/releases/tag/v0.10.0-rc1) and run it. Setup downloads about 9 GB, checks every part against SHA-256 sums built into the setup program, installs for your Windows user only (no administrator rights) and adds **EdgeLoop AI** and **Stop EdgeLoop AI** to the Start menu. Keep about 25 GB free. An interrupted download resumes when you run setup again.
+Windows 10 (1809 or later) or Windows 11, x86_64. Download `EdgeLoop-AI-Setup-v0.10.0-rc1.exe` from the [release page](https://github.com/Prunebrother/edgeloop-ai/releases/tag/v0.10.0-rc1) and run it. Setup downloads about 9 GB, checks every part against SHA-256 sums built into the setup program, installs for your Windows user only (no administrator rights) and adds **EdgeLoop AI** and **Stop EdgeLoop AI** to the Start menu. Keep about 25 GB free. An interrupted download resumes when you run setup again.
 
 The setup program is not code-signed yet, so Windows SmartScreen may say it is from an unknown publisher. Choose **More info**, then **Run anyway**, only for a file downloaded from the release page above.
 
