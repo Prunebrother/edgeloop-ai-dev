@@ -48,11 +48,12 @@ def test_the_shipped_library_is_valid_and_has_a_new_revision():
 def test_every_shared_category_is_present(intent,count):
  assert len([c for c in DEFINITION.normal if c.intent==intent and c.audience=='shared'])==count
 
-@pytest.mark.parametrize('audience,intents',[('nova',{'character_curiosity_nova','character_challenge_nova'}),('evelyn',{'scientific_observation'}),('daisy',{'cloverfield_production','cloverfield_encouragement'}),('celeste',{'diplomatic_evaluation','personal_observation'})])
+@pytest.mark.parametrize('audience,intents',[('nova',{'character_curiosity_nova','character_challenge_nova'}),('evelyn',{'scientific_observation'}),('daisy',{'cloverfield_production','cloverfield_encouragement'}),('celeste',{'diplomatic_evaluation','personal_observation'}),('mira',{'helix_offer','procurement_humor','corporate_rivalry'})])
 def test_every_companion_has_its_requested_themes(audience,intents):
  cards=[c for c in DEFINITION.normal if c.audience==audience]
  assert len(cards)==15 and intents<={c.intent for c in cards}
- assert [c.id for c in cards if c.eligibility.phases==['finishing']]==[audience+'-finish']
+ # Mira also has a Helix-flavoured card for the finishing phase next to her finish card.
+ assert [c.id for c in cards if c.eligibility.phases==['finishing']]==(['mira-eyes-on-prize'] if audience=='mira' else [])+[audience+'-finish']
  assert [c.id for c in cards if c.eligibility.phases==['recovery']]==[audience+'-another-load']
  assert len([c for c in cards if c.intent=='orgasm_count' and c.eligibility.min_orgasms==1])==1
 
