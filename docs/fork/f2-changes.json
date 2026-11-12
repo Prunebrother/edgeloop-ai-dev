@@ -12,7 +12,7 @@
   "README.md": {
     "base_sha256": "31e06342d10aa4d7001bee7f037a1da28587a611d40ed5ca7c22785643de8c8c",
     "reason": "F2.10 public release documentation/dependency configuration; approved Prunebrother source-publication location and status; v0.3.0 includes art, local browser libraries and complete runtime installer",
-    "sha256": "350f2f263820aa4797f6265281d01160fbaf67c14ceab2f12a72db8c7bc3f4e3"
+    "sha256": "40cde5c7cd2ff68377a64ae6d8599e59a1c1599659ccdea4df742597da31793b"
   },
   "index.html": {
     "base_sha256": "b5e1bbe949cfdf489219b82bed99c3b3d63b6374f0f3979737073c0dc21b57f0",
