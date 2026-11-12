@@ -70,6 +70,8 @@ The median of per-case compilation medians was approximately **0.42 ms before / 
 
 **Sampling overrides:** outgoing runtime options explicitly override Modelfile defaults. Runtime defaults are temperature 0.4/top-p 0.95, compared with source Evelyn/Daisy temperature 0.6 and Celeste temperature 0.7/top-p 0.9. Saved model presets can differ; this does not establish what the running user process selected. Recommendation: review per-model sampling policy separately and benchmark it. No preset or Modelfile was edited.
 
+> **Resolved 2026-11-12:** sampling now belongs to each Modelfile. The app sends no temperature, top_p, top_k or repeat_penalty unless code sets one on purpose (e.g. a temperature-0 evaluation). Sampling values in saved `selection.json` / `model-presets.json` are ignored. Benchmark: a live Mira comparison (app 0.4 vs Modelfile 0.7, 2 runs each) showed 29 → 7 repeated five-word phrases and fewer unsupported claims, with no regression in deck behaviour.
+
 **Redundant grounding:** the unchanged generic grounding plus expression SYSTEM adds 2,484 characters, estimated at 994 tokens by the conservative estimator. Native character boundaries and timing/history footers overlap with some of these rules. Targeted ordinary-telemetry selection already frees useful space. Recommendation: consider later matched wording reductions while retaining provenance, unknown-source, read-only authority and simulation boundaries. No broad static-instruction rewrite was made.
 
 ## Regression and unavailable acceptance
