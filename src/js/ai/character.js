@@ -48,6 +48,7 @@ export class CharacterPresentation {
         if(node.tagName==='VIDEO'){
             node.onloadeddata=node.onplaying=null;
             if(node.frameId!=null)node.cancelVideoFrameCallback?.(node.frameId);
+            if(node.frameFallback!=null)cancelAnimationFrame(node.frameFallback);
             node.pause();node.removeAttribute('src');node.removeAttribute('poster');node.load();
         }else node.removeAttribute('src');
         node.remove();
@@ -134,6 +135,8 @@ export class CharacterPresentation {
         const ready=()=>{
             if(!current()||settled||committed)return;
             committed=true;clearTimeout(node.readyTimer);
+            if(node.frameId!=null)node.cancelVideoFrameCallback?.(node.frameId);
+            if(node.frameFallback!=null)cancelAnimationFrame(node.frameFallback);
             if(!animate&&this.displayed?.tagName==='VIDEO'){
                 node.style.transition='none';node.classList.add('visible');
                 this.dispose(this.displayed);this.displayed=null;
@@ -158,7 +161,15 @@ export class CharacterPresentation {
                 if(!current()||settled||frameScheduled)return;
                 frameScheduled=true;
                 if(node.requestVideoFrameCallback)node.frameId=node.requestVideoFrameCallback(ready);
-                else if(node.readyState>=2)ready();else{frameScheduled=false;node.onloadeddata=firstFrame;}
+                // Detached video can decode without submitting frames to the
+                // compositor, so its video-frame callback need not fire yet.
+                // loadeddata + successful play + HAVE_CURRENT_DATA guarantees
+                // a decoded first frame; admit it on the next paint if needed.
+                node.frameFallback=requestAnimationFrame(()=>{
+                    if(!current()||settled)return;
+                    if(node.readyState>=2)ready();
+                    else{frameScheduled=false;node.onloadeddata=firstFrame;}
+                });
             };
             node.readyTimer=setTimeout(fail,6000);
             node.onloadeddata=()=>{if(current()&&!settled)node.play().then(firstFrame,fail);};

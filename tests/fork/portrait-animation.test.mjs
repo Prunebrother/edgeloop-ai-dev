@@ -8,10 +8,10 @@ import {createPlayerInteractions} from '../../src/js/player/interactions.js';
 const catalog=()=>({models:{'a:latest':'a','b:latest':'b'},characters:{a:{name:'A',expressions:{neutral:'/a.png',happy:'/a-happy.png'},animations:{neutral:{webm:'/Character_Art/A/idle.webm',mp4:'/Character_Art/A/idle.mp4'}}},b:{name:'B',expressions:{neutral:'/b.png'}}},presentation:{animated_characters_enabled:true}});
 const flush=async()=>{await Promise.resolve();await Promise.resolve();await Promise.resolve();};
 function rig(c=catalog()){
- const saved=new Map(),nodes=[],listeners=new Map(),observers=[];
+ const saved=new Map(),nodes=[],listeners=new Map(),observers=[],frames=[];
  const globals={};
  class Node {
-  constructor(tag='DIV'){this.tagName=tag;this.dataset={};this.style={};this.attributes={};this.children=[];this.classList={add:()=>{}};this.paused=true;nodes.push(this);}
+  constructor(tag='DIV'){this.tagName=tag;this.dataset={};this.style={};this.attributes={};this.children=[];this.classList={add:()=>{}};this.paused=true;this.readyState=2;nodes.push(this);}
   set innerHTML(v){this.html=v;}
   set src(v){this.attributes.src=v;}get src(){return this.attributes.src;}
   getAttribute(k){return this.attributes[k]??null;}setAttribute(k,v){this.attributes[k]=v;}
@@ -32,11 +32,11 @@ function rig(c=catalog()){
  const on=(k,fn)=>listeners.set(k,fn),off=k=>listeners.delete(k);
  const motion={matches:false,addEventListener:(k,fn)=>on('motion',fn),removeEventListener:()=>off('motion')};
  class Observer{constructor(cb){this.cb=cb;observers.push(this);}observe(){}disconnect(){this.disconnected=true;}}
- const env={document:{hidden:false,addEventListener:on,removeEventListener:off,createElement:t=>new Node(t.toUpperCase())},window:{addEventListener:on,removeEventListener:off},Image:class extends Node{constructor(){super('IMG');}},matchMedia:()=>motion,IntersectionObserver:Observer,ResizeObserver:Observer,MutationObserver:Observer,getComputedStyle:()=>({visibility:'visible'}),innerWidth:1000,innerHeight:1000,requestAnimationFrame:fn=>{fn();return 1;}};
+ const env={document:{hidden:false,addEventListener:on,removeEventListener:off,createElement:t=>new Node(t.toUpperCase())},window:{addEventListener:on,removeEventListener:off},Image:class extends Node{constructor(){super('IMG');}},matchMedia:()=>motion,IntersectionObserver:Observer,ResizeObserver:Observer,MutationObserver:Observer,getComputedStyle:()=>({visibility:'visible'}),innerWidth:1000,innerHeight:1000,requestAnimationFrame:fn=>{frames.push(fn);return frames.length;},cancelAnimationFrame:id=>{frames[id-1]=()=>{};}};
  for(const [k,v]of Object.entries(env)){saved.set(k,Object.getOwnPropertyDescriptor(globalThis,k));Object.defineProperty(globalThis,k,{configurable:true,writable:true,value:v});}
  const renderer=new CharacterPresentation(host,c);
  const restore=()=>{renderer.destroy();for(const [k,v]of saved){if(v)Object.defineProperty(globalThis,k,v);else delete globalThis[k];}};
- return {renderer,host,nodes,globals,motion,listeners,observers,env,restore,async image(){const n=renderer.pending;assert.equal(n?.tagName,'IMG');n.onload();await flush();return n;},async video(){const n=renderer.pending;assert.equal(n?.tagName,'VIDEO');n.onloadeddata();await flush();n.frame?.();return n;}};
+ return {renderer,host,nodes,globals,motion,listeners,observers,frames,env,restore,async image(){const n=renderer.pending;assert.equal(n?.tagName,'IMG');n.onload();await flush();return n;},async video(){const n=renderer.pending;assert.equal(n?.tagName,'VIDEO');n.onloadeddata();await flush();n.frame?.();return n;}};
 }
 
 test('optional catalog clips are exact-expression, default off and curated paths only',()=>{
@@ -157,5 +157,12 @@ test('failure during a video fade releases the older layer before starting MP4',
   assert.equal(r.nodes.filter(n=>n.tagName==='VIDEO'&&n.src).length,2);const mp4=await r.video();
   await new Promise(resolve=>setTimeout(resolve,400));assert.equal(r.renderer.displayed,mp4);assert.equal(r.renderer.layers.children.length,1);assert.equal(happy.src,undefined);
   c.presentation.animated_characters_enabled=false;r.renderer.setState({});assert(mp4.paused);await r.image();assert.equal(mp4.src,undefined);assert.equal(r.renderer.displayed.src,'/a-happy.png');
+ }finally{r.restore();}
+});
+
+test('a decoded detached video can be admitted even if its compositor callback never fires',async()=>{
+ const r=rig();try{
+  r.renderer.setModel('a:latest');const v=r.renderer.pending;v.onloadeddata();await flush();
+  assert.equal(r.renderer.displayed,null);r.frames.at(-1)();assert.equal(r.renderer.displayed,v);assert.equal(v.frame,null);
  }finally{r.restore();}
 });
