@@ -17,6 +17,7 @@ const step=async(name,fn)=>{await fn();report.steps.push(name);};
 const shot=async name=>{await page.screenshot({path:path.join(out,name)});report.screenshots.push(name);};
 const evidence=async(report,events=[])=>(await fetch(ai+'/fixture/campaign/evidence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({report,events})})).json();
 const progress=async()=>(await fetch(ai+'/fixture/campaign')).json();
+const saves=async ok=>(await fetch(ai+'/fixture/campaign/saves',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ok})})).json();
 const real=(edges,status='RUNNING')=>({session_id:'5e3d0c3a-0000-4000-8000-00000000c001',status,edges,active_mode:'classic',goal:'tease',
     devices:{hr_ready:true,ble:true,simulated_hr:false,toy_ready:true},details:{orgasm_count:0,calibration_pass:'none'}});
 const menuView=()=>page.locator('#main-menu .game-menu-panel').getAttribute('data-view');
@@ -57,6 +58,15 @@ try{
         await page.keyboard.press('Space');await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='campaigns');
         assert(await page.evaluate(async()=>(await import('/src/js/state.js')).state.sessionStatus)==='IDLE','Space behind the menu started a session');
         await page.keyboard.press('Escape');await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='home');
+    });
+    await step('Codex 11: with focus outside the menu, Space still cannot reach the engine',async()=>{
+        await page.evaluate(()=>document.activeElement?.blur());  // like the wizard closing: focus falls to the page, no focus event
+        assert(await page.evaluate(()=>!document.getElementById('main-menu').contains(document.activeElement)),'focus did not leave the menu');
+        await page.evaluate(()=>{window.__leaked=0;document.addEventListener('keydown',()=>window.__leaked++);});  // where the engine listens
+        await page.keyboard.press('Space');await page.waitForTimeout(300);
+        assert(await page.evaluate(()=>window.__leaked)===0,'a key from outside the menu reached the document');
+        assert(await page.evaluate(async()=>(await import('/src/js/state.js')).state.sessionStatus)==='IDLE','Space from outside the menu started a session');
+        assert(await page.evaluate(()=>document.getElementById('main-menu').contains(document.activeElement)),'focus not returned to the menu');
     });
     await step('2. Freeplay opens the existing app with its Character Builder',async()=>{
         await page.locator('[data-menu-tile=freeplay]').click();
@@ -124,6 +134,13 @@ try{
         await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='briefing');
         await page.keyboard.press('Escape');await page.keyboard.press('Escape');await page.keyboard.press('Escape');
         await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='home');
+        // Codex 12: if leaving cannot be saved, the menu stays and says so; the mission's rules still apply.
+        await saves(false);
+        page.once('dialog',d=>d.accept());await page.locator('[data-menu-tile=freeplay]').click();
+        await page.waitForFunction(()=>/could not be saved/.test(document.querySelector('#main-menu .game-menu-status')?.textContent||''));
+        assert(await page.locator('#main-menu').isVisible(),'Freeplay opened before the mission was left');
+        assert(JSON.parse((await progress()).saved).active?.mission==='first_assessment','mission changed despite the failed save');
+        await saves(true);
         page.once('dialog',d=>d.accept());await page.locator('[data-menu-tile=freeplay]').click();
         await page.locator('#main-menu').waitFor({state:'hidden'});
         for(let i=0;i<30&&JSON.parse((await progress()).saved).active;i++)await page.waitForTimeout(100);

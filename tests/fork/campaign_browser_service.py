@@ -23,6 +23,16 @@ async def evidence(request: Request):
     return {'sent': [m['type'] for m in sent], 'model': app.state.models.config.model}
 
 
+@app.post('/fixture/campaign/saves')
+async def saves(request: Request):
+    """Make progress writes fail (a full disk) or work again."""
+    store = app.state.campaign.store
+    if not hasattr(store, 'real_write'): store.real_write = store.write
+    def broken(*args): raise OSError('disk full (fixture)')
+    store.write = store.real_write if (await request.json())['ok'] else broken
+    return {'ok': True}
+
+
 @app.get('/fixture/campaign')
 async def progress():
     path = os.path.join(DATA, PROGRESS_FILE)

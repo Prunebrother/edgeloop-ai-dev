@@ -69,7 +69,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
         el('setup').hidden=connected;el('disconnect').hidden=!connection.enabled;
         for(const key of ['model','select','refresh'])el(key).disabled=!connected;
         if(connected!==campaignPaired){campaignPaired=connected;mainMenu.connected(connected);}
-        if(!connected){latestGeneration=0;discovered.clear();selected=null;changing=false;thinking=null;supportsThinking=false;finish();el('text').disabled=true;el('send').disabled=true;el('selected').textContent='No active AI connection';el('telemetry').textContent='Telemetry disconnected';el('ollama').textContent='Ollama not checked';}controls();resting();
+        if(!connected){queuedMissionLines.length=0;latestGeneration=0;discovered.clear();selected=null;changing=false;thinking=null;supportsThinking=false;finish();el('text').disabled=true;el('send').disabled=true;el('selected').textContent='No active AI connection';el('telemetry').textContent='Telemetry disconnected';el('ollama').textContent='Ollama not checked';}controls();resting();
     },onMessage:m=>{
         if(!reactionMatchesLatest(m.reaction_selection,connection.latest)){
             if(current?.id===m.id){current.node.remove();current=null;presentation.cancel();busy(false);}
@@ -102,7 +102,8 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
             if(!sameModel){el('history').replaceChildren();follow=true;
                 for(const item of m.history||[])line(item.role==='user'?'user':'assistant',item.content);}
             el('text').disabled=false;busy(false);error('');
-            for(const [block,label] of queuedMissionLines.splice(0))postMissionLines(block,label);
+            // Only lines waiting for this built-in companion are shown; anything else belonged to a switch that failed.
+            for(const [block,label,model] of queuedMissionLines.splice(0))if(model===m.model&&!m.character)postMissionLines(block,label);
         } else if(m.type==='response_start'){
             if(Number.isSafeInteger(m.generation)&&m.generation<latestGeneration)return;
             if(Number.isSafeInteger(m.generation))latestGeneration=m.generation;
@@ -131,7 +132,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
             if(m.accepted)presentation.sessionEvents(m.events||[],m.sequence,m.session_id);
             el('telemetry').textContent=m.accepted?'Authoritative telemetry connected · sequence '+m.sequence:'Telemetry awaiting fresh update';}
         else if(m.type==='telemetry_status')el('telemetry').textContent='Telemetry stale · session state unavailable to AI';
-        else if(['ai_error','conversation_error','protocol_error'].includes(m.type)){presentation.cancel();changing=false;diagnostic.inference_error=m.detail||'AI unavailable';if(m.ollama_url)diagnostic.endpoint=m.ollama_url;
+        else if(['ai_error','conversation_error','protocol_error'].includes(m.type)){if(changing)queuedMissionLines.length=0;presentation.cancel();changing=false;diagnostic.inference_error=m.detail||'AI unavailable';if(m.ollama_url)diagnostic.endpoint=m.ollama_url;
             if(m.ollama_url)el('endpoint').textContent='Ollama: '+m.ollama_url;
             if(m.code==='discovery_unavailable'){discovered.clear();const o=document.createElement('option');o.value='';o.disabled=true;o.textContent='Ollama unavailable';el('model').replaceChildren(o);}
             if(m.code==='grounding_violation'&&current){current.node.remove();current=null;}
@@ -149,10 +150,10 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
     panel.querySelector('.model-picker').append(openBuilder);
     // Main menu and campaign screens. Missions pick their companion from the installed models;
     // scripted mission lines are shown in the conversation but never sent to the model.
-    let campaignPaired=false;const queuedMissionLines=[];
+    let campaignPaired=false,switchingTo=null;const queuedMissionLines=[];
     const postMissionLines=(block,label)=>{if(!block)return;
-            // A companion switch rebuilds the conversation; the line waits until it is done.
-            if(changing){queuedMissionLines.push([block,label]);return;}
+            // A companion switch rebuilds the conversation; the line waits for that switch, and is dropped if it fails.
+            if(changing){queuedMissionLines.push([block,label,switchingTo]);return;}
             el('empty')?.remove();
             const node=document.createElement('article');node.className='message message-assistant message-mission';
             const author=document.createElement('span');author.className='message-author';author.textContent=(CHARACTERS_NAME(block.speaker))+' · '+label;
@@ -165,10 +166,12 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
         return own.sort((a,b)=>rank(b)-rank(a))[0]||null;};
     const mainMenu=mountMainMenu({send:m=>connection.send(m),status:()=>connection.latest?.status||'IDLE',bannerHost:panel,
         selectCompanion:id=>{
-            if(selected&&MODEL_ARTWORK[selected]===id)return true;
+            // A custom character running on this companion's model is someone else: switch to the built-in companion.
+            if(selected&&MODEL_ARTWORK[selected]===id&&!activeCharacter)return true;
             const model=missionModel(id);
             if(!model)return paired?`This companion is not installed. Refresh the model list, or install the release models.`:'Connect the companion service first.';
-            selectModel(model);return true;},
+            if(pending||changing)return 'Wait for the current reply or companion switch to finish, then try again.';
+            switchingTo=model;selectModel(model);return true;},
         postLines:(block,label)=>postMissionLines(block,label)});
     // AI Settings Control: the engine-side gate decides; this layer only forwards and shows the result.
     const settingsName=()=>selected?(resolveArtwork(selected).name==='Your companion'?selected:resolveArtwork(selected).name):'Companion';

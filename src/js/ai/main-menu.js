@@ -21,7 +21,7 @@ const name=id=>CHARACTERS[id]?.name||id;
 const portrait=(id,expression='neutral')=>CHARACTERS[id]?.expressions?.[expression]||CHARACTERS[id]?.expressions?.neutral||null;
 
 export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}){
-    let data=null,paired=false,view='home',campaignId=null,missionId=null,pendingStart=null,result=null,commandError=null,lastFocus=null;
+    let data=null,paired=false,view='home',campaignId=null,missionId=null,pendingStart=null,pendingLeave=false,result=null,commandError=null,lastFocus=null;
     const live=()=>LIVE.has(status());
     const root=node('div',{id:'main-menu',class:'game-menu',role:'dialog','aria-modal':'true','aria-labelledby':'main-menu-title'});
     const panel=node('div',{class:'game-menu-panel'});root.append(panel);
@@ -40,6 +40,19 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
         }
         e.stopPropagation();
     });
+    // The age gate and the setup wizard sit above the menu and keep their own keys and focus.
+    const above=()=>['ageOverlay','wizardOverlay'].some(id=>{const e=document.getElementById(id);return e&&!e.classList.contains('hidden')&&getComputedStyle(e).display!=='none';});
+    const focusMenu=()=>(panel.querySelector('[data-menu-list] button:not([disabled]):not([aria-disabled]), .game-menu-actions button:not([disabled]), .game-menu-back')||panel.querySelector('button'))?.focus({preventScroll:true});
+    // Focus can sit outside the menu (after the wizard closes, or a click on the page behind): a key from there
+    // must not reach the engine's document-level shortcuts. Capture on window runs before every other listener.
+    const guard=e=>{
+        if(root.hidden||above()||root.contains(e.target))return;
+        e.stopImmediatePropagation();e.preventDefault();
+        if(e.type==='keydown')focusMenu();
+    };
+    for(const type of ['keydown','keyup','keypress'])window.addEventListener(type,guard,true);
+    const refocus=e=>{if(!root.hidden&&!above()&&!root.contains(e.target))queueMicrotask(focusMenu);};
+    document.addEventListener('focusin',refocus);
 
     const campaign=()=>data?.campaigns?.find(c=>c.id===campaignId)||null;
     const mission=()=>campaign()?.missions.find(m=>m.id===missionId)||null;
@@ -56,7 +69,7 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
             subtitle?node('p',{class:'game-menu-sub',text:subtitle}):null);
     }
     function statusLine(){
-        const text=commandError||data?.error||data?.notice||(!paired?'Connecting to the companion service… Campaign needs it; Freeplay works without it.':null);
+        const text=commandError||(pendingLeave?'Leaving the mission…':null)||data?.error||data?.notice||(!paired?'Connecting to the companion service… Campaign needs it; Freeplay works without it.':null);
         return text?node('p',{class:'game-menu-status',role:'status',text}):null;
     }
     function renderHome(){
@@ -66,13 +79,16 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
             tile('Campaign','Story missions with the companions of Project EdgeLoop.',()=>go('campaigns')),
             tile('Freeplay','Every companion, every setting. EdgeLoop AI as you know it.',freeplay),
             tile('Companion Builder','Coming soon',null,true));
-        return [header('Main menu','Choose how you want to play.'),list];
+        // Only an error or a pending leave shows here; the connecting notice belongs to the Campaign screens.
+        return [header('Main menu','Choose how you want to play.'),commandError||pendingLeave?statusLine():null,list];
     }
     // Freeplay carries no campaign rules: a mission in progress is left first (completed missions and rewards stay).
     function freeplay(){
         const active=data?.active,m=active&&data.campaigns.find(c=>c.id===active.campaign)?.missions.find(x=>x.id===active.mission);
         if(m){if(!confirm(`Freeplay leaves the mission in progress (${m.title}). Completed missions and rewards are kept. Continue?`))return;
-            send({version:1,type:'campaign',action:'abandon'});}
+            // The menu stays until the observer confirms the mission was left: until then its rules still apply.
+            if(!send({version:1,type:'campaign',action:'abandon'})){commandError='The companion service could not be reached, so the mission is still in progress.';render();return;}
+            pendingLeave=true;commandError=null;render();return;}
         close();
     }
     function renderCampaigns(){
@@ -208,13 +224,14 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
 
     open('home');
     return {
-        connected(value){paired=value;if(value)send({version:1,type:'campaign',action:'get'});render();},
+        connected(value){paired=value;if(!value&&pendingLeave){pendingLeave=false;commandError='The companion service disconnected, so the mission may still be in progress.';}if(value)send({version:1,type:'campaign',action:'get'});render();},
         receive(m){
             if(m.type==='campaign_state'){
                 data=m;commandError=m.command_error||null;
                 if(pendingStart&&m.active?.mission===pendingStart.mission&&!m.command_error){campaignId=pendingStart.campaign;missionId=pendingStart.mission;pendingStart=null;view='briefing';}
                 else if(pendingStart&&m.command_error)pendingStart=null;
                 if(view==='briefing'&&!m.active&&!m.command_error)view='missions';
+                if(pendingLeave){pendingLeave=false;if(!m.active&&!m.command_error){render();renderBanner();close();return;}}
                 render();renderBanner();
             } else if(m.type==='mission_result'){
                 result=m;toast=m;
@@ -225,6 +242,6 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
             }
         },
         isOpen:()=>!root.hidden,
-        destroy(){clearInterval(liveTimer);root.remove();banner.remove();menuButton.remove();}
+        destroy(){clearInterval(liveTimer);for(const type of ['keydown','keyup','keypress'])window.removeEventListener(type,guard,true);document.removeEventListener('focusin',refocus);root.remove();banner.remove();menuButton.remove();}
     };
 }

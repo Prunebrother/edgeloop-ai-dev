@@ -202,11 +202,18 @@ def verified_values(field,canonical,told,trigger,completed,result_key=None):
         values.update(record[result_key or field] for record in completed if record.get(result_key or field) is not None)
     return values
 
-# A campaign mission's target, worded as a target: "two of the five edges I asked for" states the target, not the count.
-TARGET_WORDING=re.compile(r"\b(?:out of|of (?:the|my|your|those|these)|ask(?:ed|ing)?(?: you)? for|requir\w*|assessment|mission|objective|quota|assignment|target|goal)\b",re.I)
+# A campaign mission's target in a target phrase: "two of the five edges", "out of five edges", "the five edges I
+# asked for". Only the number in that phrase is exempt; "five edges for my assessment" is still a count.
+TARGET_BEFORE=re.compile(r"\b(?:out\s+of|of(?:\s+(?:the|my|your|those|these|all))?|short\s+of(?:\s+the)?|toward(?:s)?(?:\s+the)?)\s+$",re.I)
+TARGET_AFTER=re.compile(r"^\s+(?:(?:that\s+)?(?:I|you|we)\s+(?:asked\s+for|required|requested|need(?:ed)?|set)|(?:required|requested|needed|asked\s+for|to\s+go)\b)",re.I)
+
+def target_phrase(clause,match):
+    return bool(TARGET_BEFORE.search(clause[:match.start()]) or TARGET_AFTER.search(clause[match.end():]))
 
 def measurement_violations(clean,canonical,told,trigger,completed,user_text,targets=()):
     codes=[];completed=list(completed or ())
+    # "my" marks someone else's numbers ("my patients"), but in a mission "my assessment" is this session's.
+    if targets:clean=re.sub(r"\bmy\s+(?=(?:mission|test|assessment|evaluation|certification|orientation)\b)",'the ',clean,flags=re.I)
     edges=verified_values('edges',canonical,told,trigger,completed);pauses=verified_values('pauses',canonical,told,trigger,completed)
     seconds=verified_values('seconds',canonical,told,trigger,completed,'active_running_seconds')
     for sentence in re.findall(r'[^.!?\n]+(?:\.\d+[^.!?\n]*)*[.!?\n]?',clean):
@@ -221,7 +228,7 @@ def measurement_violations(clean,canonical,told,trigger,completed,user_text,targ
                 for match in pattern.finditer(clause):
                     said=spoken_number(match[1])
                     if said==1 and re.search(r'\bthe\s+$',clause[:match.start()],re.I):continue
-                    if said in targets and TARGET_WORDING.search(clause):continue
+                    if said in targets and target_phrase(clause,match):continue
                     if past_session:
                         if VERIFIABLE_PAST.search(sentence) and said not in {record.get('edges') for record in completed}:codes.append('unsupported_completed_edges')
                         continue
@@ -756,14 +763,24 @@ MISSION_DONE=re.compile(r"\b(?:cleared|passed|completed|finished|aced|nailed|con
     r"|\b"+_MISSION_WORD+r"\b[^.!?]{0,30}?\b(?:is|was|['’]s|has been|now)\s+(?:now\s+|officially\s+|finally\s+)?(?:complete|completed|done|passed|over|finished|closed|secured|sealed|wrapped)\b"
     r"|\b(?:you(?:['’]ve| have)?\s+)?earned\s+(?:that|the|your)\s+(?:certification|title)\b",re.I)
 MISSION_NOT_YET=re.compile(r"\b(?:not|never|yet|almost|nearly|once|when|if|until|till|before|unless|could|would|will|might|let['’]s|see if|whether|close to|on the way|toward|towards)\b|n['’]t\b|['’]ll\b",re.I)
+EARLIER_MISSION=re.compile(r"\b(?:earlier|previous|last|prior|other)\s+(?:\w+\s+)?"+_MISSION_WORD+r"\b",re.I)
+MISSION_CLAUSES=re.compile(r"[,;:—–]|\s(?:but|and|so|yet|while|though|although|whereas)\s",re.I)
 
 def campaign_violations(text,summary):
-    """While a mission is still open, a claim that it is done is false; a mission card must say something."""
+    """While a mission is still open, a claim that it is done is false; a mission card must say something.
+    Qualifiers count only in the clause that makes the claim, and a clause about another mission is not this one."""
     codes=[]
     if summary.get('campaign_state')=='active':
+        others=[o.casefold() for o in summary.get('campaign_others') or ()]
         for sentence in re.findall(r'[^.!?\n]+[.!?\n]?',text or ''):
-            if MISSION_DONE.search(sentence) and not MISSION_NOT_YET.search(sentence) and not sentence.rstrip().endswith('?'):
+            if sentence.rstrip().endswith('?'):continue
+            for clause in MISSION_CLAUSES.split(sentence):
+                match=MISSION_DONE.search(clause)
+                if not match or MISSION_NOT_YET.search(clause[:match.end()+12]):continue
+                folded=clause.casefold()
+                if EARLIER_MISSION.search(clause) or any(re.search(r'\b'+re.escape(o)+r'\b',folded) for o in others):continue
                 codes.append('premature_mission_complete');break
+            if codes:break
     card=summary.get('deck_card') or {}
     if card.get('campaign') and len(re.findall(r"[A-Za-z']+",text or ''))<6:codes.append('campaign_card_too_short')
     return codes

@@ -46,7 +46,8 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
     manager=ModelManager(endpoint,store=store,transport=transport)
     manager.verified_journal=journal  # trusted internal reference; no new public endpoint
     manager.config=manager.config.model_copy(update={'thinking':False,'explicit_expressions':runtime_config.explicit_expressions})
-    manager.current_summary=state.summary
+    # Refreshed at inference dispatch and validation: telemetry and the campaign brief alike.
+    manager.current_summary=lambda:state.summary()|speech.campaign_fields()
     director=ObserverDirector(DirectorConfig.model_validate(store.read('director.json',{})),clock=clock)
     queues=set();owner=None;expires=clock()+pairing_lifetime;model_lock=asyncio.Lock()
     def publish(message):
@@ -60,8 +61,13 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
             else:q.put_nowait(message)
     speech=ConversationService(state,publish,adapter or manager,clock=clock,director=director)
     # The companion is told about the mission it leads, and reacts to verified mission moments; it never decides them.
-    speech.campaign_brief=lambda:campaign.model_context(manager.config.model,state.report if state.fresh() else None)
-    speech.campaign_speaker=lambda:character_identity(manager.config.model)
+    # A custom character on a built-in companion's model is its own persona: it never plays that companion's missions.
+    def persona():
+        character=getattr(manager,'character',None)
+        return 'custom:'+character.identity if character else manager.config.model
+    speech.campaign_brief=lambda:campaign.model_context(persona(),state.report if state.fresh() else None)
+    speech.campaign_speaker=lambda:character_identity(persona())
+    speech.campaign_cue_valid=campaign.cue_valid
     speech.policy=SpeechPolicy(event_responses=True)
 
     async def interrupt():
@@ -296,7 +302,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         speech.process_derived()
                         speech.settings_observe()
                         accepted_kinds=[e.kind for e in message.events if e.id in state.accepted_event_ids]
-                        for update in campaign.observe(state.report,accepted_kinds,manager.config.model):publish(update)
+                        for update in campaign.observe(state.report,accepted_kinds,persona()):publish(update)
                         for cue in campaign.take_cues():speech.campaign_cue(cue)
                         speech.settings.allowed=campaign.allowed_settings()
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
@@ -307,9 +313,9 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             if message.action=='start':campaign.start(message.campaign_id,message.mission_id,state.report)
                             elif message.action=='abandon':campaign.abandon()
                             speech.settings.allowed=campaign.allowed_settings()
-                            publish(campaign.state(state.report,manager.config.model))
+                            publish(campaign.state(state.report,persona()))
                         except (ValueError,OSError) as exc:
-                            publish(campaign.state(state.report,manager.config.model)|{'command_error':str(exc)[:240] if isinstance(exc,ValueError) else 'Campaign progress could not be saved; nothing changed.'})
+                            publish(campaign.state(state.report,persona())|{'command_error':str(exc)[:240] if isinstance(exc,ValueError) else 'Campaign progress could not be saved; nothing changed.'})
                     elif isinstance(message,ConfigureCurator):
                         try:
                             speech.curator.configure(message.config)

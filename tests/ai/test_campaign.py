@@ -179,7 +179,8 @@ def test_five_edges_must_fall_in_one_session(tmp_path):
 ])
 def test_an_orgasm_reported_through_the_engine_counts_once(tmp_path, final):
     svc = _to(tmp_path, 'country_connections')
-    out = run(svc, 'daisy', report(sid='c'), report(sid='c', **{('orgasms' if 'orgasms' in final else 'completion_reported'): list(final.values())[0]}))
+    mode = 'classic' if 'orgasms' in final else 'survival'
+    out = run(svc, 'daisy', report(sid='c', mode=mode), report(sid='c', mode=mode, **final))
     assert results(out)[0]['earned'][0]['id'] == 'celeste'
 
 
@@ -540,6 +541,9 @@ def test_the_card_task_says_what_happened_and_not_to_repeat_the_script():
     ('You have reached five edges.', 2, True),          # a count, not a target: the engine says two
     ('You have reached five edges.', 5, False),
     ('You have reached seven edges for the assessment.', 2, True),  # not the target either
+    ('You have reached five edges for my assessment.', 2, True),   # Codex: a count, whatever the word nearby
+    ('Five edges for the mission, done.', 2, True),
+    ('Three more and you will have the five edges I asked for.', 2, False),
 ])
 def test_a_mission_target_may_be_named_as_a_target_but_never_as_the_count(text, edges, flagged):
     from companion_ai.fidelity import violations
@@ -620,6 +624,9 @@ async def test_a_mission_card_does_not_play_when_it_should_not(setup):
     ('Once you finish the mission, we can talk.', False),
     ('Do you think you have passed the test?', False),
     ('The engine keeps running, and so do you.', False),
+    # Codex: a qualifier elsewhere in the sentence does not soften the claim.
+    ('The mission is complete, but we are not stopping.', True),
+    ('You have passed the test, and I will reward you.', True),
 ])
 def test_an_open_mission_is_never_declared_done(text, flagged):
     from companion_ai.fidelity import campaign_violations
@@ -646,3 +653,180 @@ async def test_after_completion_only_the_mission_card_hears_about_it():
     s.campaign_brief = lambda: {'text': 'Verified by EdgeLoop: the mission is complete and saved.', 'targets': [5], 'state': 'completed'}
     play_only(s, 'edge-count-first'); s.pump(); await s.task
     assert 'complete and saved' not in prompt(wire)
+
+
+# ---- Codex review 2026-11-16
+
+def test_calibration_edged_after_a_cancelled_finished_me_does_not_certify(tmp_path):
+    """Finished me sets the report flag before its confirm; cancel, then Edged, leaves it set with no orgasm."""
+    svc = _to(tmp_path, 'certification')
+    run(svc, 'nova', calibrate(sid='f'), calibrate(sid='f', completion_reported=True), calibrate(sid='f', edges=1, completion_reported=True, calibration_saved=True))
+    out = svc.observe(calibrate(sid='f', status='IDLE', edges=1, completion_reported=True, calibration_saved=True, terminal_outcome='calibration_completed'),
+                      ['completion_accepted'], MODEL['nova'])
+    assert results(out) == [] and states(svc)['certification'] == 'active'
+
+
+def test_a_flag_and_a_counter_in_consecutive_frames_are_one_orgasm(tmp_path):
+    svc = _to(tmp_path, 'directors_test')
+    run(svc, 'celeste', report(sid='d', mode='survival'), report(sid='d', mode='survival', completion_reported=True),
+        report(sid='d', mode='survival', orgasms=1, completion_reported=True))
+    assert svc.state()['attempt']['objectives'][-1]['progress'] == 1
+    svc2 = _to(tmp_path / 'b', 'directors_test')
+    run(svc2, 'celeste', report(sid='d', mode='survival'), report(sid='d', mode='survival', orgasms=1),
+        report(sid='d', mode='survival', orgasms=1, completion_reported=True))
+    assert svc2.state()['attempt']['objectives'][-1]['progress'] == 1
+
+
+@pytest.mark.parametrize('change', [{'sim': True}, {'ble': False}, {'toy': False}])
+def test_edges_made_after_switching_to_the_simulator_or_losing_a_device_do_not_count(tmp_path, change):
+    svc = service(tmp_path)
+    svc.start(CID, 'orientation')
+    out = run(svc, 'nova', report(sid='a'), report(sid='a', edges=1, **change), report(sid='a', edges=1))
+    assert results(out) == [] and svc.state()['attempt']['objectives'][-1]['progress'] == 0
+    assert results(run(svc, 'nova', report(sid='a', edges=2)))
+
+
+def test_a_completion_waiting_for_its_save_survives_the_next_session(tmp_path):
+    svc = service(tmp_path)
+    svc.start(CID, 'orientation')
+    real = svc.store.write
+    def broken(*args): raise OSError('disk full')
+    svc.store.write = broken
+    assert results(run(svc, 'nova', report(sid='a'), report(sid='a', edges=1))) == []
+    svc.store.write = real
+    [result] = results(run(svc, 'nova', report(sid='b')))
+    assert result['mission'] == 'orientation'
+    assert [c['kind'] for c in svc.take_cues()] == ['mission_complete']
+    assert states(service(tmp_path))['orientation'] == 'completed'
+
+
+def test_a_progress_file_holding_null_is_invalid_and_kept(tmp_path):
+    (tmp_path / PROGRESS_FILE).write_text('null')
+    svc = service(tmp_path)
+    assert svc.error
+    with pytest.raises(ValueError): svc.start(CID, 'orientation')
+    assert (tmp_path / PROGRESS_FILE).read_text() == 'null'
+
+
+def test_a_goal_cue_goes_stale_when_its_try_resets_or_is_abandoned(tmp_path):
+    svc = _to(tmp_path, 'directors_test'); svc.take_cues()
+    run(svc, 'celeste', report(sid='d'), report(sid='d', edges=5))
+    [cue] = svc.take_cues()
+    assert svc.cue_valid(cue)
+    run(svc, 'celeste', report(sid='d', edges=5, status='IDLE'))
+    assert not svc.cue_valid(cue), 'the session ended without the orgasm; same session id'
+    svc2 = _to(tmp_path / 'b', 'directors_test'); svc2.take_cues()
+    run(svc2, 'celeste', report(sid='d'), report(sid='d', edges=5))
+    [cue] = svc2.take_cues()
+    svc2.abandon()
+    assert not svc2.cue_valid(cue)
+
+
+def test_a_completion_cue_stays_valid_for_its_session(tmp_path):
+    svc = service(tmp_path)
+    svc.start(CID, 'orientation')
+    run(svc, 'nova', report(sid='a'), report(sid='a', edges=1))
+    [cue] = svc.take_cues()
+    assert svc.cue_valid(cue) and svc.cue_valid(cue | {'session_id': 'a'})
+    assert not svc.cue_valid(cue | {'session_id': 'b'})
+
+
+def test_talk_of_an_earlier_mission_is_not_a_claim_about_this_one():
+    from companion_ai.fidelity import campaign_violations
+    summary = {'campaign_state': 'active', 'campaign_others': ['First Assessment', 'Mission 2', 'evelyn', 'Voss']}
+    for text in ("You passed Evelyn's assessment with ease.", 'The First Assessment is complete, and now you face me.',
+                 'You completed the earlier test; this one is harder.', 'Dr. Voss says her test is done.'):
+        assert campaign_violations(text, summary) == [], text
+    assert campaign_violations("You passed Evelyn's assessment, and you have passed my test too.", summary) == ['premature_mission_complete']
+
+
+def test_the_brief_names_the_other_missions_for_the_check(tmp_path):
+    others = brief(_to(tmp_path, 'directors_test'), 'celeste', report(status='IDLE'))['others']
+    assert 'First Assessment' in others and 'Mission 2' in others and 'evelyn' in others and 'Voss' in others
+    assert "The Director's Test" not in others and 'celeste' not in others
+
+
+def test_a_custom_character_on_a_companion_model_is_not_that_companion(tmp_path):
+    """Codex: Wren running on Daisy's model completed Daisy's mission and got her brief."""
+    from companion_ai.conversation import character_identity
+    svc = CampaignService(SettingsStore(tmp_path), identity=character_identity)
+    svc.start(CID, 'orientation')
+    assert results(svc.observe(report(sid='a'), [], 'custom:wren')) == []
+    assert results(svc.observe(report(sid='a', edges=1), [], 'custom:wren')) == []
+    assert svc.model_context('custom:wren', report(sid='a')) is None
+    assert svc.state()['attempt']['session_id'] is None
+
+
+def test_the_observer_resolves_the_persona_for_the_campaign(tmp_path):
+    from types import SimpleNamespace
+    from ai_observer.server import create_app
+    from tests.fork.test_observer import TOKEN
+    app = create_app(TOKEN, tmp_path)
+    app.state.models.config = app.state.models.config.model_copy(update={'model': 'nova-narrative-f29-v011:latest'})
+    app.state.campaign.start(CID, 'orientation')
+    assert app.state.speech.campaign_speaker() == 'nova'
+    app.state.models.character = SimpleNamespace(identity='wren')
+    assert app.state.speech.campaign_speaker() == 'generic'
+    assert app.state.speech.campaign_fields()['campaign_context'] is None
+
+
+def protect(r, **safety):
+    r.state['safety'].update(safety); r.step(None, seconds=1)
+
+
+@pytest.mark.parametrize('setup', ['watchdog', 'no_contact', 'signal_lost', 'emergency_event', 'safety_stop', 'goal_after_end'])
+async def test_a_mission_card_waits_out_protection_and_never_follows_an_emergency_stop(setup):
+    from tests.ai.test_event_deck_content import service as speech
+    r, s, wire, frames = await speech(identity='evelyn', edges=5, seconds=200)
+    s.deck()._start_done = True
+    s.campaign_speaker = lambda: 'evelyn'
+    cue = cue_for(s, kind='objective_reached' if setup == 'goal_after_end' else 'mission_complete')
+    s.campaign_cue(cue)
+    if setup == 'watchdog': protect(r, watchdog_paused=True)
+    if setup == 'no_contact': protect(r, no_contact=True)
+    if setup == 'signal_lost': protect(r, fault='signal_lost')
+    if setup == 'emergency_event': s.safety('emergency_stop')
+    if setup in {'safety_stop', 'goal_after_end'}:
+        r.state.update(status='IDLE')
+        r.state['details']['terminal_outcome'] = 'safety_stop' if setup == 'safety_stop' else 'manual_stop'
+        r.step(None, seconds=1)
+    before = len(wire)
+    s.pump()
+    if s.task: await s.task
+    assert not any(path == '/api/chat' and 'mission' in b['messages'][-1]['content'] for path, b in wire[before:])
+
+
+async def test_a_completion_may_still_be_told_just_after_calibration_ends():
+    from tests.ai.test_event_deck_content import service as speech, prompt
+    r, s, wire, frames = await speech(identity='evelyn', edges=5, seconds=200)
+    s.deck()._start_done = True
+    s.campaign_speaker = lambda: 'evelyn'
+    s.campaign_cue(cue_for(s))
+    r.state.update(status='IDLE'); r.state['details']['terminal_outcome'] = 'calibration_completed'; r.step(None, seconds=1)
+    s.pump(); await s.task
+    assert 'just completed your mission' in prompt(wire)
+
+
+async def test_a_stale_cue_is_dropped_by_the_speech_service():
+    from tests.ai.test_event_deck_content import service as speech
+    r, s, wire, frames = await speech(identity='evelyn', edges=5, seconds=200)
+    s.deck()._start_done = True
+    s.campaign_speaker = lambda: 'evelyn'
+    s.campaign_cue_valid = lambda cue: False   # the try reset, or the mission was abandoned
+    s.campaign_cue(cue_for(s, kind='objective_reached'))
+    s.pump()
+    assert not s.campaign_cards
+
+
+async def test_the_brief_is_refreshed_when_the_reply_is_generated():
+    """Codex: a reply queued at two of five edges was generated after the mission completed, with the old brief."""
+    from tests.ai.test_event_deck_content import service as speech, prompt
+    r, s, wire, _ = await speech(identity='evelyn', edges=2, seconds=200)
+    told = [EVELYN_BRIEF]
+    s.campaign_brief = lambda: told[0]
+    base = s.adapter.current_summary
+    s.adapter.current_summary = lambda: base() | s.campaign_fields()
+    assert s.request('How am I doing?', user=True)['accepted']
+    told[0] = None   # the mission was abandoned before dispatch
+    await s.task
+    assert 'CAMPAIGN MISSION' not in prompt(wire)

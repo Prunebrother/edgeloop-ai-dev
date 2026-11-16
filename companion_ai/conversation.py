@@ -409,7 +409,7 @@ class ConversationService:
         self.settings=SettingsControl(clock=clock);self.settings_cards=deque(maxlen=4)
         # Campaign: the observer sets these. campaign_brief() is the mission brief for the current model (or None);
         # campaign_speaker() names the companion of the current model. Cards are verified mission moments.
-        self.campaign_brief=lambda:None;self.campaign_speaker=lambda:None;self.campaign_cards=deque(maxlen=4)
+        self.campaign_brief=lambda:None;self.campaign_speaker=lambda:None;self.campaign_cue_valid=lambda cue:True;self.campaign_cards=deque(maxlen=4)
         # Per session: the orgasm count whose next round has been started, and the change made for it.
         self.rounds_started={};self.round_changes={}
         self.deck_settings=DeckSettings();self.deck_settings_error=None;self.deck_faults={};self.deck_definition=None;self.deck_registry=None
@@ -1074,19 +1074,41 @@ class ConversationService:
         if result['accepted']:self.settings_cards.popleft();self.director.last_reason='settings_card'
         return result['accepted']
 
+    def campaign_fields(self):
+        """The mission brief as summary fields, always all three keys: a refresh at dispatch replaces a stale
+        brief and clears one that no longer applies."""
+        brief=self.campaign_brief()
+        if not brief:return {'campaign_context':None,'campaign_targets':[],'campaign_state':None,'campaign_others':[]}
+        return {'campaign_context':brief['text'],'campaign_targets':brief.get('targets',[]),'campaign_state':brief['state'],'campaign_others':brief.get('others',[])}
+
     def campaign_cue(self,cue):
         """A verified mission moment from the campaign. Only the mission's own companion reacts to it."""
         if cue.get('companion')!=self.campaign_speaker():return
         self.campaign_cards.append(dict(cue,sent_at=self.clock()))
+
+    def campaign_card_allowed(self,cue):
+        """Checked before a mission card starts and again before it is delivered: the moment is still true for
+        this companion and session, and nothing protective, quiet or stopped stands in the way."""
+        report=getattr(self.state,'report',None)
+        if not report or cue['session_id']!=report['session_id'] or cue['companion']!=self.campaign_speaker() or not self.campaign_cue_valid(cue):return False
+        if self.closed or not self.policy.enabled or not self.policy.event_responses or getattr(self.state,'emergency',False):return False
+        if self.director.memory['quiet_requested'] or not self.director.config.spontaneous_enabled:return False
+        if not getattr(self.state,'fresh',lambda:True)():return False
+        safety=report.get('safety') or {}
+        if safety.get('watchdog_paused') or safety.get('no_contact') or safety.get('fault') in {'signal_lost','no_contact'}:return False
+        if report['status'] not in {'RUNNING','PAUSED','RAMPDOWN'}:
+            # After the session: only a completion (Calibration's Finished me, Came Early), never after an Emergency stop.
+            return cue['kind']=='mission_complete' and (report.get('details') or {}).get('terminal_outcome')!='safety_stop'
+        return True
 
     def pump_campaign_card(self,now):
         """The companion reacts, in its own words, to a mission moment the campaign verified. Like other commentary
         it waits for quiet requests, safety, an active turn and the card spacing; a stale or switched-away cue is dropped."""
         report=getattr(self.state,'report',None)
         while self.campaign_cards and (not report or self.campaign_cards[0]['session_id']!=report['session_id'] or now-self.campaign_cards[0]['sent_at']>120
-                                       or self.campaign_cards[0]['companion']!=self.campaign_speaker()):
+                                       or self.campaign_cards[0]['companion']!=self.campaign_speaker() or not self.campaign_cue_valid(self.campaign_cards[0])):
             self.campaign_cards.popleft()
-        if not self.campaign_cards or self.director.memory['quiet_requested'] or now<self.deck_hold_until:return False
+        if not self.campaign_cards or now<self.deck_hold_until or not self.campaign_card_allowed(self.campaign_cards[0]):return False
         if self.task is not None and not self.task.done():return False
         cue=self.campaign_cards[0]
         event={'kind':CAMPAIGN_CARD,'at':now,'priority':30,'session_id':cue['session_id'],'source_status':report['status'],
@@ -1118,6 +1140,8 @@ class ConversationService:
         self.publish({"type": "speech_cancel", "generation": self.generation})
 
     def safety(self, reason):
+        # A safety event outranks a mission remark: goal cards are dropped, and everything after an Emergency stop.
+        self.campaign_cards=deque((c for c in self.campaign_cards if c['kind']=='mission_complete' and reason!='emergency_stop'),maxlen=4)
         self.sync_narrative()
         self.narrative.event(reason)
         retained=[e for e in self.pending if reason=='stop' and e['kind'] in {'came_early','completion_accepted','session_ended'}]
@@ -1349,8 +1373,7 @@ class ConversationService:
         if event:summary['director_turn']={k:event.get(k) for k in ('kind','session_id','source_status','observer_epoch')} | {'session_id':event.get('session_id',getattr(self.state,'session_id',None)),'observer_epoch':event.get('observer_epoch',getattr(self.state,'connection_epoch',None))}
         summary['narrative_initiative']=bool(event and event.get('narrative'))
         recent_changes=self.settings.recent(getattr(self.state,'session_id',None))
-        brief=self.campaign_brief()
-        if brief:summary['campaign_context']=brief['text'];summary['campaign_targets']=brief.get('targets',[]);summary['campaign_state']=brief['state']
+        summary|=self.campaign_fields()
         if recent_changes:summary['ai_settings_recent']=recent_changes[-3:]
         if user and settings_result:
             kind,entry=settings_result
@@ -1456,8 +1479,7 @@ class ConversationService:
         if event.get('kind')==SETTINGS_CARD:
             return event.get('session_id')==getattr(self.state,'session_id',None) and not self.director.memory['quiet_requested']
         if event.get('kind')==CAMPAIGN_CARD:
-            # Calibration's Finished me and Came Early end the session, so a completion may be told just after it.
-            return event.get('session_id')==getattr(self.state,'session_id',None) and not self.director.memory['quiet_requested'] and self.director.config.spontaneous_enabled
+            return self.campaign_card_allowed((summary.get('deck_card') or {}).get('campaign') or {'session_id':None,'companion':None,'kind':None})
         if event.get('kind') in PLAYER_EVENTS:
             return (not event.get('session_id') or event['session_id']==self.state.session_id) and not self.director.memory['quiet_requested'] and self.director.config.spontaneous_enabled and player_current(event,report)
         if event and event.get('kind') not in {'completion_accepted','came_early','session_ended'} and report['status']=='IDLE' and not (event.get('kind') in SELECTION_EVENTS and event.get('source_status')=='IDLE'):return False

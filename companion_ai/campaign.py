@@ -37,8 +37,10 @@ EngineMode = Literal['classic', 'finisher', 'milker', 'shortener', 'headplay', '
                      'survival', 'oracle', 'edgetrain', 'calibrate']
 SettingName = Literal['play_style', 'game', 'endgame', 'orgasm', 'intensity', 'pause', 'stop']
 LIVE = {'RUNNING', 'PAUSED', 'RAMPDOWN'}
+MISSING = object()
 # Objectives that are story moments when reached; the setup items before a session are not.
 GOAL_TYPES = {'edge_count', 'orgasm_count', 'calibration_completed', 'calibration_saved'}
+COMPANION_ALIASES = {'evelyn': ('Voss',), 'daisy': ('Harper', 'Cloverfield'), 'celeste': ('IRRA',)}
 MODE_WORDS = {'calibrate': 'Calibration', 'edgetrain': 'Edge Training'}
 
 
@@ -282,6 +284,12 @@ class Attempt:
         self.completed = False
         self.reset_reason = None
         self.cued = set()
+        # Orgasm reports seen in this session (all of them, credited or not), and the flag reports among them.
+        self.seen_orgasms = self.flags = self.base_orgasms = 0
+        # All objectives met but not yet saved: kept until the save succeeds, whatever the next report says.
+        self.pending = False
+        # Bumped on every reset, so a cue from an earlier try is recognised as stale.
+        self.generation = 0
 
     def view(self, report=None, companion_ok=False):
         live = {'hr_monitor_connected': real_hr(report), 'toy_connected': toy_ready(report)}
@@ -311,8 +319,9 @@ class CampaignService:
         # Verified mission moments for the companion to react to; the observer hands them to the speech service.
         self.cues = []
         try:
-            raw = store.read(PROGRESS_FILE, None)
-            self.progress = Progress.model_validate(migrate(raw)) if raw is not None else Progress(schema_version=SCHEMA_VERSION)
+            raw = store.read(PROGRESS_FILE, MISSING)
+            # Only a missing file starts fresh; every existing file, even one holding null, must validate.
+            self.progress = Progress(schema_version=SCHEMA_VERSION) if raw is MISSING else Progress.model_validate(migrate(raw))
         except (ValueError, OSError, ValidationError):
             self.progress = Progress(schema_version=SCHEMA_VERSION)
             self.error = 'Campaign progress could not be read. The file was left as it is and the campaign is unavailable; Freeplay is not affected.'
@@ -411,6 +420,7 @@ class CampaignService:
         return {'kind': kind, 'campaign': campaign.id, 'campaign_title': campaign.title, 'mission': mission.id,
                 'mission_title': mission.title, 'order': mission.order, 'companion': mission.companion,
                 'session_id': session_id, 'objective': objective.label if objective else None,
+                'generation': self.attempt.generation if self.attempt else None,
                 'campaign_complete': bool(kind == 'mission_complete' and self.finished and self.finished['campaign_complete'])}
 
     def take_cues(self):
@@ -460,8 +470,11 @@ class CampaignService:
         if block and block.director_context: lines.append(block.director_context)
         lines.append('If the participant asks what to do or how they are doing, answer from these lines. '
                      'Speak of the mission in your own words, as part of the story; do not quote its title like a label.')
+        # How another mission is named, so talk of an earlier one is not read as a claim about this one.
+        others = sorted({w for m in campaign.missions if m.id != mission.id for w in (m.title, f'Mission {m.order}')}
+                        | {w for m in campaign.missions if m.companion != companion for w in (m.companion, *COMPANION_ALIASES.get(m.companion, ()))})
         return {'companion': companion, 'mission': mission.id, 'state': 'active', 'text': '\n'.join(lines),
-                'targets': sorted({o.count for o in goals if o.type == 'edge_count' and o.count})}
+                'targets': sorted({o.count for o in goals if o.type == 'edge_count' and o.count}), 'others': others}
 
     def abandon(self):
         progress = self.progress.model_copy(deep=True)
@@ -475,6 +488,12 @@ class CampaignService:
         """Called after the observer accepted an observation. Returns messages to publish (state changes, results)."""
         if self.error or not self.attempt or self.attempt.completed or not report: return []
         attempt, mission = self.attempt, self.attempt.mission
+        if attempt.pending:
+            # A completion that could not be saved is retried first; no later report can undo it.
+            result = self._complete(attempt)
+            if not result: return []
+            self.cues.append(self._cue('mission_complete', mission, attempt.session_id))
+            return [self.state(report, model), result]
         before = json.dumps(attempt.view(report, False), sort_keys=True)
         companion_ok = self.identity(model) == mission.companion
         sid, status, d = report.get('session_id'), report.get('status'), details(report)
@@ -485,31 +504,44 @@ class CampaignService:
         # Adopt the mission session: running, with the mission's companion, a real heart-rate monitor, a toy
         # and the required engine mode. Each condition is the engine's own reported state.
         if attempt.session_id is None and status == 'RUNNING' and companion_ok:
-            mode_ok = not mission.session or not mission.session.active_mode or report.get('active_mode') == mission.session.active_mode
-            if real_hr(report) and toy_ready(report) and mode_ok:
+            if real_hr(report) and toy_ready(report) and self._mode_ok(mission, report):
                 attempt.session_id = sid
                 attempt.last_edges, attempt.last_orgasms = report.get('edges', 0), d.get('orgasm_count') or 0
+                attempt.base_orgasms = attempt.last_orgasms
                 attempt.reported = bool(d.get('completion_reported'))
                 attempt.reset_reason = None
                 for o in mission.objectives:
                     if o.type in {'hr_monitor_connected', 'toy_connected', 'session_started'}: attempt.done[o.id] = True
         if attempt.session_id == sid and attempt.session_id is not None:
             edges, orgasms = report.get('edges', 0), d.get('orgasm_count') or 0
+            # Evidence counts only while every mission condition still holds: the mission companion, a real
+            # heart-rate monitor (not the simulator), a toy and the mission's mode. Activity without them only
+            # moves the baselines on, so it can never count later.
+            eligible = companion_ok and real_hr(report) and toy_ready(report) and self._mode_ok(mission, report)
+            # Survival's Finished me raises no counter, so its report flag counts there and only there: in
+            # Calibration the flag is set before Finished me is confirmed, and a cancel then Edged leaves it set.
+            survival_flag = bool(d.get('completion_reported')) and report.get('active_mode') == 'survival'
+            if survival_flag and not attempt.reported: attempt.flags += 1
+            attempt.reported = attempt.reported or survival_flag
+            if 'came_early' in kinds: attempt.flags += 1
+            # One report can raise the counter and set the flag in different frames: take the larger, never the sum.
+            # (A rise of 0 to 1 here and a flag there is one orgasm; two different reports may then count as one.)
+            session_orgasms = max(max(orgasms, attempt.last_orgasms) - attempt.base_orgasms, attempt.flags)
+            new_orgasms = max(0, session_orgasms - attempt.seen_orgasms)
+            attempt.seen_orgasms += new_orgasms
+            new_edges = max(0, edges - attempt.last_edges)
+            if eligible:
+                attempt.edges += new_edges
+                attempt.orgasms += new_orgasms
             # Counters only grow inside a session; an IDLE reset to 0 must not count backwards or double.
-            counted = max(0, orgasms - attempt.last_orgasms)
-            # Survival's Finished me and Came Early report an orgasm without raising orgasm_count; each counts once.
-            if not counted and (d.get('completion_reported') and not attempt.reported or 'came_early' in kinds): counted = 1
-            attempt.reported = attempt.reported or bool(d.get('completion_reported'))
-            if companion_ok:
-                attempt.edges += max(0, edges - attempt.last_edges)
-                attempt.orgasms += counted
             attempt.last_edges, attempt.last_orgasms = max(attempt.last_edges, edges), max(attempt.last_orgasms, orgasms)
             calibrated = d.get('terminal_outcome') == 'calibration_completed' or 'completion_accepted' in kinds
+            ended_ok = companion_ok and real_hr(report) and self._mode_ok(mission, report)
             for o in mission.objectives:
                 if o.type == 'edge_count' and attempt.edges >= o.count: attempt.done[o.id] = True
                 if o.type == 'orgasm_count' and attempt.orgasms >= o.count: attempt.done[o.id] = True
-                if o.type == 'calibration_completed' and calibrated and companion_ok: attempt.done[o.id] = True
-                if o.type == 'calibration_saved' and calibrated and companion_ok and d.get('calibration_saved') is True:
+                if o.type == 'calibration_completed' and calibrated and ended_ok: attempt.done[o.id] = True
+                if o.type == 'calibration_saved' and calibrated and ended_ok and d.get('calibration_saved') is True:
                     metric = d.get('dual_max_bpm') if d.get('calibration_pass') == 'dual' else d.get('single_max_bpm')
                     if isinstance(metric, int):
                         attempt.done[o.id] = True
@@ -533,10 +565,24 @@ class CampaignService:
             out.insert(0, self.state(report, model))
         return out
 
+    @staticmethod
+    def _mode_ok(mission, report):
+        return not mission.session or not mission.session.active_mode or report.get('active_mode') == mission.session.active_mode
+
+    def cue_valid(self, cue):
+        """Is a queued mission moment still true? A completion stays true for its session; a goal reached
+        belongs to one try, so a reset, an abandon or a completed mission makes it stale."""
+        if self.error: return False
+        if cue['kind'] == 'mission_complete':
+            return bool(self.finished and self.finished['mission'] == cue['mission'] and self.finished['session_id'] == cue['session_id'])
+        attempt = self.attempt
+        return bool(attempt and not attempt.completed and attempt.mission.id == cue['mission'] and attempt.session_id == cue['session_id']
+                    and attempt.generation == cue.get('generation'))
+
     def _reset(self, attempt, reason):
         attempt.session_id = None; attempt.done = {}; attempt.edges = attempt.orgasms = 0
         attempt.last_edges = attempt.last_orgasms = None; attempt.reported = False; attempt.metric = None; attempt.reset_reason = reason
-        attempt.cued = set()
+        attempt.cued = set(); attempt.seen_orgasms = attempt.flags = attempt.base_orgasms = 0; attempt.generation += 1
 
     def _complete(self, attempt):
         """Persist first, then announce. A failed write announces nothing and retries on the next observation."""
@@ -567,6 +613,7 @@ class CampaignService:
         try:
             self._save(progress)
         except (ValueError, OSError):
+            attempt.pending = True
             self.notice = 'Mission complete, but progress could not be saved. Check free disk space; it will be saved on the next update.'
             logger.warning('Campaign progress could not be saved')
             return None
