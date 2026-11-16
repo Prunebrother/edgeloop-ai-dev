@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "id": "asterion_initiative",
+  "order": 1,
+  "title": "The Asterion Initiative",
+  "description": "Join Asterion's research initiative, meet its specialists, complete introductory assignments, and begin your journey through the EdgeLoop universe.",
+  "artwork": null,
+  "available_from_start": true,
+  "starting_companions": [
+    "nova"
+  ],
+  "missions": [
+    {
+      "id": "orientation",
+      "order": 1,
+      "title": "Orientation",
+      "companion": "nova",
+      "difficulty": "introductory",
+      "summary": "Nova welcomes you to Project EdgeLoop and walks you through your first session.",
+      "objectives": [
+        {
+          "id": "hr",
+          "type": "hr_monitor_connected",
+          "label": "Connect your heart-rate monitor"
+        },
+        {
+          "id": "toy",
+          "type": "toy_connected",
+          "label": "Connect your toy"
+        },
+        {
+          "id": "start",
+          "type": "session_started",
+          "label": "Start a session with Nova"
+        },
+        {
+          "id": "edge",
+          "type": "edge_count",
+          "count": 1,
+          "label": "Reach 1 edge"
+        }
+      ],
+      "rewards": [
+        {
+          "type": "unlock_companion",
+          "id": "evelyn",
+          "label": "Dr. Evelyn Voss joins the campaign"
+        }
+      ],
+      "story": {
+        "chapter": 1,
+        "tags": [
+          "introduction"
+        ]
+      }
+    },
+    {
+      "id": "first_assessment",
+      "order": 2,
+      "title": "First Assessment",
+      "companion": "evelyn",
+      "difficulty": "introductory",
+      "prerequisites": [
+        "orientation"
+      ],
+      "summary": "Dr. Evelyn Voss needs repeated edges for her prolonged-edging study.",
+      "objectives": [
+        {
+          "id": "hr",
+          "type": "hr_monitor_connected",
+          "label": "Connect your heart-rate monitor"
+        },
+        {
+          "id": "toy",
+          "type": "toy_connected",
+          "label": "Connect your toy"
+        },
+        {
+          "id": "start",
+          "type": "session_started",
+          "label": "Start a session with Evelyn"
+        },
+        {
+          "id": "edges",
+          "type": "edge_count",
+          "count": 5,
+          "label": "Reach 5 edges in this session"
+        }
+      ],
+      "rewards": [
+        {
+          "type": "unlock_companion",
+          "id": "daisy",
+          "label": "Daisy Mae Harper joins the campaign"
+        }
+      ],
+      "story": {
+        "chapter": 2,
+        "tags": [
+          "asterion"
+        ]
+      }
+    },
+    {
+      "id": "country_connections",
+      "order": 3,
+      "title": "Country Connections",
+      "companion": "daisy",
+      "difficulty": "introductory",
+      "prerequisites": [
+        "first_assessment"
+      ],
+      "summary": "Daisy welcomes you to Cloverfield Farm and its production quota.",
+      "objectives": [
+        {
+          "id": "hr",
+          "type": "hr_monitor_connected",
+          "label": "Connect your heart-rate monitor"
+        },
+        {
+          "id": "toy",
+          "type": "toy_connected",
+          "label": "Connect your toy"
+        },
+        {
+          "id": "start",
+          "type": "session_started",
+          "label": "Start a session with Daisy"
+        },
+        {
+          "id": "orgasm",
+          "type": "orgasm_count",
+          "count": 1,
+          "label": "Have 1 orgasm and report it"
+        }
+      ],
+      "rewards": [
+        {
+          "type": "unlock_companion",
+          "id": "celeste",
+          "label": "Celeste joins the campaign"
+        }
+      ],
+      "hints": [
+        "An orgasm counts when you report it in EdgeLoop: I came, Finished me or Came Early."
+      ],
+      "story": {
+        "chapter": 3,
+        "tags": [
+          "cloverfield"
+        ]
+      }
+    },
+    {
+      "id": "directors_test",
+      "order": 4,
+      "title": "The Director's Test",
+      "companion": "celeste",
+      "difficulty": "standard",
+      "prerequisites": [
+        "country_connections"
+      ],
+      "summary": "Celeste runs her own evaluation of your potential.",
+      "objectives": [
+        {
+          "id": "hr",
+          "type": "hr_monitor_connected",
+          "label": "Connect your heart-rate monitor"
+        },
+        {
+          "id": "toy",
+          "type": "toy_connected",
+          "label": "Connect your toy"
+        },
+        {
+          "id": "start",
+          "type": "session_started",
+          "label": "Start a session with Celeste"
+        },
+        {
+          "id": "edges",
+          "type": "edge_count",
+          "count": 5,
+          "label": "Reach 5 edges in this session"
+        },
+        {
+          "id": "orgasm",
+          "type": "orgasm_count",
+          "count": 1,
+          "label": "Have 1 orgasm in the same session"
+        }
+      ],
+      "rewards": [
+        {
+          "type": "milestone",
+          "id": "assessments_passed",
+          "label": "All four assessments passed"
+        }
+      ],
+      "hints": [
+        "Both counts must happen in one session. If the session ends first, the next session starts again from zero."
+      ],
+      "story": {
+        "chapter": 4,
+        "tags": [
+          "irra"
+        ]
+      }
+    },
+    {
+      "id": "certification",
+      "order": 5,
+      "title": "Asterion Certification",
+      "companion": "nova",
+      "difficulty": "standard",
+      "prerequisites": [
+        "directors_test"
+      ],
+      "summary": "Nova sets your baseline: a Calibration run that saves your maximum heart rate.",
+      "session": {
+        "active_mode": "calibrate",
+        "label": "Calibration"
+      },
+      "settings_control": {
+        "allowed": [
+          "intensity"
+        ]
+      },
+      "objectives": [
+        {
+          "id": "hr",
+          "type": "hr_monitor_connected",
+          "label": "Connect your heart-rate monitor"
+        },
+        {
+          "id": "toy",
+          "type": "toy_connected",
+          "label": "Connect your toy"
+        },
+        {
+          "id": "start",
+          "type": "session_started",
+          "label": "Start a Calibration session with Nova"
+        },
+        {
+          "id": "orgasm",
+          "type": "orgasm_count",
+          "count": 1,
+          "label": "Finish the run with Finished me"
+        },
+        {
+          "id": "calibrated",
+          "type": "calibration_completed",
+          "label": "Complete the Calibration run"
+        },
+        {
+          "id": "saved",
+          "type": "calibration_saved",
+          "label": "Save your maximum heart rate"
+        }
+      ],
+      "rewards": [
+        {
+          "type": "milestone",
+          "id": "baseline_established",
+          "label": "Baseline metrics established"
+        },
+        {
+          "type": "campaign_complete",
+          "id": "asterion_initiative",
+          "label": "The Asterion Initiative complete"
+        }
+      ],
+      "hints": [
+        "Choose Calibration in EdgeLoop (Calibrate button), then press play.",
+        "Edged saves your max before an orgasm but ends the run without one; certification needs the run to end with Finished me.",
+        "During this mission Nova may only change the intensity. You can stop at any time."
+      ],
+      "story": {
+        "chapter": 5,
+        "tags": [
+          "certification"
+        ]
+      }
+    }
+  ]
+}

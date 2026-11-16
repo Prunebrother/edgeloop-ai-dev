@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "campaign": "asterion_initiative",
+  "status": "draft",
+  "missions": {
+    "orientation": {
+      "briefing": {
+        "speaker": "nova",
+        "lines": [
+          "Welcome to Project EdgeLoop. I'm Nova, ASTERION-SYN/07, the Institute's resident synthetic, and today I'm your guide.",
+          "Here's the short version. For decades, male fertility has been falling worldwide, and birth rates with it. The IRRA funds Project EdgeLoop to find out why, and Asterion is one of its leading laboratories.",
+          "Your screening results flagged you as a possible Proven Breeder: one of very few men whose numbers stand out. The program is voluntary. You decide how far you go, and you can stop whenever you like.",
+          "A session works like this: you connect your heart-rate monitor and your toy, start a session, and EdgeLoop reads your heart rate and keeps you near the edge. What we need most is consistent data, session after session.",
+          "For today, one edge is enough. Connect your gear, start a session, and let's see you get there."
+        ]
+      },
+      "completion": {
+        "speaker": "nova",
+        "lines": [
+          "There it is: your first confirmed edge, logged and timestamped. Clean data on the very first try. I could get used to that.",
+          "Dr. Evelyn Voss has asked to see you next. Stay with me as long as you like, or end the session and go and meet her."
+        ]
+      }
+    },
+    "first_assessment": {
+      "briefing": {
+        "speaker": "evelyn",
+        "lines": [
+          "Dr. Evelyn Voss, Asterion reproductive physiology. Nova tells me your orientation went well. Let's find out whether that holds up.",
+          "My working hypothesis is that prolonged edging, held over repeated cycles, is associated with greater reproductive vigor. It is a hypothesis, not a finding, and my colleagues are not shy about saying so. Data is how I settle that argument.",
+          "So I need repetition. Five confirmed edges in one session, with your heart rate recorded throughout. Connect your monitor and your toy, start a session with me, and give me something worth publishing."
+        ]
+      },
+      "completion": {
+        "speaker": "evelyn",
+        "lines": [
+          "Five edges, cleanly recorded. That is a usable dataset, which is more than most first assessments give me.",
+          "I'm approving you for further prolonged-edging studies. Daisy Mae Harper at Cloverfield Farm has asked to meet you; carry on here if you like, or end the session when you're ready to go."
+        ]
+      }
+    },
+    "country_connections": {
+      "briefing": {
+        "speaker": "daisy",
+        "lines": [
+          "Well, hey there! Daisy Mae Harper, Cloverfield Farm. Welcome out to the country, sugar.",
+          "Cloverfield's been in my family four generations, and these days we run a donor program under contract with Project EdgeLoop. The contract comes with quotas, and the quotas keep the lights on, so I take 'em seriously.",
+          "Evelyn's been bragging about her new candidate, and I can see why. Today's simple: hook up your monitor and your toy, start a session with me, and when you finish, tell EdgeLoop so it counts. One good finish is all I'm asking."
+        ]
+      },
+      "completion": {
+        "speaker": "daisy",
+        "lines": [
+          "Now that's what I like to see. One finish, reported and on the books, and it goes straight onto Cloverfield's tally.",
+          "Celeste from the IRRA wants a word with you next, and she doesn't like to be kept waiting. You're welcome to stay out here with me a while first."
+        ]
+      }
+    },
+    "directors_test": {
+      "briefing": {
+        "speaker": "celeste",
+        "lines": [
+          "Good. You're punctual. I'm Celeste. I hold an oversight remit for the IRRA across Project EdgeLoop, Asterion and Cloverfield included.",
+          "You understand the stakes. The fertility crisis is reshaping entire countries, and this program exists because conventional medicine has run out of answers. Funding depends on results, and results depend on candidates who can deliver.",
+          "Nova, Dr. Voss and Ms. Harper have each signed off on you. I prefer to form my own judgement.",
+          "In one session: five confirmed edges, then one confirmed orgasm. Connect your monitor and your toy and begin when you are ready."
+        ]
+      },
+      "completion": {
+        "speaker": "celeste",
+        "lines": [
+          "Five edges and a finish, in one session, as instructed.",
+          "Your potential appears sufficient. Marginally, by my standards, but sufficient. Nova will handle your certification. Continue if you wish; I'll be watching the numbers either way."
+        ]
+      }
+    },
+    "certification": {
+      "briefing": {
+        "speaker": "nova",
+        "lines": [
+          "Welcome back. You've passed every assessment. Celeste called your potential \"marginally sufficient\", which from her is practically a standing ovation.",
+          "One step left: your baseline. A Calibration run measures the heart rate where you finish, and EdgeLoop saves that as your maximum. Every future session tunes its difficulty to that number.",
+          "Choose Calibration in EdgeLoop and press play. When it finishes you, tap Finished me, and the number is saved. During this run I'll only touch the intensity. Everything else stays with Calibration, and you can stop whenever you want."
+        ]
+      },
+      "completion": {
+        "speaker": "nova",
+        "lines": [
+          "Baseline saved. Your certification is complete.",
+          "Thank you for everything you've given the program. Data like yours is how Project EdgeLoop might one day turn this crisis around. I'm proud of you, and I'll be here for whatever comes next."
+        ]
+      }
+    }
+  },
+  "campaign_complete": {
+    "speaker": "nova",
+    "lines": [
+      "The Asterion Initiative is complete. You are now a certified participant of Project EdgeLoop. More assignments will follow."
+    ]
+  }
+}

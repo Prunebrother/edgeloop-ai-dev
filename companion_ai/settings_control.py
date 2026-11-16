@@ -222,6 +222,8 @@ class SettingsControl:
         self.nudge_text=None
         self.task=None
         self.diagnostics={'status':'idle'}
+        # A campaign mission may limit which settings the companion can request (None: no limit).
+        self.allowed=None
 
     def nudge(self):
         """An edge makes an unprompted decision due sooner (pacing still applies)."""
@@ -247,6 +249,8 @@ class SettingsControl:
         self.last_decision=self.clock();self.nudge_text=None
         trigger='user' if user_text else 'round' if round_start else 'own'
         content=decision_content(report,user_text,self.recent(report['session_id']),round_start)
+        if self.allowed is not None:
+            content+='\nMission rule from EdgeLoop: during this mission only these changes are possible: '+', '.join(sorted(self.allowed))+'. Anything else is ignored; choose "none" instead.'
         self.diagnostics={'status':'deciding'}
         try:
             text=await adapter.decide_settings(content,Proposal.model_json_schema(),self.config.timeout_seconds)
@@ -257,6 +261,8 @@ class SettingsControl:
             self.diagnostics={'status':'failed','reason':type(exc).__name__};return None
         request=parse(text,report,trigger)
         if request is None:self.diagnostics={'status':'no_change'};return None
+        if self.allowed is not None and request['setting'] not in self.allowed:
+            self.diagnostics={'status':'restricted','setting':request['setting']};return None
         # A chat request is awaited by the reply (settled()), so the card path leaves it alone meanwhile.
         self.ledger[request['id']]={'request':request,'model':model,'sent_at':self.clock(),'status':'sent','outcome':{},'awaited':bool(user_text or round_start)}
         while len(self.ledger)>50:self.ledger.popitem(last=False)

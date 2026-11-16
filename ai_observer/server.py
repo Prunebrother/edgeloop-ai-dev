@@ -24,8 +24,10 @@ from companion_ai.event_intelligence import preset
 from companion_ai.models import AIConfig, SpeechPolicy, stored_config
 from companion_ai.storage import SettingsStore
 from companion_ai.session_journal import SessionJournal
+from companion_ai.campaign import CampaignService
+from companion_ai.conversation import character_identity
 from .config import RuntimeConfig, validate_ollama_url
-from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, JournalCommand, ConfigureCurator, SettingsOutcome, CharacterBuilderCommand, safe_validation_errors
+from .protocol import Auth, Messages, Observation, Chat, Select, Models, Cancel, ResetNarrative, CharacterState, ConfigureDirector, ConfigureEvents, ConversationActivity, ConfigureContext, UpdateObjective, JournalCommand, ConfigureCurator, SettingsOutcome, CharacterBuilderCommand, CampaignCommand, safe_validation_errors
 from .observation import BrowserObservation, ObserverDirector
 from companion_ai.character_builder import Library as CharacterLibrary, BuilderError, load_package, preview as character_preview
 from companion_ai.event_deck import load_definition
@@ -37,6 +39,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
     if not 32<=len(token)<=128: raise ValueError('A 32–128 character pairing token is required')
     store=SettingsStore(data_dir)
     journal=SessionJournal(store)
+    campaign=CampaignService(store,identity=character_identity)
     state=BrowserObservation(clock,journal=journal)
     runtime_config=RuntimeConfig.load()
     endpoint=validate_ollama_url(ollama_url) if ollama_url is not None else runtime_config.ollama_url
@@ -90,7 +93,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
 
     app=FastAPI(title='EdgeLoop read-only AI observer',lifespan=lifespan)
     app.add_middleware(TrustedHostMiddleware,allowed_hosts=['127.0.0.1','localhost','testserver'])
-    app.state.journal=journal;app.state.observation=state;app.state.models=manager;app.state.speech=speech;app.state.director=director
+    app.state.journal=journal;app.state.campaign=campaign;app.state.observation=state;app.state.models=manager;app.state.speech=speech;app.state.director=director
     @app.middleware('http')
     async def origin_guard(request:Request,call_next):
         if request.headers.get('origin') not in {None,*origins}:
@@ -289,9 +292,20 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                                 'evidence':'Session ended; use only the supplied counters and their completeness. Completion status is explicit user report or unknown, never inferred from measurements.'})
                         speech.process_derived()
                         speech.settings_observe()
+                        accepted_kinds=[e.kind for e in message.events if e.id in state.accepted_event_ids]
+                        for update in campaign.observe(state.report,accepted_kinds,manager.config.model):publish(update)
+                        speech.settings.allowed=campaign.allowed_settings()
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],
                             'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (closing or accepted_release or any(p['kind'] in {'came_early','completion_accepted'} for p in speech.pending) or speech.active_event_kind in {'came_early','completion_accepted'} and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
+                    elif isinstance(message,CampaignCommand):
+                        try:
+                            if message.action=='start':campaign.start(message.campaign_id,message.mission_id,state.report)
+                            elif message.action=='abandon':campaign.abandon()
+                            speech.settings.allowed=campaign.allowed_settings()
+                            publish(campaign.state(state.report,manager.config.model))
+                        except (ValueError,OSError) as exc:
+                            publish(campaign.state(state.report,manager.config.model)|{'command_error':str(exc)[:240] if isinstance(exc,ValueError) else 'Campaign progress could not be saved; nothing changed.'})
                     elif isinstance(message,ConfigureCurator):
                         try:
                             speech.curator.configure(message.config)
