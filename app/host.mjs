@@ -35,6 +35,8 @@ const MIME = {
     '.json': 'application/json; charset=utf-8',
     '.svg': 'image/svg+xml',
     '.png': 'image/png',
+    '.webp': 'image/webp',
+    '.woff2': 'font/woff2',
     '.webmanifest': 'application/manifest+json',
     '.mp4': 'video/mp4',
     '.webm': 'video/webm',
@@ -127,7 +129,9 @@ export function publicFile(rawPath, root) {
         || (parts.length === 1 && rel.startsWith('icon') && (ext === '.svg' || ext === '.png'))
         || (rel.startsWith('src/js/') && ext === '.js')
         || (rel.startsWith('src/css/') && ext === '.css')
-        || (rel.startsWith('src/assets/characters/') && (IMAGE.has(ext) || ext === '.svg'));
+        || (rel.startsWith('src/assets/characters/') && (IMAGE.has(ext) || ext === '.svg'))
+        // Menu art (backdrops, companion cut-outs, logo) and its one bundled font.
+        || (rel.startsWith('src/assets/menu/') && ['.webp', '.svg', '.woff2'].includes(ext));
     if (rel.startsWith('Character_Art/')) allowed = (IMAGE.has(ext) || ext === '.webm' || ext === '.mp4') && referencedArt(root).has(rel);
     if (!allowed) return null;
     let realRoot, target;

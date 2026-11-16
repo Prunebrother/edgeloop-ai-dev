@@ -123,6 +123,15 @@ describe('local app host', () => {
                 assert.ok(!/PRIVATE|OUTSIDE|vlcPassword/.test(body), p);
             }
             assert.equal(publicFile('/src/js/linked.js', root), null);
+            // Menu art: its curated file types only, with their content types.
+            fs.mkdirSync(path.join(root, 'src/assets/menu/fonts'), { recursive: true });
+            fs.writeFileSync(path.join(root, 'src/assets/menu/backdrop.webp'), 'img');
+            fs.writeFileSync(path.join(root, 'src/assets/menu/fonts/f.woff2'), 'font');
+            fs.writeFileSync(path.join(root, 'src/assets/menu/notes.md'), 'PRIVATE');
+            const art = await fetch(local.url.replace(/\/$/, '') + '/src/assets/menu/backdrop.webp');
+            assert.equal(art.status, 200);assert.equal(art.headers.get('content-type'), 'image/webp');
+            assert.equal((await fetch(local.url.replace(/\/$/, '') + '/src/assets/menu/fonts/f.woff2')).headers.get('content-type'), 'font/woff2');
+            assert.equal(publicFile('/src/assets/menu/notes.md', root), null);
         } finally {
             await local.close();
             fs.rmSync(base, { recursive: true, force: true });
