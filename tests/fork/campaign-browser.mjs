@@ -20,6 +20,10 @@ const progress=async()=>(await fetch(ai+'/fixture/campaign')).json();
 const saves=async ok=>(await fetch(ai+'/fixture/campaign/saves',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ok})})).json();
 const real=(edges,status='RUNNING')=>({session_id:'5e3d0c3a-0000-4000-8000-00000000c001',status,edges,active_mode:'classic',goal:'tease',
     devices:{hr_ready:true,ble:true,simulated_hr:false,toy_ready:true},details:{orgasm_count:0,calibration_pass:'none'}});
+const batch=async reports=>(await fetch(ai+'/fixture/campaign/evidence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({reports})})).json();
+const span=(from,to,intensity)=>Array.from({length:Math.floor((to-from)/5)+1},(_,i)=>tick(from+5*i,intensity));
+const seed=async mission=>(await fetch(ai+'/fixture/campaign/progress',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({campaign:CID,mission})})).json();
+const tick=(seconds,intensity,orgasms=0)=>({...real(0),session_id:'5e3d0c3a-0000-4000-8000-00000000c009',seconds,experience:'classic',intensity,details:{orgasm_count:orgasms,calibration_pass:'none'}});
 const menuView=()=>page.locator('#main-menu .game-menu-panel').getAttribute('data-view');
 try{
     await mkdir(out,{recursive:true});
@@ -81,10 +85,12 @@ try{
         await page.locator('[data-main-menu]').click();await page.locator('[data-menu-tile=campaign]').click();
         const card=page.locator('#main-menu .game-menu-card').first();
         await card.waitFor();const text=await card.textContent();
-        assert(text.includes('The Asterion Initiative')&&text.includes('0 of 5 missions completed'),'Campaign card '+text);
+        assert(text.includes('The Asterion Initiative')&&text.includes('0 of 9 missions completed'),'Campaign card '+text);
         await shot('menu-campaigns.png');await card.click();
         const states=await page.locator('.mission-card').evaluateAll(cards=>cards.map(c=>c.dataset.state));
-        assert(JSON.stringify(states)===JSON.stringify(['available','locked','locked','locked','locked']),'Mission states '+states);
+        assert(JSON.stringify(states)===JSON.stringify(['available',...Array(8).fill('locked')]),'Mission states '+states);
+        const chapters=await page.locator('.mission-chapter h2').allTextContents();
+        assert(JSON.stringify(chapters)===JSON.stringify(['Chapter 1: Introduction','Chapter 2: Advanced Research']),'Chapters '+chapters);
         assert((await page.locator('.mission-card').nth(1).textContent()).includes('Complete Orientation first'),'Lock reason');
         await shot('menu-missions.png');
     });
@@ -119,14 +125,14 @@ try{
     });
     await step('9. Progress survives a reload',async()=>{
         const saved=JSON.parse((await progress()).saved);
-        assert(saved.schema_version===1&&saved.campaigns[CID].missions.orientation.completions===1,'Saved progress');
+        assert(saved.schema_version===2&&saved.campaigns[CID].missions.orientation.completions===1,'Saved progress');
         await page.reload();
         await page.locator('#main-menu').waitFor({state:'visible'});
         await page.locator('[data-menu-tile=freeplay]').click();
         await page.locator('[data-url]').fill(ai.replace('http:','ws:')+'/observe');await page.locator('[data-token]').fill(TOKEN);await page.locator('[data-connect]').click();
         await page.waitForFunction(()=>document.querySelector('[data-model] option[value="evelyn:latest"]'));
         await page.locator('[data-main-menu]').click();await page.locator('[data-menu-tile=campaign]').click();
-        assert((await page.locator('#main-menu .game-menu-card').first().textContent()).includes('1 of 5'),'Reloaded progress');
+        assert((await page.locator('#main-menu .game-menu-card').first().textContent()).includes('1 of 9'),'Reloaded progress');
     });
     await step('14. Freeplay leaves an active mission without losing completed ones',async()=>{
         await page.locator('#main-menu .game-menu-card').first().click();
@@ -160,6 +166,38 @@ try{
         await page.locator('#sessionStopBtn').click();
         await page.waitForFunction(()=>!document.querySelector('[data-main-menu]').disabled);
     });
+    await step('Chapter 2: chapter progress, the staged assessment tracker, milestone lines and chapter completion',async()=>{
+        await seed('directors_reassessment');
+        await page.locator('[data-main-menu]').click();await page.locator('[data-menu-tile=campaign]').click();
+        const card=await page.locator('#main-menu .game-menu-card').first().textContent();
+        assert(card.includes('Chapter 1: Introduction · Complete')&&card.includes('Chapter 2: Advanced Research · 75%'),'Campaign card '+card);
+        await page.locator('#main-menu .game-menu-card').first().click();
+        const chapters=await page.locator('.mission-chapter').allTextContents();
+        assert(chapters[0].includes('Chapter complete · 100%')&&chapters[1].includes('3 of 4 missions · 75%'),'Chapter headings '+chapters);
+        await page.locator('.mission-card').nth(8).getByRole('button',{name:'Start mission'}).click();
+        await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='briefing');
+        const briefing=await page.locator('#main-menu').textContent();
+        assert(briefing.includes('Story draft')&&briefing.includes('○ Baseline: 75% · 0:00 / 10:00')&&briefing.includes('Final Assessment: 125%')&&briefing.includes('later: intensity, Force Orgasm'),'Briefing '+briefing.slice(900,2400));
+        await shot('chapter2-briefing.png');
+        await page.getByRole('button',{name:'Begin with Celeste'}).click();
+        await page.locator('#main-menu').waitFor({state:'hidden'});
+        await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('celeste'));
+        const first=await batch([...span(0,600,75),...span(605,700,100)]);assert(first.sent.filter(t=>t==='mission_milestone').length===2,'First batch '+JSON.stringify(first));
+        await page.waitForFunction(()=>[...document.querySelectorAll('.message-mission')].some(m=>m.textContent.includes('Baseline established')));
+        const banner=await page.locator('.mission-banner').textContent();
+        assert(banner.includes('✓ Baseline: 75% · 10:00 / 10:00')&&banner.includes('▸ Development: 100% · 1:35 / 10:00 (current)')&&banner.includes('11:35 of 30:00'),'Banner '+banner);
+        await shot('chapter2-banner.png');
+        await batch([...span(0,600,75),...span(605,1205,100),...span(1210,1810,125)]);
+        await page.waitForFunction(()=>[...document.querySelectorAll('.message-mission')].some(m=>m.textContent.includes('The assessment is complete')));
+        const sent=await batch([...span(0,600,75),...span(605,1205,100),...span(1210,1810,125),tick(1815,125,1)]);assert(sent.sent.includes('mission_result'),'No result '+sent.sent);
+        await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='results');
+        const results=await page.locator('#main-menu').textContent();
+        assert(results.includes('Campaign complete')&&results.includes('unknown agents')&&results.includes("That's Advanced Research done"),'Results '+results.slice(0,600));
+        await shot('chapter2-results.png');
+        const saved=JSON.parse((await progress()).saved).campaigns[CID];
+        assert(saved.chapters.advanced_research&&saved.chapters.introduction&&saved.completed_at,'Saved chapters');
+        await page.getByRole('button',{name:'Back to the session'}).click();
+    });
     await step('Phone width: no horizontal scroll',async()=>{
         await page.setViewportSize({width:390,height:844});
         await page.locator('[data-main-menu]').click();await page.locator('[data-menu-tile=campaign]').click();
@@ -169,7 +207,7 @@ try{
     });
     assert(errors.length===0,'Page errors: '+errors.join(' | '));
     report.passed=true;
-}catch(error){report.error=String(error);try{await page?.screenshot({path:path.join(out,'failure.png')});}catch{}}
+}catch(error){report.error=String(error?.stack||error);try{await page?.screenshot({path:path.join(out,'failure.png')});}catch{}}
 finally{
     await browser?.close();for(const child of children)child.kill('SIGTERM');
     await writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2));

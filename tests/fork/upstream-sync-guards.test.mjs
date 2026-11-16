@@ -157,7 +157,7 @@ test('the AI layer forwards settings requests only to the engine-side gate it wa
     assert.match(companion,/settingsControl\?\.mountPanel\?\.\(settingsSlot\)/);
     // character_builder (Character Builder editor results) is display data only; it carries no settings or engine command.
     // campaign_state and mission_result (Campaign screens) are display data only, like character_builder.
-    assert.match(read('src/js/ai/connection.js'),/'settings_request','character_builder','campaign_state','mission_result'\]\.includes\(m\.type\)\)this\.onMessage\(m\)/);
+    assert.match(read('src/js/ai/connection.js'),/'settings_request','character_builder','campaign_state','mission_result','mission_milestone','campaign_progress'\]\.includes\(m\.type\)\)this\.onMessage\(m\)/);
 });
 
 test('AI Settings modules import only the gate, the engine mode lists and session rules',()=>{

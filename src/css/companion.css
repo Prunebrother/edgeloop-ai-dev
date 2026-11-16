@@ -373,6 +373,11 @@ body.game-menu-open {overflow:hidden}
 .mission-brief {border:1px solid #253043;border-radius:16px;padding:16px 18px;background:#0f1626;margin-bottom:18px}
 .mission-brief h2 {font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#c4b5fd;margin:6px 0}
 .mission-hints {margin:8px 0;padding-left:18px;color:#a3b1c6;font-size:13px;line-height:1.55}
+.mission-stages {list-style:none;margin:2px 0 0;padding:0;color:#94a3b8;font-size:12px;line-height:1.45;font-variant-numeric:tabular-nums}
+.mission-chapter {padding:10px 2px 2px;border-top:1px solid rgba(148,163,184,.18)}
+.mission-chapter:first-child {border-top:0}
+.mission-chapter h2 {margin:0;font-size:15px;color:#e9d5ff}.mission-chapter p {margin:2px 0;color:#a3b1c6;font-size:13px}
+.mission-chapter[data-state="locked"] {opacity:.6}
 .game-menu-actions {display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .menu-button {min-height:36px}
 .mission-banner {margin:4px 22px 6px;display:grid;gap:8px}

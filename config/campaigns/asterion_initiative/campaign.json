@@ -9,6 +9,20 @@
   "starting_companions": [
     "nova"
   ],
+  "chapters": [
+    {
+      "number": 1,
+      "id": "introduction",
+      "title": "Introduction",
+      "summary": "Meet Project EdgeLoop, its specialists and your hardware, and earn your certification."
+    },
+    {
+      "number": 2,
+      "id": "advanced_research",
+      "title": "Advanced Research",
+      "summary": "Harder assignments: a larger dataset, a production quota, comparative testing and the Director's reassessment."
+    }
+  ],
   "missions": [
     {
       "id": "orientation",
@@ -95,7 +109,7 @@
         }
       ],
       "story": {
-        "chapter": 2,
+        "chapter": 1,
         "tags": [
           "asterion"
         ]
@@ -145,7 +159,7 @@
         "An orgasm counts when you report it in EdgeLoop: I came, Finished me or Came Early."
       ],
       "story": {
-        "chapter": 3,
+        "chapter": 1,
         "tags": [
           "cloverfield"
         ]
@@ -201,7 +215,7 @@
         "Both counts must happen in one session. If the session ends first, the next session starts again from zero."
       ],
       "story": {
-        "chapter": 4,
+        "chapter": 1,
         "tags": [
           "irra"
         ]
@@ -217,15 +231,6 @@
         "directors_test"
       ],
       "summary": "Nova sets your baseline: a Calibration run that saves your maximum heart rate.",
-      "session": {
-        "active_mode": "calibrate",
-        "label": "Calibration"
-      },
-      "settings_control": {
-        "allowed": [
-          "intensity"
-        ]
-      },
       "objectives": [
         {
           "id": "hr",
@@ -266,20 +271,291 @@
           "label": "Baseline metrics established"
         },
         {
-          "type": "campaign_complete",
-          "id": "asterion_initiative",
-          "label": "The Asterion Initiative complete"
+          "type": "chapter_complete",
+          "id": "introduction",
+          "label": "Chapter 1: Introduction complete"
         }
       ],
+      "session": {
+        "active_mode": "calibrate",
+        "label": "Calibration"
+      },
+      "settings_control": {
+        "allowed": [
+          "intensity"
+        ]
+      },
       "hints": [
         "Choose Calibration in EdgeLoop (Calibrate button), then press play.",
         "Edged saves your max before an orgasm but ends the run without one; certification needs the run to end with Finished me.",
         "During this mission Nova may only change the intensity. You can stop at any time."
       ],
       "story": {
-        "chapter": 5,
+        "chapter": 1,
         "tags": [
           "certification"
+        ]
+      }
+    },
+    {
+      "id": "endurance_study",
+      "order": 6,
+      "title": "The Endurance Study",
+      "companion": "evelyn",
+      "difficulty": "standard",
+      "prerequisites": [
+        "certification"
+      ],
+      "summary": "Dr. Voss wants a far larger dataset for her research into repeated edging cycles.",
+      "objectives": [
+        {
+          "id": "hr",
+          "type": "hr_monitor_connected",
+          "label": "Connect your heart-rate monitor"
+        },
+        {
+          "id": "toy",
+          "type": "toy_connected",
+          "label": "Connect your toy"
+        },
+        {
+          "id": "start",
+          "type": "session_started",
+          "label": "Start a session with Evelyn"
+        },
+        {
+          "id": "edges",
+          "type": "edge_count",
+          "count": 15,
+          "milestones": [
+            5,
+            10
+          ],
+          "label": "Reach 15 edges in one session"
+        }
+      ],
+      "rewards": [
+        {
+          "type": "milestone",
+          "id": "endurance_dataset",
+          "label": "Endurance dataset recorded"
+        }
+      ],
+      "hints": [
+        "All 15 edges must happen in one session. Pausing is fine; if the session ends first, the next one starts again from zero."
+      ],
+      "story": {
+        "chapter": 2,
+        "tags": [
+          "asterion"
+        ]
+      }
+    },
+    {
+      "id": "cloverfield_quota",
+      "order": 7,
+      "title": "The Cloverfield Quota",
+      "companion": "daisy",
+      "difficulty": "standard",
+      "prerequisites": [
+        "endurance_study"
+      ],
+      "summary": "Cloverfield Farm has a higher production quota to meet, and Daisy needs your help.",
+      "objectives": [
+        {
+          "id": "hr",
+          "type": "hr_monitor_connected",
+          "label": "Connect your heart-rate monitor"
+        },
+        {
+          "id": "toy",
+          "type": "toy_connected",
+          "label": "Connect your toy"
+        },
+        {
+          "id": "start",
+          "type": "session_started",
+          "label": "Start a session with Daisy"
+        },
+        {
+          "id": "orgasms",
+          "type": "orgasm_count",
+          "count": 2,
+          "milestones": [
+            1
+          ],
+          "label": "Report 2 orgasms in one session"
+        }
+      ],
+      "rewards": [
+        {
+          "type": "milestone",
+          "id": "cloverfield_quota",
+          "label": "Cloverfield quota contribution recorded"
+        }
+      ],
+      "hints": [
+        "An orgasm counts when you report it in EdgeLoop. I came keeps the session running, so use it for the first one; Came Early ends the session.",
+        "Both must happen in one session. Pausing between them is fine; if the session ends first, the next one starts again from zero."
+      ],
+      "story": {
+        "chapter": 2,
+        "tags": [
+          "cloverfield"
+        ]
+      }
+    },
+    {
+      "id": "adaptive_calibration",
+      "order": 8,
+      "title": "Adaptive Systems Calibration",
+      "companion": "nova",
+      "difficulty": "standard",
+      "prerequisites": [
+        "cloverfield_quota"
+      ],
+      "summary": "Nova needs comparative data: four different play styles, five minutes each.",
+      "objectives": [
+        {
+          "id": "hr",
+          "type": "hr_monitor_connected",
+          "label": "Connect your heart-rate monitor"
+        },
+        {
+          "id": "toy",
+          "type": "toy_connected",
+          "label": "Connect your toy"
+        },
+        {
+          "id": "start",
+          "type": "session_started",
+          "label": "Start a session with Nova"
+        },
+        {
+          "id": "styles",
+          "type": "style_stages",
+          "count": 4,
+          "seconds": 300,
+          "label": "Run 4 different play styles for 5 minutes each"
+        }
+      ],
+      "rewards": [
+        {
+          "type": "milestone",
+          "id": "adaptive_dataset",
+          "label": "Comparative dataset saved"
+        }
+      ],
+      "hints": [
+        "Choose any four play styles. Time counts only while the session runs with no game switched on; pauses do not count.",
+        "Switch play style whenever you like. Each style keeps its time, and one style fills only one stage.",
+        "All four stages must happen in one session."
+      ],
+      "story": {
+        "chapter": 2,
+        "tags": [
+          "asterion"
+        ]
+      }
+    },
+    {
+      "id": "directors_reassessment",
+      "order": 9,
+      "title": "The Director's Reassessment",
+      "companion": "celeste",
+      "difficulty": "challenge",
+      "prerequisites": [
+        "adaptive_calibration"
+      ],
+      "summary": "Celeste returns for a 30-minute staged assessment of your progress.",
+      "objectives": [
+        {
+          "id": "hr",
+          "type": "hr_monitor_connected",
+          "label": "Connect your heart-rate monitor"
+        },
+        {
+          "id": "toy",
+          "type": "toy_connected",
+          "label": "Connect your toy"
+        },
+        {
+          "id": "start",
+          "type": "session_started",
+          "label": "Start a session with Celeste"
+        },
+        {
+          "id": "assessment",
+          "type": "stage_sequence",
+          "label": "Complete the 30-minute staged assessment",
+          "tolerance": 2,
+          "stages": [
+            {
+              "id": "baseline",
+              "label": "Baseline",
+              "seconds": 600,
+              "intensity": 75
+            },
+            {
+              "id": "development",
+              "label": "Development",
+              "seconds": 600,
+              "intensity": 100
+            },
+            {
+              "id": "final",
+              "label": "Final Assessment",
+              "seconds": 600,
+              "intensity": 125
+            }
+          ]
+        },
+        {
+          "id": "finish",
+          "type": "orgasm_count",
+          "count": 1,
+          "after": "assessment",
+          "label": "Then report your orgasm"
+        }
+      ],
+      "rewards": [
+        {
+          "type": "chapter_complete",
+          "id": "advanced_research",
+          "label": "Chapter 2: Advanced Research complete"
+        },
+        {
+          "type": "campaign_complete",
+          "id": "asterion_initiative",
+          "label": "The Asterion Initiative complete"
+        }
+      ],
+      "settings_control": {
+        "allowed": [
+          "intensity"
+        ],
+        "after": "assessment",
+        "then_allowed": [
+          "intensity",
+          "orgasm"
+        ]
+      },
+      "review": [
+        "endurance_study",
+        "cloverfield_quota",
+        "adaptive_calibration"
+      ],
+      "hints": [
+        "Set the intensity yourself: 75% for the first 10 minutes, then 100%, then 125%. Within 2% counts.",
+        "The stage clock runs only while the session runs at the stage's intensity. Pausing or another level stops it; no time is lost.",
+        "After 30 minutes, report your orgasm (I came or Finished me). You may switch on Force Orgasm for it.",
+        "During this mission Celeste may only change the intensity, and Force Orgasm in the final phase, and only if you allowed AI Settings Control. You can pause or stop at any time.",
+        "Everything must happen in one session."
+      ],
+      "story": {
+        "chapter": 2,
+        "tags": [
+          "irra"
         ]
       }
     }

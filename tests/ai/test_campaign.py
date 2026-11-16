@@ -12,6 +12,7 @@ MODELS = {'nova-narrative-f29-v011:latest': 'nova', 'evelyn-narrative-f29-v013:l
           'mira-narrative-f29-v015:latest': 'mira'}
 MODEL = {v: k for k, v in MODELS.items()}
 ORDER = ['orientation', 'first_assessment', 'country_connections', 'directors_test', 'certification']
+CHAPTER2 = ['endurance_study', 'cloverfield_quota', 'adaptive_calibration', 'directors_reassessment']
 CID = 'asterion_initiative'
 
 
@@ -60,9 +61,9 @@ def test_the_shipped_campaign_loads_and_is_available_from_the_start(tmp_path):
     state = service(tmp_path).state()
     campaign = state['campaigns'][0]
     assert campaign['title'] == 'The Asterion Initiative' and campaign['available'] and not campaign['completed']
-    assert [m['id'] for m in campaign['missions']] == ORDER
-    assert [m['companion'] for m in campaign['missions']] == ['nova', 'evelyn', 'daisy', 'celeste', 'nova']
-    assert campaign['progress'] == {'completed': 0, 'total': 5}
+    assert [m['id'] for m in campaign['missions']] == ORDER + CHAPTER2
+    assert [m['companion'] for m in campaign['missions']] == ['nova', 'evelyn', 'daisy', 'celeste', 'nova', 'evelyn', 'daisy', 'nova', 'celeste']
+    assert campaign['progress'] == {'completed': 0, 'total': 9}
     assert campaign['narrative_status'] == 'approved'
     assert all(m['briefing'] for m in campaign['missions'])
 
@@ -104,7 +105,7 @@ def test_a_broken_campaign_is_skipped_and_the_others_still_load(tmp_path):
 
 def test_only_the_first_mission_is_available_at_the_start(tmp_path):
     assert states(service(tmp_path)) == {'orientation': 'available', 'first_assessment': 'locked', 'country_connections': 'locked',
-                                         'directors_test': 'locked', 'certification': 'locked'}
+                                         'directors_test': 'locked', 'certification': 'locked'} | {m: 'locked' for m in CHAPTER2}
     with pytest.raises(ValueError, match='locked'):
         service(tmp_path).start(CID, 'first_assessment')
 
@@ -222,10 +223,13 @@ def test_certification_completes_the_campaign_on_a_saved_finished_me_run(tmp_pat
     run(svc, 'nova', calibrate(sid='f'), calibrate(sid='f', orgasms=1, calibration_saved=True))
     [result] = results(svc.observe(calibrate(sid='f', status='IDLE', orgasms=1, calibration_saved=True, terminal_outcome='calibration_completed'),
                                    ['completion_accepted'], MODEL['nova']))
-    assert result['campaign_complete'] and result['campaign_completion']['speaker'] == 'nova'
-    assert result['records'] == {'calibration_pass': 'primary', 'calibrated_max_bpm': 150}
+    # Mission 5 now completes Chapter 1; its closing lines (approved text) are the chapter's.
+    assert not result['campaign_complete'] and result['chapter_complete'] == {'id': 'introduction', 'number': 1, 'title': 'Introduction'}
+    assert result['chapter_completion']['speaker'] == 'nova' and 'certified participant' in result['chapter_completion']['lines'][0]
+    assert {k: result['records'][k] for k in ('calibration_pass', 'calibrated_max_bpm')} == {'calibration_pass': 'primary', 'calibrated_max_bpm': 150}
     state = service(tmp_path).state()['campaigns'][0]
-    assert state['completed'] and state['progress'] == {'completed': 5, 'total': 5}
+    assert not state['completed'] and state['progress'] == {'completed': 5, 'total': 9}
+    assert [(c['completed'], c['progress']) for c in state['chapters']] == [(True, {'completed': 5, 'total': 5}), (False, {'completed': 0, 'total': 4})]
 
 
 def test_edged_saves_the_max_but_does_not_certify(tmp_path):
@@ -279,7 +283,7 @@ def test_progress_survives_a_restart(tmp_path):
     assert states(again)['orientation'] == 'completed' and states(again)['first_assessment'] == 'active'
     assert again.attempt and again.attempt.session_id is None  # a session never resumes across restarts
     saved = json.loads((tmp_path / PROGRESS_FILE).read_text())
-    assert saved['schema_version'] == 1 and saved['active']['mission'] == 'first_assessment'
+    assert saved['schema_version'] == 2 and saved['active']['mission'] == 'first_assessment'
     assert set(saved['campaigns'][CID]['rewards']) == {'unlock_companion:evelyn'}
 
 
@@ -412,7 +416,7 @@ def test_observer_websocket_runs_a_mission_end_to_end(tmp_path):
             time.sleep(.12)
             ws.send_json(frame(ready['epoch'], seq=2, state=state(seconds=1, hr=None)))
             # The campaign update is published before the observation is acknowledged.
-            assert until(ws, 'campaign_state', 3)['attempt']['session_id'] == sid
+            assert until(ws, 'campaign_progress', 3)['attempt']['session_id'] == sid
             assert until(ws, 'observation_ack', 3)['accepted']
             # The speech service sees the brief for Nova, built from the campaign's verified state.
             told = app.state.speech.campaign_brief()
@@ -512,8 +516,8 @@ def test_the_final_mission_cue_marks_the_campaign_complete(tmp_path):
     svc.observe(calibrate(sid='f', status='IDLE', orgasms=1, calibration_saved=True, terminal_outcome='calibration_completed'), ['completion_accepted'], MODEL['nova'])
     # Finished me raised the orgasm count before the run ended: still one card, not two.
     [cue] = svc.take_cues()
-    assert cue['kind'] == 'mission_complete' and cue['campaign_complete']
-    assert 'final mission' in brief(svc, 'nova', calibrate(sid='f', status='IDLE'))['text']
+    assert cue['kind'] == 'mission_complete' and not cue['campaign_complete'] and cue['chapter'] == 'Introduction'
+    assert 'completes the chapter "Introduction"' in brief(svc, 'nova', calibrate(sid='f', status='IDLE'))['text']
 
 
 def test_abandoning_drops_queued_cues(tmp_path):

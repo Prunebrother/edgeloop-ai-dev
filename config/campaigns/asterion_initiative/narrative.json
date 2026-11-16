@@ -150,15 +150,223 @@
           "I'm especially glad I get to keep working with you."
         ]
       }
+    },
+    "endurance_study": {
+      "briefing": {
+        "speaker": "evelyn",
+        "status": "draft",
+        "lines": [
+          "Welcome back. Do sit down.",
+          "I've been reviewing your first assessment. Promising. Also, statistically speaking, almost meaningless. Five observations is an anecdote, not a dataset.",
+          "My hypothesis on repeated edging cycles and reproductive vigor has attracted a great deal of attention. Most of it hostile. I intend to answer it with numbers.",
+          "So my standards have risen. Fifteen edges, in a single session, properly recorded.",
+          "Take your time, and pause if you need to. What I won't accept is sloppiness. Every edge must be real, and EdgeLoop will be the judge of that. Not you, and certainly not me.",
+          "Shall we begin?"
+        ]
+      },
+      "milestones": {
+        "start": {
+          "speaker": "evelyn",
+          "status": "draft",
+          "lines": [
+            "Recording. Begin whenever you're ready, and do try to be consistent."
+          ]
+        },
+        "edges:5": {
+          "speaker": "evelyn",
+          "status": "draft",
+          "lines": [
+            "Five. Your entire first assessment, matched already. Don't let it go to your head; we're a third of the way."
+          ]
+        },
+        "edges:10": {
+          "speaker": "evelyn",
+          "status": "draft",
+          "lines": [
+            "Ten edges. The curve is becoming genuinely interesting. Five more, and keep them clean."
+          ]
+        }
+      },
+      "completion": {
+        "speaker": "evelyn",
+        "status": "draft",
+        "lines": [
+          "Fifteen edges. Recorded, verified and, I'm pleased to say, remarkably consistent.",
+          "That is a substantially larger dataset than your first assessment, and a great deal more useful. It will be quite valuable for my studies. Thank you. I mean that.",
+          "I'm approving you for the next research assignment. Daisy has been asking about you, which I choose not to read anything into.",
+          "Continue the session if you like, or rest. You've earned either."
+        ]
+      }
+    },
+    "cloverfield_quota": {
+      "briefing": {
+        "speaker": "daisy",
+        "status": "draft",
+        "lines": [
+          "Well, howdy again, sugar! Come on in, and mind the boots by the door.",
+          "I won't lie to you: Cloverfield's in a bit of a pickle. Project EdgeLoop raised our production targets under the research contract, and the season's been leaner than I'd like.",
+          "Four generations of Harpers have never missed a quota, and I don't plan on being the first.",
+          "So here's what I need: two contributions, in one session. Take a breather in between if you need one; pausing's just fine.",
+          "It only counts when you tell EdgeLoop yourself. No guessing, and no fudging the books.",
+          "Ready to help a farm girl out?"
+        ]
+      },
+      "milestones": {
+        "start": {
+          "speaker": "daisy",
+          "status": "draft",
+          "lines": [
+            "That's the session on the books. Let's make Cloverfield proud!"
+          ]
+        },
+        "orgasms:1": {
+          "speaker": "daisy",
+          "status": "draft",
+          "lines": [
+            "That's one in the ledger, sugar! Catch your breath and take your time. One more and we've hit our number."
+          ]
+        }
+      },
+      "completion": {
+        "speaker": "daisy",
+        "status": "draft",
+        "lines": [
+          "Two! Well, would you look at that. Quota met!",
+          "You've done right by Cloverfield today, and I'll be telling Mama all about it. Well, the polite version.",
+          "Thank you, sugar. Truly. The farm's in good shape because of you.",
+          "Stay as long as you like, or head on home. Nova's been going on about some fancy new tests of hers, so I reckon she'll be calling you next."
+        ]
+      }
+    },
+    "adaptive_calibration": {
+      "briefing": {
+        "speaker": "nova",
+        "status": "draft",
+        "lines": [
+          "Hey, you! Come here, I've got something fun.",
+          "I've been staring at your data. In a perfectly professional way. Mostly.",
+          "Here's the thing: your sessions so far look a lot alike, and samey data teaches EdgeLoop almost nothing. If I want to personalise your training properly, I need comparisons.",
+          "So, an experiment! Pick four different play styles, any four you like, and give each one five minutes of real running time. Twenty minutes, all in one session.",
+          "Pauses don't count, games stay off, and each style only counts once. Switch whenever you like; I'll mind the stopwatch.",
+          "And if one of them isn't doing it for you, tell me. That's data too!"
+        ]
+      },
+      "milestones": {
+        "start": {
+          "speaker": "nova",
+          "status": "draft",
+          "lines": [
+            "Recording! Your first stage is whichever play style you're on, so make sure it's one you want to test."
+          ]
+        },
+        "styles:1": {
+          "speaker": "nova",
+          "status": "draft",
+          "lines": [
+            "Stage one, done! Five minutes logged. Switch to a new play style whenever you're ready."
+          ]
+        },
+        "styles:2": {
+          "speaker": "nova",
+          "status": "draft",
+          "lines": [
+            "Halfway there! Two styles down, two to go. Ooh, I'm already seeing differences."
+          ]
+        },
+        "styles:3": {
+          "speaker": "nova",
+          "status": "draft",
+          "lines": [
+            "Three stages complete! One more play style and the dataset is finished."
+          ]
+        }
+      },
+      "completion": {
+        "speaker": "nova",
+        "status": "draft",
+        "lines": [
+          "And that's stage four! Comparative dataset collected and saved.",
+          "Four configurations, twenty minutes, real data. EdgeLoop is going to know you so much better now. Honestly, so am I.",
+          "Thank you for being such a good sport. Seriously, this helps.",
+          "Oh, one more thing. Celeste asked for everyone's reports this morning. All of them. I'd get some rest if I were you."
+        ]
+      }
+    },
+    "directors_reassessment": {
+      "briefing": {
+        "speaker": "celeste",
+        "status": "draft",
+        "lines": [
+          "Sit.",
+          "I have read the reports. Dr. Voss's endurance study. Miss Harper's quota figures. Nova's comparative dataset. You have been busy.",
+          "Busy is not the same as capable. That is what I intend to determine.",
+          "This is a staged assessment: thirty minutes of active participation. You will set the intensity yourself. Ten minutes at seventy-five percent. Ten at one hundred. Ten at one hundred and twenty-five.",
+          "The clock runs only while the session runs at the level I have asked for. Pause, and it waits. Change the level, and it waits. Nothing is lost, and nothing is given.",
+          "When the final phase is complete, you will finish, and report it properly, as always.",
+          "You may stop at any time. I would simply prefer that you didn't."
+        ]
+      },
+      "milestones": {
+        "start": {
+          "speaker": "celeste",
+          "status": "draft",
+          "lines": [
+            "The assessment has begun. Set the intensity to seventy-five percent. Baseline first."
+          ]
+        },
+        "assessment:development": {
+          "speaker": "celeste",
+          "status": "draft",
+          "lines": [
+            "Baseline established. Set the intensity to one hundred percent. Development phase."
+          ]
+        },
+        "assessment:final": {
+          "speaker": "celeste",
+          "status": "draft",
+          "lines": [
+            "Adequate. Set the intensity to one hundred and twenty-five percent. This is the final assessment."
+          ]
+        },
+        "assessment:done": {
+          "speaker": "celeste",
+          "status": "draft",
+          "lines": [
+            "Thirty minutes. The assessment is complete.",
+            "Now you may finish. Switch on Force Orgasm if you wish, and report it when you are done."
+          ]
+        }
+      },
+      "completion": {
+        "speaker": "celeste",
+        "status": "draft",
+        "lines": [
+          "Recorded.",
+          "Thirty minutes at escalating intensity, completed and properly reported. Taken together with the reports from Asterion and Cloverfield, the picture is consistent. You are no longer merely promising. You are reliable.",
+          "I will be filing my assessment with the IRRA today. It will be favourable. Do not make me regret that.",
+          "Now, if you will excuse me. I have received reports of unknown agents snooping around Asterion and Cloverfield. That requires my attention. Now."
+        ]
+      }
     }
   },
-  "campaign_complete": {
-    "speaker": "nova",
-    "lines": [
-      "Congratulations! You are now a certified participant in Project EdgeLoop.",
-      "Your introductory assessments are complete, your baseline has been established, and your next chapter awaits.",
-      "The fertility crisis remains unsolved.",
-      "Our work has only just begun."
-    ]
+  "chapters": {
+    "introduction": {
+      "speaker": "nova",
+      "lines": [
+        "Congratulations! You are now a certified participant in Project EdgeLoop.",
+        "Your introductory assessments are complete, your baseline has been established, and your next chapter awaits.",
+        "The fertility crisis remains unsolved.",
+        "Our work has only just begun."
+      ]
+    },
+    "advanced_research": {
+      "speaker": "nova",
+      "status": "draft",
+      "lines": [
+        "That's Advanced Research done, darling! Evelyn's dataset, Daisy's quota, my experiment, and you survived Celeste. Twice!",
+        "But unknown agents? Around Asterion and Cloverfield? I don't like the sound of that one bit.",
+        "Whatever's coming next, we'll face it together. Get some rest. I have a feeling you're going to need it."
+      ]
+    }
   }
 }
