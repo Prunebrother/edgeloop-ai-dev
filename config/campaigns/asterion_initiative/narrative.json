@@ -247,7 +247,8 @@
           "I've been staring at your data. In a perfectly professional way. Mostly.",
           "Here's the thing: your sessions so far look a lot alike, and samey data teaches EdgeLoop almost nothing. If I want to personalise your training properly, I need comparisons.",
           "So, an experiment! Pick four different play styles, any four you like, and give each one five minutes of real running time. Twenty minutes, all in one session.",
-          "Pauses don't count, games stay off, and each style only counts once. Switch whenever you like; I'll mind the stopwatch.",
+          "Pauses don't count, games stay off, and each style only counts once. I'll mind the stopwatch.",
+          "If you've handed me the settings, I'll switch to a fresh style myself every time one has its five minutes. If not, the switching is all yours.",
           "And if one of them isn't doing it for you, tell me. That's data too!"
         ]
       },
@@ -263,21 +264,21 @@
           "speaker": "nova",
           "status": "draft",
           "lines": [
-            "Stage one, done! Five minutes logged. Switch to a new play style whenever you're ready."
+            "Stage one, done! Five minutes logged. On to a new play style!"
           ]
         },
         "styles:2": {
           "speaker": "nova",
           "status": "draft",
           "lines": [
-            "Halfway there! Two styles down, two to go. Ooh, I'm already seeing differences."
+            "Halfway there! Two styles down, two to go. Ooh, I'm already seeing differences. Next style, please!"
           ]
         },
         "styles:3": {
           "speaker": "nova",
           "status": "draft",
           "lines": [
-            "Three stages complete! One more play style and the dataset is finished."
+            "Three stages complete! One more new play style and the dataset is finished."
           ]
         }
       },
@@ -300,7 +301,8 @@
           "Sit.",
           "I have read the reports. Dr. Voss's endurance study. Miss Harper's quota figures. Nova's comparative dataset. You have been busy.",
           "Busy is not the same as capable. That is what I intend to determine.",
-          "This is a staged assessment: thirty minutes of active participation. You will set the intensity yourself. Ten minutes at seventy-five percent. Ten at one hundred. Ten at one hundred and twenty-five.",
+          "This is a staged assessment: thirty minutes of active participation, in three stages. Ten minutes at seventy-five percent intensity. Ten at one hundred. Ten at one hundred and twenty-five.",
+          "If you have given me control of the settings, I will set each level myself. If you have not, you will set it, precisely.",
           "The clock runs only while the session runs at the level I have asked for. Pause, and it waits. Change the level, and it waits. Nothing is lost, and nothing is given.",
           "When the final phase is complete, you will finish, and report it properly, as always.",
           "You may stop at any time. I would simply prefer that you didn't."
@@ -311,21 +313,21 @@
           "speaker": "celeste",
           "status": "draft",
           "lines": [
-            "The assessment has begun. Set the intensity to seventy-five percent. Baseline first."
+            "The assessment has begun. Baseline first: seventy-five percent."
           ]
         },
         "assessment:development": {
           "speaker": "celeste",
           "status": "draft",
           "lines": [
-            "Baseline established. Set the intensity to one hundred percent. Development phase."
+            "Baseline established. Development phase: one hundred percent."
           ]
         },
         "assessment:final": {
           "speaker": "celeste",
           "status": "draft",
           "lines": [
-            "Adequate. Set the intensity to one hundred and twenty-five percent. This is the final assessment."
+            "Adequate. The final assessment: one hundred and twenty-five percent."
           ]
         },
         "assessment:done": {
@@ -333,7 +335,7 @@
           "status": "draft",
           "lines": [
             "Thirty minutes. The assessment is complete.",
-            "Now you may finish. Switch on Force Orgasm if you wish, and report it when you are done."
+            "Now you may finish. Force Orgasm will see to it; I will switch it on if you have given me the settings, otherwise it is yours to press. Report it when you are done."
           ]
         }
       },
