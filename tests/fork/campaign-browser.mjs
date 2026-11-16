@@ -12,7 +12,7 @@ const uiPort=Number(process.env.EDGELOOP_CAMPAIGN_UI_PORT||8862),aiPort=Number(p
 const ui=`http://127.0.0.1:${uiPort}`,ai=`http://127.0.0.1:${aiPort}`,children=[],report={passed:false,physical_hardware:false,steps:[],screenshots:[]};
 const TOKEN='browser-fixture-token-'+'x'.repeat(32),CID='asterion_initiative';
 const assert=(x,m)=>{if(!x)throw Error(m);};
-let browser,page;
+let browser,page,errors=[];
 const step=async(name,fn)=>{await fn();report.steps.push(name);};
 const shot=async name=>{await page.screenshot({path:path.join(out,name)});report.screenshots.push(name);};
 const evidence=async(report,events=[])=>(await fetch(ai+'/fixture/campaign/evidence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({report,events})})).json();
@@ -37,7 +37,7 @@ try{
     const context=await browser.newContext({viewport:{width:1600,height:1000}});
     await context.addInitScript(()=>{const no=()=>Promise.reject(new DOMException('No physical hardware','NotFoundError'));
         Object.defineProperty(navigator,'bluetooth',{value:{requestDevice:no},configurable:true});Object.defineProperty(navigator,'serial',{value:{requestPort:no,getPorts:async()=>[]},configurable:true});});
-    page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    page=await context.newPage();errors=[];page.on('pageerror',e=>errors.push(e.message));
     const handy=[];
     await page.route('**/api/handy/v2/**',async route=>{const p=new URL(route.request().url()).pathname;handy.push(p);
         await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(p.endsWith('/connected')?{connected:true}:p.endsWith('/info')?{fwVersion:'3.2.3',model:'Handy 1.1'}:{result:0})});});
@@ -85,12 +85,12 @@ try{
         await page.locator('[data-main-menu]').click();await page.locator('[data-menu-tile=campaign]').click();
         const card=page.locator('#main-menu .game-menu-card').first();
         await card.waitFor();const text=await card.textContent();
-        assert(text.includes('The Asterion Initiative')&&text.includes('0 of 9 missions completed'),'Campaign card '+text);
+        assert(text.includes('The Asterion Initiative')&&text.includes('0 of 14 missions completed'),'Campaign card '+text);
         await shot('menu-campaigns.png');await card.click();
         const states=await page.locator('.mission-card').evaluateAll(cards=>cards.map(c=>c.dataset.state));
-        assert(JSON.stringify(states)===JSON.stringify(['available',...Array(8).fill('locked')]),'Mission states '+states);
+        assert(JSON.stringify(states)===JSON.stringify(['available',...Array(13).fill('locked')]),'Mission states '+states);
         const chapters=await page.locator('.mission-chapter h2').allTextContents();
-        assert(JSON.stringify(chapters)===JSON.stringify(['Chapter 1: Introduction','Chapter 2: Advanced Research']),'Chapters '+chapters);
+        assert(JSON.stringify(chapters)===JSON.stringify(['Chapter 1: Introduction','Chapter 2: Advanced Research','Chapter 3: Shadows of Helix','Chapter 4: Rise of Helix']),'Chapters '+chapters);
         assert((await page.locator('.mission-card').nth(1).textContent()).includes('Complete Orientation first'),'Lock reason');
         await shot('menu-missions.png');
     });
@@ -125,14 +125,14 @@ try{
     });
     await step('9. Progress survives a reload',async()=>{
         const saved=JSON.parse((await progress()).saved);
-        assert(saved.schema_version===2&&saved.campaigns[CID].missions.orientation.completions===1,'Saved progress');
+        assert(saved.schema_version===3&&saved.campaigns[CID].missions.orientation.completions===1,'Saved progress');
         await page.reload();
         await page.locator('#main-menu').waitFor({state:'visible'});
         await page.locator('[data-menu-tile=freeplay]').click();
         await page.locator('[data-url]').fill(ai.replace('http:','ws:')+'/observe');await page.locator('[data-token]').fill(TOKEN);await page.locator('[data-connect]').click();
         await page.waitForFunction(()=>document.querySelector('[data-model] option[value="evelyn:latest"]'));
         await page.locator('[data-main-menu]').click();await page.locator('[data-menu-tile=campaign]').click();
-        assert((await page.locator('#main-menu .game-menu-card').first().textContent()).includes('1 of 9'),'Reloaded progress');
+        assert((await page.locator('#main-menu .game-menu-card').first().textContent()).includes('1 of 14'),'Reloaded progress');
     });
     await step('14. Freeplay leaves an active mission without losing completed ones',async()=>{
         await page.locator('#main-menu .game-menu-card').first().click();
@@ -184,6 +184,8 @@ try{
         await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('celeste'));
         const first=await batch([...span(0,600,75),...span(605,700,100)]);assert(first.sent.filter(t=>t==='mission_milestone').length===2,'First batch '+JSON.stringify(first));
         await page.waitForFunction(()=>[...document.querySelectorAll('.message-mission')].some(m=>m.textContent.includes('Baseline established')));
+        // The milestone line and the progress update are separate messages: wait for the banner to catch up.
+        await page.waitForFunction(()=>document.querySelector('.mission-banner')?.textContent.includes('11:35 of 30:00'),null,{timeout:5000}).catch(()=>{});
         const banner=await page.locator('.mission-banner').textContent();
         assert(banner.includes('✓ Baseline: 75% · 10:00 / 10:00')&&banner.includes('▸ Development: 100% · 1:35 / 10:00 (current)')&&banner.includes('11:35 of 30:00'),'Banner '+banner);
         await shot('chapter2-banner.png');
@@ -192,10 +194,56 @@ try{
         const sent=await batch([...span(0,600,75),...span(605,1205,100),...span(1210,1810,125),tick(1815,125,1)]);assert(sent.sent.includes('mission_result'),'No result '+sent.sent);
         await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='results');
         const results=await page.locator('#main-menu').textContent();
-        assert(results.includes('Campaign complete')&&results.includes('unknown agents')&&results.includes("That's Advanced Research done"),'Results '+results.slice(0,600));
+        assert(results.includes('Chapter 2 complete')&&!results.includes('Campaign complete')&&results.includes('unknown agents')&&results.includes("That's Advanced Research done"),'Results '+results.slice(0,600));
         await shot('chapter2-results.png');
         const saved=JSON.parse((await progress()).saved).campaigns[CID];
-        assert(saved.chapters.advanced_research&&saved.chapters.introduction&&saved.completed_at,'Saved chapters');
+        assert(saved.chapters.advanced_research&&saved.chapters.introduction&&!saved.completed_at,'Saved chapters');
+        await page.getByRole('button',{name:'Back to the session'}).click();
+    });
+    await step('Chapter 3: the Chapter 4 teaser, the countdown, and Nova\'s puzzles answered in the banner',async()=>{
+        await seed('the_empty_vault');
+        await page.locator('[data-main-menu]').click();await page.locator('[data-menu-tile=campaign]').click();
+        const card=await page.locator('#main-menu .game-menu-card').first().textContent();
+        assert(card.includes('Chapter 3: Shadows of Helix · 20%')&&card.includes('Chapter 4: Rise of Helix · Coming soon'),'Campaign card '+card);
+        await page.locator('#main-menu .game-menu-card').first().click();
+        assert((await page.locator('.mission-chapter[data-state=teaser]').textContent()).includes('Coming soon'),'Teaser chapter');
+        await page.locator('.mission-card').nth(10).getByRole('button',{name:'Start mission'}).click();
+        await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='briefing');
+        const briefing=await page.locator('#main-menu').textContent();
+        assert(briefing.includes('Story draft')&&briefing.includes('Time left: 15:00 of 15:00'),'Vault briefing '+briefing.slice(0,1500));
+        await shot('chapter3-vault-briefing.png');
+        await page.getByRole('button',{name:'Begin with Daisy'}).click();
+        await page.locator('#main-menu').waitFor({state:'hidden'});
+        await batch([tick(100,100),...span(105,400,100)]);
+        await page.waitForFunction(()=>document.querySelector('.mission-banner')?.textContent.includes('Time left: 10:00 of 15:00'));
+        await page.locator('#sessionStopBtn').click().catch(()=>{});
+        await seed('ghost_in_the_machine');
+        await page.locator('[data-main-menu]').click();await page.locator('[data-menu-tile=campaign]').click();
+        await page.locator('#main-menu .game-menu-card').first().click();
+        await page.locator('.mission-card').nth(13).getByRole('button',{name:'Start mission'}).click();
+        await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='briefing');
+        await page.getByRole('button',{name:'Begin with Nova'}).click();
+        await page.locator('#main-menu').waitFor({state:'hidden'});
+        await page.waitForFunction(()=>document.querySelector('[data-selected]').textContent.includes('nova'));
+        await batch([tick(0,100),tick(5,100)]);
+        await page.locator('.mission-puzzle').waitFor();
+        assert((await page.locator('.mission-puzzle').textContent()).includes('Badge ASR-0413 is registered to you'),'Puzzle 1 clues');
+        await page.locator('[data-puzzle-option=carried]').click();
+        await page.waitForFunction(()=>document.querySelector('.mission-puzzle')?.textContent.includes('Not quite.'));
+        assert(await page.locator('[data-puzzle-option=carried]').getAttribute('class')==='wrong','Wrong pick marked');
+        await shot('chapter3-puzzle-hint.png');
+        await page.locator('[data-puzzle-option=internal]').click();
+        await page.waitForFunction(()=>document.querySelector('.mission-puzzle strong')?.textContent==='Follow the money');
+        await page.waitForFunction(()=>[...document.querySelectorAll('.message-mission')].some(m=>m.textContent.includes('internal Asterion badge')));
+        const saved=JSON.parse((await progress()).saved);assert(JSON.stringify(saved.active.solved)==='["log"]','Saved puzzle '+JSON.stringify(saved.active));
+        await page.locator('[data-puzzle-option=helix]').focus();await page.keyboard.press('Enter');
+        await page.waitForFunction(()=>document.querySelector('.mission-puzzle strong')?.textContent==='The edited record');
+        await page.locator('[data-puzzle-option=inside]').click();
+        await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='results');
+        const results=await page.locator('#main-menu').textContent();
+        assert(results.includes('Chapter 3 complete')&&results.includes('You are cleared of suspicion')&&results.includes('come to Helix'),'Results '+results.slice(0,800));
+        assert(!(await page.content()).includes('Follow each owner up the chain'),'Hint leaked before a wrong answer');
+        await shot('chapter3-results.png');
         await page.getByRole('button',{name:'Back to the session'}).click();
     });
     await step('Phone width: no horizontal scroll',async()=>{
@@ -207,7 +255,7 @@ try{
     });
     assert(errors.length===0,'Page errors: '+errors.join(' | '));
     report.passed=true;
-}catch(error){report.error=String(error?.stack||error);try{await page?.screenshot({path:path.join(out,'failure.png')});}catch{}}
+}catch(error){report.error=String(error?.stack||error);report.page_errors=errors;try{await page?.screenshot({path:path.join(out,'failure.png')});}catch{}}
 finally{
     await browser?.close();for(const child of children)child.kill('SIGTERM');
     await writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2));

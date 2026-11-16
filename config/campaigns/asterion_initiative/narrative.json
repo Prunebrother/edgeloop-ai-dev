@@ -328,6 +328,293 @@
           "Now, if you will excuse me. I have received reports of unknown agents snooping around Asterion and Cloverfield. That requires my attention. Now."
         ]
       }
+    },
+    "the_anomaly": {
+      "briefing": {
+        "speaker": "evelyn",
+        "status": "draft",
+        "lines": [
+          "Close the door. Please.",
+          "Someone has been inside my research database. Months of observations, my endurance study, your first assessment: the numbers have changed. Not lost. Changed.",
+          "I have checked it three times. I have checked my own methods, which I never do, because they are never wrong. They were not wrong.",
+          "If this gets out before I can explain it, my thesis is finished. And my colleagues will be delighted.",
+          "I can't recover what was taken. But I can build a new dataset that no one can question, recorded tonight, under my own eyes.",
+          "Thirty edges. One session. I know it's a great deal to ask. I'm asking anyway."
+        ]
+      },
+      "milestones": {
+        "start": {
+          "speaker": "evelyn",
+          "status": "draft",
+          "lines": [
+            "Recording. Every edge goes into a fresh, sealed file. Nobody touches this one."
+          ]
+        },
+        "edges:10": {
+          "speaker": "evelyn",
+          "status": "draft",
+          "lines": [
+            "Ten. Clean, consistent, verifiable. Good. Keep going; I need to see the curve hold."
+          ]
+        },
+        "edges:20": {
+          "speaker": "evelyn",
+          "status": "draft",
+          "lines": [
+            "Twenty. The pattern matches your earlier sessions, which means the old data really was altered. Ten more."
+          ]
+        }
+      },
+      "completion": {
+        "speaker": "evelyn",
+        "status": "draft",
+        "lines": [
+          "Thirty. The replacement dataset is complete, and it is beyond reproach.",
+          "Thank you. Truly. I don't say that lightly, and I don't say it often.",
+          "This doesn't bring back the months I lost. But it proves something else: the old records were not corrupted by accident. They were deliberately modified. The changes are too neat, too targeted.",
+          "Someone wanted to undermine Asterion's research. Wanted to undermine me.",
+          "I intend to find out who."
+        ]
+      }
+    },
+    "the_empty_vault": {
+      "briefing": {
+        "speaker": "daisy",
+        "status": "draft",
+        "lines": [
+          "Oh, sugar, thank goodness you came.",
+          "Two days ago some fancy fella in a fancier suit offered to buy Cloverfield. Lock, stock and barn. I told him no before he finished his sentence. Harpers don't sell.",
+          "Then this morning I opened the cold store and the reserves were gone. Every last sample. The vault's just empty.",
+          "We've got a contracted delivery due tonight. If we miss it, the penalties could sink us, and that fella in the suit gets his farm after all.",
+          "I need an emergency contribution, and I need it quick. Fifteen minutes from when we start. Can you do that for me?",
+          "I'll keep an eye on the clock. You just keep your eyes on me."
+        ]
+      },
+      "milestones": {
+        "start": {
+          "speaker": "daisy",
+          "status": "draft",
+          "lines": [
+            "Clock's running, sugar! Fifteen minutes. Let's save this farm."
+          ]
+        },
+        "delivery:left300": {
+          "speaker": "daisy",
+          "status": "draft",
+          "lines": [
+            "Five minutes left on the clock! You've got this, I know you do."
+          ]
+        },
+        "delivery:left60": {
+          "speaker": "daisy",
+          "status": "draft",
+          "lines": [
+            "One minute, sugar! Now or never!"
+          ]
+        },
+        "delivery:expired": {
+          "speaker": "daisy",
+          "status": "draft",
+          "lines": [
+            "Oh no. That's the deadline gone for this run.",
+            "Don't you fret; it's not your fault. We'll try again: start a new session and I'll reset the clock."
+          ]
+        }
+      },
+      "completion": {
+        "speaker": "daisy",
+        "status": "draft",
+        "lines": [
+          "Yes! Oh, you beautiful thing, that's in the cold store with time to spare!",
+          "And would you look at that. The quality, the volume... Lord, sugar, that's the finest emergency delivery this farm has ever shipped. Mama would faint.",
+          "The contract's safe. Cloverfield's safe. Thank you, from the bottom of my heart.",
+          "But I've been thinking. A buyer shows up out of nowhere, I say no, and the very next morning the vault's empty? That's no coincidence.",
+          "Somebody wanted us desperate. I'd like to know who."
+        ]
+      }
+    },
+    "midnight_intruder": {
+      "briefing": {
+        "speaker": "mira",
+        "status": "draft",
+        "lines": [
+          "Well. You weren't supposed to be here tonight.",
+          "Neither was I, to be fair.",
+          "Don't call security. Not yet. You're curious, I can see it, and curiosity is so much more interesting than alarms.",
+          "I'm looking for something. Something with your name on it, as it happens. Proven Breeder. You're quite the rarity, did you know?",
+          "So here's my offer. Keep me company for a while, and I'll tell you a little. Or a lot. Or nothing at all. Who can say?",
+          "Stay as long as you like. Stop whenever you want. That's the game."
+        ]
+      },
+      "milestones": {
+        "start": {
+          "speaker": "mira",
+          "status": "draft",
+          "lines": [
+            "There. Now we're both somewhere we shouldn't be. Discovery is such a thrilling feeling, isn't it?"
+          ]
+        },
+        "encounter:deception": {
+          "speaker": "mira",
+          "status": "draft",
+          "lines": [
+            "Ask me who I work for. Go on. I'll give you three answers and you can pick your favourite."
+          ]
+        },
+        "encounter:confrontation": {
+          "speaker": "mira",
+          "status": "draft",
+          "lines": [
+            "Your research file is fascinating. Your numbers, your profile, your rarity. Someone is willing to pay a great deal for them."
+          ]
+        }
+      },
+      "completion": {
+        "speaker": "mira",
+        "status": "draft",
+        "lines": [
+          "Thirty minutes. Longer than I planned to stay. You're very distracting.",
+          "I'm afraid I have to go. Don't follow me; you'd only get lost.",
+          "Oh, and darling? When they check the door logs tomorrow, I'd have a good explanation ready.",
+          "It was lovely meeting you. I'm sure we'll do it again."
+        ]
+      },
+      "epilogue": [
+        {
+          "speaker": "nova",
+          "status": "draft",
+          "lines": [
+            "Hey. It's 2 a.m. and the security system just flagged an access record.",
+            "It says your credentials opened the server room tonight. I know that wasn't you. But Celeste is going to see this first thing in the morning."
+          ]
+        }
+      ],
+      "director_context": "Story: you are Mira, an intruder found inside Asterion at night. Your employer and true motives stay uncertain; never reveal them. The encounter is consensual and the participant may stop at any time."
+    },
+    "loyalty_test": {
+      "briefing": {
+        "speaker": "celeste",
+        "status": "draft",
+        "lines": [
+          "Sit down.",
+          "Last night someone entered Asterion's server room using your credentials. While they were inside, files were accessed that concern you. Specifically.",
+          "I had begun to think you were worth the IRRA's investment. I said as much in my report. That makes this personal, and I do not enjoy things being personal.",
+          "I will not hear explanations today. Explanations are cheap.",
+          "What I will accept is a demonstration of commitment. Forty edges, in one session. Then, and only then, you may finish.",
+          "Understand me clearly: this does not prove your innocence. The security investigation continues regardless. This shows me whether you are still committed to this program."
+        ]
+      },
+      "milestones": {
+        "start": {
+          "speaker": "celeste",
+          "status": "draft",
+          "lines": [
+            "Begin. I am watching."
+          ]
+        },
+        "edges:10": {
+          "speaker": "celeste",
+          "status": "draft",
+          "lines": [
+            "Ten. Adequate. I remain unconvinced."
+          ]
+        },
+        "edges:25": {
+          "speaker": "celeste",
+          "status": "draft",
+          "lines": [
+            "Twenty-five. You are persistent. I will give you that much."
+          ]
+        },
+        "edges:done": {
+          "speaker": "celeste",
+          "status": "draft",
+          "lines": [
+            "Forty.",
+            "Very well. You may finish now. Report it properly."
+          ]
+        }
+      },
+      "completion": {
+        "speaker": "celeste",
+        "status": "draft",
+        "lines": [
+          "Your commitment to this initiative is evident. Your innocence, however, remains unproven. Those are two very different things.",
+          "Perhaps my first assessment last night was premature. Perhaps.",
+          "Nevertheless, I am prepared to give you another chance.",
+          "The investigation will continue."
+        ]
+      },
+      "director_context": "Story: you suspect the participant of helping an intruder (their credentials opened the server room). You are cold and disappointed. Commitment is not proof of innocence; do not absolve them."
+    },
+    "ghost_in_the_machine": {
+      "briefing": {
+        "speaker": "nova",
+        "status": "draft",
+        "lines": [
+          "Psst. Over here. Don't make it look like a meeting.",
+          "I don't believe it was you. Not for a second. And I'm not waiting for Celeste's investigators to agree with me.",
+          "So we're running our own investigation. You and me. I've pulled the access logs, a few company filings, and the edit history from Evelyn's database.",
+          "Three puzzles. You solve them, I'll do the hacking and the dramatic commentary. Keep a session running so it looks like an ordinary evening, nothing to see here.",
+          "No pressure, no clock. Wrong guesses are fine; that's how detectives work. Ready, partner?"
+        ]
+      },
+      "milestones": {
+        "start": {
+          "speaker": "nova",
+          "status": "draft",
+          "lines": [
+            "Session's up, cover story's solid. First file: the door logs. Take a look in the mission panel."
+          ]
+        },
+        "log:done": {
+          "speaker": "nova",
+          "status": "draft",
+          "lines": [
+            "A copy of an internal Asterion badge. So whoever got her in had access to Asterion's own security systems. That's... not great.",
+            "Next: let's follow some money."
+          ]
+        },
+        "money:done": {
+          "speaker": "nova",
+          "status": "draft",
+          "lines": [
+            "Helix Biotechnology. Hiding behind two shell companies to buy Daisy's farm. Sneaky!",
+            "Last one: Evelyn's edit history."
+          ]
+        }
+      },
+      "completion": {
+        "speaker": "nova",
+        "status": "draft",
+        "lines": [
+          "Got it. The file was changed during the break-in, from a staff session in the server room. Someone inside helped her.",
+          "Let's put it together: Mira used internally issued Asterion credentials. Helix was behind the Cloverfield offer. Evelyn's research was deliberately altered. And someone at Asterion helped.",
+          "That's an evidence package. And I just sent it to Celeste."
+        ]
+      },
+      "epilogue": [
+        {
+          "speaker": "celeste",
+          "status": "draft",
+          "lines": [
+            "I have reviewed Nova's findings.",
+            "The evidence is clear. You did not authorise the intrusion; your credentials were copied. You are cleared of suspicion, effective immediately.",
+            "My judgment was premature. I do not say that often. Do not expect to hear it again.",
+            "The insider is now my concern. Helix is now everyone's."
+          ]
+        },
+        {
+          "speaker": "nova",
+          "status": "draft",
+          "lines": [
+            "Cleared! Officially! I told you we'd do it.",
+            "Thank you for trusting me. Seriously. Not everyone would have.",
+            "We make a really good team, you know that? I think we deserve to celebrate a little. Stay with me, finish the session however you like, or just talk. Your call, partner."
+          ]
+        }
+      ],
+      "director_context": "Story: you and the participant are secretly investigating the intrusion together; you believe they are innocent. After the investigation you are warmer and more affectionate, and you may invite a celebratory finish, but never push it."
     }
   },
   "chapters": {
@@ -346,6 +633,16 @@
         "That's Advanced Research done, darling! Evelyn's dataset, Daisy's quota, my experiment, and you survived Celeste. Twice!",
         "But unknown agents? Around Asterion and Cloverfield? I don't like the sound of that one bit.",
         "Whatever's coming next, we'll face it together. Get some rest. I have a feeling you're going to need it."
+      ]
+    },
+    "shadows_of_helix": {
+      "speaker": "nova",
+      "status": "draft",
+      "lines": [
+        "Wait. Something just came in. Encrypted. No sender.",
+        "\"You found the trail we wanted you to find. If you want the truth about the fertility crisis, come to Helix.\"",
+        "That's either an invitation or a trap. Possibly both.",
+        "Whoever it is, they've been watching us. And they want you."
       ]
     }
   }

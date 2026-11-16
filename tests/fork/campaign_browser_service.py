@@ -13,14 +13,37 @@ from companion_ai.campaign import PROGRESS_FILE
 
 DATA = os.environ['EDGELOOP_CAMPAIGN_FIXTURE_DATA']
 app = create_app(TOKEN, DATA, transport=httpx.MockTransport(runtime), origins={f'http://127.0.0.1:{UI_PORT}'})
+import time
+LAST = {}
+_answer = app.state.campaign.answer
+_observe = app.state.campaign.observe
+
+
+def observe(report, events, model, fixture=False):
+    # The fixture stands in for the engine: while its running stand-in session is recent, the page's own
+    # (idle, hardware-less) reports would end it as a session change, which no real engine report would do.
+    stand_in = LAST.get('report')
+    if not fixture and stand_in and stand_in.get('status') == 'RUNNING' and time.monotonic() - LAST['at'] < 15 \
+            and (report or {}).get('session_id') != stand_in.get('session_id'): return []
+    return _observe(report, events, model)
+
+
+def answer(objective_id, option_id, report, model):
+    # Puzzle answers come from the page's real buttons; the running session they need is the fixture's stand-in.
+    return _answer(objective_id, option_id, LAST.get('report') or report, model)
+
+
+app.state.campaign.answer = answer
+app.state.campaign.observe = observe
 
 
 @app.post('/fixture/campaign/evidence')
 async def evidence(request: Request):
     body = await request.json()
     # A batch is handed over in one go, so the page's own idle observations cannot interleave with it.
+    LAST.update(report=(body.get('reports') or [body['report']])[-1], at=time.monotonic())
     sent = [m for r in body.get('reports') or [body['report']]
-            for m in app.state.campaign.observe(r, body.get('events', []), app.state.models.config.model)]
+            for m in observe(r, body.get('events', []), app.state.models.config.model, fixture=True)]
     # A real session sends about one update a second; a batch keeps only the last of consecutive progress
     # updates, so it cannot overflow the browser's outbound queue (32 messages).
     for i, message in enumerate(sent):

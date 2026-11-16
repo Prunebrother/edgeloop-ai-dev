@@ -24,12 +24,12 @@ logger = logging.getLogger(__name__)
 ROOT = Path(__file__).resolve().parents[1]
 CAMPAIGN_DIR = ROOT / 'config/campaigns'
 PROGRESS_FILE = 'campaign-progress.json'
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 Identifier = Field(min_length=1, max_length=64, pattern=r'^[a-z0-9][a-z0-9_.-]*$')
 Text = Field(min_length=1, max_length=600)
 COUNTED = {'edge_count', 'orgasm_count'}
 ObjectiveType = Literal['hr_monitor_connected', 'toy_connected', 'session_started', 'edge_count', 'orgasm_count',
-                        'calibration_completed', 'calibration_saved', 'style_stages', 'stage_sequence']
+                        'calibration_completed', 'calibration_saved', 'style_stages', 'stage_sequence', 'puzzle_solved']
 # The engine's play styles (snapshot `experience`), the configurations a style_stages objective can tell apart.
 PLAY_STYLES = ('classic', 'finisher', 'milker', 'shortener', 'headplay', 'ultimate', 'bratty', 'ruin')
 StyleName = Literal['classic', 'finisher', 'milker', 'shortener', 'headplay', 'ultimate', 'bratty', 'ruin']
@@ -50,8 +50,8 @@ SettingName = Literal['play_style', 'game', 'endgame', 'orgasm', 'intensity', 'p
 LIVE = {'RUNNING', 'PAUSED', 'RAMPDOWN'}
 MISSING = object()
 # Objectives that are story moments when reached; the setup items before a session are not.
-GOAL_TYPES = {'edge_count', 'orgasm_count', 'calibration_completed', 'calibration_saved', 'style_stages', 'stage_sequence'}
-COMPANION_ALIASES = {'evelyn': ('Voss',), 'daisy': ('Harper', 'Cloverfield'), 'celeste': ('IRRA',)}
+GOAL_TYPES = {'edge_count', 'orgasm_count', 'calibration_completed', 'calibration_saved', 'style_stages', 'stage_sequence', 'puzzle_solved'}
+COMPANION_ALIASES = {'evelyn': ('Voss',), 'daisy': ('Harper', 'Cloverfield'), 'celeste': ('IRRA',), 'mira': ()}
 MODE_WORDS = {'calibrate': 'Calibration', 'edgetrain': 'Edge Training'}
 
 
@@ -60,11 +60,40 @@ def now_iso(clock=time.time):
 
 
 class Stage(StrictModel):
-    """One step of a stage_sequence: active running time at a fixed engine intensity (snapshot %, 50-150)."""
+    """One step of a stage_sequence: active running time, either at a fixed engine intensity (snapshot %, 50-150,
+    time waits at any other level) or at any intensity. `raise_to`: in a directed mission the companion raises the
+    intensity to at least this level when the stage begins; the player may lower it again at no cost."""
     id: str = Identifier
     label: str = Field(min_length=1, max_length=80)
     seconds: int = Field(ge=10, le=7200)
-    intensity: int = Field(ge=50, le=150)
+    intensity: int | None = Field(default=None, ge=50, le=150)
+    raise_to: int | None = Field(default=None, ge=50, le=150)
+
+    @model_validator(mode='after')
+    def one_rule(self):
+        if self.intensity is not None and self.raise_to is not None: raise ValueError('a stage has a fixed intensity or a raise_to, not both')
+        return self
+
+
+class PuzzleOption(StrictModel):
+    id: str = Identifier
+    label: str = Field(min_length=1, max_length=120)
+
+
+class Puzzle(StrictModel):
+    """A multiple-choice puzzle. The answer is checked by the campaign, never by a model, and never sent to the browser."""
+    title: str = Field(min_length=1, max_length=80)
+    clues: list[str] = Field(min_length=1, max_length=8)
+    question: str = Field(min_length=1, max_length=300)
+    options: list[PuzzleOption] = Field(min_length=2, max_length=6)
+    answer: str = Identifier
+    hint: str = Field(min_length=1, max_length=300)
+
+    @model_validator(mode='after')
+    def answerable(self):
+        ids = [o.id for o in self.options]
+        if len(ids) != len(set(ids)) or self.answer not in ids: raise ValueError('the answer must be one of the unique option ids')
+        return self
 
 
 class Objective(StrictModel):
@@ -72,7 +101,12 @@ class Objective(StrictModel):
     - edge_count / orgasm_count: `count` events in the mission session, optional `milestones` thresholds,
       optional `after` (count only once that objective is met).
     - style_stages: `count` different play styles, each run for `seconds` of active time with no game on.
-    - stage_sequence: `stages` in order, each `seconds` of active time at its intensity (within `tolerance`)."""
+    - stage_sequence: `stages` in order, each `seconds` of active time at its intensity (within `tolerance`).
+    - puzzle_solved: the `puzzle` answered correctly in the mission panel, in order, during the mission session.
+      Solved puzzles are saved, so they survive the session ending, leaving the mission screen and a restart.
+    - `within_seconds` on a count: only events within that much active running time of the mission-session start
+      count (pauses freeze it); after it runs out the try is over and the next session starts a fresh clock.
+      `warnings`: remaining-time marks (seconds) that get a scripted line."""
     id: str = Identifier
     type: ObjectiveType
     label: str = Text
@@ -83,6 +117,9 @@ class Objective(StrictModel):
     styles: list[StyleName] = Field(default_factory=lambda: list(PLAY_STYLES), min_length=1, max_length=8)
     stages: list[Stage] = Field(default_factory=list, max_length=8)
     tolerance: int = Field(default=2, ge=0, le=10)
+    within_seconds: int | None = Field(default=None, ge=10, le=7200)
+    warnings: list[int] = Field(default_factory=list, max_length=6)
+    puzzle: Puzzle | None = None
 
     @model_validator(mode='after')
     def counted(self):
@@ -97,6 +134,10 @@ class Objective(StrictModel):
         if self.after and self.type not in COUNTED: raise ValueError('after is for edge_count/orgasm_count only')
         if self.type == 'style_stages' and self.count > len(self.styles): raise ValueError('more stages than styles')
         if len({s.id for s in self.stages}) != len(self.stages): raise ValueError('stage ids must be unique')
+        if (self.type == 'puzzle_solved') != (self.puzzle is not None): raise ValueError('puzzle is required for puzzle_solved and not allowed otherwise')
+        if self.within_seconds is not None and self.type not in COUNTED: raise ValueError('within_seconds is for edge_count/orgasm_count only')
+        if self.warnings and (self.within_seconds is None or any(not 0 < w < self.within_seconds for w in self.warnings)):
+            raise ValueError('warnings are remaining seconds below within_seconds')
         return self
 
 
@@ -156,6 +197,9 @@ class Mission(StrictModel):
     hints: list[str] = Field(default_factory=list, max_length=8)
     # Earlier missions whose saved results this mission's companion is told about (Mission 9's review).
     review: list[str] = Field(default_factory=list, max_length=16)
+    # Story flags the first completion sets (a replay never changes them), e.g. {"player_suspicion": "cleared"}.
+    # Later features (card eligibility, briefs) can read them; the campaign itself only records them.
+    flags: dict[str, str] = Field(default_factory=dict, max_length=12)
 
     @model_validator(mode='after')
     def unique_objectives(self):
@@ -165,6 +209,8 @@ class Mission(StrictModel):
             if o.after and o.after not in ids[:i]: raise ValueError(f'{o.id}: after must name an earlier objective')
         if self.settings_control and self.settings_control.after and self.settings_control.after not in ids:
             raise ValueError('settings_control.after must name an objective')
+        for key, value in self.flags.items():
+            if not re.fullmatch(r'[a-z0-9_]{1,48}', key) or not re.fullmatch(r'[a-z0-9_]{1,32}', value): raise ValueError('flags are short snake_case names and values')
         return self
 
 
@@ -175,6 +221,8 @@ class Chapter(StrictModel):
     id: str = Identifier
     title: str = Field(min_length=1, max_length=80)
     summary: str = Text
+    # A chapter announced but not playable yet ("Coming soon"): it has no missions.
+    teaser: bool = False
 
 
 class Campaign(StrictModel):
@@ -212,8 +260,10 @@ class Campaign(StrictModel):
         if self.chapters:
             numbers = {c.number for c in self.chapters}
             if len(numbers) != len(self.chapters) or len({c.id for c in self.chapters}) != len(self.chapters): raise ValueError('chapter numbers and ids must be unique')
+            teasers = {c.number for c in self.chapters if c.teaser}
             for m in self.missions:
                 if not m.story or m.story.chapter not in numbers: raise ValueError(f'{m.id}: story.chapter must name a chapter')
+                if m.story.chapter in teasers: raise ValueError(f'{m.id}: a teaser chapter has no missions')
             ends = {r.id for m in self.missions for r in m.rewards if r.type == 'chapter_complete'}
             if ends - {c.id for c in self.chapters}: raise ValueError('chapter_complete for an unknown chapter')
         return self
@@ -236,6 +286,8 @@ class NarrativeBlock(StrictModel):
 class MissionNarrative(StrictModel):
     briefing: NarrativeBlock
     completion: NarrativeBlock
+    # Further blocks after the completion, possibly by other speakers (Mission 14: Celeste's verdict, then Nova).
+    epilogue: list[NarrativeBlock] = Field(default_factory=list, max_length=6)
     # Scripted lines for progress moments, keyed "<objective id>:<moment>": a count ("edges:5"), a completed
     # play-style stage ("styles:stage1"), a stage of a sequence ("assessment:baseline"), or "start" when the
     # mission session begins. Shown in the conversation; the model is not asked to speak for them.
@@ -243,7 +295,7 @@ class MissionNarrative(StrictModel):
     director_context: str | None = Field(default=None, max_length=400)
 
     def draft(self):
-        return any(b.status == 'draft' for b in (self.briefing, self.completion, *self.milestones.values()))
+        return any(b.status == 'draft' for b in (self.briefing, self.completion, *self.epilogue, *self.milestones.values()))
 
 
 class Narrative(StrictModel):
@@ -314,6 +366,7 @@ class CampaignRecord(StrictModel):
     missions: dict[str, MissionRecord] = Field(default_factory=dict)
     rewards: dict[str, RewardRecord] = Field(default_factory=dict)
     chapters: dict[str, ChapterRecord] = Field(default_factory=dict)
+    flags: dict[str, str] = Field(default_factory=dict, max_length=64)
     completed_at: str | None = Field(default=None, max_length=40)
     # Facts a mission confirmed and the campaign keeps, e.g. the calibrated maximum heart rate.
     records: dict[str, int | str | None] = Field(default_factory=dict, max_length=32)
@@ -323,10 +376,12 @@ class ActiveMission(StrictModel):
     campaign: str = Field(max_length=64)
     mission: str = Field(max_length=64)
     started_at: str = Field(max_length=40)
+    # Puzzles solved in this mission so far (saved, so they survive a session ending or a restart).
+    solved: list[str] = Field(default_factory=list, max_length=12)
 
 
 class Progress(StrictModel):
-    schema_version: Literal[2]
+    schema_version: Literal[3]
     campaigns: dict[str, CampaignRecord] = Field(default_factory=dict)
     active: ActiveMission | None = None
 
@@ -348,7 +403,17 @@ def _v1_to_v2(data):
     return data
 
 
-MIGRATIONS = {1: _v1_to_v2}
+def _v2_to_v3(data):
+    """Version 3 adds story flags and saved puzzle progress, and the campaign no longer ends with Chapter 2:
+    completion markers are recomputed again on load (see _v1_to_v2), so a campaign completed at Mission 9 reopens."""
+    data = _v1_to_v2(data)
+    for record in (data.get('campaigns') or {}).values():
+        if isinstance(record, dict): record.setdefault('flags', {})
+    data['schema_version'] = 3
+    return data
+
+
+MIGRATIONS = {1: _v1_to_v2, 2: _v2_to_v3}
 
 
 def migrate(data):
@@ -381,9 +446,15 @@ def details(report):
 class Attempt:
     """One try at the active mission. Counts restart when the mission session ends before completion."""
 
-    def __init__(self, mission):
+    def __init__(self, mission, solved=()):
         self.mission = mission
         self.session_id = None
+        # The engine's running clock at the mission-session start (timed objectives), and timed goals run out.
+        self.base_seconds = None
+        self.expired = set()
+        # Puzzles solved in this mission (saved; kept across sessions), and the last wrong pick per puzzle.
+        self.solved = set(solved)
+        self.wrong = {}
         self.done = {}
         self.edges = self.orgasms = 0
         self.last_edges = self.last_orgasms = None
@@ -415,16 +486,36 @@ class Attempt:
     def current_stage(self, o):
         return next((st for st in o.stages if self.stage_time.get(st.id, 0) < st.seconds), None)
 
+    def elapsed(self):
+        """Active running seconds since the mission-session start (the engine clock freezes while paused)."""
+        if self.base_seconds is None or not isinstance(self.last_seconds, int): return 0
+        return max(0, self.last_seconds - self.base_seconds)
+
+    def remaining(self, o):
+        return o.within_seconds if self.session_id is None else max(0, o.within_seconds - self.elapsed())
+
+    def puzzle_open(self, o):
+        """Puzzles are solved in order: open once every earlier puzzle of the mission is solved."""
+        earlier = [x.id for x in self.mission.objectives[:self.mission.objectives.index(o)] if x.type == 'puzzle_solved']
+        return o.id not in self.solved and all(x in self.solved for x in earlier)
+
     def view(self, report=None, companion_ok=False):
         live = {'hr_monitor_connected': real_hr(report), 'toy_connected': toy_ready(report)}
         items = []
         for o in self.mission.objectives:
-            done = bool(self.done.get(o.id)) or (self.session_id is None and live.get(o.type, False))
+            done = bool(self.done.get(o.id)) or (self.session_id is None and live.get(o.type, False)) or o.id in self.solved
             item = {'id': o.id, 'type': o.type, 'label': o.label, 'done': done}
             if o.type in COUNTED:
                 item.update(progress=min(self.counts.get(o.id, 0), o.count), count=o.count)
                 if o.milestones: item['milestones'] = list(o.milestones)
                 if o.after: item['after'] = o.after
+                if o.within_seconds:
+                    item.update(within_seconds=o.within_seconds, remaining=self.remaining(o), expired=o.id in self.expired)
+            if o.type == 'puzzle_solved':
+                z = o.puzzle
+                item['puzzle'] = {'title': z.title, 'clues': list(z.clues), 'question': z.question,
+                                  'options': [x.model_dump() for x in z.options], 'open': self.puzzle_open(o)}
+                if o.id in self.wrong and o.id not in self.solved: item['puzzle'].update(wrong=self.wrong[o.id], hint=z.hint)
             if o.type == 'style_stages':
                 filled = self.done_styles(o)
                 current = (report or {}).get('experience') if self.session_id else None
@@ -435,7 +526,7 @@ class Attempt:
                             elapsed=sum(min(v, o.seconds) for k, v in self.style_time.items() if k in o.styles))
             if o.type == 'stage_sequence':
                 current = self.current_stage(o)
-                item.update(stages=[{'id': st.id, 'label': st.label, 'intensity': st.intensity, 'seconds': st.seconds,
+                item.update(stages=[{'id': st.id, 'label': st.label, 'intensity': st.intensity, 'raise_to': st.raise_to, 'seconds': st.seconds,
                                      'elapsed': min(self.stage_time.get(st.id, 0), st.seconds), 'done': self.stage_time.get(st.id, 0) >= st.seconds,
                                      'current': bool(self.session_id) and current is st} for st in o.stages],
                             elapsed=sum(min(self.stage_time.get(st.id, 0), st.seconds) for st in o.stages),
@@ -473,7 +564,7 @@ class CampaignService:
         if active and not self._mission(active.campaign, active.mission):
             self.progress.active = None  # Its definition is gone (content removed); nothing else changes.
         if self.progress.active:
-            self.attempt = Attempt(self._mission(self.progress.active.campaign, self.progress.active.mission))
+            self.attempt = Attempt(self._mission(self.progress.active.campaign, self.progress.active.mission), self.progress.active.solved)
 
     def _settle_completion(self, progress):
         """Chapter and campaign completion follow from the completed missions under the current definitions:
@@ -541,7 +632,10 @@ class CampaignService:
             if attempt.done.get(o.id): continue
             if o.type == 'stage_sequence':
                 stage = attempt.current_stage(o)
-                if stage: needs['intensity'] = stage.intensity - 50
+                now = report.get('intensity')
+                if stage and stage.intensity is not None: needs['intensity'] = stage.intensity - 50
+                # A raise is needed only while the level is below it: the player may always go higher or lower again.
+                elif stage and stage.raise_to is not None and isinstance(now, int) and now < stage.raise_to: needs['intensity'] = stage.raise_to - 50
             if o.type == 'style_stages':
                 filled = attempt.done_styles(o)
                 needs['styles'] = [k for k in o.styles if k not in filled]
@@ -571,9 +665,15 @@ class CampaignService:
                    'style': report.get('experience'), 'goal': report.get('goal'), 'orgasm': details(report).get('orgasm_mode')}
         if 'intensity' in needs and current['intensity'] != needs['intensity']:
             stage = next(attempt.current_stage(o) for o in attempt.mission.objectives if o.type == 'stage_sequence' and not attempt.done.get(o.id))
-            text = (f'Mission step from EdgeLoop: the assessment stage "{stage.label}" runs at {stage.intensity}% intensity. '
-                    f'Set intensity to {needs["intensity"]} now (that is {stage.intensity}%). No other change is possible.')
-            fallback = {'setting': 'intensity', 'value': needs['intensity'], 'reason': f'The {stage.label} stage of my assessment runs at {stage.intensity}%.'}
+            level = needs['intensity'] + 50
+            if stage.intensity is not None:
+                text = (f'Mission step from EdgeLoop: the assessment stage "{stage.label}" runs at {level}% intensity. '
+                        f'Set intensity to {needs["intensity"]} now (that is {level}%). No other change is possible.')
+                fallback = {'setting': 'intensity', 'value': needs['intensity'], 'reason': f'The {stage.label} stage of my assessment runs at {level}%.'}
+            else:
+                text = (f'Mission step from EdgeLoop: the "{stage.label}" stage begins, and you raise the intensity for it. '
+                        f'Set intensity to {needs["intensity"]} now (that is {level}%). No other change is possible.')
+                fallback = {'setting': 'intensity', 'value': needs['intensity'], 'reason': f'{stage.label}: a little more, {level}%.'}
         elif 'styles' in needs and current['goal'] != 'tease':
             text = 'Mission step from EdgeLoop: no stage time counts while a game is on. Set game to "off" now. No other change is possible.'
             fallback = {'setting': 'game', 'value': 'off', 'reason': 'My comparison only counts with the game off.'}
@@ -613,7 +713,8 @@ class CampaignService:
                 block = narrative.missions.get(m.id) if narrative else None
                 missions.append({'id': m.id, 'order': m.order, 'title': m.title, 'summary': m.summary, 'companion': m.companion,
                     'state': self.mission_state(c, m), 'prerequisites': m.prerequisites, 'optional': m.optional,
-                    'objectives': [o.model_dump(exclude_none=True) for o in m.objectives],
+                    # The puzzle answer and hint stay in the observer.
+                    'objectives': [o.model_dump(exclude_none=True, exclude={'puzzle': {'answer', 'hint'}}) for o in m.objectives],
                     'rewards': [{'type': r.type, 'id': r.id, 'label': r.label, 'earned': r.key in record.rewards} for r in m.rewards],
                     'session': m.session.model_dump(exclude_none=True) if m.session else None,
                     'settings_control': m.settings_control.model_dump() if m.settings_control else None,
@@ -627,7 +728,7 @@ class CampaignService:
             chapters = []
             for ch in sorted(c.chapters, key=lambda ch: ch.number):
                 members = [m for m in missions if m['chapter'] == ch.number and not m['optional']]
-                chapters.append({'number': ch.number, 'id': ch.id, 'title': ch.title, 'summary': ch.summary,
+                chapters.append({'number': ch.number, 'id': ch.id, 'title': ch.title, 'summary': ch.summary, 'teaser': ch.teaser,
                     'completed': ch.id in record.chapters, 'completed_at': record.chapters[ch.id].completed_at if ch.id in record.chapters else None,
                     'available': any(m['state'] != 'locked' for m in members),
                     'progress': {'completed': sum(1 for m in members if m['completions']), 'total': len(members)}})
@@ -635,7 +736,7 @@ class CampaignService:
                 'available': self.campaign_available(c), 'completed': bool(record.completed_at), 'completed_at': record.completed_at,
                 'progress': {'completed': done, 'total': total}, 'companions': sorted(
                     {m.companion for m in c.missions if self.companion_unlocked(c, m.companion)}),
-                'narrative_status': narrative.status if narrative else None, 'records': dict(record.records), 'missions': missions})
+                'narrative_status': narrative.status if narrative else None, 'records': dict(record.records), 'flags': dict(record.flags), 'missions': missions})
         active = self.progress.active.model_dump() if self.progress.active else None
         attempt = None
         if self.attempt:
@@ -663,6 +764,7 @@ class CampaignService:
         self.attempt = Attempt(mission)
         self.notice = None
         self.finished = None
+        self.directives = []
 
     # -- what the companion is told
     def _cue(self, kind, mission, session_id, objective=None):
@@ -719,6 +821,9 @@ class CampaignService:
         block = (self.book.narratives.get(campaign.id).missions.get(mission.id) if self.book.narratives.get(campaign.id) else None)
         if block and block.director_context: lines.append(block.director_context)
         if mission.review: lines.append(self._review_words(campaign, mission))
+        if any(o.type == 'puzzle_solved' for o in mission.objectives):
+            lines.append('The participant solves the puzzles in EdgeLoop\'s mission panel, and EdgeLoop checks each answer. '
+                         'You do not know the answers: never state, guess or confirm one; encourage and think aloud instead.')
         lines.append('If the participant asks what to do or how they are doing, answer from these lines. '
                      'Speak of the mission in your own words, as part of the story; do not quote its title like a label.')
         # How another mission is named, so talk of an earlier one is not read as a claim about this one.
@@ -731,11 +836,17 @@ class CampaignService:
     def _progress_words(attempt, o, report):
         clock = lambda n: f'{n // 60}:{n % 60:02d}'
         n = attempt.counts.get(o.id, 0)
-        if o.type == 'edge_count': return [f'{min(n, o.count)} of {o.count} edges']
+        def timed(words):
+            if o.within_seconds is None or attempt.done.get(o.id): return words
+            if o.id in attempt.expired: return words + f' (the {clock(o.within_seconds)} ran out for this try; the next session starts a fresh clock)'
+            return words + f' ({clock(attempt.remaining(o))} of the {clock(o.within_seconds)} left; pauses stop the clock)'
+        if o.type == 'edge_count': return [timed(f'{min(n, o.count)} of {o.count} edges')]
         if o.type == 'orgasm_count':
             words = f'{min(n, o.count)} of {o.count} reported orgasm' + ('s' if o.count > 1 else '')
             if o.after and not attempt.done.get(o.after): words += ' (only counted once the earlier goal is reached)'
-            return [words]
+            return [timed(words)]
+        if o.type == 'puzzle_solved':
+            return [f'puzzle "{o.puzzle.title}": ' + ('solved' if o.id in attempt.solved else 'open now' if attempt.puzzle_open(o) else 'not reached yet')]
         if o.type == 'style_stages':
             filled = attempt.done_styles(o)
             words = f'{len(filled)} of {o.count} play-style stages complete' + (' (' + ', '.join(STYLE_WORDS.get(k, k) for k in filled) + ')' if filled else '')
@@ -748,10 +859,11 @@ class CampaignService:
             stage = attempt.current_stage(o)
             if not stage: return ['all assessment stages complete']
             number = o.stages.index(stage) + 1
-            words = (f'stage {number} of {len(o.stages)}, "{stage.label}", at {stage.intensity}% intensity: '
+            at = f', at {stage.intensity}% intensity' if stage.intensity is not None else ''
+            words = (f'stage {number} of {len(o.stages)}, "{stage.label}"{at}: '
                      f'{clock(attempt.stage_time.get(stage.id, 0))} of {clock(stage.seconds)}')
             now = report.get('intensity')
-            if isinstance(now, int) and abs(now - stage.intensity) > o.tolerance:
+            if stage.intensity is not None and isinstance(now, int) and abs(now - stage.intensity) > o.tolerance:
                 words += f'; intensity is now {now}%, so this stage\'s clock is paused until the participant sets {stage.intensity}%'
             return [words]
         return []
@@ -771,6 +883,34 @@ class CampaignService:
                 facts.append(f'{value} edges' if o.type == 'edge_count' else f'{value} reported orgasms' if o.type == 'orgasm_count' else f'play styles {value}' if o.type == 'style_stages' else str(value))
             parts.append(f'Mission {m.order} "{m.title}" ({m.companion}): completed' + (' with ' + ', '.join(facts) if facts else ', with no further detail on record'))
         return 'Reports on file (saved by EdgeLoop, the only evidence you have): ' + '; '.join(parts) + '.'
+
+    def answer(self, objective_id, option_id, report, model):
+        """A puzzle answer from the mission panel. The campaign checks it against its own definition; nothing a model
+        says is involved. A wrong pick only shows the hint (try again as often as needed). A right one is saved first,
+        then announced. Returns messages to publish; raises ValueError for an answer that cannot be taken now."""
+        attempt = self.attempt
+        if self.error: raise ValueError(self.error)
+        if not attempt or attempt.completed: raise ValueError('No mission is in progress.')
+        o = next((x for x in attempt.mission.objectives if x.id == objective_id and x.type == 'puzzle_solved'), None)
+        if not o: raise ValueError('Unknown puzzle.')
+        if o.id in attempt.solved: raise ValueError('That puzzle is already solved.')
+        if not attempt.puzzle_open(o): raise ValueError('Solve the earlier puzzle first.')
+        if self.identity(model) != attempt.mission.companion: raise ValueError('The puzzles count with the mission companion selected.')
+        if not report or attempt.session_id is None or attempt.session_id != report.get('session_id') or report.get('status') not in LIVE:
+            raise ValueError('Start the mission session first; the puzzles are solved during it.')
+        if option_id != o.puzzle.answer:
+            attempt.wrong[o.id] = option_id
+            return [self.progress_update(report, model)]
+        progress = self.progress.model_copy(deep=True)
+        progress.active.solved = [*progress.active.solved, o.id]
+        self._save(progress)
+        attempt.solved.add(o.id); attempt.done[o.id] = True; attempt.wrong.pop(o.id, None)
+        if all(attempt.done.get(x.id) for x in attempt.mission.objectives):
+            result = self._complete(attempt)
+            if not result: return [self.state(report, model)]
+            self.cues.append(self._cue('mission_complete', attempt.mission, attempt.session_id))
+            return [self.state(report, model), result]
+        return [self.progress_update(report, model)] + self._moments(attempt, [f'{o.id}:done'])
 
     def abandon(self):
         progress = self.progress.model_copy(deep=True)
@@ -806,6 +946,7 @@ class CampaignService:
                 attempt.session_id = sid
                 attempt.last_edges, attempt.last_orgasms = report.get('edges', 0), d.get('orgasm_count') or 0
                 attempt.last_seconds, attempt.last_config = None, None
+                attempt.base_seconds = report.get('seconds') if isinstance(report.get('seconds'), int) else 0
                 attempt.reset_reason = None
                 for o in mission.objectives:
                     if o.type in {'hr_monitor_connected', 'toy_connected', 'session_started'}: attempt.done[o.id] = True
@@ -823,12 +964,16 @@ class CampaignService:
             new_orgasms = max(0, orgasms - attempt.last_orgasms) + (1 if 'came_early' in kinds else 0)
             new_edges = max(0, edges - attempt.last_edges)
             met_before = {k for k, v in attempt.done.items() if v}
+            seconds = report.get('seconds')
+            before_elapsed = attempt.elapsed()
+            now_elapsed = max(0, seconds - attempt.base_seconds) if isinstance(seconds, int) and attempt.base_seconds is not None else before_elapsed
+            late = lambda o: o.within_seconds is not None and (o.id in attempt.expired or now_elapsed > o.within_seconds)
             if eligible:
                 attempt.edges += new_edges
                 attempt.orgasms += new_orgasms
                 for o in mission.objectives:
                     # An `after` objective counts only events that come once its predecessor was already met.
-                    if o.type not in COUNTED or (o.after and o.after not in met_before): continue
+                    if o.type not in COUNTED or (o.after and o.after not in met_before) or late(o): continue
                     new = new_edges if o.type == 'edge_count' else new_orgasms
                     old = attempt.counts.get(o.id, 0)
                     attempt.counts[o.id] = old + new
@@ -836,12 +981,20 @@ class CampaignService:
             # Counters only grow inside a session; an IDLE reset to 0 must not count backwards or double.
             attempt.last_edges, attempt.last_orgasms = max(attempt.last_edges, edges), max(attempt.last_orgasms, orgasms)
             moments += self._credit_time(attempt, report, eligible)
+            for o in mission.objectives:
+                if o.within_seconds is None or o.id in attempt.expired or attempt.counts.get(o.id, 0) >= o.count: continue
+                if now_elapsed > o.within_seconds:
+                    # Time is up for this try; nothing more counts toward it until the next session.
+                    attempt.expired.add(o.id); moments.append(f'{o.id}:expired')
+                else:
+                    moments += [f'{o.id}:left{w}' for w in o.warnings if o.within_seconds - before_elapsed > w >= o.within_seconds - now_elapsed]
             calibrated = d.get('terminal_outcome') == 'calibration_completed' or 'completion_accepted' in kinds
             ended_ok = companion_ok and real_hr(report) and self._mode_ok(mission, report)
             for o in mission.objectives:
                 if o.type in COUNTED and attempt.counts.get(o.id, 0) >= o.count: attempt.done[o.id] = True
                 if o.type == 'style_stages' and len(attempt.done_styles(o)) >= o.count: attempt.done[o.id] = True
                 if o.type == 'stage_sequence' and attempt.current_stage(o) is None: attempt.done[o.id] = True
+                if o.type == 'puzzle_solved' and o.id in attempt.solved: attempt.done[o.id] = True
                 if o.type == 'calibration_completed' and calibrated and ended_ok: attempt.done[o.id] = True
                 if o.type == 'calibration_saved' and calibrated and ended_ok and d.get('calibration_saved') is True:
                     metric = d.get('dual_max_bpm') if d.get('calibration_pass') == 'dual' else d.get('single_max_bpm')
@@ -913,7 +1066,7 @@ class CampaignService:
                     if len(filled) < o.count: moments.append(f'{o.id}:{len(filled)}')
             if o.type == 'stage_sequence':
                 stage = attempt.current_stage(o)
-                ok = lambda v: isinstance(v, int) and abs(v - stage.intensity) <= o.tolerance
+                ok = lambda v: stage.intensity is None or isinstance(v, int) and abs(v - stage.intensity) <= o.tolerance
                 if not stage or not (ok(config[3]) and ok(last[3])): continue
                 attempt.stage_time[stage.id] = min(stage.seconds, attempt.stage_time.get(stage.id, 0) + step)
                 following = attempt.current_stage(o)
@@ -954,7 +1107,7 @@ class CampaignService:
         attempt.session_id = None; attempt.done = {}; attempt.edges = attempt.orgasms = 0
         attempt.last_edges = attempt.last_orgasms = None; attempt.metric = None; attempt.reset_reason = reason
         attempt.counts = {}; attempt.style_time = {}; attempt.stage_time = {}; attempt.filled = {}; attempt.marked = set()
-        attempt.last_seconds = attempt.last_config = None
+        attempt.last_seconds = attempt.last_config = None; attempt.base_seconds = None; attempt.expired = set(); attempt.wrong = {}
         attempt.cued = set(); attempt.generation += 1
         self.directives = []
 
@@ -984,6 +1137,9 @@ class CampaignService:
         for o in mission.objectives:
             if o.type in COUNTED: record.records[f'{mission.id}.{o.id}'] = attempt.counts.get(o.id, 0)
             if o.type == 'style_stages': record.records[f'{mission.id}.{o.id}'] = ', '.join(STYLE_WORDS.get(k, k) for k in attempt.done_styles(o))
+        # Story flags follow the story's first pass: replaying an earlier mission never rewinds them.
+        flags = {} if replay else dict(mission.flags)
+        record.flags.update(flags)
         chapter_done = next((r.id for r in mission.rewards if r.type == 'chapter_complete' and r.id not in record.chapters), None)
         if chapter_done: record.chapters[chapter_done] = ChapterRecord(completed_at=stamp)
         campaign_done = any(r.type == 'campaign_complete' for r in mission.rewards) and record.completed_at is None
@@ -1009,9 +1165,10 @@ class CampaignService:
                   'companion': mission.companion, 'replay': replay, 'earned': earned, 'unlocked_missions': newly,
                   'objectives': attempt.view(None, True)['objectives'], 'records': dict(record.records),
                   'completion': block.completion.model_dump(exclude_none=True) if block else None,
+                  'epilogue': [b.model_dump(exclude_none=True) for b in block.epilogue] if block else [],
                   'chapter_complete': {'id': chapter.id, 'number': chapter.number, 'title': chapter.title} if chapter else None,
                   'chapter_completion': narrative.chapters[chapter.id].model_dump(exclude_none=True) if chapter and narrative and chapter.id in narrative.chapters else None,
-                  'campaign_complete': bool(campaign_done),
+                  'flags': flags, 'campaign_complete': bool(campaign_done),
                   'campaign_completion': narrative.campaign_complete.model_dump() if campaign_done and narrative and narrative.campaign_complete else None}
         self.attempt = None
         return result

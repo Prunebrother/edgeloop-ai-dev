@@ -197,13 +197,17 @@ class CampaignCommand(StrictModel):
     """Campaign navigation. The observer validates every transition; evidence never comes from the browser's say-so."""
     version: Literal[1]
     type: Literal['campaign']
-    action: Literal['get','start','abandon']
+    action: Literal['get','start','abandon','answer']
     campaign_id: str | None = Field(default=None,min_length=1,max_length=64,pattern=r'^[a-z0-9][a-z0-9_.-]*$')
     mission_id: str | None = Field(default=None,min_length=1,max_length=64,pattern=r'^[a-z0-9][a-z0-9_.-]*$')
+    # A puzzle answer: which puzzle (objective) and which option. The observer checks it; the browser never decides.
+    objective_id: str | None = Field(default=None,min_length=1,max_length=64,pattern=r'^[a-z0-9][a-z0-9_.-]*$')
+    answer: str | None = Field(default=None,min_length=1,max_length=64,pattern=r'^[a-z0-9][a-z0-9_.-]*$')
 
     @model_validator(mode='after')
     def targets(self):
         if self.action=='start' and not (self.campaign_id and self.mission_id):raise ValueError('start needs a campaign and a mission')
+        if (self.action=='answer')!=bool(self.objective_id and self.answer):raise ValueError('answer needs a puzzle and an option, and only answer takes them')
         return self
 
 class ConfigureContext(StrictModel):

@@ -311,10 +311,15 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                             'events':[{'id':e.id,'kind':e.kind,'session_id':state.session_id} | ({'preserve_reaction':True} if e.kind=='stop' and (closing or accepted_release or any(p['kind'] in {'came_early','completion_accepted'} for p in speech.pending) or speech.active_event_kind in {'came_early','completion_accepted'} and speech.task is not None and not speech.task.done()) else {}) for e in message.events if e.id in state.accepted_event_ids]})
                     elif isinstance(message,CampaignCommand):
                         try:
-                            if message.action=='start':campaign.start(message.campaign_id,message.mission_id,state.report)
-                            elif message.action=='abandon':campaign.abandon()
+                            if message.action=='answer':
+                                # A puzzle answer is checked by the campaign against its own definition, never by a model.
+                                for update in campaign.answer(message.objective_id,message.answer,state.report if state.fresh() else None,persona()):publish(update)
+                                for cue in campaign.take_cues():speech.campaign_cue(cue)
+                            else:
+                                if message.action=='start':campaign.start(message.campaign_id,message.mission_id,state.report)
+                                elif message.action=='abandon':campaign.abandon()
+                                publish(campaign.state(state.report,persona()))
                             speech.settings.allowed=campaign.allowed_settings();speech.settings.directed=campaign.settings_directed()
-                            publish(campaign.state(state.report,persona()))
                         except (ValueError,OSError) as exc:
                             publish(campaign.state(state.report,persona())|{'command_error':str(exc)[:240] if isinstance(exc,ValueError) else 'Campaign progress could not be saved; nothing changed.'})
                     elif isinstance(message,ConfigureCurator):

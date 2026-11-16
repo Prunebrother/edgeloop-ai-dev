@@ -13,6 +13,7 @@ MODELS = {'nova-narrative-f29-v011:latest': 'nova', 'evelyn-narrative-f29-v013:l
 MODEL = {v: k for k, v in MODELS.items()}
 ORDER = ['orientation', 'first_assessment', 'country_connections', 'directors_test', 'certification']
 CHAPTER2 = ['endurance_study', 'cloverfield_quota', 'adaptive_calibration', 'directors_reassessment']
+CHAPTER3 = ['the_anomaly', 'the_empty_vault', 'midnight_intruder', 'loyalty_test', 'ghost_in_the_machine']
 CID = 'asterion_initiative'
 
 
@@ -61,9 +62,10 @@ def test_the_shipped_campaign_loads_and_is_available_from_the_start(tmp_path):
     state = service(tmp_path).state()
     campaign = state['campaigns'][0]
     assert campaign['title'] == 'The Asterion Initiative' and campaign['available'] and not campaign['completed']
-    assert [m['id'] for m in campaign['missions']] == ORDER + CHAPTER2
-    assert [m['companion'] for m in campaign['missions']] == ['nova', 'evelyn', 'daisy', 'celeste', 'nova', 'evelyn', 'daisy', 'nova', 'celeste']
-    assert campaign['progress'] == {'completed': 0, 'total': 9}
+    assert [m['id'] for m in campaign['missions']] == ORDER + CHAPTER2 + CHAPTER3
+    assert [m['companion'] for m in campaign['missions']] == ['nova', 'evelyn', 'daisy', 'celeste', 'nova', 'evelyn', 'daisy', 'nova', 'celeste',
+                                                              'evelyn', 'daisy', 'mira', 'celeste', 'nova']
+    assert campaign['progress'] == {'completed': 0, 'total': 14}
     assert campaign['narrative_status'] == 'approved'
     assert all(m['briefing'] for m in campaign['missions'])
 
@@ -82,7 +84,7 @@ def test_a_second_campaign_registers_from_data_alone(tmp_path):
 @pytest.mark.parametrize('change,error', [
     (lambda c: c['missions'][1].update(prerequisites=['nope']), 'unknown prerequisite'),
     (lambda c: c['missions'][0].update(prerequisites=['certification']), 'cycle'),
-    (lambda c: c['missions'][1].update(companion='mira'), 'never unlocked'),
+    (lambda c: c['missions'][1].update(companion='stranger'), 'never unlocked'),
     (lambda c: c['missions'][0]['objectives'].append({'id': 'x', 'type': 'edge_count', 'label': 'x'}), 'count is required'),
     (lambda c: c['missions'][0]['objectives'].append({'id': 'x', 'type': 'llm_said_so', 'label': 'x'}), 'Input should be'),
 ])
@@ -105,7 +107,7 @@ def test_a_broken_campaign_is_skipped_and_the_others_still_load(tmp_path):
 
 def test_only_the_first_mission_is_available_at_the_start(tmp_path):
     assert states(service(tmp_path)) == {'orientation': 'available', 'first_assessment': 'locked', 'country_connections': 'locked',
-                                         'directors_test': 'locked', 'certification': 'locked'} | {m: 'locked' for m in CHAPTER2}
+                                         'directors_test': 'locked', 'certification': 'locked'} | {m: 'locked' for m in CHAPTER2 + CHAPTER3}
     with pytest.raises(ValueError, match='locked'):
         service(tmp_path).start(CID, 'first_assessment')
 
@@ -228,8 +230,8 @@ def test_certification_completes_the_campaign_on_a_saved_finished_me_run(tmp_pat
     assert result['chapter_completion']['speaker'] == 'nova' and 'certified participant' in result['chapter_completion']['lines'][0]
     assert {k: result['records'][k] for k in ('calibration_pass', 'calibrated_max_bpm')} == {'calibration_pass': 'primary', 'calibrated_max_bpm': 150}
     state = service(tmp_path).state()['campaigns'][0]
-    assert not state['completed'] and state['progress'] == {'completed': 5, 'total': 9}
-    assert [(c['completed'], c['progress']) for c in state['chapters']] == [(True, {'completed': 5, 'total': 5}), (False, {'completed': 0, 'total': 4})]
+    assert not state['completed'] and state['progress'] == {'completed': 5, 'total': 14}
+    assert [(c['completed'], c['progress']) for c in state['chapters']][:2] == [(True, {'completed': 5, 'total': 5}), (False, {'completed': 0, 'total': 4})]
 
 
 def test_edged_saves_the_max_but_does_not_certify(tmp_path):
@@ -283,7 +285,7 @@ def test_progress_survives_a_restart(tmp_path):
     assert states(again)['orientation'] == 'completed' and states(again)['first_assessment'] == 'active'
     assert again.attempt and again.attempt.session_id is None  # a session never resumes across restarts
     saved = json.loads((tmp_path / PROGRESS_FILE).read_text())
-    assert saved['schema_version'] == 2 and saved['active']['mission'] == 'first_assessment'
+    assert saved['schema_version'] == 3 and saved['active']['mission'] == 'first_assessment'
     assert set(saved['campaigns'][CID]['rewards']) == {'unlock_companion:evelyn'}
 
 

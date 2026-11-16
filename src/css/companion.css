@@ -377,7 +377,13 @@ body.game-menu-open {overflow:hidden}
 .mission-chapter {padding:10px 2px 2px;border-top:1px solid rgba(148,163,184,.18)}
 .mission-chapter:first-child {border-top:0}
 .mission-chapter h2 {margin:0;font-size:15px;color:#e9d5ff}.mission-chapter p {margin:2px 0;color:#a3b1c6;font-size:13px}
-.mission-chapter[data-state="locked"] {opacity:.6}
+.mission-chapter[data-state="locked"] {opacity:.6}.mission-chapter[data-state="teaser"] {opacity:.75}
+.mission-puzzle {margin:8px 0;padding:10px;border:1px solid rgba(196,181,253,.3);border-radius:10px;background:rgba(76,29,149,.12)}
+.mission-puzzle p {margin:6px 0;font-size:13px;color:#e2e8f0}
+.mission-puzzle-options {display:grid;gap:6px}
+.mission-puzzle-options button {text-align:left;padding:8px 10px;border-radius:8px;border:1px solid rgba(148,163,184,.35);background:rgba(15,23,42,.6);color:#e2e8f0;font-size:13px;cursor:pointer}
+.mission-puzzle-options button:hover,.mission-puzzle-options button:focus-visible {border-color:#c4b5fd}
+.mission-puzzle-options button.wrong {border-color:#fb7185;color:#fecdd3}
 .game-menu-actions {display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .menu-button {min-height:36px}
 .mission-banner {margin:4px 22px 6px;display:grid;gap:8px}

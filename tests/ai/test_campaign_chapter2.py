@@ -47,11 +47,11 @@ def view(svc, oid, r=None):
 
 def test_chapters_are_listed_with_their_missions(tmp_path):
     campaign = service(tmp_path).state()['campaigns'][0]
-    assert [(c['number'], c['id'], c['title']) for c in campaign['chapters']] == [(1, 'introduction', 'Introduction'), (2, 'advanced_research', 'Advanced Research')]
-    assert [m['chapter'] for m in campaign['missions']] == [1] * 5 + [2] * 4
+    assert [(c['number'], c['id'], c['title']) for c in campaign['chapters']][:2] == [(1, 'introduction', 'Introduction'), (2, 'advanced_research', 'Advanced Research')]
+    assert [m['chapter'] for m in campaign['missions']][:9] == [1] * 5 + [2] * 4
     assert campaign['chapters'][0]['available'] and not campaign['chapters'][1]['available']
     # The whole narrative, Chapter 2 included, is approved (2026-11-16): no mission is marked as a draft.
-    assert [m['narrative_draft'] for m in campaign['missions']] == [False] * 9
+    assert [m['narrative_draft'] for m in campaign['missions']][:9] == [False] * 9
 
 
 def test_chapter_two_opens_after_mission_five_and_unlocks_in_order(tmp_path):
@@ -202,10 +202,11 @@ def test_the_reassessment_runs_three_stages_then_needs_the_finish(tmp_path):
     assert svc.allowed_settings() == {'intensity', 'orgasm'}
     assert not [c for c in svc.take_cues() if c['kind'] == 'objective_reached']
     [result] = results(run(svc, 'celeste', tick('d', 1815, intensity=125, orgasms=1)))
-    assert result['chapter_complete']['id'] == 'advanced_research' and result['campaign_complete']
+    # Chapter 2 no longer ends the campaign (Chapter 3 follows).
+    assert result['chapter_complete']['id'] == 'advanced_research' and not result['campaign_complete']
     assert result['chapter_completion']['speaker'] == 'nova' and 'status' not in result['chapter_completion']
     campaign = svc.state()['campaigns'][0]
-    assert campaign['completed'] and all(c['completed'] for c in campaign['chapters'])
+    assert not campaign['completed'] and [c['completed'] for c in campaign['chapters'][:3]] == [True, True, False]
 
 
 def test_an_orgasm_before_the_final_phase_does_not_count(tmp_path):
@@ -274,11 +275,11 @@ def test_version_1_progress_becomes_chapter_1_complete(tmp_path):
     svc = service(tmp_path)
     campaign = svc.state()['campaigns'][0]
     assert svc.error is None and not campaign['completed'] and campaign['records']['calibrated_max_bpm'] == 150
-    assert [m['state'] for m in campaign['missions']] == ['completed'] * 5 + ['available', 'locked', 'locked', 'locked']
+    assert [m['state'] for m in campaign['missions']] == ['completed'] * 5 + ['available'] + ['locked'] * 8
     assert campaign['chapters'][0]['completed'] and campaign['chapters'][0]['completed_at'] == STAMP
     svc.start(CID, 'endurance_study')
     saved = json.loads((tmp_path / PROGRESS_FILE).read_text())
-    assert saved['schema_version'] == 2 and saved['campaigns'][CID]['completed_at'] is None
+    assert saved['schema_version'] == 3 and saved['campaigns'][CID]['completed_at'] is None
     assert set(saved['campaigns'][CID]['rewards']) == {'unlock_companion:evelyn', 'chapter_complete:introduction'}
 
 
@@ -300,7 +301,7 @@ def test_progress_of_a_removed_mission_is_ignored(tmp_path):
     progress['campaigns'][CID]['missions']['old_mission'] = {'completions': 1, 'first_completed_at': STAMP, 'last_completed_at': STAMP}
     (tmp_path / PROGRESS_FILE).write_text(json.dumps(progress))
     svc = service(tmp_path)
-    assert svc.error is None and svc.state()['campaigns'][0]['progress'] == {'completed': 9, 'total': 9}
+    assert svc.error is None and svc.state()['campaigns'][0]['progress'] == {'completed': 14, 'total': 14}
 
 
 # ---- definitions
