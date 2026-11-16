@@ -8,6 +8,9 @@ import {CharacterPresentation,mountExpressionPreview} from './character.js';
 import {CharacterPresentationController} from './presentation-controller.js';
 import {mountCharacterMenus} from './character-menus.js';
 import {mountLayout} from './layout.js';
+import {mountMainMenu} from './main-menu.js';
+import {MODEL_ARTWORK,CHARACTERS} from './artwork-manifest.js';
+const CHARACTERS_NAME=id=>CHARACTERS[id]?.name||id;
 export function mountCompanion({refreshObservation=()=>{},settingsControl=null}={}) {
     const capture=new Capture();
     const panel=document.createElement('section');panel.id='ai-companion';panel.dataset.paired='false';panel.setAttribute('aria-label','AI conversation');
@@ -65,6 +68,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
         const connected=!!connection.epoch;presentation.connection(connected);paired=connected;panel.dataset.paired=String(connected);el('status').textContent=text;
         el('setup').hidden=connected;el('disconnect').hidden=!connection.enabled;
         for(const key of ['model','select','refresh'])el(key).disabled=!connected;
+        if(connected!==campaignPaired){campaignPaired=connected;mainMenu.connected(connected);}
         if(!connected){latestGeneration=0;discovered.clear();selected=null;changing=false;thinking=null;supportsThinking=false;finish();el('text').disabled=true;el('send').disabled=true;el('selected').textContent='No active AI connection';el('telemetry').textContent='Telemetry disconnected';el('ollama').textContent='Ollama not checked';}controls();resting();
     },onMessage:m=>{
         if(!reactionMatchesLatest(m.reaction_selection,connection.latest)){
@@ -75,6 +79,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
         if(debug)queueMicrotask(updateDiagnostics);
         if(['character_state','narrative_reset','character_menu_error','session_journal'].includes(m.type)){menus.receive(m);return;}
         if(m.type==='character_builder'){builder.receive(m);return;}
+        if(m.type==='campaign_state'||m.type==='mission_result'){mainMenu.receive(m);return;}
         if(m.type==='settings_request'){settingsRequest(m);return;}
         if(m.type==='protocol_error'&&m.errors?.some(e=>['configure_events','configure_context','update_objective'].some(type=>e.path.includes(type)))){menus.receive({type:'character_menu_error',detail:'Invalid companion settings. Check the permitted ranges and selected model; no configuration was applied.'});return;}
         if(m.type==='ai_diagnostics'){if(m.responder?.model&&m.responder.model!==selected||m.id&&m.id!==presentation.lastRequest?.id)return;Object.assign(diagnostic,m);return;}
@@ -97,6 +102,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
             if(!sameModel){el('history').replaceChildren();follow=true;
                 for(const item of m.history||[])line(item.role==='user'?'user':'assistant',item.content);}
             el('text').disabled=false;busy(false);error('');
+            for(const [block,label] of queuedMissionLines.splice(0))postMissionLines(block,label);
         } else if(m.type==='response_start'){
             if(Number.isSafeInteger(m.generation)&&m.generation<latestGeneration)return;
             if(Number.isSafeInteger(m.generation))latestGeneration=m.generation;
@@ -141,6 +147,29 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
     openBuilder.onclick=()=>{const dashboard=document.getElementById('companion-dashboard');
         if(dashboard&&dashboard.dataset.view!=='chat')dashboard.dispatchEvent(new CustomEvent('companion-view',{detail:'chat'}));builder.open();};
     panel.querySelector('.model-picker').append(openBuilder);
+    // Main menu and campaign screens. Missions pick their companion from the installed models;
+    // scripted mission lines are shown in the conversation but never sent to the model.
+    let campaignPaired=false;const queuedMissionLines=[];
+    const postMissionLines=(block,label)=>{if(!block)return;
+            // A companion switch rebuilds the conversation; the line waits until it is done.
+            if(changing){queuedMissionLines.push([block,label]);return;}
+            el('empty')?.remove();
+            const node=document.createElement('article');node.className='message message-assistant message-mission';
+            const author=document.createElement('span');author.className='message-author';author.textContent=(CHARACTERS_NAME(block.speaker))+' · '+label;
+            const body=document.createElement('div');body.className='message-content';
+            for(const text of block.lines){const p=document.createElement('p');p.textContent=text;body.append(p);}
+            node.append(author,body);el('history').append(node);scroll();};
+    const missionModel=id=>{
+        const own=[...discovered].filter(model=>MODEL_ARTWORK[model]===id);
+        const rank=model=>{const v=/-f29-v(\d+)/.exec(model);return v?Number(v[1]):-1;};
+        return own.sort((a,b)=>rank(b)-rank(a))[0]||null;};
+    const mainMenu=mountMainMenu({send:m=>connection.send(m),status:()=>connection.latest?.status||'IDLE',bannerHost:panel,
+        selectCompanion:id=>{
+            if(selected&&MODEL_ARTWORK[selected]===id)return true;
+            const model=missionModel(id);
+            if(!model)return paired?`This companion is not installed. Refresh the model list, or install the release models.`:'Connect the companion service first.';
+            selectModel(model);return true;},
+        postLines:(block,label)=>postMissionLines(block,label)});
     // AI Settings Control: the engine-side gate decides; this layer only forwards and shows the result.
     const settingsName=()=>selected?(resolveArtwork(selected).name==='Your companion'?selected:resolveArtwork(selected).name):'Companion';
     const settingsChip=outcome=>{if(!settingsControl?.chip)return;el('empty')?.remove();el('history').append(settingsControl.chip(outcome,{name:settingsName(),send:r=>connection.send(r)}));scroll();};

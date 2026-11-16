@@ -26,8 +26,8 @@
   },
   "src/js/app.js": {
     "base_sha256": "2efd140221b42013159e93001932e03ffa1b46b768664ec2df21d1c207afe1d8",
-    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged; F2.5.1 projects existing learning-release counter only; original handlers and safety unchanged; F2.8.1 adds post-motor-stop/pre-counter-reset read-only final projection and Survival restart observation only; reset cancellation final projection after stop dispatch; upstream 1.1.4.31 sync: one history record merges the fork completion report with the upstream opt-in session log, and a failed companion mount is logged (the session is unaffected); player workspace: loading or clearing a funscript records the play style it switches to (state.mediaSelection) just before upstream applies it, so the observer can tell that change from a selection; the switch itself is unchanged; v0.7.0-rc3: the local player app sends X-EdgeLoop-App on its state-changing requests (host Origin check)",
-    "sha256": "4bf45d7c13729ecf5303911e981fd89d766c0ad9ec3f116661dcd9d9dd128971"
+    "reason": "Read-only AI observation hook; F2.3 reuses original pure setting sanitizer and watchdog query; engine/control functions unchanged; F2.5.1 projects existing learning-release counter only; original handlers and safety unchanged; F2.8.1 adds post-motor-stop/pre-counter-reset read-only final projection and Survival restart observation only; reset cancellation final projection after stop dispatch; upstream 1.1.4.31 sync: one history record merges the fork completion report with the upstream opt-in session log, and a failed companion mount is logged (the session is unaffected); player workspace: loading or clearing a funscript records the play style it switches to (state.mediaSelection) just before upstream applies it, so the observer can tell that change from a selection; the switch itself is unchanged; v0.7.0-rc3: the local player app sends X-EdgeLoop-App on its state-changing requests (host Origin check); campaign: Calibration records whether the saved maximum reached the settings store (read-only calibration_saved fact for the observer); the save itself is unchanged",
+    "sha256": "66023e7e1c88dc666750c09d0282955ac4a5a93e7fc2eedca6a53f038047fbc4"
   },
   "src/js/backup.test.js": {
     "base_sha256": "1db725797ba3792abe91d18da49950904c5dd395a51089175ad8ce45f645ea56",
@@ -46,8 +46,8 @@
   },
   "sw.js": {
     "base_sha256": "1ad54fe27a2ad00ee8abb242716fcb77ae37326d52ef56e069d6dbb517779c9d",
-    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only; F2.5.1 cache version only; F2.6 cache version only; F2.6.1 character menu module and cache invalidation; F2.7 event settings module and cache invalidation; F2.8 context tools precache and cache invalidation; F2.8.1 cache invalidation only; F2.8.2 context diagnostics cache invalidation only; free-form objective guidance cache invalidation only; F2.8.3 memory diagnostics cache invalidation; F2.8.4 public journal UI module precache and cache invalidation (journal records remain private observer data); F2.8.4.1 curator controls and memory diagnostics cache invalidation only; Nova character registration cache invalidation only; F2.8.5 Director controls cache invalidation only; v0.3.0 includes art, local browser libraries and complete runtime installer; upstream 1.1.4.31 sync: union of upstream player/page-focus precache and fork modules, cache version invalidation",
-    "sha256": "3a751b88eacbc767d2612d6fbdc1db52798b4c1026d52dd8177eb406f14c84e5"
+    "reason": "Public companion modules/manifest precache; F2.4 high-resolution originals use bounded renderer/browser HTTP cache; AI/auth exclusions preserved; F2.5 cache version invalidation only; F2.5.1 cache version only; F2.6 cache version only; F2.6.1 character menu module and cache invalidation; F2.7 event settings module and cache invalidation; F2.8 context tools precache and cache invalidation; F2.8.1 cache invalidation only; F2.8.2 context diagnostics cache invalidation only; free-form objective guidance cache invalidation only; F2.8.3 memory diagnostics cache invalidation; F2.8.4 public journal UI module precache and cache invalidation (journal records remain private observer data); F2.8.4.1 curator controls and memory diagnostics cache invalidation only; Nova character registration cache invalidation only; F2.8.5 Director controls cache invalidation only; v0.3.0 includes art, local browser libraries and complete runtime installer; upstream 1.1.4.31 sync: union of upstream player/page-focus precache and fork modules, cache version invalidation; campaign: main menu module precache and cache version invalidation",
+    "sha256": "67e33bb5c643691c0a73fcd0695fd004798ddd319728e49b46c8d39f2c824909"
   },
   "app/host.mjs": {
     "base_sha256": "da16fce44adafb5e7eb997a480633b478f0fc3a00602907f1c890a2beba88f41",
@@ -81,7 +81,7 @@
   },
   "src/js/state.js": {
     "base_sha256": "e029abaec185a6375e55740e5b9829e4acf371d0e1f97070e70510e93d12598b",
-    "reason": "Complete local-app release packaging; original engine and hardware controls preserved.",
-    "sha256": "466495e2b0fd8a55ca618e590c84670c0e81e4b4d2ac6b7dc34791a87baa9016"
+    "reason": "Complete local-app release packaging; original engine and hardware controls preserved.; campaign: calibrationSaved default (read-only observer fact)",
+    "sha256": "729ff3776406bd7d9c3f7fa955dfcb536239e0a05d1420b72f98c48a0b5b4188"
   }
 }
