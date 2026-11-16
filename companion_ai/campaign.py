@@ -34,6 +34,8 @@ ObjectiveType = Literal['hr_monitor_connected', 'toy_connected', 'session_starte
 PLAY_STYLES = ('classic', 'finisher', 'milker', 'shortener', 'headplay', 'ultimate', 'bratty', 'ruin')
 StyleName = Literal['classic', 'finisher', 'milker', 'shortener', 'headplay', 'ultimate', 'bratty', 'ruin']
 # As the play-style cards in EdgeLoop name them.
+# Words naming a mission's whole timed objective, as opposed to one of its stages.
+DURATION_TOTAL_WORDS = ('assessment', 'evaluation', 'mission', 'encounter', 'calibration')
 STYLE_WORDS = {'classic': 'Simple Ramp', 'finisher': 'Finisher', 'milker': 'Prostate Milker', 'shortener': 'Glans Protector',
                'headplay': 'Head Play', 'ultimate': 'Ultimate Milker', 'bratty': 'Bratty Tease', 'ruin': 'Ruin & Leak'}
 # At most this many seconds of running time are credited between two observations (they arrive about every second);
@@ -857,16 +859,42 @@ class CampaignService:
 
     @staticmethod
     def _durations(attempt, report):
-        """The mission's verified clocks in seconds (stage and total assessment time, time per play style, a countdown), so a
-        companion can name them even when the whole-session clock is longer."""
-        values = set()
+        """The mission's verified clocks, each with the words that name it, so a companion can state one even when
+        the whole-session clock is longer, and a claim is checked against the clock it actually names.
+        A clock: seconds, remaining (time left rather than time done), names, rank (a more specific name wins)
+        and generic (it also answers a clause that names no clock, such as "this stage")."""
+        clocks = []
+        def add(seconds, names, rank, remaining=False, generic=False):
+            if isinstance(seconds, int) and seconds >= 0:
+                clocks.append({'seconds': seconds, 'remaining': remaining, 'names': sorted({n.lower() for n in names if n}),
+                               'rank': rank, 'generic': generic})
+        ordinals = ('first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth')
+        numbers = ('one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight')
         for item in attempt.view(report, True)['objectives']:
-            if 'elapsed' in item: values.add(item['elapsed'])
+            whole = {item['id'], *DURATION_TOTAL_WORDS}
+            stages = item.get('stages', ())
+            if item['type'] == 'stage_sequence':
+                add(item['elapsed'], whole, 1)
+                add(item['total'] - item['elapsed'], whole, 1, remaining=True)
+                for i, st in enumerate(stages):
+                    names = {st['id'], st['label']}
+                    for word in ('stage', 'phase'):
+                        if i < len(ordinals): names |= {f'{ordinals[i]} {word}', f'{word} {numbers[i]}', f'{word} {i + 1}'}
+                        if i == len(stages) - 1: names |= {f'final {word}', f'last {word}'}
+                        if st['current']: names |= {f'this {word}', f'current {word}'}
+                    add(st['elapsed'], names, 2, generic=st['current'])
+                    add(st['seconds'] - st['elapsed'], names, 2, remaining=True, generic=st['current'])
+            elif item['type'] == 'style_stages':
+                add(item['elapsed'], whole | {'styles', 'play styles'}, 1)
+                for st in stages:
+                    names = {st['style'], st['label']} | ({'this style', 'current style', 'this play style', 'current play style'} if st.get('current') else set())
+                    add(st['seconds'], names, 2, generic=bool(st.get('current')))
+                    if st.get('current'): add(item['stage_seconds'] - st['seconds'], names, 2, remaining=True, generic=True)
             # A countdown: its limit and the verified time left ("ten minutes left").
-            if item.get('within_seconds'): values.update((item['within_seconds'], item.get('remaining')))
-            values.update(st['elapsed'] for st in item.get('stages', ()) if 'elapsed' in st)
-            values.update(st['seconds'] for st in item.get('stages', ()) if 'style' in st)
-        return sorted(v for v in values if isinstance(v, int) and v > 0)
+            if item.get('within_seconds'):
+                add(item['within_seconds'], {item['id'], 'limit', 'deadline', 'countdown', 'window', 'within'}, 1)
+                add(item.get('remaining'), {item['id'], 'deadline', 'countdown', 'clock'}, 1, remaining=True, generic=True)
+        return clocks
 
     @staticmethod
     def _progress_words(attempt, o, report):

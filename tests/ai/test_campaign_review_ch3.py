@@ -113,3 +113,23 @@ def test_countdown_jump_warnings_are_once_and_goal_prevents_expiry(tmp_path):
     assert milestones(run(svc, 'daisy', tick('v', 850))) == []
     assert results(run(svc, 'daisy', tick('v', 851, orgasms=1)))
     assert run(svc, 'daisy', tick('v', 1000, orgasms=1)) == []
+
+
+# ---- Second retest (Codex): Mira's named stages are separate clocks
+
+def test_mira_stage_claims_are_checked_against_the_named_stage(tmp_path):
+    from tests.fork.event_replay import Replay
+    from companion_ai.fidelity import violations
+    replay = Replay()
+    sid = replay.state['session_id']
+    svc = seed(tmp_path, 'midnight_intruder')
+    run(svc, 'mira', *frames(sid, 0, 600, intensity=100), tick(sid, 605, intensity=110))
+    replay.state.update(seconds=605, intensity=110)
+    replay.step(None, seconds=0)
+    canonical = replay.observation.summary()['canonical_session']
+    clocks = svc.model_context(MODEL['mira'], replay.observation.report)['durations']
+    wrong = lambda text: 'wrong_running_counter' in violations(text, canonical, card=True, durations=clocks)
+    assert not wrong('Ten minutes of active time in Discovery.')
+    assert wrong('Ten minutes of active time in Deception.')
+    assert wrong('Ten minutes of active time in this stage.')
+    assert not wrong('Ten minutes into the encounter.')

@@ -145,7 +145,7 @@ def test_mission_clock_never_validates_a_session_clock_claim(tmp_path):
     replay.step(None, seconds=0)
     canonical = replay.observation.summary()['canonical_session']
     durations = svc.model_context(MODEL['celeste'], replay.observation.report)['durations']
-    assert 600 in durations
+    assert 600 in [c['seconds'] for c in durations]
     assert 'wrong_running_counter' in violations('The session clock shows ten minutes.', canonical, card=True, durations=durations)
     assert 'wrong_running_counter' not in violations('Ten minutes of the baseline stage are done.', canonical, card=True, durations=durations)
 
@@ -170,3 +170,83 @@ def test_crossed_milestones_come_before_the_cleared_state(tmp_path, failed_save)
         svc.store.write = write
     out = run(svc, 'evelyn', tick('e', 2, edges=15))
     assert [m['type'] for m in out] == ['mission_milestone', 'mission_milestone', 'campaign_state', 'mission_result']
+
+
+# ---- Second retest (Codex, ca4ba27): each mission clock is checked as itself
+
+def final_stage_started(tmp_path, sid):
+    svc = seed(tmp_path, 'directors_reassessment')
+    run(svc, 'celeste', *frames(sid, 0, 600, intensity=75), *frames(sid, 605, 1205, intensity=100))
+    run(svc, 'celeste', tick(sid, 1205, intensity=125))
+    assert view(svc, 'assessment')['stages'][-1]['elapsed'] == 0
+    return svc
+
+
+def final_stage_clocks(tmp_path):
+    replay = Replay()
+    svc = final_stage_started(tmp_path, replay.state['session_id'])
+    replay.state.update(seconds=1205, intensity=125)
+    replay.step(None, seconds=0)
+    canonical = replay.observation.summary()['canonical_session']
+    return canonical, svc.model_context(MODEL['celeste'], replay.observation.report)['durations']
+
+
+def test_completed_stage_clock_cannot_validate_new_stage_clock(tmp_path):
+    canonical, durations = final_stage_clocks(tmp_path)
+    text = 'Ten minutes of active time in the final stage are done.'
+    assert 'wrong_running_counter' in violations(text, canonical, card=True)
+    assert 'wrong_running_counter' in violations(text, canonical, card=True, durations=durations)
+
+
+@pytest.mark.parametrize('text, wrong', [
+    ('The session clock shows ten minutes.', True),
+    ('Ten minutes of active time in the baseline stage.', False),
+    ('Ten minutes of active time in the development stage.', False),
+    ('Twenty minutes into the assessment.', False),
+    ('Thirty minutes into the assessment.', True),
+    ('Ten minutes of active time left in the final stage.', False),
+    ('Five minutes of active time in this stage.', True),
+    ('Ten minutes of active time left in the assessment.', False),
+    ('Ten minutes of active time in the Final Assessment.', True),
+])
+def test_each_duration_claim_is_checked_against_the_clock_it_names(tmp_path, text, wrong):
+    canonical, durations = final_stage_clocks(tmp_path)
+    assert ('wrong_running_counter' in violations(text, canonical, card=True, durations=durations)) is wrong
+
+
+@pytest.mark.asyncio
+async def test_false_new_stage_duration_is_not_published(tmp_path):
+    from tests.ai.test_event_deck_content import service as speech
+    from companion_ai.settings_control import CARD_KIND
+    text = 'Intensity is now 125%. Ten minutes of active time in the final stage are done.'
+    r, s, wire, outputs = await speech(identity='celeste', seconds=1205, reply=text)
+    r.state['intensity'] = 125
+    r.step(None, seconds=0)
+    svc = final_stage_started(tmp_path, s.state.session_id)
+    s.campaign_brief = lambda: svc.model_context(MODEL['celeste'], r.observation.report)
+    base = s.adapter.current_summary
+    s.adapter.current_summary = lambda: base() | s.campaign_fields()
+    event = {'kind': CARD_KIND, 'session_id': s.state.session_id, 'source_status': 'RUNNING', 'deck_card': {
+        'lane': 'normal', 'memory': 'none', 'card_id': CARD_KIND, 'speaker': 'celeste',
+        'brief': 'React to your verified change: intensity is now 125% for the final assessment stage.',
+        'settings_change': {'setting': 'intensity', 'from': 50, 'to': 75, 'reason': 'The final assessment stage.'}}}
+    assert s.request('Observed application event (not a user request): intensity switched to 125% for the final stage.',
+        user=False, event=event)['accepted']
+    await s.task
+    assert not [m for m in outputs if m['type'] == 'speech' and 'final stage' in m['text'].lower()], s.adapter.grounding_corrections
+
+
+def test_play_style_clocks_are_checked_per_style(tmp_path):
+    replay = Replay()
+    sid = replay.state['session_id']
+    svc = seed(tmp_path, 'adaptive_calibration')
+    run(svc, 'nova', *frames(sid, 0, 300), *frames(sid, 305, 425, style='milker'))
+    replay.state.update(seconds=425, experience='milker')
+    replay.step(None, seconds=0)
+    canonical = replay.observation.summary()['canonical_session']
+    durations = svc.model_context(MODEL['nova'], replay.observation.report)['durations']
+    check = lambda text: 'wrong_running_counter' in violations(text, canonical, card=True, durations=durations)
+    assert not check('Five minutes of active time on Simple Ramp.')
+    assert not check('Two minutes of active time on Prostate Milker.')
+    assert check('Five minutes of active time on Prostate Milker.')
+    assert not check('Three minutes of active time left for this style.')

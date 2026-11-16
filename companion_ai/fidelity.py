@@ -212,8 +212,23 @@ ACHIEVED=re.compile(r"\b(?:reached|hit|made|got|done|did|completed|logged|banked
 
 # A clause about a mission's own clock (the assessment, a stage, a play style's time, a countdown), and one about
 # the whole session's, which only the session clock can verify.
+REMAINING_TIME=re.compile(r"\b(?:left|remaining|to\s+go)\b",re.I)
 MISSION_CLOCK=re.compile(r"\b(?:assessment|stages?|phases?|mission|baseline|development|evaluation|comparison|styles?|countdown|deadline|left|remaining|to\s+go|encounter|delivery)\b",re.I)
 SESSION_CLOCK=re.compile(r"\b(?:session|whole\s+time|all\s+together|in\s+total|overall)\b",re.I)
+
+def mission_clock_values(clause,clocks):
+    """The verified seconds of the mission clocks a clause names, or None when it names none. The most specific
+    name wins ("the final stage" over "the assessment"); a clause naming no clock gets the generic ones (the
+    current stage, a countdown's time left). Time left and time done are different clocks."""
+    if SESSION_CLOCK.search(clause):return None
+    remaining=bool(REMAINING_TIME.search(clause));best=-1;values=set()
+    for clock in clocks:
+        if not isinstance(clock,dict) or not isinstance(clock.get('seconds'),int) or bool(clock.get('remaining'))!=remaining:continue
+        named=any(re.search(r'\b'+re.escape(name)+r'\b',clause,re.I) for name in clock.get('names',()))
+        score=clock.get('rank',0) if named else (0 if clock.get('generic') and MISSION_CLOCK.search(clause) else -1)
+        if score>best:best,values=score,set()
+        if score==best and score>=0:values.add(clock['seconds'])
+    return values if best>=0 else None
 
 def target_phrase(clause,match):
     if TARGET_BEFORE.search(clause[:match.start()]):return True
@@ -226,8 +241,8 @@ def measurement_violations(clean,canonical,told,trigger,completed,user_text,targ
     edges=verified_values('edges',canonical,told,trigger,completed);pauses=verified_values('pauses',canonical,told,trigger,completed)
     seconds=verified_values('seconds',canonical,told,trigger,completed,'active_running_seconds')
     # A mission's own verified clocks (assessment stages, play-style time, a countdown) differ from the
-    # whole-session clock. They are accepted only in a clause about that mission clock, never about the session.
-    mission_clock={v for v in durations if isinstance(v,int) and v>0}
+    # whole-session clock. A clause naming one is checked against that clock only, never another or the session's.
+    clocks=[c for c in durations or () if isinstance(c,dict)]
     for sentence in re.findall(r'[^.!?\n]+(?:\.\d+[^.!?\n]*)*[.!?\n]?',clean):
         tag=re.search(r"(?:,\s*(?:right|haven't you|isn't it|didn't you|aren't you|no|yes|eh)\s*\?)\s*$",sentence,re.I)
         if sentence.rstrip().endswith('?') and not tag:continue
@@ -259,7 +274,10 @@ def measurement_violations(clean,canonical,told,trigger,completed,user_text,targ
                         if re.search(r'\bby\s+(?:\w+\s+)?$',clause[:match.start(1)],re.I):continue
                         if OTHER_ACTIVITY.search(clause[:match.start(1)]):continue
                         value,tolerance=seconds_said(match[1])
-                        if mission_clock and MISSION_CLOCK.search(clause) and not SESSION_CLOCK.search(clause) and supported(value,direction_of(clause[:match.start(1)]),mission_clock,tolerance,past):continue
+                        named=mission_clock_values(clause,clocks)
+                        if named is not None:
+                            if not supported(value,direction_of(clause[:match.start(1)]),named,tolerance,past):codes.append('wrong_running_counter')
+                            continue
                         if not seconds:codes.append('unavailable_session_timing')
                         elif not supported(value,direction_of(clause[:match.start(1)]),seconds,tolerance,past):codes.append('wrong_running_counter')
     return codes
