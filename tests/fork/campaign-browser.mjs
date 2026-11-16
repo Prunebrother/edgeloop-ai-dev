@@ -23,7 +23,7 @@ const real=(edges,status='RUNNING')=>({session_id:'5e3d0c3a-0000-4000-8000-00000
 const batch=async reports=>(await fetch(ai+'/fixture/campaign/evidence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({reports})})).json();
 const span=(from,to,intensity)=>Array.from({length:Math.floor((to-from)/5)+1},(_,i)=>tick(from+5*i,intensity));
 const seed=async mission=>(await fetch(ai+'/fixture/campaign/progress',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({campaign:CID,mission})})).json();
-const tick=(seconds,intensity,orgasms=0)=>({...real(0),session_id:'5e3d0c3a-0000-4000-8000-00000000c009',seconds,experience:'classic',intensity,details:{orgasm_count:orgasms,calibration_pass:'none'}});
+const tick=(seconds,intensity,orgasms=0)=>({...real(0),session_id:'5e3d0c3a-0000-4000-8000-00000000c009',seconds,experience:'classic',intensity,details:{orgasm_count:orgasms,calibration_pass:'none',captured_at_ms:1793000000000+seconds*1000}});
 const menuView=()=>page.locator('#main-menu .game-menu-panel').getAttribute('data-view');
 try{
     await mkdir(out,{recursive:true});

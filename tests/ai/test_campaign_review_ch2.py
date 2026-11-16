@@ -131,3 +131,42 @@ def test_crossed_milestones_wait_for_a_failed_completion_save(tmp_path):
     svc.store.write = write
     out = run(svc, 'evelyn', tick('e', 2, edges=15))
     assert milestones(out) == ['edges:5', 'edges:10'] and out[-1]['type'] == 'mission_result'
+
+
+# ---- Retest (Codex, 7d59581)
+
+def test_mission_clock_never_validates_a_session_clock_claim(tmp_path):
+    from tests.ai.test_campaign_chapter2 import tick as t
+    svc = seed(tmp_path, 'directors_reassessment')
+    replay = Replay()
+    sid = replay.state['session_id']
+    run(svc, 'celeste', *frames(sid, 0, 1200, intensity=75))
+    replay.state.update(seconds=1200, intensity=75)
+    replay.step(None, seconds=0)
+    canonical = replay.observation.summary()['canonical_session']
+    durations = svc.model_context(MODEL['celeste'], replay.observation.report)['durations']
+    assert 600 in durations
+    assert 'wrong_running_counter' in violations('The session clock shows ten minutes.', canonical, card=True, durations=durations)
+    assert 'wrong_running_counter' not in violations('Ten minutes of the baseline stage are done.', canonical, card=True, durations=durations)
+
+
+def test_a_client_without_capture_times_gets_no_mission_time(tmp_path):
+    svc = seed(tmp_path, 'adaptive_calibration')
+    frames_ = frames('n', 0, 20)
+    for f in frames_: f['details'].pop('captured_at_ms')
+    run(svc, 'nova', *frames_)
+    assert svc.attempt.style_time.get('classic', 0) == 0
+
+
+@pytest.mark.parametrize('failed_save', [False, True])
+def test_crossed_milestones_come_before_the_cleared_state(tmp_path, failed_save):
+    svc = seed(tmp_path, 'endurance_study')
+    run(svc, 'evelyn', tick('e', 0))
+    write = svc.store.write
+    if failed_save:
+        def broken(*args): raise OSError('disk full')
+        svc.store.write = broken
+        run(svc, 'evelyn', tick('e', 1, edges=15))
+        svc.store.write = write
+    out = run(svc, 'evelyn', tick('e', 2, edges=15))
+    assert [m['type'] for m in out] == ['mission_milestone', 'mission_milestone', 'campaign_state', 'mission_result']

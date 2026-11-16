@@ -962,7 +962,7 @@ class CampaignService:
             result = self._complete(attempt)
             if not result: return []
             self.cues.append(self._cue('mission_complete', mission, attempt.session_id))
-            return [self.state(report, model), *attempt.pending_lines, result]
+            return [*attempt.pending_lines, self.state(report, model), result]
         before = json.dumps(attempt.view(report, False), sort_keys=True)
         companion_ok = self.identity(model) == mission.companion
         sid, status, d = report.get('session_id'), report.get('status'), details(report)
@@ -1064,7 +1064,9 @@ class CampaignService:
         elif moments:
             out += self._moments(attempt, moments)
         if any(m['type'] == 'mission_result' for m in out):
-            out.insert(0, self.state(report, model))
+            # The new state (no active mission) goes right before the result: milestone lines crossed by the
+            # completing report come first, while the browser still shows the mission as active.
+            out.insert(next(i for i, m in enumerate(out) if m['type'] == 'mission_result'), self.state(report, model))
         elif json.dumps(attempt.view(report, False), sort_keys=True) != before:
             # Only the try changed (a count, a stage clock): a small update, not the whole campaign view,
             # since stage clocks change every second.
@@ -1090,7 +1092,8 @@ class CampaignService:
         if not 0 < step <= MAX_STEP_SECONDS or not (config[4] and last[4]) or config[0] != 'RUNNING' or last[0] != 'RUNNING': return []
         # The two observations must also be close in capture time: after a reconnect or an unobserved gap
         # (which may hold a pause), the running clock alone cannot show what happened in between.
-        if isinstance(captured, int) and isinstance(last_captured, int) and not 0 < captured - last_captured <= (MAX_STEP_SECONDS + 2) * 1000: return []
+        # A client that sends no capture times (an old one, details: null) gets no mission time at all.
+        if not (isinstance(captured, int) and isinstance(last_captured, int)) or not 0 < captured - last_captured <= (MAX_STEP_SECONDS + 2) * 1000: return []
         moments = []
         for o in attempt.mission.objectives:
             if attempt.done.get(o.id): continue

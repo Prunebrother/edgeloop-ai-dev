@@ -210,6 +210,11 @@ TARGET_AFTER=re.compile(r"^\s+(?:(?:that\s+)?(?:I|you|we)\s+(?:asked\s+for|requi
 # "You have reached the five edges I asked for" names the target and also claims it was reached: still a count.
 ACHIEVED=re.compile(r"\b(?:reached|hit|made|got|done|did|completed|logged|banked|scored|earned|managed|delivered|secured|cleared|achieved|have|has)\b|['’]ve\b",re.I)
 
+# A clause about a mission's own clock (the assessment, a stage, a play style's time, a countdown), and one about
+# the whole session's, which only the session clock can verify.
+MISSION_CLOCK=re.compile(r"\b(?:assessment|stages?|phases?|mission|baseline|development|evaluation|comparison|styles?|countdown|deadline|left|remaining|to\s+go|encounter|delivery)\b",re.I)
+SESSION_CLOCK=re.compile(r"\b(?:session|whole\s+time|all\s+together|in\s+total|overall)\b",re.I)
+
 def target_phrase(clause,match):
     if TARGET_BEFORE.search(clause[:match.start()]):return True
     return bool(TARGET_AFTER.search(clause[match.end():])) and not ACHIEVED.search(clause[:match.start()])
@@ -220,9 +225,9 @@ def measurement_violations(clean,canonical,told,trigger,completed,user_text,targ
     if targets:clean=re.sub(r"\bmy\s+(?=(?:mission|test|assessment|evaluation|certification|orientation)\b)",'the ',clean,flags=re.I)
     edges=verified_values('edges',canonical,told,trigger,completed);pauses=verified_values('pauses',canonical,told,trigger,completed)
     seconds=verified_values('seconds',canonical,told,trigger,completed,'active_running_seconds')
-    # A mission's own verified clocks (assessment stages, play-style time) are true durations too, and differ
-    # from the whole-session clock when time at another setting did not count.
-    seconds=set(seconds)|{v for v in durations if isinstance(v,int) and v>0}
+    # A mission's own verified clocks (assessment stages, play-style time, a countdown) differ from the
+    # whole-session clock. They are accepted only in a clause about that mission clock, never about the session.
+    mission_clock={v for v in durations if isinstance(v,int) and v>0}
     for sentence in re.findall(r'[^.!?\n]+(?:\.\d+[^.!?\n]*)*[.!?\n]?',clean):
         tag=re.search(r"(?:,\s*(?:right|haven't you|isn't it|didn't you|aren't you|no|yes|eh)\s*\?)\s*$",sentence,re.I)
         if sentence.rstrip().endswith('?') and not tag:continue
@@ -254,6 +259,7 @@ def measurement_violations(clean,canonical,told,trigger,completed,user_text,targ
                         if re.search(r'\bby\s+(?:\w+\s+)?$',clause[:match.start(1)],re.I):continue
                         if OTHER_ACTIVITY.search(clause[:match.start(1)]):continue
                         value,tolerance=seconds_said(match[1])
+                        if mission_clock and MISSION_CLOCK.search(clause) and not SESSION_CLOCK.search(clause) and supported(value,direction_of(clause[:match.start(1)]),mission_clock,tolerance,past):continue
                         if not seconds:codes.append('unavailable_session_timing')
                         elif not supported(value,direction_of(clause[:match.start(1)]),seconds,tolerance,past):codes.append('wrong_running_counter')
     return codes

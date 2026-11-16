@@ -25,9 +25,14 @@ def seed(tmp_path, mission=None, version=SCHEMA_VERSION):
     return svc
 
 
+STAMP_MS = 1_793_000_000_000
+
+
 def tick(sid, seconds, style='classic', intensity=100, status='RUNNING', goal='tease', **extra):
     r = report(sid=sid, status=status, **extra)
     r.update(seconds=seconds, experience=style, intensity=intensity, goal=goal)
+    # Capture time follows the running clock, as at 1 Hz play without gaps (pauses: see the tests that set it).
+    r['details'].setdefault('captured_at_ms', STAMP_MS + seconds * 1000)
     return r
 
 
