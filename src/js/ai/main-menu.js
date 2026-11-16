@@ -90,10 +90,12 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost,
         return [null,'Story missions with the companions of Project EdgeLoop.'];
     }
     function chooseHost(id){
-        hostChoice=id;lastHost=id;greet();commandError=null;
+        commandError=null;
+        // Picking a host also selects her as your companion, as the model picker would. If the app refuses
+        // (a reply or switch in progress), the host stays as she was, so host and companion never disagree.
+        if(paired&&currentCompanion()!==id){const r=selectCompanion(id);if(r!==true){commandError=r;render();return;}}
+        hostChoice=id;lastHost=id;greet();
         try{localStorage.setItem(HOST_KEY,id);}catch{}
-        // Picking a host also selects her as your companion, as the model picker would.
-        if(paired&&currentCompanion()!==id){const r=selectCompanion(id);if(r!==true)commandError=r;}
         render();
     }
     function renderHome(){
