@@ -58,3 +58,57 @@ def test_a_single_edge_contradicting_the_record_is_caught(reply):
 ])
 def test_single_about_something_else_is_not_an_edge_count(reply):
     assert 'unsupported_history_figure' not in history_violations(reply, SUMMARY)
+
+
+# Daisy's load tally, 2026-11-16: the brief asked for "the listed number of loads" while the facts
+# listed edges (27) and orgasms (1); 19 of 20 replays said "twenty-seven loads".
+import json
+from pathlib import Path
+from companion_ai.fidelity import card_language_violations, orgasm_count_violations
+
+DECK = json.loads((Path(__file__).resolve().parents[2] / 'config/event-deck.json').read_text())
+CARDS = {c['id']: c for c in DECK['normal']}
+RUNNING = {'deck_card': {'lane': 'normal', 'orgasms': 1}}
+
+
+def test_count_cards_name_the_count_they_mean():
+    assert 'listed number of orgasms' in CARDS['daisy-load-tally']['brief'] and 'not the edge count' in CARDS['daisy-load-tally']['brief']
+    assert 'listed edge count' in CARDS['edge-count-many']['brief']
+    assert 'listed total' in CARDS['orgasms-total']['brief']
+    steps = [s for q in DECK['sequences'] for s in q['steps'] if s['id'] == 'orgasm-reported-reaction']
+    assert 'listed orgasm counts' in steps[0]['brief']
+
+
+@pytest.mark.parametrize('reply', [
+    "Twenty-seven loads in one go is a harvest I'd be proud to show my father.",
+    "That's twenty-seven loads right there, a proper harvest.",
+    '27 orgasms, what a day.',
+])
+def test_a_load_count_that_is_really_the_edge_count_is_caught(reply):
+    assert 'unsupported_orgasm_count' in orgasm_count_violations(reply, RUNNING)
+    assert 'unsupported_orgasm_count' in card_language_violations(reply, RUNNING)
+
+
+@pytest.mark.parametrize('reply', [
+    'One load is a fine start for the day.',
+    'A single load, and a good one.',
+    "I'd love to see two more loads before sundown.",
+    "Twenty-seven edges and one load: a proper day's work.",
+    'Three climaxes would make a record.',
+])
+def test_the_real_count_and_wishes_pass(reply):
+    assert orgasm_count_violations(reply, RUNNING) == []
+
+
+def test_no_orgasm_facts_means_no_orgasm_check():
+    assert orgasm_count_violations('Twenty-seven loads.', {'deck_card': {'lane': 'normal'}}) == []
+
+
+def test_the_total_and_earlier_sessions_count_as_known():
+    summary = {'deck_card': {'lane': 'normal', 'orgasms': 1, 'total_orgasms': 3, 'total_known': True}}
+    assert orgasm_count_violations('Three orgasms between us now.', summary) == []
+
+
+def test_two_dozen_edges_is_a_count():
+    assert spoken_number('two dozen') == 24
+    assert 'unsupported_history_figure' in history_violations('Two dozen edges and one reported finish.', SUMMARY)
