@@ -413,9 +413,236 @@ def test_observer_websocket_runs_a_mission_end_to_end(tmp_path):
             # The campaign update is published before the observation is acknowledged.
             assert until(ws, 'campaign_state', 3)['attempt']['session_id'] == sid
             assert until(ws, 'observation_ack', 3)['accepted']
+            # The speech service sees the brief for Nova, built from the campaign's verified state.
+            told = app.state.speech.campaign_brief()
+            assert 'Mission 1, "Orientation"' in told['text'] and '0 of 1 edges' in told['text']
+            cards = []
+            app.state.speech.campaign_cue = cards.append
             time.sleep(.12)
             ws.send_json(frame(ready['epoch'], seq=3, state=state(seconds=5, edges=1, hr=None)))
             result = until(ws, 'mission_result')
             assert result['mission'] == 'orientation' and result['earned'][0]['id'] == 'evelyn'
+            assert [(c['kind'], c['companion'], c['session_id']) for c in cards] == [('mission_complete', 'nova', sid)]
+            assert 'complete and saved' in app.state.speech.campaign_brief()['text']
     saved = json.loads((tmp_path / PROGRESS_FILE).read_text())
     assert saved['active'] is None and 'orientation' in saved['campaigns'][CID]['missions']
+
+
+# ---- The companion knows the mission it leads (brief) and reacts to verified mission moments (cards)
+
+def brief(svc, companion, r):
+    return svc.model_context(MODEL[companion], r)
+
+
+def test_the_brief_goes_only_to_the_mission_companion(tmp_path):
+    svc = _to(tmp_path, 'first_assessment')
+    assert brief(svc, 'daisy', report(sid='a')) is None
+    assert brief(svc, 'mira', report(sid='a')) is None
+    waiting = brief(svc, 'evelyn', report(sid='a', status='IDLE'))
+    assert waiting['state'] == 'active' and 'Mission 2, "First Assessment"' in waiting['text']
+    assert 'Reach 5 edges in this session' in waiting['text'] and 'has not started' in waiting['text']
+    assert 'heart-rate monitor' in waiting['text'] and waiting['targets'] == [5]
+    assert 'Calibration mode' in brief(_to(tmp_path / 'c', 'certification'), 'nova', report(status='IDLE'))['text']
+
+
+def test_the_brief_carries_only_verified_progress(tmp_path):
+    svc = _to(tmp_path, 'first_assessment')
+    run(svc, 'evelyn', report(sid='a'), report(sid='a', edges=2))
+    text = brief(svc, 'evelyn', report(sid='a', edges=2))['text']
+    assert '2 of 5 edges' in text and 'not complete yet' in text and 'do not end or pause' in text
+    # Edges counted only with Evelyn selected: a simulator session or another session shows no progress.
+    assert 'has not started' in brief(svc, 'evelyn', report(sid='other'))['text']
+
+
+def test_after_completion_the_brief_says_so_until_the_next_session(tmp_path):
+    svc = _to(tmp_path, 'first_assessment')
+    run(svc, 'evelyn', report(sid='a'), report(sid='a', edges=5))
+    done = brief(svc, 'evelyn', report(sid='a', edges=6))
+    assert done['state'] == 'completed' and 'complete and saved' in done['text'] and 'still running' in done['text']
+    assert 'has ended' in brief(svc, 'evelyn', report(sid='a', edges=6, status='IDLE'))['text']
+    assert brief(svc, 'evelyn', report(sid='b')) is None
+    assert brief(svc, 'nova', report(sid='a')) is None
+
+
+def test_a_broken_progress_file_tells_the_companion_nothing(tmp_path):
+    (tmp_path / PROGRESS_FILE).write_text('{')
+    assert service(tmp_path).model_context(MODEL['nova'], report()) is None
+
+
+def cues(svc):
+    return [(c['kind'], c['objective']) for c in svc.take_cues()]
+
+
+def test_mission_complete_is_a_cue_and_setup_items_are_not(tmp_path):
+    svc = service(tmp_path)
+    svc.start(CID, 'orientation')
+    run(svc, 'nova', report(sid='a'))
+    assert cues(svc) == []
+    run(svc, 'nova', report(sid='a', edges=1))
+    [cue] = svc.take_cues()
+    assert cue['kind'] == 'mission_complete' and cue['companion'] == 'nova' and cue['session_id'] == 'a'
+    assert cue['mission_title'] == 'Orientation' and cue['order'] == 1 and not cue['campaign_complete']
+
+
+def test_a_goal_reached_before_the_last_one_is_its_own_cue_once(tmp_path):
+    svc = _to(tmp_path, 'directors_test')
+    svc.take_cues()
+    run(svc, 'celeste', report(sid='d'), report(sid='d', edges=5), report(sid='d', edges=6))
+    assert cues(svc) == [('objective_reached', 'Reach 5 edges in this session')]
+    run(svc, 'celeste', report(sid='d', edges=6, orgasms=1))
+    assert cues(svc) == [('mission_complete', None)]
+
+
+def test_no_cue_for_another_companion_or_a_session_that_ended(tmp_path):
+    svc = _to(tmp_path, 'directors_test')
+    svc.take_cues()
+    run(svc, 'celeste', report(sid='d'))
+    run(svc, 'nova', report(sid='d', edges=5))
+    assert cues(svc) == []
+    # Came Early ends the session: the orgasm counts, but the attempt restarts, so it is not a story moment.
+    run(svc, 'celeste', report(sid='d', status='IDLE', orgasms=1))
+    assert cues(svc) == [] and svc.state()['attempt']['reset_reason'] == 'session_ended'
+
+
+def test_the_final_mission_cue_marks_the_campaign_complete(tmp_path):
+    svc = _to(tmp_path, 'certification')
+    svc.take_cues()
+    run(svc, 'nova', calibrate(sid='f'), calibrate(sid='f', orgasms=1, calibration_saved=True))
+    svc.observe(calibrate(sid='f', status='IDLE', orgasms=1, calibration_saved=True, terminal_outcome='calibration_completed'), ['completion_accepted'], MODEL['nova'])
+    # Finished me raised the orgasm count before the run ended: still one card, not two.
+    [cue] = svc.take_cues()
+    assert cue['kind'] == 'mission_complete' and cue['campaign_complete']
+    assert 'final mission' in brief(svc, 'nova', calibrate(sid='f', status='IDLE'))['text']
+
+
+def test_abandoning_drops_queued_cues(tmp_path):
+    svc = _to(tmp_path, 'directors_test')
+    run(svc, 'celeste', report(sid='d'), report(sid='d', edges=5))
+    svc.abandon()
+    assert svc.take_cues() == []
+
+
+def test_the_card_task_says_what_happened_and_not_to_repeat_the_script():
+    from companion_ai.campaign import card_brief
+    cue = {'kind': 'mission_complete', 'mission_title': 'First Assessment', 'campaign_title': 'The Asterion Initiative', 'order': 2,
+           'objective': None, 'campaign_complete': False}
+    live = card_brief(cue, 'RUNNING')
+    assert 'just completed your mission "First Assessment"' in live and 'do not repeat it' in live and 'still running' in live
+    assert 'has ended' in card_brief(cue, 'IDLE')
+    assert 'campaign is complete' in card_brief(cue | {'campaign_complete': True}, 'IDLE')
+    goal = card_brief(cue | {'kind': 'objective_reached', 'objective': 'Reach 5 edges in this session'}, 'RUNNING')
+    assert '"Reach 5 edges in this session"' in goal and 'not complete yet' in goal
+
+
+@pytest.mark.parametrize('text,edges,flagged', [
+    ('That is two of the five edges I asked for.', 2, False),
+    ('Two down, out of five edges for my assessment.', 2, False),
+    ('You have reached five edges.', 2, True),          # a count, not a target: the engine says two
+    ('You have reached five edges.', 5, False),
+    ('You have reached seven edges for the assessment.', 2, True),  # not the target either
+])
+def test_a_mission_target_may_be_named_as_a_target_but_never_as_the_count(text, edges, flagged):
+    from companion_ai.fidelity import violations
+    from tests.ai.test_event_deck_content import Replay
+    r = Replay(); r.state.update(edges=edges, status='RUNNING'); r.step(None, seconds=0)
+    canonical = r.observation.summary()['canonical_session']
+    codes = violations(text, canonical, card=True, targets=[5])
+    assert ('wrong_edges' in codes) is flagged, codes
+
+
+EVELYN_BRIEF = {'text': 'Campaign: The Asterion Initiative, Mission 2, "First Assessment". You are leading this mission.\nVerified progress in this session: 2 of 5 edges.', 'targets': [5], 'state': 'active'}
+
+
+async def test_a_chat_reply_and_a_director_card_both_get_the_brief():
+    from tests.ai.test_event_deck_content import service as speech, prompt, play_only
+    r, s, wire, _ = await speech(identity='evelyn', edges=2, seconds=200)
+    s.campaign_brief = lambda: EVELYN_BRIEF
+    assert s.request('How am I doing?', user=True)['accepted']; await s.task
+    assert 'CAMPAIGN MISSION' in prompt(wire) and '2 of 5 edges' in prompt(wire)
+    r, s, wire, _ = await speech(identity='evelyn', edges=2, seconds=200)
+    s.campaign_brief = lambda: EVELYN_BRIEF
+    play_only(s, 'edge-count-first'); s.pump(); await s.task
+    card = prompt(wire)
+    assert 'A MOMENT TO SPEAK' in card and '2 of 5 edges' in card and 'Mention it only if it fits' in card
+
+
+async def test_without_a_mission_nothing_is_added():
+    from tests.ai.test_event_deck_content import service as speech, prompt
+    r, s, wire, _ = await speech(identity='evelyn', edges=2, seconds=200)
+    assert s.request('How am I doing?', user=True)['accepted']; await s.task
+    assert 'CAMPAIGN MISSION' not in prompt(wire)
+
+
+def cue_for(s, companion='evelyn', kind='mission_complete'):
+    return {'kind': kind, 'campaign': CID, 'campaign_title': 'The Asterion Initiative', 'mission': 'first_assessment',
+            'mission_title': 'First Assessment', 'order': 2, 'companion': companion, 'session_id': s.state.session_id,
+            'objective': None, 'campaign_complete': False}
+
+
+async def test_the_mission_companion_reacts_to_a_verified_completion():
+    from tests.ai.test_event_deck_content import service as speech, prompt
+    r, s, wire, frames = await speech(identity='evelyn', edges=5, seconds=200)
+    s.deck()._start_done = True
+    s.campaign_speaker = lambda: 'evelyn'; s.campaign_brief = lambda: EVELYN_BRIEF
+    s.campaign_cue(cue_for(s))
+    s.pump(); await s.task
+    card = prompt(wire)
+    assert 'just completed your mission "First Assessment"' in card and 'do not repeat it' in card
+    assert not s.campaign_cards and s.director.last_reason == 'campaign_card'
+
+
+@pytest.mark.parametrize('setup', ['other_companion', 'switched_away', 'quiet', 'spontaneous_off', 'old_session'])
+async def test_a_mission_card_does_not_play_when_it_should_not(setup):
+    from tests.ai.test_event_deck_content import service as speech
+    r, s, wire, frames = await speech(identity='evelyn', edges=5, seconds=200)
+    s.deck()._start_done = True
+    speaker = ['evelyn']
+    s.campaign_speaker = lambda: speaker[0]
+    cue = cue_for(s, companion='daisy' if setup == 'other_companion' else 'evelyn')
+    if setup == 'old_session': cue['session_id'] = 'previous'
+    s.campaign_cue(cue)
+    if setup == 'switched_away': speaker[0] = 'daisy'
+    if setup == 'quiet': s.director.memory['quiet_requested'] = True
+    if setup == 'spontaneous_off': s.director.config.spontaneous_enabled = False
+    before = len(wire)
+    s.pump()
+    if s.task: await s.task
+    assert not any(path == '/api/chat' and 'mission' in b['messages'][-1]['content'] for path, b in wire[before:])
+
+
+# Live check 2026-11-16 (tools/campaign_live_check.py): Celeste's own edge card at 4 of 5 edges said the test was cleared.
+@pytest.mark.parametrize('text,flagged', [
+    ("Four edges secured, and the campaign still breathes; you have cleared the Director's Test with a quiet competence.", True),
+    ('The First Assessment is officially complete.', True),
+    ('You earned that certification with a single, solid finish.', True),
+    ("Four edges now; the fifth would complete my assessment.", False),
+    ("You haven't passed the test yet.", False),
+    ('Once you finish the mission, we can talk.', False),
+    ('Do you think you have passed the test?', False),
+    ('The engine keeps running, and so do you.', False),
+])
+def test_an_open_mission_is_never_declared_done(text, flagged):
+    from companion_ai.fidelity import campaign_violations
+    assert ('premature_mission_complete' in campaign_violations(text, {'campaign_state': 'active'})) is flagged
+    assert campaign_violations(text, {'campaign_state': 'completed'}) == []
+    assert campaign_violations(text, {}) == []
+
+
+def test_a_mission_card_must_say_something():
+    from companion_ai.fidelity import campaign_violations
+    card = {'deck_card': {'campaign': {'kind': 'mission_complete'}}}
+    assert campaign_violations('First Assessment', card) == ['campaign_card_too_short']
+    assert campaign_violations('A clean, efficient run; I expected nothing less.', card) == []
+
+
+def test_corrections_explain_a_mission_claim_in_plain_words():
+    from companion_ai.context_compiler import CAMPAIGN_CORRECTIONS
+    assert 'still open' in CAMPAIGN_CORRECTIONS['premature_mission_complete']
+
+
+async def test_after_completion_only_the_mission_card_hears_about_it():
+    from tests.ai.test_event_deck_content import service as speech, prompt, play_only
+    r, s, wire, _ = await speech(identity='evelyn', edges=2, seconds=200)
+    s.campaign_brief = lambda: {'text': 'Verified by EdgeLoop: the mission is complete and saved.', 'targets': [5], 'state': 'completed'}
+    play_only(s, 'edge-count-first'); s.pump(); await s.task
+    assert 'complete and saved' not in prompt(wire)

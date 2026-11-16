@@ -13,6 +13,7 @@ from .narrative import NarrativeMemory, NarrativeConfig
 from .expressions import clean_dialogue
 from .reply_cleanup import CleanupConfig, ReplyCleaner, clean_reply
 from .player_events import PLAYER_EVENTS, PLAYER_BRIEFS, player_current
+from .campaign import CAMPAIGN_CARD, card_brief as campaign_card_brief
 from .settings_control import SettingsControl, CARD_KIND as SETTINGS_CARD, card_brief as settings_card_brief, settings_intent, available as settings_available
 from .event_policy import SELECTION_EVENTS, REACTION_EVENTS
 from .models import SpeechPolicy, AIConfig, MemoryConfig, stored_config
@@ -20,7 +21,7 @@ from .diagnostics import Metrics
 from .llm import OllamaProvider, ChatMessage, LLMRequest, collect_reply, InferenceCompatibilityError, NoVisibleResponseError, OutputBudgetExceededError, thinking_support
 from .context import compose_messages, ContextBudgetError
 from .context_compiler import ContextConfig,load_context_config
-from .fidelity import settings_reply_announced, corrected_closing, violations, event_violations, card_language_violations, history_checked, history_records, GroundingError, settings_claims_allowed
+from .fidelity import settings_reply_announced, corrected_closing, violations, event_violations, card_language_violations, campaign_violations, history_checked, history_records, GroundingError, settings_claims_allowed
 from .director import ConversationDirector, DirectorConfig, silent_response
 from .event_deck import Arrival, DeckContext, session_phase, DeckLifecycleError, DeckRegistry, DeckSettings, load_definition, load_model_settings
 from .session_history import compare, previous_session, outcome as session_outcome, earlier_orgasms
@@ -294,7 +295,7 @@ class ModelManager:
                     # A slow generation must not turn an expired/request-time fact into a live claim.
                     if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                     def check(text):
-                        return settings_claims_allowed(history_checked(violations(text,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),history_records(summary,(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',()))),summary.get('journal_context',()),told,card=bool(summary.get('deck_card')))+event_violations(text,summary.get('trigger_event'))+recall_violations(text,summary,self.context_diagnostics,native_system)+card_language_violations(text,summary),summary,text),summary)
+                        return settings_claims_allowed(history_checked(violations(text,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),history_records(summary,(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',()))),summary.get('journal_context',()),told,card=bool(summary.get('deck_card')),targets=summary.get('campaign_targets',()))+event_violations(text,summary.get('trigger_event'))+recall_violations(text,summary,self.context_diagnostics,native_system)+card_language_violations(text,summary)+campaign_violations(text,summary),summary,text),summary)
                     problems=check(result)
                     self.grounding_attempts=1;self.grounding_corrections=problems
                     if problems:
@@ -406,6 +407,9 @@ class ConversationService:
         from .memory_curator import MemoryCurator
         self.curator=MemoryCurator(store)
         self.settings=SettingsControl(clock=clock);self.settings_cards=deque(maxlen=4)
+        # Campaign: the observer sets these. campaign_brief() is the mission brief for the current model (or None);
+        # campaign_speaker() names the companion of the current model. Cards are verified mission moments.
+        self.campaign_brief=lambda:None;self.campaign_speaker=lambda:None;self.campaign_cards=deque(maxlen=4)
         # Per session: the orgasm count whose next round has been started, and the change made for it.
         self.rounds_started={};self.round_changes={}
         self.deck_settings=DeckSettings();self.deck_settings_error=None;self.deck_faults={};self.deck_definition=None;self.deck_registry=None
@@ -1070,6 +1074,30 @@ class ConversationService:
         if result['accepted']:self.settings_cards.popleft();self.director.last_reason='settings_card'
         return result['accepted']
 
+    def campaign_cue(self,cue):
+        """A verified mission moment from the campaign. Only the mission's own companion reacts to it."""
+        if cue.get('companion')!=self.campaign_speaker():return
+        self.campaign_cards.append(dict(cue,sent_at=self.clock()))
+
+    def pump_campaign_card(self,now):
+        """The companion reacts, in its own words, to a mission moment the campaign verified. Like other commentary
+        it waits for quiet requests, safety, an active turn and the card spacing; a stale or switched-away cue is dropped."""
+        report=getattr(self.state,'report',None)
+        while self.campaign_cards and (not report or self.campaign_cards[0]['session_id']!=report['session_id'] or now-self.campaign_cards[0]['sent_at']>120
+                                       or self.campaign_cards[0]['companion']!=self.campaign_speaker()):
+            self.campaign_cards.popleft()
+        if not self.campaign_cards or self.director.memory['quiet_requested'] or now<self.deck_hold_until:return False
+        if self.task is not None and not self.task.done():return False
+        cue=self.campaign_cards[0]
+        event={'kind':CAMPAIGN_CARD,'at':now,'priority':30,'session_id':cue['session_id'],'source_status':report['status'],
+               'observer_epoch':getattr(self.state,'connection_epoch',None),'event_id':'campaign:'+cue['mission']+':'+cue['kind']+':'+str(cue.get('objective')),
+               'deck_card':{'lane':'normal','memory':'none','card_id':CAMPAIGN_CARD,'brief':campaign_card_brief(cue,report['status']),
+                   'campaign':cue,'speaker':self.deck_speaker()}}
+        prompt='Observed application event (not a user request): '+json.dumps({'kind':CAMPAIGN_CARD,'event':cue['kind'],'mission':cue['mission_title']})
+        result=self.request(prompt,user=False,event=event)
+        if result['accepted']:self.campaign_cards.popleft();self.director.last_reason='campaign_card'
+        return result['accepted']
+
     def maybe_curate(self):
         if self.closed or self.pending or self.task and not self.task.done() or self.state.status!='IDLE':return
         deck=self.deck()
@@ -1220,6 +1248,8 @@ class ConversationService:
             self.director.deferred('active_user_generation' if self.active_source=='user' else 'active_autonomous_generation');return
         if deck and self.pump_arrival(now):return
         if deck and (self.pump_deck(deck,now,triggered_only=True) or self.deck_error):return
+        # After the Director's own triggered card, so an orgasm or edge reaction comes first and the mission remark follows.
+        if self.pump_campaign_card(now):return
         opportunities=[]
         for candidate in self.pending:
             allowed, reason = self.director.opportunity(candidate)
@@ -1319,6 +1349,8 @@ class ConversationService:
         if event:summary['director_turn']={k:event.get(k) for k in ('kind','session_id','source_status','observer_epoch')} | {'session_id':event.get('session_id',getattr(self.state,'session_id',None)),'observer_epoch':event.get('observer_epoch',getattr(self.state,'connection_epoch',None))}
         summary['narrative_initiative']=bool(event and event.get('narrative'))
         recent_changes=self.settings.recent(getattr(self.state,'session_id',None))
+        brief=self.campaign_brief()
+        if brief:summary['campaign_context']=brief['text'];summary['campaign_targets']=brief.get('targets',[]);summary['campaign_state']=brief['state']
         if recent_changes:summary['ai_settings_recent']=recent_changes[-3:]
         if user and settings_result:
             kind,entry=settings_result
@@ -1423,6 +1455,9 @@ class ConversationService:
         if opportunity and (report['status'] not in {'RUNNING','RAMPDOWN'} or opportunity.get('session_id')!=getattr(self.state,'session_id',None) or self.director.memory['quiet_requested']):return False
         if event.get('kind')==SETTINGS_CARD:
             return event.get('session_id')==getattr(self.state,'session_id',None) and not self.director.memory['quiet_requested']
+        if event.get('kind')==CAMPAIGN_CARD:
+            # Calibration's Finished me and Came Early end the session, so a completion may be told just after it.
+            return event.get('session_id')==getattr(self.state,'session_id',None) and not self.director.memory['quiet_requested'] and self.director.config.spontaneous_enabled
         if event.get('kind') in PLAYER_EVENTS:
             return (not event.get('session_id') or event['session_id']==self.state.session_id) and not self.director.memory['quiet_requested'] and self.director.config.spontaneous_enabled and player_current(event,report)
         if event and event.get('kind') not in {'completion_accepted','came_early','session_ended'} and report['status']=='IDLE' and not (event.get('kind') in SELECTION_EVENTS and event.get('source_status')=='IDLE'):return False

@@ -59,6 +59,9 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                 q.put_nowait({'type':'resync_required'})
             else:q.put_nowait(message)
     speech=ConversationService(state,publish,adapter or manager,clock=clock,director=director)
+    # The companion is told about the mission it leads, and reacts to verified mission moments; it never decides them.
+    speech.campaign_brief=lambda:campaign.model_context(manager.config.model,state.report if state.fresh() else None)
+    speech.campaign_speaker=lambda:character_identity(manager.config.model)
     speech.policy=SpeechPolicy(event_responses=True)
 
     async def interrupt():
@@ -294,6 +297,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                         speech.settings_observe()
                         accepted_kinds=[e.kind for e in message.events if e.id in state.accepted_event_ids]
                         for update in campaign.observe(state.report,accepted_kinds,manager.config.model):publish(update)
+                        for cue in campaign.take_cues():speech.campaign_cue(cue)
                         speech.settings.allowed=campaign.allowed_settings()
                         publish({'type':'observation_ack','accepted':True,'sequence':message.sequence,'session_id':state.session_id,
                             'rejected_events':[{'id':e.id,'kind':e.kind,'reason':'duplicate_stale_or_unproven'} for e in message.events if e.id not in state.accepted_event_ids],

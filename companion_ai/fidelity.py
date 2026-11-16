@@ -202,7 +202,10 @@ def verified_values(field,canonical,told,trigger,completed,result_key=None):
         values.update(record[result_key or field] for record in completed if record.get(result_key or field) is not None)
     return values
 
-def measurement_violations(clean,canonical,told,trigger,completed,user_text):
+# A campaign mission's target, worded as a target: "two of the five edges I asked for" states the target, not the count.
+TARGET_WORDING=re.compile(r"\b(?:out of|of (?:the|my|your|those|these)|ask(?:ed|ing)?(?: you)? for|requir\w*|assessment|mission|objective|quota|assignment|target|goal)\b",re.I)
+
+def measurement_violations(clean,canonical,told,trigger,completed,user_text,targets=()):
     codes=[];completed=list(completed or ())
     edges=verified_values('edges',canonical,told,trigger,completed);pauses=verified_values('pauses',canonical,told,trigger,completed)
     seconds=verified_values('seconds',canonical,told,trigger,completed,'active_running_seconds')
@@ -218,6 +221,7 @@ def measurement_violations(clean,canonical,told,trigger,completed,user_text):
                 for match in pattern.finditer(clause):
                     said=spoken_number(match[1])
                     if said==1 and re.search(r'\bthe\s+$',clause[:match.start()],re.I):continue
+                    if said in targets and TARGET_WORDING.search(clause):continue
                     if past_session:
                         if VERIFIABLE_PAST.search(sentence) and said not in {record.get('edges') for record in completed}:codes.append('unsupported_completed_edges')
                         continue
@@ -746,6 +750,24 @@ def orgasm_count_violations(text,summary):
         if any(spoken_number(m[1]) not in known for m in ORGASM_COUNT.finditer(sentence)):codes.append('unsupported_orgasm_count')
     return codes
 
+# A mission is complete only when the campaign verified it; the companion must not declare it early.
+_MISSION_WORD=r"(?:mission|test|assessment|orientation|certification|evaluation|campaign|initiative)"
+MISSION_DONE=re.compile(r"\b(?:cleared|passed|completed|finished|aced|nailed|conquered|won|beat(?:en)?|survived|sealed|earned)\s+(?:the|this|that|your|my|our)\s+(?:[\w'’-]+\s+){0,3}?"+_MISSION_WORD+r"\b"
+    r"|\b"+_MISSION_WORD+r"\b[^.!?]{0,30}?\b(?:is|was|['’]s|has been|now)\s+(?:now\s+|officially\s+|finally\s+)?(?:complete|completed|done|passed|over|finished|closed|secured|sealed|wrapped)\b"
+    r"|\b(?:you(?:['’]ve| have)?\s+)?earned\s+(?:that|the|your)\s+(?:certification|title)\b",re.I)
+MISSION_NOT_YET=re.compile(r"\b(?:not|never|yet|almost|nearly|once|when|if|until|till|before|unless|could|would|will|might|let['’]s|see if|whether|close to|on the way|toward|towards)\b|n['’]t\b|['’]ll\b",re.I)
+
+def campaign_violations(text,summary):
+    """While a mission is still open, a claim that it is done is false; a mission card must say something."""
+    codes=[]
+    if summary.get('campaign_state')=='active':
+        for sentence in re.findall(r'[^.!?\n]+[.!?\n]?',text or ''):
+            if MISSION_DONE.search(sentence) and not MISSION_NOT_YET.search(sentence) and not sentence.rstrip().endswith('?'):
+                codes.append('premature_mission_complete');break
+    card=summary.get('deck_card') or {}
+    if card.get('campaign') and len(re.findall(r"[A-Za-z']+",text or ''))<6:codes.append('campaign_card_too_short')
+    return codes
+
 def card_language_violations(text,summary):
     """Unsolicited card turns only: a person who asks about the session can still be answered plainly."""
     card=summary.get('deck_card')
@@ -753,7 +775,7 @@ def card_language_violations(text,summary):
     # A mission can't have a finalized result, which only the closing card receives.
     return (['test_language'] if CARD_TEST_LANGUAGE.search(text) else [])+(['premature_session_end'] if card.get('lane')=='mission' and premature_session_end(text) else [])+(['addressed_by_own_name'] if addresses_by_own_name(text,card.get('speaker')) else [])+(['read_only_control_claim'] if SELECTED_SETTING.search(text) else [])+(['settings_card_off_topic'] if settings_card_off_topic(text,card) else [])+relationship_violations(text,card)+history_violations(text,summary)+orgasm_count_violations(text,summary)
 
-def violations(text,canonical,history=(),trigger=None,completed=(),journal=(),told=(),card=False):
+def violations(text,canonical,history=(),trigger=None,completed=(),journal=(),told=(),card=False,targets=()):
     """`card` adds the Director's checks for turns it generated itself. A person's conversation, with
     the deck on or off, keeps exactly the checks it has always had: dialogue such as "we've been walking
     for two hours" isn't a claim about a counter just because it has a number in it."""
@@ -804,7 +826,7 @@ def violations(text,canonical,history=(),trigger=None,completed=(),journal=(),to
     # person's posture, health or physical pulse. Simulation cannot establish it.
     # Scheduled prompts travel in the user role, but nobody said them.
     user_text=' '.join(m.get('content','') for m in history if m.get('role')=='user' and not (card and m.get('content','').startswith(SCHEDULED_PROMPTS)))
-    if card:codes+=measurement_violations(clean,canonical,told,trigger,completed,user_text)
+    if card:codes+=measurement_violations(clean,canonical,told,trigger,completed,user_text,targets)
     simulated_source=card and bool(facts['hr_source']['current'] and facts['hr_source']['value']=='simulator')
     for sentence in re.findall(r'[^.!?\n]+[.!?\n]?',clean):
         historical=bool(re.search(r'\b(?:previous|last|historical)\b',sentence,re.I)) and not re.search(r'\b(?:current|currently|now|still)\b',sentence,re.I)

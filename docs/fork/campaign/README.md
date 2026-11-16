@@ -38,6 +38,16 @@ The campaign runs inside the observer. It reads the same accepted engine evidenc
 
 Counts restart when the mission session ends before the mission is done; that decision is recorded below. A mission completes the moment its last objective is met. The running session is never stopped, and the player can keep playing.
 
+## What the companion knows
+
+Only the mission's own companion is told about it, and only the campaign's verified state is used. The companion can never complete, end or pause anything for the mission.
+
+- **Mission brief** (`CampaignService.model_context`): a few factual lines added to every chat reply and Director card for that companion. They cover the mission and its goal, verified progress in this session (for example "2 of 5 edges"), and what the participant needs to do to begin. After completion the brief says the mission is complete and saved, until the next session starts. Cards are told to mention it only if it fits; chat replies are told to answer from it when asked what to do or how it's going.
+- **Mission moments** (`campaign_moment` cards): the companion reacts in its own words when the mission is completed and saved, or when one goal is reached while another remains (Celeste: the 5 edges or the orgasm, whichever comes first). Setup steps (strap, toy, session start) are not moments. In Calibration, Finished me reports the orgasm and ends the run a moment later, so that is one completion card. The cards play after the Director's own reaction (an orgasm or edge card comes first). They wait for quiet requests, safety and an active turn, follow the spontaneous-commentary switch, and are dropped after 120 seconds or when the companion changes. A completion may still play just after Calibration or Came Early ends the session.
+- **Target numbers:** the card checker accepts a mission target only when it's worded as one ("two of the five edges I asked for"). A stated count must still match the engine's edge counter.
+- **Not sent:** the scripted briefing and completion text. The brief says the participant has read the briefing and that the completion message is on screen, so the companion doesn't repeat them.
+- **Live check:** `tools/campaign_live_check.py` plays every mission against the real local models, with no browser or hardware, and records each line with the card that produced it.
+
 ## Rewards
 
 | Type | Effect today |
@@ -101,7 +111,7 @@ Every mission also needs a real heart-rate monitor, a toy and a session started 
 ## Known limits and missing integration points
 
 - **Orgasm** evidence is always the participant's own report through an EdgeLoop control. There is no sensor detection.
-- **Scripted lines** are shown in the conversation but not sent to the model, so the companion does not know about the mission yet. `director_context` and `milestones` are where short mission context goes once the dialogue is written and tested.
+- **Scripted lines** are shown in the conversation but not sent to the model, which only gets the factual brief. `director_context` (an optional author line added to the brief) and `milestones` (scripted reactions per goal) are unused in the Asterion Initiative.
 - **Story milestones and registered challenges** have no authoritative event yet, so they are not objective types.
 - **Freeplay unlocks:** campaign companion unlocks do not change Freeplay. A future reward option such as `grants_freeplay` can add that.
 - **Size:** the campaign view is about 9 KB. Keep a campaign well under the 64 KB message limit, or load briefings on demand.

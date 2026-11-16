@@ -37,6 +37,9 @@ EngineMode = Literal['classic', 'finisher', 'milker', 'shortener', 'headplay', '
                      'survival', 'oracle', 'edgetrain', 'calibrate']
 SettingName = Literal['play_style', 'game', 'endgame', 'orgasm', 'intensity', 'pause', 'stop']
 LIVE = {'RUNNING', 'PAUSED', 'RAMPDOWN'}
+# Objectives that are story moments when reached; the setup items before a session are not.
+GOAL_TYPES = {'edge_count', 'orgasm_count', 'calibration_completed', 'calibration_saved'}
+MODE_WORDS = {'calibrate': 'Calibration', 'edgetrain': 'Edge Training'}
 
 
 def now_iso(clock=time.time):
@@ -278,6 +281,7 @@ class Attempt:
         self.metric = None
         self.completed = False
         self.reset_reason = None
+        self.cued = set()
 
     def view(self, report=None, companion_ok=False):
         live = {'hr_monitor_connected': real_hr(report), 'toy_connected': toy_ready(report)}
@@ -302,6 +306,10 @@ class CampaignService:
         self.attempt = None
         self.error = None
         self.notice = None
+        # The mission completed in the running session, so its companion can still be told until that session ends.
+        self.finished = None
+        # Verified mission moments for the companion to react to; the observer hands them to the speech service.
+        self.cues = []
         try:
             raw = store.read(PROGRESS_FILE, None)
             self.progress = Progress.model_validate(migrate(raw)) if raw is not None else Progress(schema_version=SCHEMA_VERSION)
@@ -395,12 +403,72 @@ class CampaignService:
         self._save(progress)
         self.attempt = Attempt(mission)
         self.notice = None
+        self.finished = None
+
+    # -- what the companion is told
+    def _cue(self, kind, mission, session_id, objective=None):
+        campaign = self.book.campaign(self.progress.active.campaign if self.progress.active else self.finished['campaign'])
+        return {'kind': kind, 'campaign': campaign.id, 'campaign_title': campaign.title, 'mission': mission.id,
+                'mission_title': mission.title, 'order': mission.order, 'companion': mission.companion,
+                'session_id': session_id, 'objective': objective.label if objective else None,
+                'campaign_complete': bool(kind == 'mission_complete' and self.finished and self.finished['campaign_complete'])}
+
+    def take_cues(self):
+        cues, self.cues = self.cues, []
+        return cues
+
+    def model_context(self, model, report):
+        """A short factual brief for the mission's own companion, or None. Every value in it is the campaign's
+        verified state; it gives the companion the story frame and never a way to complete anything."""
+        if self.error or not report: return None
+        companion = self.identity(model)
+        sid, status = report.get('session_id'), report.get('status')
+        finished = self.finished
+        if finished and finished['session_id'] == sid and sid is not None:
+            mission = self._mission(finished['campaign'], finished['mission'])
+            campaign = self.book.campaign(finished['campaign'])
+            if not mission or mission.companion != companion: return None
+            lines = [f'Campaign story: {campaign.title}, Mission {mission.order}, "{mission.title}". In this story you set the participant this mission.',
+                     'Verified by EdgeLoop: the mission is complete and saved. The participant has already seen your completion message.']
+            if finished['campaign_complete']: lines.append('This was the final mission: the participant is now certified and the campaign is complete.')
+            lines.append('The session is still running; completing the mission does not end it, so carry on with the session as usual.'
+                         if status in LIVE else 'The session has ended.')
+            return {'companion': companion, 'mission': mission.id, 'state': 'completed', 'text': '\n'.join(lines),
+                    'targets': sorted({o.count for o in mission.objectives if o.type == 'edge_count' and o.count})}
+        attempt = self.attempt
+        if not attempt or attempt.completed or attempt.mission.companion != companion: return None
+        mission = attempt.mission
+        campaign = self.book.campaign(self.progress.active.campaign)
+        goals = [o for o in mission.objectives if o.type in GOAL_TYPES]
+        lines = [f'Campaign story: {campaign.title}, Mission {mission.order}, "{mission.title}". In this story you set the participant this mission, and they have read your briefing for it.',
+                 'The goal (EdgeLoop checks it, not you): ' + '; '.join(o.label for o in goals) + '.']
+        if attempt.session_id == sid and sid is not None and status in LIVE:
+            done = [o.label for o in goals if attempt.done.get(o.id)]
+            progress = []
+            for o in goals:
+                if o.type == 'edge_count': progress.append(f'{min(attempt.edges, o.count)} of {o.count} edges')
+                elif o.type == 'orgasm_count': progress.append(f'{min(attempt.orgasms, o.count)} of {o.count} reported orgasm' + ('s' if o.count > 1 else ''))
+            lines.append('Verified progress in this session: ' + (', '.join(progress) if progress else 'not complete yet') + '.'
+                         + (' Already reached: ' + '; '.join(done) + '.' if done else ''))
+            lines.append('The mission is not complete yet. Do not say it is, and do not end or pause the session for it.')
+        else:
+            need = 'a session with you, with a heart-rate monitor and a toy connected'
+            mode = mission.session.active_mode if mission.session else None
+            if mode: need += f', in {MODE_WORDS.get(mode, mode)} mode'
+            lines.append(f'The mission session has not started. To begin, the participant starts {need}. Nothing counts toward it yet.')
+        block = (self.book.narratives.get(campaign.id).missions.get(mission.id) if self.book.narratives.get(campaign.id) else None)
+        if block and block.director_context: lines.append(block.director_context)
+        lines.append('If the participant asks what to do or how they are doing, answer from these lines. '
+                     'Speak of the mission in your own words, as part of the story; do not quote its title like a label.')
+        return {'companion': companion, 'mission': mission.id, 'state': 'active', 'text': '\n'.join(lines),
+                'targets': sorted({o.count for o in goals if o.type == 'edge_count' and o.count})}
 
     def abandon(self):
         progress = self.progress.model_copy(deep=True)
         progress.active = None
         self._save(progress)
         self.attempt = None
+        self.cues = []
 
     # -- evidence
     def observe(self, report, events, model):
@@ -448,10 +516,19 @@ class CampaignService:
                         attempt.metric = {'calibration_pass': d.get('calibration_pass'), 'max_bpm': metric}
             if all(attempt.done.get(o.id) for o in mission.objectives):
                 result = self._complete(attempt)
-                if result: out.append(result)
+                if result:
+                    out.append(result)
+                    self.cues.append(self._cue('mission_complete', mission, sid))
             elif status == 'IDLE':
                 # The session ended before the mission was done: the next session starts the counts again.
                 self._reset(attempt, 'session_ended')
+            elif companion_ok and not any(o.type == 'calibration_completed' for o in mission.objectives):
+                # A goal reached while another still remains; setup items (strap, toy, session) are not story moments.
+                # In Calibration, Finished me reports the orgasm and ends the run a moment later: one moment, one card.
+                for o in mission.objectives:
+                    if o.type in GOAL_TYPES and attempt.done.get(o.id) and o.id not in attempt.cued:
+                        attempt.cued.add(o.id)
+                        self.cues.append(self._cue('objective_reached', mission, sid, o))
         if json.dumps(attempt.view(report, False), sort_keys=True) != before or out:
             out.insert(0, self.state(report, model))
         return out
@@ -459,6 +536,7 @@ class CampaignService:
     def _reset(self, attempt, reason):
         attempt.session_id = None; attempt.done = {}; attempt.edges = attempt.orgasms = 0
         attempt.last_edges = attempt.last_orgasms = None; attempt.reported = False; attempt.metric = None; attempt.reset_reason = reason
+        attempt.cued = set()
 
     def _complete(self, attempt):
         """Persist first, then announce. A failed write announces nothing and retries on the next observation."""
@@ -494,6 +572,8 @@ class CampaignService:
             return None
         attempt.completed = True
         self.notice = None
+        self.finished = {'campaign': campaign.id, 'mission': mission.id, 'session_id': attempt.session_id,
+                         'campaign_complete': bool(campaign_done)}
         narrative = self.book.narratives.get(campaign.id)
         block = narrative.missions.get(mission.id) if narrative else None
         newly = [m.id for m in campaign.missions if m.id not in open_before and self.mission_state(campaign, m) == 'available']
@@ -505,3 +585,21 @@ class CampaignService:
                   'campaign_completion': narrative.campaign_complete.model_dump() if campaign_done and narrative and narrative.campaign_complete else None}
         self.attempt = None
         return result
+
+
+CAMPAIGN_CARD = 'campaign_moment'
+
+
+def card_brief(cue, status):
+    """The task for a companion's reaction to a verified mission moment."""
+    where = f'your mission "{cue["mission_title"]}" ({cue["campaign_title"]}, Mission {cue["order"]})'
+    if cue['kind'] == 'objective_reached':
+        return (f'React to a verified mission moment: in {where}, the participant has just reached this goal: '
+                f'"{cue["objective"]}". The mission is not complete yet, because another goal remains. '
+                'Mark the moment in your own voice, as the one running this mission.')
+    text = (f'React to a verified mission moment: the participant has just completed {where}, and EdgeLoop saved it. '
+            'Your completion message is already on screen, so do not repeat it and do not announce the next mission. '
+            'Add one short, personal remark in your own voice.')
+    if cue.get('campaign_complete'): text += ' This was the final mission: the campaign is complete.'
+    text += ' The session is still running and can carry on.' if status in LIVE else ' The session has ended.'
+    return text
