@@ -207,8 +207,12 @@ def verified_values(field,canonical,told,trigger,completed,result_key=None):
 TARGET_BEFORE=re.compile(r"\b(?:out\s+of|of(?:\s+(?:the|my|your|those|these|all))?|short\s+of(?:\s+the)?|toward(?:s)?(?:\s+the)?)\s+$",re.I)
 TARGET_AFTER=re.compile(r"^\s+(?:(?:that\s+)?(?:I|you|we)\s+(?:asked\s+for|required|requested|need(?:ed)?|set)|(?:required|requested|needed|asked\s+for|to\s+go)\b)",re.I)
 
+# "You have reached the five edges I asked for" names the target and also claims it was reached: still a count.
+ACHIEVED=re.compile(r"\b(?:reached|hit|made|got|done|did|completed|logged|banked|scored|earned|managed|delivered|secured|cleared|achieved|have|has)\b|['’]ve\b",re.I)
+
 def target_phrase(clause,match):
-    return bool(TARGET_BEFORE.search(clause[:match.start()]) or TARGET_AFTER.search(clause[match.end():]))
+    if TARGET_BEFORE.search(clause[:match.start()]):return True
+    return bool(TARGET_AFTER.search(clause[match.end():])) and not ACHIEVED.search(clause[:match.start()])
 
 def measurement_violations(clean,canonical,told,trigger,completed,user_text,targets=()):
     codes=[];completed=list(completed or ())
@@ -775,11 +779,16 @@ def campaign_violations(text,summary):
         for sentence in re.findall(r'[^.!?\n]+[.!?\n]?',text or ''):
             if sentence.rstrip().endswith('?'):continue
             for clause in MISSION_CLAUSES.split(sentence):
-                match=MISSION_DONE.search(clause)
-                if not match or MISSION_NOT_YET.search(clause[:match.end()+12]):continue
-                folded=clause.casefold()
-                if EARLIER_MISSION.search(clause) or any(re.search(r'\b'+re.escape(o)+r'\b',folded) for o in others):continue
-                codes.append('premature_mission_complete');break
+                start=0
+                for match in MISSION_DONE.finditer(clause):
+                    # Each claim is judged on its own words: a qualifier or another mission's name elsewhere in
+                    # the clause belongs to a different assertion.
+                    own=clause[start:match.end()+12];start=match.end()
+                    if MISSION_NOT_YET.search(own):continue
+                    named=clause[max(0,match.start()-24):match.end()].casefold()
+                    if EARLIER_MISSION.search(named) or any(re.search(r'\b'+re.escape(o)+r'\b',named) for o in others):continue
+                    codes.append('premature_mission_complete');break
+                if codes:break
             if codes:break
     card=summary.get('deck_card') or {}
     if card.get('campaign') and len(re.findall(r"[A-Za-z']+",text or ''))<6:codes.append('campaign_card_too_short')

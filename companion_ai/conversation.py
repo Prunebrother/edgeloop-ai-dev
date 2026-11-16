@@ -410,6 +410,8 @@ class ConversationService:
         # Campaign: the observer sets these. campaign_brief() is the mission brief for the current model (or None);
         # campaign_speaker() names the companion of the current model. Cards are verified mission moments.
         self.campaign_brief=lambda:None;self.campaign_speaker=lambda:None;self.campaign_cue_valid=lambda cue:True;self.campaign_cards=deque(maxlen=4)
+        # Sessions ended by an Emergency stop: no mission remark is ever spoken for them, even one queued later.
+        self.campaign_silenced=set()
         # Per session: the orgasm count whose next round has been started, and the change made for it.
         self.rounds_started={};self.round_changes={}
         self.deck_settings=DeckSettings();self.deck_settings_error=None;self.deck_faults={};self.deck_definition=None;self.deck_registry=None
@@ -1083,14 +1085,15 @@ class ConversationService:
 
     def campaign_cue(self,cue):
         """A verified mission moment from the campaign. Only the mission's own companion reacts to it."""
-        if cue.get('companion')!=self.campaign_speaker():return
+        if cue.get('companion')!=self.campaign_speaker() or cue.get('session_id') in self.campaign_silenced:return
         self.campaign_cards.append(dict(cue,sent_at=self.clock()))
 
     def campaign_card_allowed(self,cue):
         """Checked before a mission card starts and again before it is delivered: the moment is still true for
         this companion and session, and nothing protective, quiet or stopped stands in the way."""
         report=getattr(self.state,'report',None)
-        if not report or cue['session_id']!=report['session_id'] or cue['companion']!=self.campaign_speaker() or not self.campaign_cue_valid(cue):return False
+        if not report or cue['session_id']!=report['session_id'] or cue['session_id'] in self.campaign_silenced:return False
+        if cue['companion']!=self.campaign_speaker() or not self.campaign_cue_valid(cue):return False
         if self.closed or not self.policy.enabled or not self.policy.event_responses or getattr(self.state,'emergency',False):return False
         if self.director.memory['quiet_requested'] or not self.director.config.spontaneous_enabled:return False
         if not getattr(self.state,'fresh',lambda:True)():return False
@@ -1142,6 +1145,7 @@ class ConversationService:
     def safety(self, reason):
         # A safety event outranks a mission remark: goal cards are dropped, and everything after an Emergency stop.
         self.campaign_cards=deque((c for c in self.campaign_cards if c['kind']=='mission_complete' and reason!='emergency_stop'),maxlen=4)
+        if reason=='emergency_stop':self.campaign_silenced.add(getattr(self.state,'session_id',None))
         self.sync_narrative()
         self.narrative.event(reason)
         retained=[e for e in self.pending if reason=='stop' and e['kind'] in {'came_early','completion_accepted','session_ended'}]

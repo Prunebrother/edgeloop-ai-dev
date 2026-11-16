@@ -279,13 +279,10 @@ class Attempt:
         self.done = {}
         self.edges = self.orgasms = 0
         self.last_edges = self.last_orgasms = None
-        self.reported = False
         self.metric = None
         self.completed = False
         self.reset_reason = None
         self.cued = set()
-        # Orgasm reports seen in this session (all of them, credited or not), and the flag reports among them.
-        self.seen_orgasms = self.flags = self.base_orgasms = 0
         # All objectives met but not yet saved: kept until the save succeeds, whatever the next report says.
         self.pending = False
         # Bumped on every reset, so a cue from an earlier try is recognised as stale.
@@ -507,8 +504,6 @@ class CampaignService:
             if real_hr(report) and toy_ready(report) and self._mode_ok(mission, report):
                 attempt.session_id = sid
                 attempt.last_edges, attempt.last_orgasms = report.get('edges', 0), d.get('orgasm_count') or 0
-                attempt.base_orgasms = attempt.last_orgasms
-                attempt.reported = bool(d.get('completion_reported'))
                 attempt.reset_reason = None
                 for o in mission.objectives:
                     if o.type in {'hr_monitor_connected', 'toy_connected', 'session_started'}: attempt.done[o.id] = True
@@ -518,17 +513,11 @@ class CampaignService:
             # heart-rate monitor (not the simulator), a toy and the mission's mode. Activity without them only
             # moves the baselines on, so it can never count later.
             eligible = companion_ok and real_hr(report) and toy_ready(report) and self._mode_ok(mission, report)
-            # Survival's Finished me raises no counter, so its report flag counts there and only there: in
-            # Calibration the flag is set before Finished me is confirmed, and a cancel then Edged leaves it set.
-            survival_flag = bool(d.get('completion_reported')) and report.get('active_mode') == 'survival'
-            if survival_flag and not attempt.reported: attempt.flags += 1
-            attempt.reported = attempt.reported or survival_flag
-            if 'came_early' in kinds: attempt.flags += 1
-            # One report can raise the counter and set the flag in different frames: take the larger, never the sum.
-            # (A rise of 0 to 1 here and a flag there is one orgasm; two different reports may then count as one.)
-            session_orgasms = max(max(orgasms, attempt.last_orgasms) - attempt.base_orgasms, attempt.flags)
-            new_orgasms = max(0, session_orgasms - attempt.seen_orgasms)
-            attempt.seen_orgasms += new_orgasms
+            # An orgasm is a rise of the engine's counter (I came; Finished me in Survival and Calibration, once
+            # confirmed) or an accepted Came Early, which ends the session without raising it. Each is its own report.
+            # The completion_reported flag is never evidence: Finished me sets it before its confirm, so a
+            # cancelled Finished me leaves it set (then Edged ends Calibration with no orgasm).
+            new_orgasms = max(0, orgasms - attempt.last_orgasms) + (1 if 'came_early' in kinds else 0)
             new_edges = max(0, edges - attempt.last_edges)
             if eligible:
                 attempt.edges += new_edges
@@ -581,8 +570,8 @@ class CampaignService:
 
     def _reset(self, attempt, reason):
         attempt.session_id = None; attempt.done = {}; attempt.edges = attempt.orgasms = 0
-        attempt.last_edges = attempt.last_orgasms = None; attempt.reported = False; attempt.metric = None; attempt.reset_reason = reason
-        attempt.cued = set(); attempt.seen_orgasms = attempt.flags = attempt.base_orgasms = 0; attempt.generation += 1
+        attempt.last_edges = attempt.last_orgasms = None; attempt.metric = None; attempt.reset_reason = reason
+        attempt.cued = set(); attempt.generation += 1
 
     def _complete(self, attempt):
         """Persist first, then announce. A failed write announces nothing and retries on the next observation."""

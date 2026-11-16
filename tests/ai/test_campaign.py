@@ -175,11 +175,11 @@ def test_five_edges_must_fall_in_one_session(tmp_path):
 
 @pytest.mark.parametrize('final', [
     {'orgasms': 1},                                   # I came
-    {'completion_reported': True},                    # Survival's Finished me
+    {'orgasms': 1, 'completion_reported': True},      # Finished me, confirmed: the counter rises
 ])
 def test_an_orgasm_reported_through_the_engine_counts_once(tmp_path, final):
     svc = _to(tmp_path, 'country_connections')
-    mode = 'classic' if 'orgasms' in final else 'survival'
+    mode = 'survival' if 'completion_reported' in final else 'classic'
     out = run(svc, 'daisy', report(sid='c', mode=mode), report(sid='c', mode=mode, **final))
     assert results(out)[0]['earned'][0]['id'] == 'celeste'
 
@@ -666,6 +666,14 @@ def test_calibration_edged_after_a_cancelled_finished_me_does_not_certify(tmp_pa
     assert results(out) == [] and states(svc)['certification'] == 'active'
 
 
+@pytest.mark.parametrize('mode', ['survival', 'calibrate'])
+def test_a_cancelled_finished_me_is_no_orgasm(tmp_path, mode):
+    """Finished me sets the report flag before its confirm; a cancel leaves it set with no orgasm counted."""
+    svc = _to(tmp_path, 'country_connections')
+    run(svc, 'daisy', report(sid='c', mode=mode), report(sid='c', mode=mode, completion_reported=True))
+    assert svc.state()['attempt']['objectives'][-1]['progress'] == 0 and states(svc)['country_connections'] == 'active'
+
+
 def test_a_flag_and_a_counter_in_consecutive_frames_are_one_orgasm(tmp_path):
     svc = _to(tmp_path, 'directors_test')
     run(svc, 'celeste', report(sid='d', mode='survival'), report(sid='d', mode='survival', completion_reported=True),
@@ -830,3 +838,63 @@ async def test_the_brief_is_refreshed_when_the_reply_is_generated():
     told[0] = None   # the mission was abandoned before dispatch
     await s.task
     assert 'CAMPAIGN MISSION' not in prompt(wire)
+
+
+# ---- Codex retest 2026-11-16 (its reproductions, /tmp/edgeloop-campaign-retest)
+
+def test_came_early_is_distinct_from_an_earlier_orgasm_with_another_companion(tmp_path):
+    svc = _to(tmp_path, 'country_connections')
+    run(svc, 'daisy', report(sid='c'))
+    run(svc, 'nova', report(sid='c', orgasms=1))
+    run(svc, 'daisy', report(sid='c', orgasms=1))
+    out = svc.observe(report(sid='c', status='IDLE', orgasms=1, terminal_outcome='premature_release'), ['came_early'], MODEL['daisy'])
+    assert results(out), 'Came Early with Daisy completes her mission; the earlier orgasm with Nova is separate'
+
+
+def test_two_orgasms_are_two_and_nova_s_does_not_count(tmp_path):
+    svc = _to(tmp_path, 'directors_test')
+    run(svc, 'celeste', report(sid='d'), report(sid='d', orgasms=1))
+    run(svc, 'nova', report(sid='d', orgasms=2))
+    assert svc.state()['attempt']['objectives'][-1]['progress'] == 1
+
+
+async def test_a_completion_queued_by_the_emergency_observation_never_speaks(tmp_path):
+    from tests.ai.test_event_deck_content import service as speech
+    r, s, wire, frames = await speech(identity='nova', edges=0, seconds=200, reply='A clean, efficient effort; I expected nothing less from you.')
+    s.deck()._start_done = True
+    s.campaign_speaker = lambda: 'nova'
+    svc = service(tmp_path)
+    svc.start(CID, 'orientation')
+    sid = s.state.session_id
+    svc.observe(report(sid=sid), [], MODEL['nova'])
+    s.campaign_cue_valid = svc.cue_valid
+    s.safety('emergency_stop')
+    r.state['details']['terminal_outcome'] = 'safety_stop'
+    r.step(status='IDLE', seconds=0)
+    svc.observe(report(sid=sid, status='IDLE', edges=1, terminal_outcome='safety_stop'), ['stop'], MODEL['nova'])
+    for cue in svc.take_cues(): s.campaign_cue(cue)
+    r.state['details']['terminal_outcome'] = None
+    r.clock.tick(3); r.step(seconds=0)
+    s.pump()
+    if s.task: await s.task
+    assert not [m for m in frames if m['type'] == 'speech' and m.get('source') != 'safety']
+    assert states(svc)['orientation'] == 'completed', 'the progress itself still counts'
+
+
+@pytest.mark.parametrize('text,flagged', [
+    ('You have reached the five edges I asked for.', True),
+    ("You've hit the five edges I asked for.", True),
+    ('Three more and you will have the five edges I asked for.', False),
+    ('That is two of the five edges I asked for.', False),
+])
+def test_a_target_named_in_an_achievement_claim_is_still_a_count(text, flagged):
+    from companion_ai.fidelity import violations
+    from tests.ai.test_event_deck_content import Replay
+    r = Replay(); r.state.update(edges=2, status='RUNNING'); r.step(None, seconds=0)
+    assert ('wrong_edges' in violations(text, r.observation.summary()['canonical_session'], card=True, targets=[5])) is flagged
+
+
+def test_another_mission_named_in_the_same_clause_does_not_excuse_this_one():
+    from companion_ai.fidelity import campaign_violations
+    summary = {'campaign_state': 'active', 'campaign_others': ['evelyn', 'First Assessment']}
+    assert 'premature_mission_complete' in campaign_violations("You have passed my test just as you passed Evelyn's assessment.", summary)
