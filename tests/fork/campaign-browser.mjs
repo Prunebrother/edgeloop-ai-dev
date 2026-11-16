@@ -235,11 +235,14 @@ try{
         await page.locator('[data-puzzle-option=internal]').click();
         await page.waitForFunction(()=>document.querySelector('.mission-puzzle strong')?.textContent==='Follow the money');
         await page.waitForFunction(()=>[...document.querySelectorAll('.message-mission')].some(m=>m.textContent.includes('internal Asterion badge')));
-        const saved=JSON.parse((await progress()).saved);assert(JSON.stringify(saved.active.solved)==='["log"]','Saved puzzle '+JSON.stringify(saved.active));
+        const saved=JSON.parse((await progress()).saved);assert(JSON.stringify(saved.campaigns[CID].solved)==='{"ghost_in_the_machine":["log"]}','Saved puzzle '+JSON.stringify(saved.campaigns[CID].solved));
         await page.locator('[data-puzzle-option=helix]').focus();await page.keyboard.press('Enter');
         await page.waitForFunction(()=>document.querySelector('.mission-puzzle strong')?.textContent==='The edited record');
-        await page.locator('[data-puzzle-option=inside]').click();
+        // Space presses the answer button only; the engine's Space shortcut (start or pause) must not fire.
+        const startDisabled=await page.locator('#sessionStopBtn').isDisabled().catch(()=>null);
+        await page.locator('[data-puzzle-option=inside]').focus();await page.keyboard.press('Space');
         await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='results');
+        assert(await page.locator('#sessionStopBtn').isDisabled().catch(()=>null)===startDisabled,'Space on a puzzle button reached the engine');
         const results=await page.locator('#main-menu').textContent();
         assert(results.includes('Chapter 3 complete')&&results.includes('You are cleared of suspicion')&&results.includes('come to Helix'),'Results '+results.slice(0,800));
         assert(!(await page.content()).includes('Follow each owner up the chain'),'Hint leaked before a wrong answer');

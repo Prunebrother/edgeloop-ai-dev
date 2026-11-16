@@ -190,7 +190,7 @@ def test_solved_puzzles_are_saved_and_survive_the_session_and_a_restart(tmp_path
     svc = seed(tmp_path, 'ghost_in_the_machine')
     run(svc, 'nova', report(sid='n'))
     answer(svc, 'log', 'internal', report(sid='n'))
-    assert json.loads((tmp_path / PROGRESS_FILE).read_text())['active']['solved'] == ['log']
+    assert json.loads((tmp_path / PROGRESS_FILE).read_text())['campaigns'][CID]['solved'] == {'ghost_in_the_machine': ['log']}
     run(svc, 'nova', report(sid='n', status='IDLE'))
     again = service(tmp_path)
     assert view(again, 'log')['done'] and view(again, 'money')['puzzle']['open']
@@ -208,7 +208,7 @@ def test_solved_puzzles_are_saved_and_survive_the_session_and_a_restart(tmp_path
 def test_a_mission_already_solved_completes_when_the_next_session_starts(tmp_path):
     svc = seed(tmp_path, 'ghost_in_the_machine')
     progress = json.loads((tmp_path / PROGRESS_FILE).read_text())
-    progress['active']['solved'] = ['log', 'money', 'record']
+    progress['campaigns'][CID]['solved'] = {'ghost_in_the_machine': ['log', 'money', 'record']}
     (tmp_path / PROGRESS_FILE).write_text(json.dumps(progress))
     assert results(run(service(tmp_path), 'nova', report(sid='q')))
 
@@ -259,13 +259,13 @@ def test_version_2_progress_reopens_a_campaign_completed_at_mission_9(tmp_path):
     svc.start(CID, 'the_anomaly')
     saved = json.loads((tmp_path / PROGRESS_FILE).read_text())
     assert saved['schema_version'] == 3 and 'campaign_complete:asterion_initiative' not in saved['campaigns'][CID]['rewards']
-    assert saved['active'] == {'campaign': CID, 'mission': 'the_anomaly', 'started_at': saved['active']['started_at'], 'solved': []}
+    assert saved['active'] == {'campaign': CID, 'mission': 'the_anomaly', 'started_at': saved['active']['started_at']}
 
 
 def test_malformed_puzzle_progress_leaves_the_file_and_freeplay_alone(tmp_path):
     seed(tmp_path, 'ghost_in_the_machine')
     progress = json.loads((tmp_path / PROGRESS_FILE).read_text())
-    progress['active']['solved'] = 'log'
+    progress['campaigns'][CID]['solved'] = {'ghost_in_the_machine': 'log'}
     raw = json.dumps(progress)
     (tmp_path / PROGRESS_FILE).write_text(raw)
     svc = service(tmp_path)

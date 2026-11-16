@@ -370,14 +370,15 @@ class CampaignRecord(StrictModel):
     completed_at: str | None = Field(default=None, max_length=40)
     # Facts a mission confirmed and the campaign keeps, e.g. the calibrated maximum heart rate.
     records: dict[str, int | str | None] = Field(default_factory=dict, max_length=32)
+    # Puzzles solved per mission not yet completed. Kept when the player leaves the mission and comes back,
+    # cleared when the mission completes (a replay solves them again).
+    solved: dict[str, list[str]] = Field(default_factory=dict, max_length=32)
 
 
 class ActiveMission(StrictModel):
     campaign: str = Field(max_length=64)
     mission: str = Field(max_length=64)
     started_at: str = Field(max_length=40)
-    # Puzzles solved in this mission so far (saved, so they survive a session ending or a restart).
-    solved: list[str] = Field(default_factory=list, max_length=12)
 
 
 class Progress(StrictModel):
@@ -461,6 +462,9 @@ class Attempt:
         # Puzzles solved in this mission (saved; kept across sessions), and the last wrong pick per puzzle.
         self.solved = set(solved)
         self.wrong = {}
+        # Stages whose intensity raise is used up: the level was reached once in the stage (by the companion or the
+        # player). After that the player may lower it, and nothing may raise it again in that stage.
+        self.raised = set()
         self.done = {}
         self.edges = self.orgasms = 0
         self.last_edges = self.last_orgasms = None
@@ -577,7 +581,8 @@ class CampaignService:
         if active and not self._mission(active.campaign, active.mission):
             self.progress.active = None  # Its definition is gone (content removed); nothing else changes.
         if self.progress.active:
-            self.attempt = Attempt(self._mission(self.progress.active.campaign, self.progress.active.mission), self.progress.active.solved)
+            active = self.progress.active
+            self.attempt = Attempt(self._mission(active.campaign, active.mission), self.record(active.campaign).solved.get(active.mission, ()))
 
     def _settle_completion(self, progress):
         """Chapter and campaign completion follow from the completed missions under the current definitions:
@@ -648,7 +653,7 @@ class CampaignService:
                 now = report.get('intensity')
                 if stage and stage.intensity is not None: needs['intensity'] = stage.intensity - 50
                 # A raise is needed only while the level is below it: the player may always go higher or lower again.
-                elif stage and stage.raise_to is not None and isinstance(now, int) and now < stage.raise_to: needs['intensity'] = stage.raise_to - 50
+                elif stage and stage.raise_to is not None and stage.id not in attempt.raised and isinstance(now, int) and now < stage.raise_to: needs['intensity'] = stage.raise_to - 50
             if o.type == 'style_stages':
                 filled = attempt.done_styles(o)
                 needs['styles'] = [k for k in o.styles if k not in filled]
@@ -778,7 +783,7 @@ class CampaignService:
         progress = self.progress.model_copy(deep=True)
         progress.active = ActiveMission(campaign=campaign.id, mission=mission.id, started_at=now_iso(self.clock))
         self._save(progress)
-        self.attempt = Attempt(mission)
+        self.attempt = Attempt(mission, self.record(campaign.id).solved.get(mission.id, ()))
         self.notice = None
         self.finished = None
         self.directives = []
@@ -929,11 +934,15 @@ class CampaignService:
         if self.identity(model) != attempt.mission.companion: raise ValueError('The puzzles count with the mission companion selected.')
         if not report or attempt.session_id is None or attempt.session_id != report.get('session_id') or report.get('status') not in LIVE:
             raise ValueError('Start the mission session first; the puzzles are solved during it.')
+        if report.get('status') != 'RUNNING': raise ValueError('Resume the session to answer; puzzles are solved while it runs.')
+        if not (real_hr(report) and toy_ready(report) and self._mode_ok(attempt.mission, report)):
+            raise ValueError('The puzzles count only with your heart-rate monitor (not the simulator) and toy connected.')
         if option_id != o.puzzle.answer:
             attempt.wrong[o.id] = option_id
             return [self.progress_update(report, model)]
         progress = self.progress.model_copy(deep=True)
-        progress.active.solved = [*progress.active.solved, o.id]
+        record = progress.campaigns.setdefault(progress.active.campaign, CampaignRecord())
+        record.solved[attempt.mission.id] = [*record.solved.get(attempt.mission.id, []), o.id]
         self._save(progress)
         attempt.solved.add(o.id); attempt.done[o.id] = True; attempt.wrong.pop(o.id, None)
         if all(attempt.done.get(x.id) for x in attempt.mission.objectives):
@@ -1014,6 +1023,10 @@ class CampaignService:
             attempt.last_edges, attempt.last_orgasms = max(attempt.last_edges, edges), max(attempt.last_orgasms, orgasms)
             moments += self._credit_time(attempt, report, eligible)
             for o in mission.objectives:
+                stage = attempt.current_stage(o) if o.type == 'stage_sequence' else None
+                if stage and stage.raise_to is not None and isinstance(report.get('intensity'), int) and report['intensity'] >= stage.raise_to:
+                    attempt.raised.add(stage.id)
+            for o in mission.objectives:
                 if o.within_seconds is None or o.id in attempt.expired or attempt.counts.get(o.id, 0) >= o.count: continue
                 if now_elapsed > o.within_seconds:
                     # Time is up for this try; nothing more counts toward it until the next session.
@@ -1044,6 +1057,8 @@ class CampaignService:
                     self.cues.append(self._cue('mission_complete', mission, sid))
             elif status == 'IDLE':
                 # The session ended before the mission was done: the next session starts the counts again.
+                # Time running out in that same last report still gets its line, before the try is reset.
+                out += self._moments(attempt, [m for m in moments if m.endswith(':expired')])
                 self._reset(attempt, 'session_ended')
             else:
                 moments += [f'{o.id}:done' for o in mission.objectives if o.type in GOAL_TYPES and attempt.done.get(o.id) and o.id not in met_before]
@@ -1150,7 +1165,7 @@ class CampaignService:
         attempt.session_id = None; attempt.done = {}; attempt.edges = attempt.orgasms = 0
         attempt.last_edges = attempt.last_orgasms = None; attempt.metric = None; attempt.reset_reason = reason
         attempt.counts = {}; attempt.style_time = {}; attempt.stage_time = {}; attempt.filled = {}; attempt.marked = set()
-        attempt.last_seconds = attempt.last_config = attempt.last_captured = None; attempt.base_seconds = None; attempt.expired = set(); attempt.wrong = {}
+        attempt.last_seconds = attempt.last_config = attempt.last_captured = None; attempt.base_seconds = None; attempt.expired = set(); attempt.wrong = {}; attempt.raised = set()
         attempt.cued = set(); attempt.generation += 1
         self.directives = []
 
@@ -1161,6 +1176,7 @@ class CampaignService:
         mission = attempt.mission
         progress = self.progress.model_copy(deep=True)
         record = progress.campaigns.setdefault(campaign.id, CampaignRecord())
+        record.solved.pop(mission.id, None)
         stamp = now_iso(self.clock)
         replay = mission.id in record.missions
         if replay:

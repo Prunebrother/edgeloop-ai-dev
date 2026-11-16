@@ -137,7 +137,10 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
             node('strong',{text:z.title}),
             node('ul',{class:'mission-stages'},...z.clues.map(t=>node('li',{text:t}))),
             node('p',{text:z.question}),
-            node('div',{class:'mission-puzzle-options'},...z.options.map(x=>node('button',{type:'button','data-puzzle-option':x.id,
+            // Space and Enter press the answer button and stop there: the engine's own shortcuts (Space: start or
+            // pause the session) must not see them. The button's native activation still happens.
+            node('div',{class:'mission-puzzle-options',onkeydown:e=>{if(e.code==='Space'||e.code==='Enter'||e.key===' '||e.key==='Enter')e.stopPropagation();},
+                onkeyup:e=>{if(e.code==='Space'||e.key===' ')e.stopPropagation();}},...z.options.map(x=>node('button',{type:'button','data-puzzle-option':x.id,
                 class:z.wrong===x.id?'wrong':null,onclick:()=>{if(!send({version:1,type:'campaign',action:'answer',objective_id:a.id,answer:x.id})){puzzleError='The companion service is not connected.';renderBanner();}}},x.label))),
             z.hint?node('p',{class:'mission-note',role:'status',text:'Not quite. '+z.hint}):null);
     }
