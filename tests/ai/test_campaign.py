@@ -904,3 +904,38 @@ def test_another_mission_named_in_the_same_clause_does_not_excuse_this_one():
     from companion_ai.fidelity import campaign_violations
     summary = {'campaign_state': 'active', 'campaign_others': ['evelyn', 'First Assessment']}
     assert 'premature_mission_complete' in campaign_violations("You have passed my test just as you passed Evelyn's assessment.", summary)
+
+
+# ---- Companion switching: free in Freeplay, locked to the mission's companion during a mission
+
+def test_switching_companions_is_locked_during_a_mission_only(tmp_path):
+    svc = service(tmp_path)
+    nova, evelyn = MODEL['nova'], MODEL['evelyn']
+    assert svc.switch_refusal(evelyn, nova) is None  # no mission: Freeplay rules
+    svc.start(CID, 'orientation')
+    assert svc.switch_refusal(evelyn, nova) == svc.SWITCH_LOCKED
+    assert svc.switch_refusal('custom:wren', nova) == svc.SWITCH_LOCKED  # custom characters wait for Freeplay
+    assert svc.switch_refusal(nova, evelyn) is None  # selecting the mission's companion (Begin)
+    assert svc.switch_refusal(evelyn, evelyn) is None  # re-selecting the current one changes nothing
+    assert service(tmp_path).switch_refusal(evelyn, nova) == svc.SWITCH_LOCKED  # survives a restart
+    svc.abandon()
+    assert svc.switch_refusal(evelyn, nova) is None
+
+
+def test_the_observer_refuses_a_model_switch_during_a_mission(tmp_path):
+    from fastapi.testclient import TestClient
+    from ai_observer.server import create_app
+    from tests.fork.test_observer import TOKEN, ORIGIN, auth, until
+    app = create_app(TOKEN, tmp_path)
+    app.state.models.config = app.state.models.config.model_copy(update={'model': MODEL['nova']})
+    with TestClient(app) as client:
+        with client.websocket_connect('/observe', headers={'Origin': ORIGIN}) as ws:
+            auth(ws)
+            ws.send_json({'version': 1, 'type': 'campaign', 'action': 'start', 'campaign_id': CID, 'mission_id': 'orientation'})
+            assert until(ws, 'campaign_state')['active']['mission'] == 'orientation'
+            ws.send_json({'version': 1, 'type': 'select_model', 'selection': {'model': MODEL['evelyn']}})
+            refused = until(ws, 'ai_error')
+            assert refused['code'] == 'campaign_locked' and 'Freeplay' in refused['detail'] and refused['selection_failed']
+            assert app.state.models.config.model == MODEL['nova']
+            ws.send_json({'version': 1, 'type': 'campaign', 'action': 'abandon'})
+            assert until(ws, 'campaign_state')['active'] is None

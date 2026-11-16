@@ -136,6 +136,9 @@ try{
         assert(await page.locator('.message-mission').first().textContent().then(t=>t.includes('Nova · Mission briefing')),'Briefing not in chat');
         const banner=await page.locator('.mission-banner').textContent();
         assert(banner.includes('Orientation')&&banner.includes('Reach 1 edge'),'Banner '+banner);
+        // Campaign mode: the companion is the mission's; switching waits for Freeplay.
+        assert(await page.locator('[data-model]').isDisabled()&&await page.locator('[data-select]').isDisabled(),'Model picker not locked during a mission');
+        assert(await page.locator('[data-campaign-lock]').isVisible(),'No lock note during a mission');
     });
     await step('6, 7, 8. One verified edge completes Orientation and unlocks Evelyn and Mission 2',async()=>{
         let sent=await evidence(real(0));assert(sent.model==='nova-narrative-v1:latest','Fixture model '+sent.model);
@@ -171,6 +174,8 @@ try{
         await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='briefing');
         await page.keyboard.press('Escape');await page.keyboard.press('Escape');await page.keyboard.press('Escape');
         await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='home');
+        // During a mission the host chips cannot switch companions; only the current one stays enabled.
+        assert(await page.locator('.menu-host-chips button:disabled').count()===4,'Host chips not locked during a mission');
         // Codex 12: if leaving cannot be saved, the menu stays and says so; the mission's rules still apply.
         await saves(false);
         page.once('dialog',d=>d.accept());await page.locator('[data-menu-tile=freeplay]').click();
@@ -183,6 +188,8 @@ try{
         for(let i=0;i<30&&JSON.parse((await progress()).saved).active;i++)await page.waitForTimeout(100);
         const saved=JSON.parse((await progress()).saved);
         assert(saved.active===null&&saved.campaigns[CID].missions.orientation,'Freeplay did not leave the mission cleanly');
+        await page.waitForFunction(()=>!document.querySelector('[data-model]').disabled);
+        assert(await page.locator('[data-campaign-lock]').isHidden(),'Lock note still shown in Freeplay');
     });
     await step('14. The menu cannot cover a running session',async()=>{
         await page.locator('#cardBle').click();await page.getByRole('button',{name:/manual simulator/i}).click();

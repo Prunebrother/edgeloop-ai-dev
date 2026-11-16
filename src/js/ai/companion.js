@@ -21,7 +21,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
         <label>Companion service (WebSocket)<input data-url value="ws://127.0.0.1:8768/observe" autocomplete="off" spellcheck="false"></label>
         <label>Pairing token<input data-token type="password" autocomplete="off" required minlength="32" maxlength="128"></label>
         <button data-connect class="accent-button" type="submit">Pair local AI</button></form>
-      <div class="model-picker"><label>Ollama model<select data-model aria-label="Installed model" disabled><option value="" disabled>Pair to discover models</option></select></label><button data-select type="button" disabled>Switch model</button><button data-refresh type="button" disabled aria-label="Refresh installed models">↻</button></div>
+      <div class="model-picker"><label>Ollama model<select data-model aria-label="Installed model" disabled><option value="" disabled>Pair to discover models</option></select></label><button data-select type="button" disabled>Switch model</button><button data-refresh type="button" disabled aria-label="Refresh installed models">↻</button></div><p class="campaign-lock-note" data-campaign-lock hidden>Mission in progress: the companion is locked. Choose Freeplay in the main menu to switch.</p>
       <div class="model-controls" hidden><button data-thinking type="button" aria-pressed="false" disabled>Thinking: unknown</button><span data-thinking-hint>Choose a model to see its thinking setting.</span></div>
       <div class="ai-health"><span data-selected>No AI model active</span><span data-ollama>Ollama not checked</span><span data-endpoint>Ollama endpoint pending</span><span data-telemetry>Telemetry not connected</span></div>
       <div class="conversation-scroll" data-history role="log" aria-label="Conversation history" aria-live="off" tabindex="0"><div class="conversation-empty" data-empty><span aria-hidden="true">✧</span><h3>A little space to connect.</h3><p>Your conversation lives here.<br>Choose a local model and say hello.</p></div></div>
@@ -39,7 +39,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
     const previewCleanup=mountExpressionPreview(artwork,presentation);mountLayout(panel,artwork);
     const el=key=>panel.querySelector(`[data-${key}]`);
     let selected=null,current=null,pending=false,follow=true,paired=false,changing=false,thinking=null,supportsThinking=false,canDisableThinking=true;
-    let discovered=new Set(),latestGeneration=0,activeCharacter=null;
+    let discovered=new Set(),latestGeneration=0,activeCharacter=null,campaignLocked=false;
     const observerOrigin=()=>{try{const u=new URL(connection.url);return 'http://'+u.host;}catch{return null;}};
     const scroll=()=>{if(follow)el('history').scrollTop=el('history').scrollHeight;};
     el('history').onscroll=()=>{follow=el('history').scrollHeight-el('history').clientHeight-el('history').scrollTop<60;el('latest').hidden=follow;};
@@ -50,7 +50,9 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
     const controls=()=>{
         menus.scope(changing?null:selected,paired);
         el('send').disabled=!selected||pending||changing;el('text').disabled=!selected||changing;
-        el('select').disabled=!paired||pending||changing||!discovered.has(el('model').value);el('model').disabled=!paired||pending||changing;
+        // A mission is played with its own companion: the picker waits for Freeplay (the observer refuses switches too).
+        el('select').disabled=!paired||pending||changing||campaignLocked||!discovered.has(el('model').value);el('model').disabled=!paired||pending||changing||campaignLocked;
+        el('campaign-lock').hidden=!campaignLocked;
         el('thinking').disabled=!discovered.has(selected)||!selected||!supportsThinking||thinking===true&&!canDisableThinking||thinking===null||pending||changing;
         el('thinking').setAttribute('aria-pressed',String(thinking===true));
         el('thinking').textContent=thinking===null?'Thinking: unknown':supportsThinking?'Thinking: '+(thinking?'On':'Off'):'Thinking unavailable';
@@ -174,7 +176,8 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
             switchingTo=model;selectModel(model);return true;},
         postLines:(block,label)=>postMissionLines(block,label),
         // The built-in companion now selected (none for a custom character): the main menu's host.
-        currentCompanion:()=>selected&&!activeCharacter?MODEL_ARTWORK[selected]||null:null});
+        currentCompanion:()=>selected&&!activeCharacter?MODEL_ARTWORK[selected]||null:null,
+        onMissionChange:mission=>{campaignLocked=!!mission;controls();}});
     // AI Settings Control: the engine-side gate decides; this layer only forwards and shows the result.
     const settingsName=()=>selected?(resolveArtwork(selected).name==='Your companion'?selected:resolveArtwork(selected).name):'Companion';
     const settingsChip=outcome=>{if(!settingsControl?.chip)return;el('empty')?.remove();el('history').append(settingsControl.chip(outcome,{name:settingsName(),send:r=>connection.send(r)}));scroll();};

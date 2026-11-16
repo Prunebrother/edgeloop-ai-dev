@@ -24,13 +24,15 @@ const percent=(done,total)=>total?Math.round(100*done/total):0;
 const SETTING_WORDS={intensity:'intensity',orgasm:'Force Orgasm',play_style:'play style',game:'game',endgame:'endgame',pause:'pause',stop:'stop'};
 const portrait=(id,expression='neutral')=>CHARACTERS[id]?.expressions?.[expression]||CHARACTERS[id]?.expressions?.neutral||null;
 
-export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost,currentCompanion=()=>null}){
+export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost,currentCompanion=()=>null,onMissionChange=()=>{}}){
     let data=null,paired=false,view='home',campaignId=null,missionId=null,pendingStart=null,pendingLeave=false,result=null,commandError=null,lastFocus=null;
     // Main menu host: the selected companion, else the one picked last on this device, else Nova.
     let hostChoice=null,lastHost=null,greeting=0,chapterNo=null,boardPick=null;
     const HOST_KEY='edgeloop.menu.host';
     try{const saved=localStorage.getItem(HOST_KEY);if(COMPANION_ORDER.includes(saved))lastHost=saved;}catch{}
-    const host=()=>{const c=currentCompanion();return hostChoice||(COMPANION_ORDER.includes(c)?c:lastHost||'nova');};
+    // During a mission the host is the companion actually selected (switching waits for Freeplay).
+    const missionLocked=()=>!!data?.active;
+    const host=()=>{const c=currentCompanion();if(missionLocked()&&COMPANION_ORDER.includes(c))return c;return hostChoice||(COMPANION_ORDER.includes(c)?c:lastHost||'nova');};
     const greet=()=>{greeting=Math.floor(Math.random()*3);};greet();
     const live=()=>LIVE.has(status());
     const root=node('div',{id:'main-menu',class:'game-menu',role:'dialog','aria-modal':'true','aria-labelledby':'main-menu-title'});
@@ -106,7 +108,7 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost,
             tile('Campaign',detail,()=>go('campaigns'),false,kicker),
             tile('Freeplay','Every companion, every setting. EdgeLoop AI as you know it.',freeplay),
             tile('Companion Builder','Coming soon',null,true));
-        const h=host(),lines=GREETINGS[h]||[];
+        const h=host(),lines=GREETINGS[h]||[],locked=missionLocked();
         return [node('img',{class:'menu-backdrop',src:MENU_ART.backdrop,alt:''}),
             node('div',{class:'menu-shade','aria-hidden':'true'}),
             node('img',{class:'menu-host-figure',src:figure(h),alt:'',dataset:{host:h}}),
@@ -116,7 +118,7 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost,
                 // Only an error or a pending leave shows here; the connecting notice belongs to the Campaign screens.
                 commandError||pendingLeave?statusLine():null,list),
             node('ul',{class:'menu-host-chips','data-menu-list':true,'aria-label':'Choose your companion'},...COMPANION_ORDER.map(id=>node('li',{},
-                node('button',{type:'button','aria-pressed':String(id===h),title:name(id),'aria-label':name(id),dataset:{host:id},onclick:()=>chooseHost(id)},node('img',{src:face(id),alt:''})))))];
+                node('button',{type:'button','aria-pressed':String(id===h),title:locked?`${name(id)} · switching is locked during a mission (Freeplay unlocks it)`:name(id),'aria-label':name(id),disabled:locked&&id!==h,dataset:{host:id},onclick:()=>chooseHost(id)},node('img',{src:face(id),alt:''})))))];
     }
     // Freeplay carries no campaign rules: a mission in progress is left first (completed missions and rewards stay).
     function freeplay(){
@@ -358,7 +360,8 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost,
         connected(value){paired=value;if(!value&&pendingLeave){pendingLeave=false;commandError='The companion service disconnected, so the mission may still be in progress.';}if(value)send({version:1,type:'campaign',action:'get'});render();},
         receive(m){
             if(m.type==='campaign_state'){
-                data=m;commandError=m.command_error||null;puzzleError=root.hidden?m.command_error||null:null;
+                const before=data?.active?.mission||null;data=m;commandError=m.command_error||null;
+                if((m.active?.mission||null)!==before)onMissionChange(m.active?.mission||null);puzzleError=root.hidden?m.command_error||null:null;
                 if(pendingStart&&m.active?.mission===pendingStart.mission&&!m.command_error){campaignId=pendingStart.campaign;missionId=pendingStart.mission;pendingStart=null;view='briefing';}
                 else if(pendingStart&&m.command_error)pendingStart=null;
                 if(view==='briefing'&&!m.active&&!m.command_error)view='missions';
@@ -383,6 +386,7 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost,
         // The selected companion changed (model picker, a host chip, a mission): the host follows her.
         companionChanged(){const c=currentCompanion();if(COMPANION_ORDER.includes(c)){hostChoice=null;lastHost=c;try{localStorage.setItem(HOST_KEY,c);}catch{}}if(view==='home')render();},
         isOpen:()=>!root.hidden,
+        missionLocked,
         destroy(){clearInterval(liveTimer);for(const type of ['keydown','keyup','keypress'])window.removeEventListener(type,guard,true);document.removeEventListener('focusin',refocus);root.remove();banner.remove();menuButton.remove();}
     };
 }

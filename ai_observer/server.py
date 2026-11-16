@@ -142,6 +142,9 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                     library.write_package(composed)
                     package=load_package(composed)
                     builtin_deck()
+                # Campaign missions are played with their own companion; custom characters wait for Freeplay.
+                refusal=campaign.switch_refusal('custom:'+package.identity if package else manager.config.model,persona())
+                if refusal:raise BuilderError([{'path':['model'],'message':refusal}])
                 model=package.model if package else manager.config.model
                 async with model_lock:
                     presets=store.read('model-presets.json',{})
@@ -410,6 +413,12 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
                     elif isinstance(message,CharacterBuilderCommand):
                         await character_builder(message)
                     elif isinstance(message,Select):
+                        # During a mission only its companion can be selected; Freeplay leaves the mission first.
+                        keeps=manager.character if message.keep_character and manager.character and manager.character.model==message.selection.model else None
+                        refusal=campaign.switch_refusal('custom:'+keeps.identity if keeps else message.selection.model,persona())
+                        if refusal:
+                            publish({'type':'ai_error','code':'campaign_locked','detail':refusal,'selection_failed':True,'active':manager.mode not in {'mock','stopped'}})
+                            continue
                         try:
                             async with model_lock:
                                 presets=store.read('model-presets.json',{})

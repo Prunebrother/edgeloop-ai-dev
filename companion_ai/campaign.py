@@ -980,6 +980,18 @@ class CampaignService:
             return [self.state(report, model), result]
         return [self.progress_update(report, model)] + self._moments(attempt, [f'{o.id}:done'])
 
+    SWITCH_LOCKED = 'Switching companions is locked during a mission. Choose Freeplay in the main menu to leave the mission and switch freely.'
+
+    def switch_refusal(self, target, current):
+        """While a mission is active only its companion can be selected (Freeplay leaves the mission first).
+        `target`/`current` are personas: a model name, or 'custom:<identity>' for a custom character."""
+        active = self.progress.active
+        if not active or target == current: return None
+        campaign = self.book.campaign(active.campaign)
+        mission = campaign.mission(active.mission) if campaign else None
+        if mission and self.identity(target) == mission.companion: return None
+        return self.SWITCH_LOCKED
+
     def abandon(self):
         progress = self.progress.model_copy(deep=True)
         progress.active = None
