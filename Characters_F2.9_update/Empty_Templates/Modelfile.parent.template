@@ -1,0 +1,12 @@
+# <Name> — narrative parent: base model and sampling. Built as a release intermediate.
+# Inherit the supported native Qwen3.5 template/parser; no TEMPLATE or stop-token overrides.
+FROM huihui_ai/qwen3.5-abliterated:9b
+
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+PARAMETER top_k 20
+PARAMETER num_ctx 8192
+
+SYSTEM """
+<first persona draft; the f29 model below replaces it>
+"""
