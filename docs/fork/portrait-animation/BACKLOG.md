@@ -2,9 +2,52 @@
 
 ## PA-1 Layered artwork: static background plate + moving character cutout
 
-**Status:** backlog (raised 2026-11-12 after the first review of all 48 idle clips)
-**Priority:** after real-gameplay testing of the current clips. Real use may show the
-warping is less noticeable at portrait size during a session.
+**Status:** DONE 2026-11-16 (all 60 clips swapped; see the status notes below). Reopened 2026-11-15 with a new approach (see "Revised plan" below). The first
+attempt (regenerating the art as layers with Codex, then local Qwen/Krea) was dropped: Codex
+was blocked by moderation on 7 poses and the local models did not match the original style.
+
+## Revised plan (2026-11-15): cut the ORIGINAL art into layers
+
+All 60 original expression PNGs (5 characters × 12) were cut out locally with
+BiRefNet_HR-matting (`~/image-gen/matte.py`). The cutouts are the original pixels in their
+original position; only the background is removed. User review of the overview sheet: "these
+look great". Files: `~/Work/character_art_cutouts/local_matte/<Character>/`.
+
+Consequences:
+- **No art changes:** faces, poses and style stay exactly the app's art.
+- **Approved motion carries over:** the cutouts sit at the same coordinates as the source
+  PNGs, so the approved warp-mode configs (`configs/<char>/<expr>.json`: eye positions, blink,
+  breathing mask, sway, pins) apply as-is. Only silhouette/warp zones/barriers become unnecessary.
+- **Plate per expression (decision pending, recommended):** each expression's background is
+  that PNG with the figure painted out (inpainted locally). Outside the figure, the plate is the
+  original pixels. Frame 0 then looks the same as today's PNG and switching expression shows the
+  same scenery as today. A single shared plate per character (fixes the scenery swap noted
+  above) is an optional later step.
+
+### Phases
+
+| # | Step | Output | Gate |
+|---|---|---|---|
+| 0 | Cut out all 60 originals | `character_art_cutouts/local_matte/` | done, user-approved |
+| 1 | Celeste pilot: 12 plates (inpaint figure area), layer folder per expression, convert the 12 approved configs to layer configs | `layers_v2/celeste/` | plate review sheet |
+| 2 | Render Celeste's 12 clips in layer mode; QC: background bit-identical, PNG = frame 0; old-vs-new side-by-side video | `output_layers/celeste/` | user review |
+| 3 | Swap Celeste's PNG + WebM in the app (per-replacement approval), on `experiment/ai-companion`, not pushed | app commit | user approval |
+| 4 | Nova (most benefit: starfield, floor reflection as its own layer; neutral config missing, rebuild) | | user review |
+| 5 | Daisy, Evelyn, then Mira (translucent slime: check the matte inside the body) | | user review |
+| 6 | Optional: one shared plate per character; new characters delivered layered | | decision |
+
+**Status 2026-11-16 morning:** phases 1, 2, 4 and 5 rendered for all 5 characters (60 clips,
+background bit-identical in every frame). Celeste approved by the user on the first 5 clips;
+the rest await review. Mira has the extra slime wobble (sway ×1.5, softer, more head lag, fuller
+breath). Review: `reports_layers_v2/<char>/<char>_REVIEW_all12.mp4` and `<char>_plates_sheet.png`
+in the pipeline. Phase 3 (app swap) not started.
+
+**Status 2026-11-16 (later):** the user reviewed all 5 reels ("these look great") and approved
+the swap. All 60 PNG + WebM pairs in `Character_Art/<Name>/` are replaced by the layer-mode
+outputs; each PNG is frame 0 of its clip (checked against the lossless master). Manifest
+provenance and MODELS_AND_ASSETS.md updated (the PNGs are no longer byte-identical to the
+original generations). Phase 6 (shared plate) stays optional. Guidance for new characters:
+[../NEW_CHARACTER_GUIDE.md](../NEW_CHARACTER_GUIDE.md).
 
 ### Problem
 

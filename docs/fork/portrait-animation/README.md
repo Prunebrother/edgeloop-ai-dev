@@ -7,6 +7,10 @@
 > shipped (+83 MB). Browsers without VP9 fall back to the PNG. The text below describes
 > the original default-off review build. Rollback: set the flag to `false`. Known
 > issue: background warping near the figure, see [BACKLOG.md](BACKLOG.md) PA-1.
+>
+> **Update 2026-11-16:** 60 clips (Mira included), re-rendered in layer mode (PA-1): the
+> character moves over a still background plate, so the background no longer warps. Each
+> expression PNG is the first frame of its clip.
 
 The default remains PNG-only. `src/assets/characters/manifest.json` has
 `presentation.animated_characters_enabled: false`. No runtime clips are declared
