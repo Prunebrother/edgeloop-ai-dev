@@ -67,6 +67,8 @@ ORDINAL=r'(\d{1,3}(?:st|nd|rd|th)|'+'|'.join(ORDINALS)+r')'
 EDGE_ADJECTIVE=r'(?:\s+(?:whole|full|solid|clean|verified|confirmed|recorded|logged|counted|total|straight|good|long|hard|separate|distinct|successful|beautiful|perfect|careful))'
 EDGE_COUNTS=[re.compile(p,re.I) for p in (
     r'\b'+COUNT+EDGE_ADJECTIVE+r'{0,2}[ -]+edges?\b(?!\s+(?:cases?|lords?|lines?|weights?|detection|computing))(?!\s+of\s+(?:the|a|an|my|his|her|their|our|those|these)\b(?!\s+session))',
+    # "A single edge", "that solitary, modest edge": one, said without a number word (Evelyn arrival, 2026-11-16).
+    r'\b(single|singular|lone|solitary|sole)\b(?:,?\s+(?!(?:sessions?|times?|days?|orgasms?|climax(?:es)?|finish(?:es)?|run|round|moment|knife|razor|cutting|leading|bleeding|sharp)\b)[a-z-]+){0,2}?,?[ -]+edges?\b(?!\s+(?:cases?|lords?|lines?|weights?|detection|computing))(?!\s+of\s+(?:the|a|an|my|his|her|their|our|those|these)\b(?!\s+session))',
     r'\bedges?\s*(?:number|no\.?|#)\s*'+COUNT+r'\b',
     r"\b(?:this is|that's|that is|that was|here's|on|at|reached|hit)\s+edge\s+"+COUNT+r'\b',
     r'\bedged\s+(?:\w+\s+){0,2}?'+COUNT+r'\s+times\b',
@@ -130,7 +132,7 @@ ROUGHLY=r"(?:about|around|roughly|approximately|nearly|almost|close to|just unde
 def spoken_number(text):
     text=text.lower().strip()
     if re.fullmatch(r'\d+(?:\.\d+)?',text):return float(text)
-    if text in {'once','a','an'}:return 1
+    if text in {'once','a','an','single','singular','lone','solitary','sole'}:return 1
     if text=='twice':return 2
     if text=='thrice':return 3
     if text=='a dozen':return 12
