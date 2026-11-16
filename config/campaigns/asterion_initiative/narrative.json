@@ -332,7 +332,6 @@
     "the_anomaly": {
       "briefing": {
         "speaker": "evelyn",
-        "status": "draft",
         "lines": [
           "Close the door. Please.",
           "Someone has been inside my research database. Months of observations, my endurance study, your first assessment: the numbers have changed. Not lost. Changed.",
@@ -345,21 +344,18 @@
       "milestones": {
         "start": {
           "speaker": "evelyn",
-          "status": "draft",
           "lines": [
             "Recording. Every edge goes into a fresh, sealed file. Nobody touches this one."
           ]
         },
         "edges:10": {
           "speaker": "evelyn",
-          "status": "draft",
           "lines": [
             "Ten. Clean, consistent, verifiable. Good. Keep going; I need to see the curve hold."
           ]
         },
         "edges:20": {
           "speaker": "evelyn",
-          "status": "draft",
           "lines": [
             "Twenty. The pattern matches your earlier sessions, which means the old data really was altered. Ten more."
           ]
@@ -367,7 +363,6 @@
       },
       "completion": {
         "speaker": "evelyn",
-        "status": "draft",
         "lines": [
           "Thirty. The replacement dataset is complete, and it is beyond reproach.",
           "Thank you. Truly. I don't say that lightly, and I don't say it often.",
@@ -380,7 +375,6 @@
     "the_empty_vault": {
       "briefing": {
         "speaker": "daisy",
-        "status": "draft",
         "lines": [
           "Oh, sugar, thank goodness you came.",
           "Two days ago some fancy fella in a fancier suit offered to buy Cloverfield. Lock, stock and barn. I told him no before he finished his sentence. Harpers don't sell.",
@@ -393,28 +387,24 @@
       "milestones": {
         "start": {
           "speaker": "daisy",
-          "status": "draft",
           "lines": [
             "Clock's running, sugar! Fifteen minutes. Let's save this farm."
           ]
         },
         "delivery:left300": {
           "speaker": "daisy",
-          "status": "draft",
           "lines": [
             "Five minutes left on the clock! You've got this, I know you do."
           ]
         },
         "delivery:left60": {
           "speaker": "daisy",
-          "status": "draft",
           "lines": [
             "One minute, sugar! Now or never!"
           ]
         },
         "delivery:expired": {
           "speaker": "daisy",
-          "status": "draft",
           "lines": [
             "Oh no. That's the deadline gone for this run.",
             "Don't you fret; it's not your fault. We'll try again: start a new session and I'll reset the clock."
@@ -423,7 +413,6 @@
       },
       "completion": {
         "speaker": "daisy",
-        "status": "draft",
         "lines": [
           "Yes! Oh, you beautiful thing, that's in the cold store with time to spare!",
           "And would you look at that. The quality, the volume... Lord, sugar, that's the finest emergency delivery this farm has ever shipped. Mama would faint.",
@@ -436,7 +425,6 @@
     "midnight_intruder": {
       "briefing": {
         "speaker": "mira",
-        "status": "draft",
         "lines": [
           "Well. You weren't supposed to be here tonight.",
           "Neither was I, to be fair.",
@@ -449,21 +437,18 @@
       "milestones": {
         "start": {
           "speaker": "mira",
-          "status": "draft",
           "lines": [
             "There. Now we're both somewhere we shouldn't be. Discovery is such a thrilling feeling, isn't it?"
           ]
         },
         "encounter:deception": {
           "speaker": "mira",
-          "status": "draft",
           "lines": [
             "Ask me who I work for. Go on. I'll give you three answers and you can pick your favourite."
           ]
         },
         "encounter:confrontation": {
           "speaker": "mira",
-          "status": "draft",
           "lines": [
             "Your research file is fascinating. Your numbers, your profile, your rarity. Someone is willing to pay a great deal for them."
           ]
@@ -471,7 +456,6 @@
       },
       "completion": {
         "speaker": "mira",
-        "status": "draft",
         "lines": [
           "Thirty minutes. Longer than I planned to stay. You're very distracting.",
           "I'm afraid I have to go. Don't follow me; you'd only get lost.",
@@ -482,7 +466,6 @@
       "epilogue": [
         {
           "speaker": "nova",
-          "status": "draft",
           "lines": [
             "Hey. It's 2 a.m. and the security system just flagged an access record.",
             "It says your credentials opened the server room tonight. I know that wasn't you. But Celeste is going to see this first thing in the morning."
@@ -494,7 +477,6 @@
     "loyalty_test": {
       "briefing": {
         "speaker": "celeste",
-        "status": "draft",
         "lines": [
           "Sit down.",
           "Last night someone entered Asterion's server room using your credentials. While they were inside, files were accessed that concern you. Specifically.",
@@ -507,28 +489,24 @@
       "milestones": {
         "start": {
           "speaker": "celeste",
-          "status": "draft",
           "lines": [
             "Begin. I am watching."
           ]
         },
         "edges:10": {
           "speaker": "celeste",
-          "status": "draft",
           "lines": [
             "Ten. Adequate. I remain unconvinced."
           ]
         },
         "edges:25": {
           "speaker": "celeste",
-          "status": "draft",
           "lines": [
             "Twenty-five. You are persistent. I will give you that much."
           ]
         },
         "edges:done": {
           "speaker": "celeste",
-          "status": "draft",
           "lines": [
             "Forty.",
             "Very well. You may finish now. Report it properly."
@@ -537,7 +515,6 @@
       },
       "completion": {
         "speaker": "celeste",
-        "status": "draft",
         "lines": [
           "Your commitment to this initiative is evident. Your innocence, however, remains unproven. Those are two very different things.",
           "Perhaps my first assessment last night was premature. Perhaps.",
@@ -550,7 +527,6 @@
     "ghost_in_the_machine": {
       "briefing": {
         "speaker": "nova",
-        "status": "draft",
         "lines": [
           "Psst. Over here. Don't make it look like a meeting.",
           "I don't believe it was you. Not for a second. And I'm not waiting for Celeste's investigators to agree with me.",
@@ -562,14 +538,12 @@
       "milestones": {
         "start": {
           "speaker": "nova",
-          "status": "draft",
           "lines": [
             "Session's up, cover story's solid. First file: the door logs. Take a look in the mission panel."
           ]
         },
         "log:done": {
           "speaker": "nova",
-          "status": "draft",
           "lines": [
             "A copy of an internal Asterion badge. So whoever got her in had access to Asterion's own security systems. That's... not great.",
             "Next: let's follow some money."
@@ -577,7 +551,6 @@
         },
         "money:done": {
           "speaker": "nova",
-          "status": "draft",
           "lines": [
             "Helix Biotechnology. Hiding behind two shell companies to buy Daisy's farm. Sneaky!",
             "Last one: Evelyn's edit history."
@@ -586,7 +559,6 @@
       },
       "completion": {
         "speaker": "nova",
-        "status": "draft",
         "lines": [
           "Got it. The file was changed during the break-in, from a staff session in the server room. Someone inside helped her.",
           "Let's put it together: Mira used internally issued Asterion credentials. Helix was behind the Cloverfield offer. Evelyn's research was deliberately altered. And someone at Asterion helped.",
@@ -596,7 +568,6 @@
       "epilogue": [
         {
           "speaker": "celeste",
-          "status": "draft",
           "lines": [
             "I have reviewed Nova's findings.",
             "The evidence is clear. You did not authorise the intrusion; your credentials were copied. You are cleared of suspicion, effective immediately.",
@@ -606,7 +577,6 @@
         },
         {
           "speaker": "nova",
-          "status": "draft",
           "lines": [
             "Cleared! Officially! I told you we'd do it.",
             "Thank you for trusting me. Seriously. Not everyone would have.",
@@ -637,7 +607,6 @@
     },
     "shadows_of_helix": {
       "speaker": "nova",
-      "status": "draft",
       "lines": [
         "Wait. Something just came in. Encrypted. No sender.",
         "\"You found the trail we wanted you to find. If you want the truth about the fertility crisis, come to Helix.\"",

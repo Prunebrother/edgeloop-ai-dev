@@ -210,7 +210,7 @@ try{
         await page.locator('.mission-card').nth(10).getByRole('button',{name:'Start mission'}).click();
         await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='briefing');
         const briefing=await page.locator('#main-menu').textContent();
-        assert(briefing.includes('Story draft')&&briefing.includes('Time left: 15:00 of 15:00'),'Vault briefing '+briefing.slice(0,1500));
+        assert(!briefing.includes('Story draft')&&briefing.includes('Time left: 15:00 of 15:00'),'Vault briefing '+briefing.slice(0,1500));
         await shot('chapter3-vault-briefing.png');
         await page.getByRole('button',{name:'Begin with Daisy'}).click();
         await page.locator('#main-menu').waitFor({state:'hidden'});

@@ -24,7 +24,7 @@ def test_chapter_3_opens_after_chapter_2_and_chapter_4_is_a_teaser(tmp_path):
     assert chapters['shadows_of_helix']['progress'] == {'completed': 0, 'total': 5}
     assert chapters['rise_of_helix']['teaser'] and not chapters['rise_of_helix']['available'] and chapters['rise_of_helix']['progress']['total'] == 0
     assert not campaign['completed']
-    assert [m['narrative_draft'] for m in campaign['missions']][9:] == [True] * 5
+    assert not any(m['narrative_draft'] for m in campaign['missions'])
     locked = seed(tmp_path / 'b', 'directors_reassessment')
     assert states(locked)['the_anomaly'] == 'locked'
 
