@@ -154,7 +154,6 @@
     "endurance_study": {
       "briefing": {
         "speaker": "evelyn",
-        "status": "draft",
         "lines": [
           "Welcome back. Do sit down.",
           "I've been reviewing your first assessment. Promising. Also, statistically speaking, almost meaningless. Five observations is an anecdote, not a dataset.",
@@ -167,21 +166,18 @@
       "milestones": {
         "start": {
           "speaker": "evelyn",
-          "status": "draft",
           "lines": [
             "Recording. Begin whenever you're ready, and do try to be consistent."
           ]
         },
         "edges:5": {
           "speaker": "evelyn",
-          "status": "draft",
           "lines": [
             "Five. Your entire first assessment, matched already. Don't let it go to your head; we're a third of the way."
           ]
         },
         "edges:10": {
           "speaker": "evelyn",
-          "status": "draft",
           "lines": [
             "Ten edges. The curve is becoming genuinely interesting. Five more, and keep them clean."
           ]
@@ -189,7 +185,6 @@
       },
       "completion": {
         "speaker": "evelyn",
-        "status": "draft",
         "lines": [
           "Fifteen edges. Recorded, verified and, I'm pleased to say, remarkably consistent.",
           "That is a substantially larger dataset than your first assessment, and a great deal more useful. It will be quite valuable for my studies. Thank you. I mean that.",
@@ -201,7 +196,6 @@
     "cloverfield_quota": {
       "briefing": {
         "speaker": "daisy",
-        "status": "draft",
         "lines": [
           "Well, howdy again, sugar! Come on in, and mind the boots by the door.",
           "I won't lie to you: Cloverfield's in a bit of a pickle. Project EdgeLoop raised our production targets under the research contract, and the season's been leaner than I'd like.",
@@ -214,14 +208,12 @@
       "milestones": {
         "start": {
           "speaker": "daisy",
-          "status": "draft",
           "lines": [
             "That's the session on the books. Let's make Cloverfield proud!"
           ]
         },
         "orgasms:1": {
           "speaker": "daisy",
-          "status": "draft",
           "lines": [
             "That's one in the ledger, sugar! Catch your breath and take your time. One more and we've hit our number."
           ]
@@ -229,7 +221,6 @@
       },
       "completion": {
         "speaker": "daisy",
-        "status": "draft",
         "lines": [
           "Two! Well, would you look at that. Quota met!",
           "You've done right by Cloverfield today, and I'll be telling Mama all about it. Well, the polite version.",
@@ -241,7 +232,6 @@
     "adaptive_calibration": {
       "briefing": {
         "speaker": "nova",
-        "status": "draft",
         "lines": [
           "Hey, you! Come here, I've got something fun.",
           "I've been staring at your data. In a perfectly professional way. Mostly.",
@@ -255,28 +245,24 @@
       "milestones": {
         "start": {
           "speaker": "nova",
-          "status": "draft",
           "lines": [
             "Recording! Your first stage is whichever play style you're on, so make sure it's one you want to test."
           ]
         },
         "styles:1": {
           "speaker": "nova",
-          "status": "draft",
           "lines": [
             "Stage one, done! Five minutes logged. On to a new play style!"
           ]
         },
         "styles:2": {
           "speaker": "nova",
-          "status": "draft",
           "lines": [
             "Halfway there! Two styles down, two to go. Ooh, I'm already seeing differences. Next style, please!"
           ]
         },
         "styles:3": {
           "speaker": "nova",
-          "status": "draft",
           "lines": [
             "Three stages complete! One more new play style and the dataset is finished."
           ]
@@ -284,7 +270,6 @@
       },
       "completion": {
         "speaker": "nova",
-        "status": "draft",
         "lines": [
           "And that's stage four! Comparative dataset collected and saved.",
           "Four configurations, twenty minutes, real data. EdgeLoop is going to know you so much better now. Honestly, so am I.",
@@ -296,7 +281,6 @@
     "directors_reassessment": {
       "briefing": {
         "speaker": "celeste",
-        "status": "draft",
         "lines": [
           "Sit.",
           "I have read the reports. Dr. Voss's endurance study. Miss Harper's quota figures. Nova's comparative dataset. You have been busy.",
@@ -311,28 +295,24 @@
       "milestones": {
         "start": {
           "speaker": "celeste",
-          "status": "draft",
           "lines": [
             "The assessment has begun. Baseline first: seventy-five percent."
           ]
         },
         "assessment:development": {
           "speaker": "celeste",
-          "status": "draft",
           "lines": [
             "Baseline established. Development phase: one hundred percent."
           ]
         },
         "assessment:final": {
           "speaker": "celeste",
-          "status": "draft",
           "lines": [
             "Adequate. The final assessment: one hundred and twenty-five percent."
           ]
         },
         "assessment:done": {
           "speaker": "celeste",
-          "status": "draft",
           "lines": [
             "Thirty minutes. The assessment is complete.",
             "Now you may finish. Force Orgasm will see to it; I will switch it on if you have given me the settings, otherwise it is yours to press. Report it when you are done."
@@ -341,7 +321,6 @@
       },
       "completion": {
         "speaker": "celeste",
-        "status": "draft",
         "lines": [
           "Recorded.",
           "Thirty minutes at escalating intensity, completed and properly reported. Taken together with the reports from Asterion and Cloverfield, the picture is consistent. You are no longer merely promising. You are reliable.",
@@ -363,7 +342,6 @@
     },
     "advanced_research": {
       "speaker": "nova",
-      "status": "draft",
       "lines": [
         "That's Advanced Research done, darling! Evelyn's dataset, Daisy's quota, my experiment, and you survived Celeste. Twice!",
         "But unknown agents? Around Asterion and Cloverfield? I don't like the sound of that one bit.",

@@ -101,7 +101,7 @@ Rewards are stored by key (`type:id`), so a replay or a retried save never grant
 | 4 | The Director's Test | Celeste | 5 edges + 1 orgasm in one session | Mission 5 |
 | 5 | Asterion Certification | Nova | Calibration run ended with **Finished me** and the max saved | Chapter 1 complete + Mission 6 |
 
-**Chapter 2: Advanced Research** (narrative is a DRAFT awaiting review)
+**Chapter 2: Advanced Research** (narrative approved 2026-11-16)
 
 | # | Mission | Companion | Completion | Reward |
 |---|---|---|---|---|
@@ -126,7 +126,7 @@ Every mission also needs a real heart-rate monitor, a toy and a session started 
 - Mission 5 limits AI Settings Control to **intensity**; the model is told so and other requests are dropped. Pause and stop by the player, the Emergency stop and all engine safety stay as they are.
 - Mira is not in this campaign.
 
-**Narrative:** `narrative.json` is Narrative V2, written and approved by the author on 2026-11-16 (status `approved`). It adds one canon fact to `characters/lore/core_canon.md`: only 1% of men worldwide remain fertile (IRRA estimate). The character models do not know that figure until a later model update. Daisy's remark on quality and volume after Mission 3 is deliberate flavour, not a measurement. Its campaign closing lines (Nova, after Mission 5) are now Chapter 1's closing block (`chapters.introduction`), unchanged. Chapter 2's lines (Missions 6 to 9, their milestones and the chapter close) are DRAFT text marked per block.
+**Narrative:** `narrative.json` is Narrative V2, written and approved by the author on 2026-11-16 (status `approved`). It adds one canon fact to `characters/lore/core_canon.md`: only 1% of men worldwide remain fertile (IRRA estimate). The character models do not know that figure until a later model update. Daisy's remark on quality and volume after Mission 3 is deliberate flavour, not a measurement. Its campaign closing lines (Nova, after Mission 5) are now Chapter 1's closing block (`chapters.introduction`), unchanged. Chapter 2's lines (Missions 6 to 9, their milestones and the chapter close) were approved by the author on 2026-11-16, including Nova's and Celeste's lines for directed AI Settings Control.
 
 ## Screens
 

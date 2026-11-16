@@ -177,7 +177,7 @@ try{
         await page.locator('.mission-card').nth(8).getByRole('button',{name:'Start mission'}).click();
         await page.waitForFunction(()=>document.querySelector('#main-menu .game-menu-panel').dataset.view==='briefing');
         const briefing=await page.locator('#main-menu').textContent();
-        assert(briefing.includes('Story draft')&&briefing.includes('○ Baseline: 75% · 0:00 / 10:00')&&briefing.includes('Final Assessment: 125%')&&briefing.includes('Celeste changes only what the mission needs, at its own steps (intensity, Force Orgasm)'),'Briefing '+briefing.slice(900,2400));
+        assert(!briefing.includes('Story draft')&&briefing.includes('○ Baseline: 75% · 0:00 / 10:00')&&briefing.includes('Final Assessment: 125%')&&briefing.includes('Celeste changes only what the mission needs, at its own steps (intensity, Force Orgasm)'),'Briefing '+briefing.slice(900,2400));
         await shot('chapter2-briefing.png');
         await page.getByRole('button',{name:'Begin with Celeste'}).click();
         await page.locator('#main-menu').waitFor({state:'hidden'});

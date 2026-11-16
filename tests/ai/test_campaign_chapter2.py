@@ -50,8 +50,8 @@ def test_chapters_are_listed_with_their_missions(tmp_path):
     assert [(c['number'], c['id'], c['title']) for c in campaign['chapters']] == [(1, 'introduction', 'Introduction'), (2, 'advanced_research', 'Advanced Research')]
     assert [m['chapter'] for m in campaign['missions']] == [1] * 5 + [2] * 4
     assert campaign['chapters'][0]['available'] and not campaign['chapters'][1]['available']
-    # New text is marked as a draft; Chapter 1's approved narrative is not.
-    assert [m['narrative_draft'] for m in campaign['missions']] == [False] * 5 + [True] * 4
+    # The whole narrative, Chapter 2 included, is approved (2026-11-16): no mission is marked as a draft.
+    assert [m['narrative_draft'] for m in campaign['missions']] == [False] * 9
 
 
 def test_chapter_two_opens_after_mission_five_and_unlocks_in_order(tmp_path):
@@ -203,7 +203,7 @@ def test_the_reassessment_runs_three_stages_then_needs_the_finish(tmp_path):
     assert not [c for c in svc.take_cues() if c['kind'] == 'objective_reached']
     [result] = results(run(svc, 'celeste', tick('d', 1815, intensity=125, orgasms=1)))
     assert result['chapter_complete']['id'] == 'advanced_research' and result['campaign_complete']
-    assert result['chapter_completion']['status'] == 'draft'
+    assert result['chapter_completion']['speaker'] == 'nova' and 'status' not in result['chapter_completion']
     campaign = svc.state()['campaigns'][0]
     assert campaign['completed'] and all(c['completed'] for c in campaign['chapters'])
 
