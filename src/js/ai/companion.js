@@ -95,7 +95,7 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
         } else if(m.type==='model_selected'){
             // A custom character is identified by its package, so switching it on the same model is a switch too.
             const characterKey=m.character?m.character.content_sha256:null;const sameModel=selected===m.model&&activeCharacter===characterKey;activeCharacter=characterKey;
-            setCustomCharacter(m.model,m.character,observerOrigin());settingsControl?.selectProfile?.(m.character?.identity??null,m.character?.name);changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;canDisableThinking=m.can_disable_thinking!==false;el('selected').textContent='Active: '+(m.character?m.character.name+' (custom) · '+m.model:m.model);el('name').textContent=resolveArtwork(m.model).name==='Your companion'?m.model:resolveArtwork(m.model).name;el('name').title=m.model;el('model').value=m.model;
+            setCustomCharacter(m.model,m.character,observerOrigin());settingsControl?.selectProfile?.(m.character?.identity??null,m.character?.name);changing=false;finish();selected=m.model;thinking=typeof m.thinking==='boolean'?m.thinking:null;supportsThinking=m.supports_thinking===true;canDisableThinking=m.can_disable_thinking!==false;el('selected').textContent='Active: '+(m.character?m.character.name+' (custom) · '+m.model:m.model);el('name').textContent=resolveArtwork(m.model).name==='Your companion'?m.model:resolveArtwork(m.model).name;el('name').title=m.model;el('model').value=m.model;mainMenu.companionChanged();
             queueMicrotask(()=>menus.refresh());
             Object.assign(diagnostic,{id:null,responder:{model:m.model},model_selected_expression:null,validated_expression:null,expression_valid:null});
             presentation.select(m.model,m.history||[]);
@@ -172,7 +172,9 @@ export function mountCompanion({refreshObservation=()=>{},settingsControl=null}=
             if(!model)return paired?`This companion is not installed. Refresh the model list, or install the release models.`:'Connect the companion service first.';
             if(pending||changing)return 'Wait for the current reply or companion switch to finish, then try again.';
             switchingTo=model;selectModel(model);return true;},
-        postLines:(block,label)=>postMissionLines(block,label)});
+        postLines:(block,label)=>postMissionLines(block,label),
+        // The built-in companion now selected (none for a custom character): the main menu's host.
+        currentCompanion:()=>selected&&!activeCharacter?MODEL_ARTWORK[selected]||null:null});
     // AI Settings Control: the engine-side gate decides; this layer only forwards and shows the result.
     const settingsName=()=>selected?(resolveArtwork(selected).name==='Your companion'?selected:resolveArtwork(selected).name):'Companion';
     const settingsChip=outcome=>{if(!settingsControl?.chip)return;el('empty')?.remove();el('history').append(settingsControl.chip(outcome,{name:settingsName(),send:r=>connection.send(r)}));scroll();};

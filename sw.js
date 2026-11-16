@@ -31,6 +31,7 @@ const PRECACHE = [
     './src/js/ai/character.js',
     './src/js/ai/character-menus.js',
     './src/js/ai/main-menu.js',
+    './src/js/ai/menu-art.js',
     './src/js/ai/session-journal.js',
     './src/js/ai/event-settings.js',
     './src/js/ai/context-intelligence.js',

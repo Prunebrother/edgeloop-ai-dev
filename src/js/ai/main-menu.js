@@ -3,6 +3,7 @@
 // Presentation only: the observer owns campaign rules, evidence and saved progress
 // (companion_ai/campaign.py). Text from the observer is always assigned with textContent.
 import {CHARACTERS} from './artwork-manifest.js';
+import {MENU_ART,COMPANION_ORDER,GREETINGS,figure,face,campaignArt,chapterArt} from './menu-art.js';
 
 const LIVE=new Set(['RUNNING','PAUSED','RAMPDOWN']);
 const STATE_LABEL={completed:'Completed',active:'In progress',available:'Available',locked:'Locked'};
@@ -23,8 +24,14 @@ const percent=(done,total)=>total?Math.round(100*done/total):0;
 const SETTING_WORDS={intensity:'intensity',orgasm:'Force Orgasm',play_style:'play style',game:'game',endgame:'endgame',pause:'pause',stop:'stop'};
 const portrait=(id,expression='neutral')=>CHARACTERS[id]?.expressions?.[expression]||CHARACTERS[id]?.expressions?.neutral||null;
 
-export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}){
+export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost,currentCompanion=()=>null}){
     let data=null,paired=false,view='home',campaignId=null,missionId=null,pendingStart=null,pendingLeave=false,result=null,commandError=null,lastFocus=null;
+    // Main menu host: the selected companion, else the one picked last on this device, else Nova.
+    let hostChoice=null,lastHost=null,greeting=0,chapterNo=null,boardPick=null;
+    const HOST_KEY='edgeloop.menu.host';
+    try{const saved=localStorage.getItem(HOST_KEY);if(COMPANION_ORDER.includes(saved))lastHost=saved;}catch{}
+    const host=()=>{const c=currentCompanion();return hostChoice||(COMPANION_ORDER.includes(c)?c:lastHost||'nova');};
+    const greet=()=>{greeting=Math.floor(Math.random()*3);};greet();
     const live=()=>LIVE.has(status());
     const root=node('div',{id:'main-menu',class:'game-menu',role:'dialog','aria-modal':'true','aria-labelledby':'main-menu-title'});
     const panel=node('div',{class:'game-menu-panel'});root.append(panel);
@@ -59,9 +66,9 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
 
     const campaign=()=>data?.campaigns?.find(c=>c.id===campaignId)||null;
     const mission=()=>campaign()?.missions.find(m=>m.id===missionId)||null;
-    const open=(next=view)=>{view=next;root.hidden=false;document.body.classList.add('game-menu-open');render();};
+    const open=(next=view)=>{if(next==='home'&&root.hidden)greet();view=next;root.hidden=false;document.body.classList.add('game-menu-open');render();};
     const close=()=>{root.hidden=true;document.body.classList.remove('game-menu-open');menuButton.disabled=false;(lastFocus||document.getElementById('companion-message'))?.focus?.();};
-    const go=next=>{commandError=null;view=next;render();};
+    const go=next=>{commandError=null;if(next==='missions'&&view==='campaigns'){chapterNo=null;boardPick=null;}view=next;render();};
     const back=()=>go(view==='missions'?'campaigns':view==='briefing'||view==='results'?(campaignId?'missions':'home'):'home');
 
     function header(title,subtitle,backLabel){
@@ -75,15 +82,39 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
         const text=commandError||(pendingLeave?'Leaving the mission…':null)||data?.error||data?.notice||(!paired?'Connecting to the companion service… Campaign needs it; Freeplay works without it.':null);
         return text?node('p',{class:'game-menu-status',role:'status',text}):null;
     }
+    // Where the campaign continues: the mission in progress, else the next one to play.
+    function campaignHint(){
+        const a=data?.active,m=a&&data.campaigns.find(c=>c.id===a.campaign)?.missions.find(x=>x.id===a.mission);
+        if(m)return ['Continue',`Mission ${m.order} · ${m.title}`];
+        for(const c of data?.campaigns||[]){const next=c.available&&c.missions.find(x=>x.state==='available');if(next)return ['Next mission',`Mission ${next.order} · ${next.title}`];}
+        return [null,'Story missions with the companions of Project EdgeLoop.'];
+    }
+    function chooseHost(id){
+        hostChoice=id;lastHost=id;greet();commandError=null;
+        try{localStorage.setItem(HOST_KEY,id);}catch{}
+        // Picking a host also selects her as your companion, as the model picker would.
+        if(paired&&currentCompanion()!==id){const r=selectCompanion(id);if(r!==true)commandError=r;}
+        render();
+    }
     function renderHome(){
-        const tile=(label,detail,onclick,disabled)=>node('button',{type:'button',class:'game-menu-tile',onclick:disabled?null:onclick,
-            'aria-disabled':disabled?'true':null,dataset:{menuTile:label.toLowerCase().replace(/\s+/g,'-')}},node('strong',{text:label}),node('span',{text:detail}));
+        const tile=(label,detail,onclick,disabled,kicker)=>node('button',{type:'button',class:'game-menu-tile',onclick:disabled?null:onclick,
+            'aria-disabled':disabled?'true':null,dataset:{menuTile:label.toLowerCase().replace(/\s+/g,'-')}},kicker?node('small',{text:kicker}):null,node('strong',{text:label}),node('span',{text:detail}));
+        const [kicker,detail]=campaignHint();
         const list=node('div',{class:'game-menu-tiles','data-menu-list':true},
-            tile('Campaign','Story missions with the companions of Project EdgeLoop.',()=>go('campaigns')),
+            tile('Campaign',detail,()=>go('campaigns'),false,kicker),
             tile('Freeplay','Every companion, every setting. EdgeLoop AI as you know it.',freeplay),
             tile('Companion Builder','Coming soon',null,true));
-        // Only an error or a pending leave shows here; the connecting notice belongs to the Campaign screens.
-        return [header('Main menu','Choose how you want to play.'),commandError||pendingLeave?statusLine():null,list];
+        const h=host(),lines=GREETINGS[h]||[];
+        return [node('img',{class:'menu-backdrop',src:MENU_ART.backdrop,alt:''}),
+            node('div',{class:'menu-shade','aria-hidden':'true'}),
+            node('img',{class:'menu-host-figure',src:figure(h),alt:'',dataset:{host:h}}),
+            lines.length?node('figure',{class:'menu-host-bubble'},node('figcaption',{text:name(h)}),node('p',{text:lines[greeting%lines.length]})):null,
+            node('div',{class:'menu-home-side'},
+                node('h1',{id:'main-menu-title',class:'menu-logo'},node('img',{src:MENU_ART.mark,alt:''}),node('img',{class:'menu-wordmark',src:MENU_ART.wordmark,alt:'EdgeLoop'}),node('span',{text:'AI'})),
+                // Only an error or a pending leave shows here; the connecting notice belongs to the Campaign screens.
+                commandError||pendingLeave?statusLine():null,list),
+            node('ul',{class:'menu-host-chips','data-menu-list':true,'aria-label':'Choose your companion'},...COMPANION_ORDER.map(id=>node('li',{},
+                node('button',{type:'button','aria-pressed':String(id===h),title:name(id),'aria-label':name(id),dataset:{host:id},onclick:()=>chooseHost(id)},node('img',{src:face(id),alt:''})))))];
     }
     // Freeplay carries no campaign rules: a mission in progress is left first (completed missions and rewards stay).
     function freeplay(){
@@ -97,6 +128,7 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
     function renderCampaigns(){
         const items=(data?.campaigns||[]).map(c=>node('li',{},node('button',{type:'button',class:'game-menu-card',disabled:!c.available||!!data?.error,
             onclick:()=>{campaignId=c.id;go('missions');}},
+            campaignArt(c.id)?node('img',{class:'game-menu-card-art',src:campaignArt(c.id),alt:''}):null,
             node('strong',{text:c.title}),node('span',{text:c.description}),
             node('span',{class:'game-menu-meta',text:c.completed?'Completed':`${c.progress.completed} of ${c.progress.total} missions completed`}),
             ...(c.chapters||[]).map(ch=>node('span',{class:'game-menu-meta',text:`Chapter ${ch.number}: ${ch.title} · `+(ch.teaser?'Coming soon':ch.completed?'Complete':ch.available?`${percent(ch.progress.completed,ch.progress.total)}%`:'Locked')})),
@@ -151,42 +183,68 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
                 node('div',{},node('span',{text:o.label+(a&&a.count?` (${a.progress}/${a.count})`:'')}),objectiveDetail(o,a)),
                 node('span',{class:'sr-only',text:done?' — done':' — not done'}));}));
     }
+    const chapterState=ch=>ch.teaser?'teaser':ch.completed?'completed':ch.available?'available':'locked';
+    const chapterProgress=(ch,short)=>ch.teaser?'Coming soon':ch.completed?'Chapter complete · 100%':ch.available?`${ch.progress.completed} of ${ch.progress.total} missions · ${percent(ch.progress.completed,ch.progress.total)}%`:short?'Locked':'Locked until the previous chapter is complete';
+    // The board shows one chapter: the one picked, else the one with the mission in progress or next to play.
+    function boardChapter(c){
+        const chs=c.chapters||[];
+        if(chs.some(ch=>ch.number===chapterNo))return chapterNo;
+        const m=c.missions.find(x=>x.state==='active')||c.missions.find(x=>x.state==='available');
+        return m?.chapter??chs.filter(ch=>ch.available&&!ch.teaser).at(-1)?.number??chs[0]?.number??null;
+    }
     function renderMissions(){
         const c=campaign();if(!c)return renderCampaigns();
         const byId=Object.fromEntries(c.missions.map(m=>[m.id,m]));
-        const chapters=Object.fromEntries((c.chapters||[]).map(ch=>[ch.number,ch]));
-        let shown=null;
-        const cards=c.missions.flatMap(m=>{
-            const ch=chapters[m.chapter];
-            const heading=ch&&ch.number!==shown?(shown=ch.number,node('li',{class:'mission-chapter','data-state':ch.completed?'completed':ch.available?'available':'locked'},
-                node('h2',{text:`Chapter ${ch.number}: ${ch.title}`}),
-                node('p',{text:ch.summary}),
-                node('span',{class:'game-menu-meta',text:ch.completed?'Chapter complete · 100%':ch.available?`${ch.progress.completed} of ${ch.progress.total} missions · ${percent(ch.progress.completed,ch.progress.total)}%`:'Locked until the previous chapter is complete'}))):null;
-            return [heading,missionCard(m,byId)].filter(Boolean);
-        });
-        for(const ch of (c.chapters||[]).filter(ch=>ch.teaser))cards.push(node('li',{class:'mission-chapter','data-state':'teaser'},
-            node('h2',{text:`Chapter ${ch.number}: ${ch.title}`}),node('p',{text:ch.summary}),node('span',{class:'game-menu-meta',text:'Coming soon'})));
-        return [header(c.title,c.description,'Campaigns'),statusLine(),
+        const chs=c.chapters||[];
+        chapterNo=boardChapter(c);
+        const ch=chs.find(x=>x.number===chapterNo)||null;
+        const missions=ch?c.missions.filter(m=>m.chapter===ch.number):c.missions;
+        const pick=missions.find(m=>m.id===boardPick)||missions.find(m=>m.state==='active')||missions.find(m=>m.state==='available')||missions[0]||null;
+        boardPick=pick?.id??null;
+        const art=ch?chapterArt(c.id,ch.number):campaignArt(c.id);
+        const hero=node('section',{class:'board-hero','data-state':ch?chapterState(ch):'available'},
+            art?node('img',{class:'board-art',src:art,alt:''}):null,
+            node('div',{class:'board-hero-text'},
+                node('button',{type:'button',class:'game-menu-back',onclick:back},'← Campaigns'),
+                node('p',{class:'eyebrow',text:c.title+(ch?` · Chapter ${ch.number}`:'')}),
+                node('h1',{id:'main-menu-title',class:'story-title',text:ch?ch.title:c.title}),
+                node('p',{class:'game-menu-sub',text:ch?ch.summary:c.description}),
+                ch?node('p',{class:'game-menu-meta board-progress',text:chapterProgress(ch)}):null));
+        const tabs=chs.length>1?node('ul',{class:'board-chapters','data-menu-list':true,'aria-label':'Chapters'},...chs.map(x=>node('li',{class:'mission-chapter','data-state':chapterState(x)},
+            node('button',{type:'button','aria-pressed':String(x.number===chapterNo),dataset:{chapter:x.number},onclick:()=>{chapterNo=x.number;boardPick=null;render();}},
+                node('span',{class:'board-chapter-no',text:`Chapter ${x.number}`}),node('h2',{text:x.title}),node('span',{class:'game-menu-meta',text:chapterProgress(x,true)}))))):null;
+        const board=ch?.teaser?node('p',{class:'board-teaser',text:'Coming soon. These missions arrive in a later update.'}):
+            node('ul',{class:'mission-board','data-menu-list':true,'aria-label':'Missions'},...missions.map(m=>boardCard(m,m.id===pick?.id)));
+        return [hero,tabs,statusLine(),
             live()?node('p',{class:'game-menu-status',text:'Stop the running session to start or switch missions.'}):null,
-            node('ul',{class:'game-menu-list mission-list','data-menu-list':true},...cards)];
+            board,pick&&!ch?.teaser?missionDetail(pick,byId):null];
     }
-    function missionCard(m,byId){{
-            const locked=m.state==='locked';
-            const needs=m.prerequisites.filter(p=>byId[p]?.state!=='completed').map(p=>byId[p]?.title||p);
-            const action=m.state==='active'?'Continue':m.state==='completed'?(m.replay==='allowed'?'Replay':null):m.state==='available'?'Start mission':null;
-            return node('li',{class:'mission-card','data-state':m.state},
-                node('div',{class:'mission-card-art','aria-hidden':'true'},portrait(m.companion)&&!locked?node('img',{src:portrait(m.companion),alt:''}):node('span',{text:locked?'🔒':'✦'})),
-                node('div',{class:'mission-card-body'},
-                    node('p',{class:'mission-card-kicker',text:`Mission ${m.order} · ${name(m.companion)}`}),
-                    node('h2',{text:m.title}),
-                    node('span',{class:'game-menu-badge','data-state':m.state,text:STATE_LABEL[m.state]+(m.completions>1?` ×${m.completions}`:'')}),
-                    m.narrative_draft&&!locked?node('span',{class:'game-menu-badge',text:'Story draft'}):null,
-                    m.prerequisites.length&&!locked&&m.state!=='completed'?node('p',{class:'game-menu-meta',text:'After: '+m.prerequisites.map(p=>byId[p]?.title||p).join(', ')}):null,
-                    node('p',{text:locked&&needs.length?`Complete ${needs.join(', ')} first.`:m.summary}),
-                    locked?null:objectiveList(m.objectives,m.state==='active'?data.attempt:null),
-                    m.rewards.length?node('p',{class:'mission-rewards',text:'Rewards: '+m.rewards.map(r=>(r.earned?'✓ ':'')+r.label).join(' · ')}):null),
-                action?node('button',{type:'button',class:'accent-button',disabled:live()||!!data?.error,onclick:()=>startMission(m)},action):null);
-        }
+    // A mission on the board: the companion's figure (a silhouette while locked), its number, title and state.
+    function boardCard(m,picked){
+        const locked=m.state==='locked',src=figure(m.companion);
+        return node('li',{class:'mission-card','data-state':m.state,dataset:{mission:m.id}},
+            node('button',{type:'button','aria-pressed':String(picked),'data-autofocus':picked?'':null,
+                onclick:()=>{if(boardPick===m.id){panel.querySelector('.mission-detail .accent-button:not([disabled])')?.focus();return;}boardPick=m.id;render();}},
+                src?node('img',{class:'board-figure',src,alt:''}):node('span',{class:'board-figure board-figure-empty','aria-hidden':'true',text:locked?'🔒':'✦'}),
+                node('span',{class:'mission-card-kicker',text:`Mission ${m.order}`+(locked?'':` · ${name(m.companion)}`)}),
+                node('strong',{text:m.title}),
+                node('span',{class:'game-menu-badge','data-state':m.state,text:STATE_LABEL[m.state]+(m.completions>1?` ×${m.completions}`:'')})));
+    }
+    // The picked mission's details and its action; objectives and rewards live here, not on the card.
+    function missionDetail(m,byId){
+        const locked=m.state==='locked';
+        const needs=m.prerequisites.filter(p=>byId[p]?.state!=='completed').map(p=>byId[p]?.title||p);
+        const action=m.state==='active'?'Continue':m.state==='completed'?(m.replay==='allowed'?'Replay':null):m.state==='available'?'Start mission':null;
+        return node('section',{class:'mission-detail','data-state':m.state,dataset:{mission:m.id},'aria-label':m.title},
+            node('p',{class:'mission-card-kicker',text:`Mission ${m.order}`+(locked?'':` · ${name(m.companion)}`)}),
+            node('h2',{text:m.title}),
+            node('span',{class:'game-menu-badge','data-state':m.state,text:STATE_LABEL[m.state]+(m.completions>1?` ×${m.completions}`:'')}),
+            m.narrative_draft&&!locked?node('span',{class:'game-menu-badge',text:'Story draft'}):null,
+            m.prerequisites.length&&!locked&&m.state!=='completed'?node('p',{class:'game-menu-meta',text:'After: '+m.prerequisites.map(p=>byId[p]?.title||p).join(', ')}):null,
+            node('p',{text:locked&&needs.length?`Complete ${needs.join(', ')} first.`:m.summary}),
+            locked?null:objectiveList(m.objectives,m.state==='active'?data.attempt:null),
+            m.rewards.length?node('p',{class:'mission-rewards',text:'Rewards: '+m.rewards.map(r=>(r.earned?'✓ ':'')+r.label).join(' · ')}):null,
+            action?node('div',{class:'game-menu-actions'},node('button',{type:'button',class:'accent-button',disabled:live()||!!data?.error,onclick:()=>startMission(m)},action)):null);
     }
     function speech(block){
         if(!block)return null;
@@ -232,8 +290,8 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
         if(root.hidden)return;
         const parts={home:renderHome,campaigns:renderCampaigns,missions:renderMissions,briefing:renderBriefing,results:renderResults}[view]();
         panel.replaceChildren(...parts.filter(Boolean));
-        panel.dataset.view=view;
-        queueMicrotask(()=>(panel.querySelector('[data-menu-list] button:not([disabled]):not([aria-disabled]), .game-menu-actions button:not([disabled]), .game-menu-back')||panel.querySelector('button'))?.focus({preventScroll:true}));
+        panel.dataset.view=view;root.dataset.view=view;
+        queueMicrotask(()=>(panel.querySelector('[data-autofocus]')||panel.querySelector('[data-menu-list] button:not([disabled]):not([aria-disabled]), .game-menu-actions button:not([disabled]), .game-menu-back')||panel.querySelector('button'))?.focus({preventScroll:true}));
     }
     function startMission(m){
         if(m.state==='active'){missionId=m.id;go('briefing');return;}
@@ -320,6 +378,8 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
                 if(data?.active?.mission===m.mission)postLines?.(m.line,'Mission update');
             }
         },
+        // The selected companion changed (model picker, a host chip, a mission): the host follows her.
+        companionChanged(){const c=currentCompanion();if(COMPANION_ORDER.includes(c)){hostChoice=null;lastHost=c;try{localStorage.setItem(HOST_KEY,c);}catch{}}if(view==='home')render();},
         isOpen:()=>!root.hidden,
         destroy(){clearInterval(liveTimer);for(const type of ['keydown','keyup','keypress'])window.removeEventListener(type,guard,true);document.removeEventListener('focusin',refocus);root.remove();banner.remove();menuButton.remove();}
     };
