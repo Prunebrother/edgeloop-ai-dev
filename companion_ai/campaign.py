@@ -392,6 +392,7 @@ def _v1_to_v2(data):
     """Version 2 adds chapters. Completion markers (campaign completed_at, completion rewards) are dropped here and
     recomputed from the completed missions under the current definitions when progress is loaded, so a campaign
     completed at Mission 5 under version 1 becomes 'Chapter 1 complete' once Chapter 2 exists."""
+    if not isinstance(data.get('campaigns') or {}, dict): raise ValueError('campaigns must be an object')
     for record in (data.get('campaigns') or {}).values():
         if not isinstance(record, dict): continue
         record['completed_at'] = None
@@ -423,7 +424,12 @@ def migrate(data):
     if version > SCHEMA_VERSION: raise ValueError('Campaign progress was saved by a newer EdgeLoop AI')
     while version < SCHEMA_VERSION:
         if version not in MIGRATIONS: raise ValueError(f'No migration from campaign progress version {version}')
-        data = MIGRATIONS[version](deepcopy(data)); version = data['schema_version']
+        try: data = MIGRATIONS[version](deepcopy(data))
+        except (AttributeError, TypeError, KeyError) as exc:
+            # A malformed older file (say `campaigns` is a list) is refused like any invalid file: left untouched,
+            # only the campaign switches off.
+            raise ValueError(f'Campaign progress version {version} is malformed') from exc
+        version = data['schema_version']
     return data
 
 
@@ -466,6 +472,7 @@ class Attempt:
         # The last observation's time and configuration, so an interval is credited only when both ends agree.
         self.last_seconds = None
         self.last_config = None
+        self.last_captured = None
         # Play styles that filled a stage, in the order they did, per style_stages objective.
         self.filled = {}
         # Scripted progress moments already shown in this try.
@@ -476,6 +483,8 @@ class Attempt:
         self.cued = set()
         # All objectives met but not yet saved: kept until the save succeeds, whatever the next report says.
         self.pending = False
+        # Milestone lines crossed by the completing report, sent with the completion once it is saved.
+        self.pending_lines = []
         # Bumped on every reset, so a cue from an earlier try is recognised as stale.
         self.generation = 0
 
@@ -522,8 +531,11 @@ class Attempt:
                 stages = [{'style': k, 'label': STYLE_WORDS.get(k, k), 'seconds': min(self.style_time[k], o.seconds), 'done': True} for k in filled]
                 if current in o.styles and current not in filled and len(filled) < o.count:
                     stages.append({'style': current, 'label': STYLE_WORDS.get(current, current), 'seconds': self.style_time.get(current, 0), 'done': False, 'current': True})
+                # Overall time: the filled stages plus the furthest partial styles that could still fill the rest,
+                # so it never passes count x seconds (eight styles at 4:55 each are not 197%).
+                partial = sorted((min(v, o.seconds) for k, v in self.style_time.items() if k in o.styles and k not in filled), reverse=True)
                 item.update(progress=len(filled), count=o.count, stage_seconds=o.seconds, stages=stages,
-                            elapsed=sum(min(v, o.seconds) for k, v in self.style_time.items() if k in o.styles))
+                            elapsed=len(filled) * o.seconds + sum(partial[:max(0, o.count - len(filled))]))
             if o.type == 'stage_sequence':
                 current = self.current_stage(o)
                 item.update(stages=[{'id': st.id, 'label': st.label, 'intensity': st.intensity, 'raise_to': st.raise_to, 'seconds': st.seconds,
@@ -552,6 +564,7 @@ class CampaignService:
         self.cues = []
         # Mission steps at which the companion is asked to make a settings change (directed missions only).
         self.directives = []
+        self.last_report = None
         try:
             raw = store.read(PROGRESS_FILE, MISSING)
             # Only a missing file starts fresh; every existing file, even one holding null, must validate.
@@ -698,6 +711,10 @@ class CampaignService:
         if attempt.session_id != directive['session_id'] or attempt.generation != directive['generation']: return False
         return self.settings_check(directive['fallback'], report) and self._directive(report, directive['key']) is not None
 
+    def directive_current(self, directive):
+        """directive_valid against the latest observation the campaign has seen."""
+        return self.directive_valid(directive, self.last_report)
+
     def take_directives(self):
         directives, self.directives = self.directives, []
         return directives
@@ -830,7 +847,21 @@ class CampaignService:
         others = sorted({w for m in campaign.missions if m.id != mission.id for w in (m.title, f'Mission {m.order}')}
                         | {w for m in campaign.missions if m.companion != companion for w in (m.companion, *COMPANION_ALIASES.get(m.companion, ()))})
         return {'companion': companion, 'mission': mission.id, 'state': 'active', 'text': '\n'.join(lines),
-                'targets': sorted({o.count for o in goals if o.type == 'edge_count' and o.count}), 'others': others}
+                'targets': sorted({o.count for o in goals if o.type == 'edge_count' and o.count}), 'others': others,
+                'durations': self._durations(attempt, report) if attempt.session_id == sid and sid is not None else []}
+
+    @staticmethod
+    def _durations(attempt, report):
+        """The mission's verified clocks in seconds (stage and total assessment time, time per play style, a countdown), so a
+        companion can name them even when the whole-session clock is longer."""
+        values = set()
+        for item in attempt.view(report, True)['objectives']:
+            if 'elapsed' in item: values.add(item['elapsed'])
+            # A countdown: its limit and the verified time left ("ten minutes left").
+            if item.get('within_seconds'): values.update((item['within_seconds'], item.get('remaining')))
+            values.update(st['elapsed'] for st in item.get('stages', ()) if 'elapsed' in st)
+            values.update(st['seconds'] for st in item.get('stages', ()) if 'style' in st)
+        return sorted(v for v in values if isinstance(v, int) and v > 0)
 
     @staticmethod
     def _progress_words(attempt, o, report):
@@ -923,6 +954,7 @@ class CampaignService:
     # -- evidence
     def observe(self, report, events, model):
         """Called after the observer accepted an observation. Returns messages to publish (state changes, results)."""
+        if report: self.last_report = report
         if self.error or not self.attempt or self.attempt.completed or not report: return []
         attempt, mission = self.attempt, self.attempt.mission
         if attempt.pending:
@@ -930,7 +962,7 @@ class CampaignService:
             result = self._complete(attempt)
             if not result: return []
             self.cues.append(self._cue('mission_complete', mission, attempt.session_id))
-            return [self.state(report, model), result]
+            return [self.state(report, model), *attempt.pending_lines, result]
         before = json.dumps(attempt.view(report, False), sort_keys=True)
         companion_ok = self.identity(model) == mission.companion
         sid, status, d = report.get('session_id'), report.get('status'), details(report)
@@ -945,7 +977,7 @@ class CampaignService:
             if real_hr(report) and toy_ready(report) and self._mode_ok(mission, report):
                 attempt.session_id = sid
                 attempt.last_edges, attempt.last_orgasms = report.get('edges', 0), d.get('orgasm_count') or 0
-                attempt.last_seconds, attempt.last_config = None, None
+                attempt.last_seconds, attempt.last_config, attempt.last_captured = None, None, None
                 attempt.base_seconds = report.get('seconds') if isinstance(report.get('seconds'), int) else 0
                 attempt.reset_reason = None
                 for o in mission.objectives:
@@ -1002,8 +1034,12 @@ class CampaignService:
                         attempt.done[o.id] = True
                         attempt.metric = {'calibration_pass': d.get('calibration_pass'), 'max_bpm': metric}
             if all(attempt.done.get(o.id) for o in mission.objectives):
+                # Milestones crossed by the same jump that completes the mission still get their lines, once,
+                # and only after the completion is saved. (Built first: the active mission is cleared on save.)
+                attempt.pending_lines += self._moments(attempt, moments)
                 result = self._complete(attempt)
                 if result:
+                    out += attempt.pending_lines
                     out.append(result)
                     self.cues.append(self._cue('mission_complete', mission, sid))
             elif status == 'IDLE':
@@ -1046,11 +1082,15 @@ class CampaignService:
         change or a gap makes that interval count for nothing. Returns the progress moments reached."""
         seconds = report.get('seconds')
         config = (report.get('status'), report.get('experience'), report.get('goal'), report.get('intensity'), bool(eligible))
-        last_seconds, last = attempt.last_seconds, attempt.last_config
-        attempt.last_seconds, attempt.last_config = seconds, config
+        captured = details(report).get('captured_at_ms')
+        last_seconds, last, last_captured = attempt.last_seconds, attempt.last_config, attempt.last_captured
+        attempt.last_seconds, attempt.last_config, attempt.last_captured = seconds, config, captured
         if not isinstance(seconds, int) or not isinstance(last_seconds, int) or not last: return []
         step = seconds - last_seconds
         if not 0 < step <= MAX_STEP_SECONDS or not (config[4] and last[4]) or config[0] != 'RUNNING' or last[0] != 'RUNNING': return []
+        # The two observations must also be close in capture time: after a reconnect or an unobserved gap
+        # (which may hold a pause), the running clock alone cannot show what happened in between.
+        if isinstance(captured, int) and isinstance(last_captured, int) and not 0 < captured - last_captured <= (MAX_STEP_SECONDS + 2) * 1000: return []
         moments = []
         for o in attempt.mission.objectives:
             if attempt.done.get(o.id): continue
@@ -1107,7 +1147,7 @@ class CampaignService:
         attempt.session_id = None; attempt.done = {}; attempt.edges = attempt.orgasms = 0
         attempt.last_edges = attempt.last_orgasms = None; attempt.metric = None; attempt.reset_reason = reason
         attempt.counts = {}; attempt.style_time = {}; attempt.stage_time = {}; attempt.filled = {}; attempt.marked = set()
-        attempt.last_seconds = attempt.last_config = None; attempt.base_seconds = None; attempt.expired = set(); attempt.wrong = {}
+        attempt.last_seconds = attempt.last_config = attempt.last_captured = None; attempt.base_seconds = None; attempt.expired = set(); attempt.wrong = {}
         attempt.cued = set(); attempt.generation += 1
         self.directives = []
 

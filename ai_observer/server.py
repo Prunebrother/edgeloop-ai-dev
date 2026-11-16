@@ -67,7 +67,7 @@ def create_app(token, data_dir, *, origins=DEFAULT_ORIGINS, adapter=None, transp
         return 'custom:'+character.identity if character else manager.config.model
     speech.campaign_brief=lambda:campaign.model_context(persona(),state.report if state.fresh() else None)
     speech.campaign_speaker=lambda:character_identity(persona())
-    speech.campaign_cue_valid=campaign.cue_valid;speech.settings.check=campaign.settings_check;speech.campaign_directive_valid=campaign.directive_valid
+    speech.campaign_cue_valid=campaign.cue_valid;speech.settings.check=campaign.settings_check;speech.campaign_directive_valid=campaign.directive_valid;speech.settings.still_needed=campaign.directive_current
     speech.policy=SpeechPolicy(event_responses=True)
 
     async def interrupt():

@@ -214,12 +214,15 @@ def target_phrase(clause,match):
     if TARGET_BEFORE.search(clause[:match.start()]):return True
     return bool(TARGET_AFTER.search(clause[match.end():])) and not ACHIEVED.search(clause[:match.start()])
 
-def measurement_violations(clean,canonical,told,trigger,completed,user_text,targets=()):
+def measurement_violations(clean,canonical,told,trigger,completed,user_text,targets=(),durations=()):
     codes=[];completed=list(completed or ())
     # "my" marks someone else's numbers ("my patients"), but in a mission "my assessment" is this session's.
     if targets:clean=re.sub(r"\bmy\s+(?=(?:mission|test|assessment|evaluation|certification|orientation)\b)",'the ',clean,flags=re.I)
     edges=verified_values('edges',canonical,told,trigger,completed);pauses=verified_values('pauses',canonical,told,trigger,completed)
     seconds=verified_values('seconds',canonical,told,trigger,completed,'active_running_seconds')
+    # A mission's own verified clocks (assessment stages, play-style time) are true durations too, and differ
+    # from the whole-session clock when time at another setting did not count.
+    seconds=set(seconds)|{v for v in durations if isinstance(v,int) and v>0}
     for sentence in re.findall(r'[^.!?\n]+(?:\.\d+[^.!?\n]*)*[.!?\n]?',clean):
         tag=re.search(r"(?:,\s*(?:right|haven't you|isn't it|didn't you|aren't you|no|yes|eh)\s*\?)\s*$",sentence,re.I)
         if sentence.rstrip().endswith('?') and not tag:continue
@@ -801,7 +804,7 @@ def card_language_violations(text,summary):
     # A mission can't have a finalized result, which only the closing card receives.
     return (['test_language'] if CARD_TEST_LANGUAGE.search(text) else [])+(['premature_session_end'] if card.get('lane')=='mission' and premature_session_end(text) else [])+(['addressed_by_own_name'] if addresses_by_own_name(text,card.get('speaker')) else [])+(['read_only_control_claim'] if SELECTED_SETTING.search(text) else [])+(['settings_card_off_topic'] if settings_card_off_topic(text,card) else [])+relationship_violations(text,card)+history_violations(text,summary)+orgasm_count_violations(text,summary)
 
-def violations(text,canonical,history=(),trigger=None,completed=(),journal=(),told=(),card=False,targets=()):
+def violations(text,canonical,history=(),trigger=None,completed=(),journal=(),told=(),card=False,targets=(),durations=()):
     """`card` adds the Director's checks for turns it generated itself. A person's conversation, with
     the deck on or off, keeps exactly the checks it has always had: dialogue such as "we've been walking
     for two hours" isn't a claim about a counter just because it has a number in it."""
@@ -852,7 +855,7 @@ def violations(text,canonical,history=(),trigger=None,completed=(),journal=(),to
     # person's posture, health or physical pulse. Simulation cannot establish it.
     # Scheduled prompts travel in the user role, but nobody said them.
     user_text=' '.join(m.get('content','') for m in history if m.get('role')=='user' and not (card and m.get('content','').startswith(SCHEDULED_PROMPTS)))
-    if card:codes+=measurement_violations(clean,canonical,told,trigger,completed,user_text,targets)
+    if card:codes+=measurement_violations(clean,canonical,told,trigger,completed,user_text,targets,durations)
     simulated_source=card and bool(facts['hr_source']['current'] and facts['hr_source']['value']=='simulator')
     for sentence in re.findall(r'[^.!?\n]+[.!?\n]?',clean):
         historical=bool(re.search(r'\b(?:previous|last|historical)\b',sentence,re.I)) and not re.search(r'\b(?:current|currently|now|still)\b',sentence,re.I)

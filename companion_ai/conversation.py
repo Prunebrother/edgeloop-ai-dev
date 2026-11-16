@@ -295,7 +295,7 @@ class ModelManager:
                     # A slow generation must not turn an expired/request-time fact into a live claim.
                     if getattr(self,'current_summary',None):summary=summary | self.current_summary()
                     def check(text):
-                        return settings_claims_allowed(history_checked(violations(text,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),history_records(summary,(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',()))),summary.get('journal_context',()),told,card=bool(summary.get('deck_card')),targets=summary.get('campaign_targets',()))+event_violations(text,summary.get('trigger_event'))+recall_violations(text,summary,self.context_diagnostics,native_system)+card_language_violations(text,summary)+campaign_violations(text,summary),summary,text),summary)
+                        return settings_claims_allowed(history_checked(violations(text,summary.get('canonical_session'),grounding_history,(summary.get('trigger_event') or summary.get('derived_grounding')),history_records(summary,(() if summary.get('journal_access_denied') else summary.get('journal_context',()) if summary.get('journal_lookup') else summary.get('completed_sessions',()))),summary.get('journal_context',()),told,card=bool(summary.get('deck_card')),targets=summary.get('campaign_targets',()),durations=summary.get('campaign_durations',()))+event_violations(text,summary.get('trigger_event'))+recall_violations(text,summary,self.context_diagnostics,native_system)+card_language_violations(text,summary)+campaign_violations(text,summary),summary,text),summary)
                     problems=check(result)
                     self.grounding_attempts=1;self.grounding_corrections=problems
                     if problems:
@@ -1105,8 +1105,8 @@ class ConversationService:
         """The mission brief as summary fields, always all three keys: a refresh at dispatch replaces a stale
         brief and clears one that no longer applies."""
         brief=self.campaign_brief()
-        if not brief:return {'campaign_context':None,'campaign_targets':[],'campaign_state':None,'campaign_others':[]}
-        return {'campaign_context':brief['text'],'campaign_targets':brief.get('targets',[]),'campaign_state':brief['state'],'campaign_others':brief.get('others',[])}
+        if not brief:return {'campaign_context':None,'campaign_targets':[],'campaign_durations':[],'campaign_state':None,'campaign_others':[]}
+        return {'campaign_context':brief['text'],'campaign_targets':brief.get('targets',[]),'campaign_durations':brief.get('durations',[]),'campaign_state':brief['state'],'campaign_others':brief.get('others',[])}
 
     def campaign_cue(self,cue):
         """A verified mission moment from the campaign. Only the mission's own companion reacts to it."""

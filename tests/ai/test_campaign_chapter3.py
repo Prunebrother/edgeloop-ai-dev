@@ -276,3 +276,9 @@ def test_malformed_puzzle_progress_leaves_the_file_and_freeplay_alone(tmp_path):
 
 def test_the_campaign_view_stays_well_under_the_message_limit(tmp_path):
     assert len(json.dumps(seed(tmp_path, 'ghost_in_the_machine').state())) < 48000
+
+
+def test_the_countdown_is_a_verified_duration_for_the_companion(tmp_path):
+    svc = seed(tmp_path, 'the_empty_vault')
+    run(svc, 'daisy', *frames('v', 0, 300))
+    assert {900, 600} <= set(svc.model_context(MODEL['daisy'], tick('v', 300))['durations'])

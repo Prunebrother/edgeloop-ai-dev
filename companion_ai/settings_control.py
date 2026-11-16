@@ -228,6 +228,9 @@ class SettingsControl:
         # request (also one the user asks for) must pass the mission's check(request, report).
         self.directed=False
         self.check=None
+        # Is a mission step still needed now, judged on the latest observation (the player may act while the model
+        # thinks)? None: no campaign wired.
+        self.still_needed=None
 
     def nudge(self):
         """An edge makes an unprompted decision due sooner (pacing still applies)."""
@@ -270,6 +273,11 @@ class SettingsControl:
             if not directive:return None
             text=''
         request=parse(text,report,trigger)
+        if directive and self.still_needed and not self.still_needed(directive):
+            # The player made a fitting change during inference, or the try ended: nothing to do any more.
+            self.diagnostics={'status':'no_change'};return None
+        # A mission step asks for one setting; a proposal for another (even one the mission could use later) is not it.
+        if directive and request is not None and request['setting']!=directive['fallback']['setting']:request=None
         if directive and (request is None or not self.permitted(request,report)):
             request=proposal_request(Proposal(change=directive['fallback']['setting'],value=directive['fallback']['value'],reason=directive['fallback']['reason']),report,trigger)
         if request is None:self.diagnostics={'status':'no_change'};return None
