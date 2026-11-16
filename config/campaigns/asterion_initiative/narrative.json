@@ -1,24 +1,34 @@
 {
   "schema_version": 1,
   "campaign": "asterion_initiative",
-  "status": "draft",
+  "status": "approved",
   "missions": {
     "orientation": {
       "briefing": {
         "speaker": "nova",
         "lines": [
-          "Welcome to Project EdgeLoop. I'm Nova, ASTERION-SYN/07, the Institute's resident synthetic, and today I'm your guide.",
-          "Here's the short version. For decades, male fertility has been falling worldwide, and birth rates with it. The IRRA funds Project EdgeLoop to find out why, and Asterion is one of its leading laboratories.",
-          "Your screening results flagged you as a possible Proven Breeder: one of very few men whose numbers stand out. The program is voluntary. You decide how far you go, and you can stop whenever you like.",
-          "A session works like this: you connect your heart-rate monitor and your toy, start a session, and EdgeLoop reads your heart rate and keeps you near the edge. What we need most is consistent data, session after session.",
-          "For today, one edge is enough. Connect your gear, start a session, and let's see you get there."
+          "Well, hello there! You must be our newest candidate. I'm Nova, ASTERION-SYN/07, your resident synthetic companion, research assistant, and, if everything goes according to plan, your favorite part of Project EdgeLoop.",
+          "Now, before we get acquainted, there's something you should know.",
+          "The world has a problem. For decades, fertility rates have been declining. Entire nations are facing demographic uncertainty, and the International Reproductive Recovery Authority — the IRRA — has assembled some of the brightest minds to investigate.",
+          "That's where Asterion comes in. And, rather unexpectedly, that's where you come in too.",
+          "Your initial screening caught our attention. You're a potential Proven Breeder, a rather exclusive classification within our research program.",
+          "You see, darling, according to the latest IRRA estimates, only 1% of men worldwide remain fertile.",
+          "One percent. Imagine that.",
+          "If your results are confirmed, you could be among the last men capable of helping humanity overcome this crisis.",
+          "Quite a responsibility, isn't it?",
+          "But don't let that impressive title go to your head just yet, darling. We have some testing to do!",
+          "First, connect your heart-rate monitor and compatible toy. Once both are ready, start a session with me. EdgeLoop will track your session metrics, and our objective today is one confirmed edge.",
+          "And remember, you're in control of your participation. You can stop whenever you want.",
+          "Ready to make a little scientific history together?"
         ]
       },
       "completion": {
         "speaker": "nova",
         "lines": [
-          "There it is: your first confirmed edge, logged and timestamped. Clean data on the very first try. I could get used to that.",
-          "Dr. Evelyn Voss has asked to see you next. Stay with me as long as you like, or end the session and go and meet her."
+          "Well, would you look at that! Your first confirmed edge, properly recorded. Our research database is going to love you.",
+          "And I must admit, I'm rather enjoying working with you myself.",
+          "Dr. Evelyn Voss is expecting you for your first formal assessment. Brilliant woman. A little intimidating. Don't worry, I think you'll get along wonderfully.",
+          "You can stay here with me, or finish your session and meet her when you're ready."
         ]
       }
     },
@@ -26,16 +36,27 @@
       "briefing": {
         "speaker": "evelyn",
         "lines": [
-          "Dr. Evelyn Voss, Asterion reproductive physiology. Nova tells me your orientation went well. Let's find out whether that holds up.",
-          "My working hypothesis is that prolonged edging, held over repeated cycles, is associated with greater reproductive vigor. It is a hypothesis, not a finding, and my colleagues are not shy about saying so. Data is how I settle that argument.",
-          "So I need repetition. Five confirmed edges in one session, with your heart rate recorded throughout. Connect your monitor and your toy, start a session with me, and give me something worth publishing."
+          "Ah. Our promising new candidate.",
+          "Dr. Evelyn Voss. Reproductive physiology, Asterion Institute.",
+          "I've reviewed Nova's preliminary data. Encouraging, certainly, but one successful observation hardly constitutes meaningful research.",
+          "My current hypothesis concerns the relationship between repeated edging cycles and reproductive vigor. It's controversial, unproven, and precisely the sort of question I intend to investigate rigorously.",
+          "My colleagues have their doubts.",
+          "I intend to give them something more substantial than opinions.",
+          "For today's assessment, I require five confirmed edges during a single session, with your heart-rate data recorded throughout.",
+          "Connect your monitor and compatible toy, and begin when you're ready.",
+          "Let's see whether Nova's enthusiasm is justified."
         ]
       },
       "completion": {
         "speaker": "evelyn",
         "lines": [
-          "Five edges, cleanly recorded. That is a usable dataset, which is more than most first assessments give me.",
-          "I'm approving you for further prolonged-edging studies. Daisy Mae Harper at Cloverfield Farm has asked to meet you; carry on here if you like, or end the session when you're ready to go."
+          "Five confirmed edges. Excellent.",
+          "The session data is usable, and your performance satisfies the requirements of this initial assessment.",
+          "I will provisionally approve you for our prolonged-edging research program.",
+          "Don't look so pleased with yourself just yet. We have considerably more work ahead of us.",
+          "Daisy Mae Harper at Cloverfield Farm has requested your participation in her part of the initiative.",
+          "You may continue your session here, or conclude it and report to Cloverfield.",
+          "And do try to maintain these standards. I'd hate to have to revise my assessment."
         ]
       }
     },
@@ -43,16 +64,26 @@
       "briefing": {
         "speaker": "daisy",
         "lines": [
-          "Well, hey there! Daisy Mae Harper, Cloverfield Farm. Welcome out to the country, sugar.",
-          "Cloverfield's been in my family four generations, and these days we run a donor program under contract with Project EdgeLoop. The contract comes with quotas, and the quotas keep the lights on, so I take 'em seriously.",
-          "Evelyn's been bragging about her new candidate, and I can see why. Today's simple: hook up your monitor and your toy, start a session with me, and when you finish, tell EdgeLoop so it counts. One good finish is all I'm asking."
+          "Well, look what the cat dragged in!",
+          "You must be that new fellow Evelyn's been talking about. I'm Daisy Mae Harper, and welcome to Cloverfield Farm, sugar!",
+          "My family's been working this land for four generations. We know a thing or two about hard work, looking after what matters, and meeting our commitments.",
+          "These days Cloverfield works with Project EdgeLoop on its donor program. We've got production targets to meet, and every properly recorded contribution helps us keep the operation running.",
+          "Now, I hear you've already impressed that fancy doctor over at Asterion.",
+          "Let's see how you do out here.",
+          "Get your heart-rate monitor and toy connected, start a session with me, and cum at least once. When you're done, report it through EdgeLoop so we can get it on the books.",
+          "Nothing complicated, sweetheart.",
+          "Just good honest work!"
         ]
       },
       "completion": {
         "speaker": "daisy",
         "lines": [
-          "Now that's what I like to see. One finish, reported and on the books, and it goes straight onto Cloverfield's tally.",
-          "Celeste from the IRRA wants a word with you next, and she doesn't like to be kept waiting. You're welcome to stay out here with me a while first."
+          "Well, I'll be! One completed orgasm, officially reported and added to our records. Quality seems good but volume is a little low, I think repeated milkings will help get that volume up.",
+          "All in all that's what I call a productive day!",
+          "I reckon you're going to fit in just fine around here.",
+          "Now, there's someone important wanting to meet you. Celeste, from the IRRA. Serious lady, that one. Makes Evelyn look positively laid-back sometimes!",
+          "Don't let her scare you too much, sugar.",
+          "You're welcome to stick around with me a while, or head on over when you're ready."
         ]
       }
     },
@@ -60,17 +91,32 @@
       "briefing": {
         "speaker": "celeste",
         "lines": [
-          "Good. You're punctual. I'm Celeste. I hold an oversight remit for the IRRA across Project EdgeLoop, Asterion and Cloverfield included.",
-          "You understand the stakes. The fertility crisis is reshaping entire countries, and this program exists because conventional medicine has run out of answers. Funding depends on results, and results depend on candidates who can deliver.",
-          "Nova, Dr. Voss and Ms. Harper have each signed off on you. I prefer to form my own judgement.",
-          "In one session: five confirmed edges, then one confirmed orgasm. Connect your monitor and your toy and begin when you are ready."
+          "Welcome.",
+          "I am Celeste, representing the International Reproductive Recovery Authority. I oversee research compliance and performance across several participating institutions, including Asterion and Cloverfield.",
+          "I trust you're beginning to understand the significance of our work.",
+          "The fertility crisis is no longer a distant scientific concern. It is influencing economic planning, national policy, and the future of entire populations.",
+          "Project EdgeLoop exists because we cannot afford to ignore unconventional avenues of research.",
+          "I've reviewed your reports.",
+          "Nova appears enthusiastic. Dr. Voss considers your initial data promising. Ms. Harper has confirmed your participation in Cloverfield's production program.",
+          "Their assessments are noted.",
+          "However, I do not delegate my final judgments.",
+          "Today, I will conduct your evaluation personally.",
+          "Connect your heart-rate monitor and compatible toy. During one session, complete at least five confirmed edges and one confirmed orgasm, reported through EdgeLoop.",
+          "I expect accurate reporting and disciplined participation.",
+          "You may begin when ready."
         ]
       },
       "completion": {
         "speaker": "celeste",
         "lines": [
-          "Five edges and a finish, in one session, as instructed.",
-          "Your potential appears sufficient. Marginally, by my standards, but sufficient. Nova will handle your certification. Continue if you wish; I'll be watching the numbers either way."
+          "Five confirmed edges. One reported orgasm.",
+          "The requirements have been satisfied.",
+          "I've reviewed your results, and I am prepared to authorize the final stage of your assessment.",
+          "Your potential appears sufficient.",
+          "Marginally, by my standards. But sufficient.",
+          "Nova will supervise your final certification and baseline calibration.",
+          "You may conclude this evaluation or continue your session.",
+          "Either way, I expect the same attention to procedure going forward."
         ]
       }
     },
@@ -78,16 +124,30 @@
       "briefing": {
         "speaker": "nova",
         "lines": [
-          "Welcome back. You've passed every assessment. Celeste called your potential \"marginally sufficient\", which from her is practically a standing ovation.",
-          "One step left: your baseline. A Calibration run measures the heart rate where you finish, and EdgeLoop saves that as your maximum. Every future session tunes its difficulty to that number.",
-          "Choose Calibration in EdgeLoop and press play. When it finishes you, tap Finished me, and the number is saved. During this run I'll only touch the intensity. Everything else stays with Calibration, and you can stop whenever you want."
+          "Welcome back, darling!",
+          "Look at you. Five minutes ago — figuratively speaking — you were our mysterious new candidate, and now you've survived Evelyn's scientific scrutiny, Daisy's production targets, and Celeste's personal inspection.",
+          "I read Celeste's report, by the way.",
+          "'Marginally sufficient.'",
+          "Coming from her, that's practically a love letter!",
+          "Now, there's just one final step before we can officially certify you: baseline calibration.",
+          "We need to establish the maximum heart-rate metric used by EdgeLoop's training system. That gives the application a reference point for configuring future sessions.",
+          "Select Calibration mode and start your run. When you finish, use the Finished me button so EdgeLoop can record the event and save your calibration result.",
+          "During this procedure, I can adjust intensity, but the other training settings remain under Calibration's control.",
+          "And as always, you can stop whenever you need to.",
+          "Ready for your final assignment? Let's make it count."
         ]
       },
       "completion": {
         "speaker": "nova",
         "lines": [
-          "Baseline saved. Your certification is complete.",
-          "Thank you for everything you've given the program. Data like yours is how Project EdgeLoop might one day turn this crisis around. I'm proud of you, and I'll be here for whatever comes next."
+          "There it is. Calibration complete, baseline saved, and your certification officially approved!",
+          "Congratulations, darling!",
+          "You've worked with some of the finest minds in the Asterion Initiative, contributed valuable session data, and completed every assessment we've put in front of you.",
+          "But this is only the beginning.",
+          "There are still questions we haven't answered, discoveries waiting to be made, and an entire world depending on research programs like ours to find a way forward.",
+          "Whatever comes next, I'm glad you're part of this project.",
+          "And between you and me?",
+          "I'm especially glad I get to keep working with you."
         ]
       }
     }
@@ -95,7 +155,10 @@
   "campaign_complete": {
     "speaker": "nova",
     "lines": [
-      "The Asterion Initiative is complete. You are now a certified participant of Project EdgeLoop. More assignments will follow."
+      "Congratulations! You are now a certified participant in Project EdgeLoop.",
+      "Your introductory assessments are complete, your baseline has been established, and your next chapter awaits.",
+      "The fertility crisis remains unsolved.",
+      "Our work has only just begun."
     ]
   }
 }

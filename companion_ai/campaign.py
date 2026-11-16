@@ -144,7 +144,7 @@ class Campaign(StrictModel):
 
 class NarrativeBlock(StrictModel):
     speaker: str = Identifier
-    lines: list[str] = Field(min_length=1, max_length=12)
+    lines: list[str] = Field(min_length=1, max_length=20)
 
 
 class MissionNarrative(StrictModel):

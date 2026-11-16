@@ -86,7 +86,7 @@ Every mission also needs a real heart-rate monitor, a toy and a session started 
 - Mission 5 limits AI Settings Control to **intensity**; the model is told so and other requests are dropped. Pause and stop by the player, the Emergency stop and all engine safety stay as they are.
 - Mira is not in this campaign.
 
-**Placeholders pending narrative design:** all briefing and completion text in `narrative.json` is a draft written from the existing lore (`characters/lore/*`), not approved dialogue. The objective rules above are the approved design.
+**Narrative:** `narrative.json` is Narrative V2, written and approved by the author on 2026-11-16 (status `approved`). It adds one canon fact to `characters/lore/core_canon.md`: only 1% of men worldwide remain fertile (IRRA estimate). The character models do not know that figure until a later model update. Daisy's remark on quality and volume after Mission 3 is deliberate flavour, not a measurement.
 
 ## Screens
 

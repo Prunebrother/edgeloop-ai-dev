@@ -63,7 +63,7 @@ def test_the_shipped_campaign_loads_and_is_available_from_the_start(tmp_path):
     assert [m['id'] for m in campaign['missions']] == ORDER
     assert [m['companion'] for m in campaign['missions']] == ['nova', 'evelyn', 'daisy', 'celeste', 'nova']
     assert campaign['progress'] == {'completed': 0, 'total': 5}
-    assert campaign['narrative_status'] == 'draft'
+    assert campaign['narrative_status'] == 'approved'
     assert all(m['briefing'] for m in campaign['missions'])
 
 
