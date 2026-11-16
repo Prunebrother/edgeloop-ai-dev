@@ -412,6 +412,8 @@ class ConversationService:
         self.campaign_brief=lambda:None;self.campaign_speaker=lambda:None;self.campaign_cue_valid=lambda cue:True;self.campaign_cards=deque(maxlen=4)
         # Sessions ended by an Emergency stop: no mission remark is ever spoken for them, even one queued later.
         self.campaign_silenced=set()
+        # A directed mission's pending settings step (see CampaignService._directive), and whether it is still needed.
+        self.mission_directive=None;self.campaign_directive_valid=lambda directive,report:True
         # Per session: the orgasm count whose next round has been started, and the change made for it.
         self.rounds_started={};self.round_changes={}
         self.deck_settings=DeckSettings();self.deck_settings_error=None;self.deck_faults={};self.deck_definition=None;self.deck_registry=None
@@ -974,11 +976,33 @@ class ConversationService:
         """AI Settings Control: ask the character whether to request one change. Never while it is speaking."""
         report=getattr(self.state,'report',None)
         if self.closed or not report or self.state.emergency or self.task and not self.task.done():return
+        if self.maybe_mission_step(report):return
         if self.maybe_start_round(report):return
         if not hasattr(self.adapter,'decide_settings') or getattr(self.adapter,'mode',None) in {'mock','stopped'}:return
         if not getattr(self.state,'fresh',lambda:True)() or not self.settings.due(report):return
         self.settings.task=asyncio.create_task(self.settings.run(self.adapter,report,self.responder().get('model'),self.publish))
         self.tasks.add(self.settings.task);self.settings.task.add_done_callback(self.tasks.discard)
+
+    def campaign_directive(self,directive):
+        if directive.get('companion')!=self.campaign_speaker() or directive.get('session_id') in self.campaign_silenced:return
+        self.mission_directive=directive|{'at':self.clock()}
+
+    def maybe_mission_step(self,report):
+        """A directed mission's step: the companion makes the change the mission needs (the engine-side gate still
+        decides), announced later by the ordinary settings card. Kept for up to 5 minutes while AI Settings Control
+        is unavailable; dropped once the change is no longer needed (the player may have made it)."""
+        d=self.mission_directive
+        if not d:return False
+        if (report.get('session_id')!=d['session_id'] or d['session_id'] in self.campaign_silenced or self.campaign_speaker()!=d['companion']
+                or self.clock()-d['at']>300 or not self.campaign_directive_valid(d,report)):
+            self.mission_directive=None;return False
+        if (report.get('status')!='RUNNING' or not settings_available(report) or not getattr(self.state,'fresh',lambda:True)()
+                or not hasattr(self.adapter,'decide_settings') or getattr(self.adapter,'mode',None) in {'mock','stopped'}
+                or self.settings.task and not self.settings.task.done() or self.settings.in_flight()):return False
+        self.mission_directive=None
+        self.settings.task=asyncio.create_task(self.settings.run(self.adapter,report,self.responder().get('model'),self.publish,directive=d))
+        self.tasks.add(self.settings.task);self.settings.task.add_done_callback(self.tasks.discard)
+        return True
 
     def maybe_start_round(self,report):
         """After each reported orgasm, once its recovery is over: the companion sets up the next round (an invited
@@ -993,7 +1017,8 @@ class ConversationService:
         if phase=='finishing':return False  # already going again; nothing to set up
         if self.settings.task and not self.settings.task.done():self.settings.task.cancel()
         ai=details.get('ai_settings') or {}
-        decide=(settings_available(report) and ai.get('pacing')!='never' and hasattr(self.adapter,'decide_settings')
+        # A directed campaign mission sets no rounds up: its settings change only at its own steps.
+        decide=(settings_available(report) and ai.get('pacing')!='never' and not self.settings.directed and hasattr(self.adapter,'decide_settings')
                 and getattr(self.adapter,'mode',None) not in {'mock','stopped'})
         async def start():
             entry=None
@@ -1145,7 +1170,7 @@ class ConversationService:
     def safety(self, reason):
         # A safety event outranks a mission remark: goal cards are dropped, and everything after an Emergency stop.
         self.campaign_cards=deque((c for c in self.campaign_cards if c['kind']=='mission_complete' and reason!='emergency_stop'),maxlen=4)
-        if reason=='emergency_stop':self.campaign_silenced.add(getattr(self.state,'session_id',None))
+        if reason=='emergency_stop':self.campaign_silenced.add(getattr(self.state,'session_id',None));self.mission_directive=None
         self.sync_narrative()
         self.narrative.event(reason)
         retained=[e for e in self.pending if reason=='stop' and e['kind'] in {'came_early','completion_accepted','session_ended'}]

@@ -120,6 +120,10 @@ class SettingsLimit(StrictModel):
     """AI Settings Control during the mission: only these changes may be requested. Once the objective named in
     `after` is met, `then_allowed` applies instead (Mission 9: Force Orgasm only in the final phase)."""
     allowed: list[SettingName] = Field(min_length=1, max_length=7)
+    # Directed: the companion changes settings only at the mission's own steps (EdgeLoop asks it to), never on its
+    # own initiative or for a new round, and only to values the mission needs. A change the user asks for in chat
+    # is also held to those values.
+    directed: bool = False
     after: str | None = Field(default=None, max_length=64)
     then_allowed: list[SettingName] | None = Field(default=None, min_length=1, max_length=7)
 
@@ -455,6 +459,8 @@ class CampaignService:
         self.finished = None
         # Verified mission moments for the companion to react to; the observer hands them to the speech service.
         self.cues = []
+        # Mission steps at which the companion is asked to make a settings change (directed missions only).
+        self.directives = []
         try:
             raw = store.read(PROGRESS_FILE, MISSING)
             # Only a missing file starts fresh; every existing file, even one holding null, must validate.
@@ -518,6 +524,83 @@ class CampaignService:
         limit = self.attempt.mission.settings_control
         if limit.after and self.attempt.done.get(limit.after): return frozenset(limit.then_allowed)
         return frozenset(limit.allowed)
+
+    def settings_directed(self):
+        attempt = self.attempt
+        return bool(attempt and not attempt.completed and attempt.mission.settings_control and attempt.mission.settings_control.directed)
+
+    def _needs(self, report):
+        """What a directed mission needs from the settings right now, from its verified state:
+        {'intensity': slider value} for a sequence stage, {'styles': unused styles, 'game': 'off'} for play-style
+        stages, {'orgasm': True} once the step that opens the finish is met. Empty when nothing is needed."""
+        attempt = self.attempt
+        if not self.settings_directed() or not report or attempt.session_id != report.get('session_id'): return {}
+        needs = {}
+        limit = attempt.mission.settings_control
+        for o in attempt.mission.objectives:
+            if attempt.done.get(o.id): continue
+            if o.type == 'stage_sequence':
+                stage = attempt.current_stage(o)
+                if stage: needs['intensity'] = stage.intensity - 50
+            if o.type == 'style_stages':
+                filled = attempt.done_styles(o)
+                needs['styles'] = [k for k in o.styles if k not in filled]
+                needs['game'] = 'off'
+        if limit.after and attempt.done.get(limit.after) and 'orgasm' in (limit.then_allowed or ()) and not attempt.done.get(self._finish_id(attempt)):
+            needs['orgasm'] = True
+        return needs
+
+    @staticmethod
+    def _finish_id(attempt):
+        return next((o.id for o in attempt.mission.objectives if o.after), None)
+
+    def settings_check(self, request, report):
+        """Is this requested change one the directed mission needs? Other missions accept anything allowed."""
+        if not self.settings_directed(): return True
+        needs, setting, value = self._needs(report), request.get('setting'), request.get('value')
+        if setting == 'intensity': return needs.get('intensity') == value
+        if setting == 'play_style': return value in needs.get('styles', ()) and value != (report or {}).get('experience')
+        if setting == 'game': return 'game' in needs and value == needs['game']
+        if setting == 'orgasm': return needs.get('orgasm') is True and value is True
+        return False
+
+    def _directive(self, report, key):
+        """A mission step at which the companion is asked to change a setting, with a fallback change that meets it."""
+        attempt, needs = self.attempt, self._needs(report)
+        current = {'intensity': report['intensity'] - 50 if isinstance(report.get('intensity'), int) else None,
+                   'style': report.get('experience'), 'goal': report.get('goal'), 'orgasm': details(report).get('orgasm_mode')}
+        if 'intensity' in needs and current['intensity'] != needs['intensity']:
+            stage = next(attempt.current_stage(o) for o in attempt.mission.objectives if o.type == 'stage_sequence' and not attempt.done.get(o.id))
+            text = (f'Mission step from EdgeLoop: the assessment stage "{stage.label}" runs at {stage.intensity}% intensity. '
+                    f'Set intensity to {needs["intensity"]} now (that is {stage.intensity}%). No other change is possible.')
+            fallback = {'setting': 'intensity', 'value': needs['intensity'], 'reason': f'The {stage.label} stage of my assessment runs at {stage.intensity}%.'}
+        elif 'styles' in needs and current['goal'] != 'tease':
+            text = 'Mission step from EdgeLoop: no stage time counts while a game is on. Set game to "off" now. No other change is possible.'
+            fallback = {'setting': 'game', 'value': 'off', 'reason': 'My comparison only counts with the game off.'}
+        elif 'styles' in needs and (current['style'] not in needs['styles']):
+            options = needs['styles']
+            text = ('Mission step from EdgeLoop: the current play style has filled its stage. Switch play_style to one not tested yet: '
+                    + ', '.join(options) + '. Pick the one you are most curious about. No other change is possible.')
+            fallback = {'setting': 'play_style', 'value': options[0], 'reason': 'Time for the next play style in my comparison.'}
+        elif needs.get('orgasm') and current['orgasm'] is not True:
+            text = ('Mission step from EdgeLoop: the assessment is complete and the participant may now finish. '
+                    'Switch Force Orgasm on now (orgasm true). No other change is possible.')
+            fallback = {'setting': 'orgasm', 'value': True, 'reason': 'The assessment is complete; now you may finish.'}
+        else:
+            return None
+        return {'key': key, 'mission': attempt.mission.id, 'companion': attempt.mission.companion, 'session_id': attempt.session_id,
+                'generation': attempt.generation, 'text': text, 'fallback': fallback}
+
+    def directive_valid(self, directive, report):
+        """Still the same try, and the change it asks for is still needed (the player may have made it already)."""
+        attempt = self.attempt
+        if self.error or not attempt or attempt.completed or attempt.mission.id != directive['mission']: return False
+        if attempt.session_id != directive['session_id'] or attempt.generation != directive['generation']: return False
+        return self.settings_check(directive['fallback'], report) and self._directive(report, directive['key']) is not None
+
+    def take_directives(self):
+        directives, self.directives = self.directives, []
+        return directives
 
     # -- views
     def state(self, report=None, model=None):
@@ -695,6 +778,7 @@ class CampaignService:
         self._save(progress)
         self.attempt = None
         self.cues = []
+        self.directives = []
 
     # -- evidence
     def observe(self, report, events, model):
@@ -775,6 +859,9 @@ class CampaignService:
             else:
                 moments += [f'{o.id}:done' for o in mission.objectives if o.type in GOAL_TYPES and attempt.done.get(o.id) and o.id not in met_before]
                 out += self._moments(attempt, moments)
+                if moments and companion_ok and status == 'RUNNING' and self.settings_directed():
+                    directive = self._directive(report, moments[-1])
+                    if directive: self.directives = [directive]  # only the latest step matters
                 if companion_ok and not any(o.type == 'calibration_completed' for o in mission.objectives):
                     # A goal reached while another still remains; setup items (strap, toy, session) are not story moments.
                     # In Calibration, Finished me reports the orgasm and ends the run a moment later: one moment, one card.
@@ -869,6 +956,7 @@ class CampaignService:
         attempt.counts = {}; attempt.style_time = {}; attempt.stage_time = {}; attempt.filled = {}; attempt.marked = set()
         attempt.last_seconds = attempt.last_config = None
         attempt.cued = set(); attempt.generation += 1
+        self.directives = []
 
     def _complete(self, attempt):
         """Persist first, then announce. A failed write announces nothing and retries on the next observation."""

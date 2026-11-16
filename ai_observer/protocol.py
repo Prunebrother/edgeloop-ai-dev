@@ -242,7 +242,7 @@ class SettingsOutcome(StrictModel):
     to: SettingValue = None
     clamped: bool | None = None
     undoable: bool | None = None
-    trigger: Literal['own','user','round'] | None = None
+    trigger: Literal['own','user','round','mission'] | None = None
 
 class ConfigureCurator(StrictModel):
     version: Literal[1]

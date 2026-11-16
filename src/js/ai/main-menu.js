@@ -179,6 +179,7 @@ export function mountMainMenu({send,status,selectCompanion,postLines,bannerHost}
             m.narrative_draft?node('p',{class:'game-menu-badge',text:'Story draft: this text is awaiting review.'}):null,speech(m.briefing),
             node('section',{class:'mission-brief'},node('h2',{text:'Objectives'}),objectiveList(m.objectives,data?.attempt),
                 m.hints.length?node('ul',{class:'mission-hints'},...m.hints.map(h=>node('li',{text:h}))):null,
+                m.settings_control?.directed?node('p',{class:'mission-hints',text:`AI Settings Control during this mission: ${name(m.companion)} changes only what the mission needs, at its own steps (`+[...new Set([...m.settings_control.allowed,...(m.settings_control.then_allowed||[])])].map(k=>SETTING_WORDS[k]||k).join(', ')+').'}):
                 m.settings_control?node('p',{class:'mission-hints',text:'AI Settings Control during this mission: '+m.settings_control.allowed.map(k=>SETTING_WORDS[k]||k).join(', ')+' only'
                     +(m.settings_control.then_allowed?`; later: ${m.settings_control.then_allowed.map(k=>SETTING_WORDS[k]||k).join(', ')}.`:'.')}):null,
                 m.rewards.length?node('p',{class:'mission-rewards',text:'Rewards: '+m.rewards.map(r=>(r.earned?'✓ ':'')+r.label).join(' · ')}):null),

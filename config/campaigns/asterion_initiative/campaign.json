@@ -446,10 +446,18 @@
           "label": "Comparative dataset saved"
         }
       ],
+      "settings_control": {
+        "allowed": [
+          "play_style",
+          "game"
+        ],
+        "directed": true
+      },
       "hints": [
         "Choose any four play styles. Time counts only while the session runs with no game switched on; pauses do not count.",
         "Switch play style whenever you like. Each style keeps its time, and one style fills only one stage.",
-        "All four stages must happen in one session."
+        "All four stages must happen in one session.",
+        "With AI Settings Control on, Nova switches to a new play style herself each time one has its 5 minutes (and switches a game off). She makes no other changes during this mission. You can still change anything yourself."
       ],
       "story": {
         "chapter": 2,
@@ -534,6 +542,7 @@
         "allowed": [
           "intensity"
         ],
+        "directed": true,
         "after": "assessment",
         "then_allowed": [
           "intensity",
@@ -549,7 +558,7 @@
         "Set the intensity yourself: 75% for the first 10 minutes, then 100%, then 125%. Within 2% counts.",
         "The stage clock runs only while the session runs at the stage's intensity. Pausing or another level stops it; no time is lost.",
         "After 30 minutes, report your orgasm (I came or Finished me). You may switch on Force Orgasm for it.",
-        "During this mission Celeste may only change the intensity, and Force Orgasm in the final phase, and only if you allowed AI Settings Control. You can pause or stop at any time.",
+        "With AI Settings Control on, Celeste sets each stage's intensity herself and switches on Force Orgasm when the 30 minutes are done. She makes no other changes during this mission. Your AI intensity limits must reach 125% (the default does). You can pause or stop at any time.",
         "Everything must happen in one session."
       ],
       "story": {

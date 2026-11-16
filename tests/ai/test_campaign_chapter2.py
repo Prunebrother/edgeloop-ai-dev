@@ -323,3 +323,157 @@ def definition(objective):
 def test_bad_objective_definitions_are_rejected(objective):
     with pytest.raises(ValueError):
         Campaign.model_validate(definition(objective))
+
+
+# ---- Directed AI Settings Control (Missions 8 and 9): only the mission's own steps
+
+def test_missions_8_and_9_are_directed_and_the_others_are_not(tmp_path):
+    for mission, directed in (('endurance_study', False), ('cloverfield_quota', False), ('adaptive_calibration', True), ('directors_reassessment', True)):
+        assert seed(tmp_path / mission, mission).settings_directed() is directed
+
+
+def test_celeste_may_set_only_the_current_stage_intensity_then_force_orgasm(tmp_path):
+    svc = seed(tmp_path, 'directors_reassessment')
+    run(svc, 'celeste', tick('d', 0, intensity=100))
+    r = tick('d', 5, intensity=100)
+    ok = lambda setting, value, report=r: svc.settings_check({'setting': setting, 'value': value}, report)
+    assert ok('intensity', 25) and not ok('intensity', 30) and not ok('intensity', 50) and not ok('orgasm', True) and not ok('play_style', 'milker')
+    run(svc, 'celeste', *frames('d', 0, 600, intensity=75), tick('d', 605, intensity=75))
+    assert ok('intensity', 50, tick('d', 605, intensity=75)) and not ok('intensity', 25, tick('d', 605, intensity=75))
+    run(svc, 'celeste', *frames('d', 610, 1210, intensity=100), *frames('d', 1215, 1815, intensity=125))
+    done = tick('d', 1815, intensity=125)
+    assert ok('orgasm', True, done) and not ok('orgasm', False, done) and not ok('intensity', 60, done)
+    assert svc.settings_check({'setting': 'pause', 'value': True}, done) is False
+
+
+def test_each_stage_gives_celeste_one_step_unless_the_player_already_set_it(tmp_path):
+    svc = seed(tmp_path, 'directors_reassessment')
+    run(svc, 'celeste', tick('d', 0, intensity=100))
+    [step] = svc.take_directives()
+    assert step['key'] == 'start' and step['fallback'] == {'setting': 'intensity', 'value': 25, 'reason': 'The Baseline stage of my assessment runs at 75%.'}
+    assert 'Set intensity to 25 now (that is 75%)' in step['text']
+    assert svc.directive_valid(step, tick('d', 1, intensity=100)) and not svc.directive_valid(step, tick('d', 1, intensity=75))
+    run(svc, 'celeste', *frames('d', 0, 600, intensity=75))
+    [step] = svc.take_directives()
+    assert step['key'] == 'assessment:development' and step['fallback']['value'] == 50
+    run(svc, 'celeste', *frames('d', 605, 1205, intensity=100))
+    assert svc.take_directives()[0]['fallback']['value'] == 75
+    run(svc, 'celeste', *frames('d', 1210, 1810, intensity=125))
+    [step] = svc.take_directives()
+    assert step['key'] == 'assessment:done' and step['fallback']['setting'] == 'orgasm' and step['fallback']['value'] is True
+    # A player who set the next level first gets no step: nothing is changed back and forth.
+    other = seed(tmp_path / 'b', 'directors_reassessment')
+    run(other, 'celeste', tick('e', 0, intensity=75))
+    assert other.take_directives() == []
+
+
+def test_a_step_is_stale_after_the_session_ends(tmp_path):
+    svc = seed(tmp_path, 'directors_reassessment')
+    run(svc, 'celeste', tick('d', 0, intensity=100))
+    [step] = svc.take_directives()
+    run(svc, 'celeste', tick('d', 3, status='IDLE', intensity=100))
+    assert not svc.directive_valid(step, tick('d', 3, intensity=100))
+
+
+def test_nova_switches_to_an_untested_style_when_a_stage_fills(tmp_path):
+    svc = seed(tmp_path, 'adaptive_calibration')
+    run(svc, 'nova', *frames('n', 0, 295, style='classic'))
+    assert svc.take_directives() == []  # the first style is the player's own choice
+    run(svc, 'nova', tick('n', 300, style='classic'))
+    [step] = svc.take_directives()
+    assert step['key'] == 'styles:1' and step['fallback']['setting'] == 'play_style' and step['fallback']['value'] == 'finisher'
+    r = tick('n', 301, style='classic')
+    assert svc.settings_check({'setting': 'play_style', 'value': 'ruin'}, r)
+    assert not svc.settings_check({'setting': 'play_style', 'value': 'classic'}, r)
+    assert not svc.settings_check({'setting': 'game', 'value': 'survival'}, r) and svc.settings_check({'setting': 'game', 'value': 'off'}, r)
+    assert not svc.settings_check({'setting': 'intensity', 'value': 70}, r)
+    run(svc, 'nova', tick('n', 305, style='milker'))
+    assert not svc.directive_valid(step, tick('n', 305, style='milker'))  # the player switched first
+
+
+def test_nova_turns_a_game_off_before_anything_else(tmp_path):
+    svc = seed(tmp_path, 'adaptive_calibration')
+    run(svc, 'nova', tick('n', 0, style='classic', goal='survival'))
+    [step] = svc.take_directives()
+    assert step['fallback'] == {'setting': 'game', 'value': 'off', 'reason': 'My comparison only counts with the game off.'}
+
+
+# The settings decision itself (companion_ai/settings_control.py)
+
+def directed_control(check):
+    from companion_ai.settings_control import SettingsControl
+    from tests.ai.test_settings_control import Time
+    control = SettingsControl(clock=Time())
+    control.directed, control.check, control.allowed = True, check, frozenset({'intensity'})
+    return control
+
+
+STEP = {'text': 'Mission step from EdgeLoop: Set intensity to 50 now.', 'fallback': {'setting': 'intensity', 'value': 50, 'reason': 'Development stage.'}}
+
+
+@pytest.mark.parametrize('reply,value', [('{"change":"none"}', 50), ('{"change":"intensity","value":80,"reason":"More."}', 50),
+                                         ('not json', 50), ('{"change":"intensity","value":50,"reason":"Now we develop."}', 50)])
+def test_a_mission_step_always_makes_the_mission_change(reply, value):
+    import asyncio
+    from tests.ai.test_settings_control import Adapter, report as settings_report
+    control = directed_control(lambda request, report: request['setting'] == 'intensity' and request['value'] == 50)
+    adapter = Adapter(reply)
+    request = asyncio.run(control.run(adapter, settings_report(intensity=125), 'celeste', lambda m: None, directive=STEP))
+    assert request['trigger'] == 'mission' and request['value'] == value and 'Set intensity to 50 now.' in adapter.calls[0]
+    if 'Now we develop' in reply: assert request['reason'] == 'Now we develop.'
+
+
+def test_a_mission_step_survives_a_provider_failure():
+    import asyncio
+    from tests.ai.test_settings_control import report as settings_report
+    class Broken:
+        async def decide_settings(self, *args): raise RuntimeError('ollama down')
+    control = directed_control(lambda request, report: request['value'] == 50)
+    request = asyncio.run(control.run(Broken(), settings_report(intensity=125), 'celeste', lambda m: None, directive=STEP))
+    assert request['value'] == 50 and request['reason'] == 'Development stage.'
+
+
+def test_a_directed_mission_makes_no_own_changes_and_holds_user_requests_to_the_mission():
+    import asyncio
+    from tests.ai.test_settings_control import Adapter, report as settings_report
+    control = directed_control(lambda request, report: request['value'] == 50)
+    assert not control.due(settings_report())
+    adapter = Adapter('{"change":"intensity","value":90,"reason":"Harder, as you asked."}')
+    assert asyncio.run(control.run(adapter, settings_report(), 'celeste', lambda m: None, user_text='harder')) is None
+    assert control.diagnostics['status'] == 'restricted' and "settings change only at the mission's own steps" in adapter.calls[0]
+
+
+async def test_a_directed_mission_sets_up_no_new_round(monkeypatch):
+    from companion_ai import conversation
+    from tests.ai.test_multiple_orgasms import RoundAdapter, service as round_service
+    r, s, wire, frames_ = await round_service(seconds=400, orgasms=1, last_orgasm=300)
+    s.deck()._start_done = True
+    monkeypatch.setattr(conversation, 'settings_available', lambda report: True)
+    adapter = RoundAdapter('{"change":"play_style","value":"milker","reason":"Round two."}')
+    monkeypatch.setattr(s, 'adapter', adapter)
+    s.settings.directed = True
+    assert s.maybe_start_round(s.state.report); await s.settings.task
+    assert adapter.contents == [] and s.round_changes[s.state.session_id]['decided'] is False
+
+
+async def test_the_conversation_runs_a_pending_step_once_and_drops_a_stale_one(monkeypatch):
+    from companion_ai import conversation
+    from tests.ai.test_multiple_orgasms import RoundAdapter, service as round_service
+    r, s, wire, frames_ = await round_service(seconds=400)
+    monkeypatch.setattr(conversation, 'settings_available', lambda report: True)
+    adapter = RoundAdapter('{"change":"none"}')
+    monkeypatch.setattr(s, 'adapter', adapter)
+    s.settings.directed, s.settings.check = True, lambda request, report: request['value'] == 25
+    s.campaign_speaker = lambda: 'celeste'
+    step = dict(STEP, key='start', mission='directors_reassessment', companion='celeste', session_id=s.state.session_id, generation=0,
+                fallback={'setting': 'intensity', 'value': 25, 'reason': 'Baseline.'})
+    s.campaign_directive(step)
+    s.campaign_directive_valid = lambda d, report: False
+    assert s.maybe_mission_step(s.state.report) is False and s.mission_directive is None
+    s.campaign_directive(step)
+    s.campaign_directive_valid = lambda d, report: True
+    assert s.maybe_mission_step(s.state.report)
+    request = await s.settings.task
+    assert request['trigger'] == 'mission' and request['value'] == 25 and s.mission_directive is None
+    s.campaign_directive(dict(step, companion='nova'))  # another companion's step is never taken
+    assert s.mission_directive is None
