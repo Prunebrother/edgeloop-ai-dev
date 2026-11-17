@@ -337,7 +337,8 @@
     "daisy-narrative-f29-v014:latest": "daisy",
     "celeste-narrative-f29-v012:latest": "celeste",
     "mira-narrative-v1:latest": "mira",
-    "mira-narrative-f29-v015:latest": "mira"
+    "mira-narrative-f29-v015:latest": "mira",
+    "mira-narrative-f29-v017:latest": "mira"
   },
   "presentation": {
     "animated_characters_enabled": true,
