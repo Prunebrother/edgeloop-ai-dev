@@ -241,6 +241,26 @@ def test_edged_saves_the_max_but_does_not_certify(tmp_path):
     assert results(out) == [] and states(svc)['certification'] == 'active'
 
 
+def test_stop_during_the_ease_down_after_a_saved_finished_me_still_certifies(tmp_path):
+    # Playtest 2026-11-17: the max was saved, then Stop was pressed while the toys eased down.
+    svc = _to(tmp_path, 'certification')
+    run(svc, 'nova', calibrate(sid='f'), calibrate(sid='f', orgasms=1, calibration_saved=True))
+    [result] = results(svc.observe(calibrate(sid='f', status='IDLE', orgasms=1, calibration_saved=True, terminal_outcome='manual_stop'),
+                                   ['stop'], MODEL['nova']))
+    assert result['chapter_complete']['id'] == 'introduction' and result['records']['calibrated_max_bpm'] == 150
+
+
+def test_stop_without_a_saved_max_or_an_orgasm_does_not_certify(tmp_path):
+    svc = _to(tmp_path, 'certification')
+    # A cancelled Finished me: nothing saved.
+    run(svc, 'nova', calibrate(sid='f'), calibrate(sid='f', completion_reported=True))
+    assert results(svc.observe(calibrate(sid='f', status='IDLE', completion_reported=True, terminal_outcome='manual_stop'), ['stop'], MODEL['nova'])) == []
+    # Edged saves the max but counts no orgasm.
+    run(svc, 'nova', calibrate(sid='g'), calibrate(sid='g', edges=1, calibration_saved=True))
+    assert results(svc.observe(calibrate(sid='g', status='IDLE', edges=1, calibration_saved=True, terminal_outcome='manual_stop'), ['stop'], MODEL['nova'])) == []
+    assert states(svc)['certification'] == 'active'
+
+
 def test_a_failed_save_does_not_certify(tmp_path):
     svc = _to(tmp_path, 'certification')
     run(svc, 'nova', calibrate(sid='f'), calibrate(sid='f', orgasms=1, calibration_saved=False))
