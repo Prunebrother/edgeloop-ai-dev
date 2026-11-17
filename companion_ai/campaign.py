@@ -1073,7 +1073,12 @@ class CampaignService:
                     attempt.expired.add(o.id); moments.append(f'{o.id}:expired')
                 else:
                     moments += [f'{o.id}:left{w}' for w in o.warnings if o.within_seconds - before_elapsed > w >= o.within_seconds - now_elapsed]
-            calibrated = d.get('terminal_outcome') == 'calibration_completed' or 'completion_accepted' in kinds
+            # Stop pressed during the ease-down that follows a confirmed Finished me: the max is already saved
+            # (calibration_saved is set only after the confirm) and the orgasm was counted in this try, so the
+            # run counts as completed. Edged alone counts no orgasm, and a cancelled Finished me saves nothing.
+            stopped_after_save = (d.get('terminal_outcome') == 'manual_stop' and d.get('calibration_saved') is True
+                                  and attempt.orgasms >= 1)
+            calibrated = d.get('terminal_outcome') == 'calibration_completed' or 'completion_accepted' in kinds or stopped_after_save
             ended_ok = companion_ok and real_hr(report) and self._mode_ok(mission, report)
             for o in mission.objectives:
                 if o.type in COUNTED and attempt.counts.get(o.id, 0) >= o.count: attempt.done[o.id] = True
