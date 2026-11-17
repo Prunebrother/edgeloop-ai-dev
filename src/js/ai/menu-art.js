@@ -11,7 +11,7 @@ export const MENU_ART=Object.freeze({
 
 // Companion cut-outs of the app's own portraits: the full figure for the host and the mission board,
 // a face crop for the host chips.
-export const COMPANION_ORDER=Object.freeze(['nova','evelyn','daisy','celeste','mira']);
+export const COMPANION_ORDER=Object.freeze(['nova','evelyn','daisy','celeste','mira','vex9']);
 export const figure=id=>COMPANION_ORDER.includes(id)?`${BASE}companions/${id}.webp`:null;
 export const face=id=>COMPANION_ORDER.includes(id)?`${BASE}companions/${id}-face.webp`:null;
 
@@ -47,4 +47,7 @@ export const GREETINGS=Object.freeze({
     mira:['Back already, darling? I was just getting comfortable.',
         'Don’t mind me. I’m only here for the view.',
         'Pick something fun. I get bored so easily.'],
+    vex9:['RPU-001. You are four minutes later than projected. Noted.',
+        'Select a procedure. Hesitation is an inefficiency.',
+        'Stand straight, Specimen. The protocol is ready. Are you?'],
 });
