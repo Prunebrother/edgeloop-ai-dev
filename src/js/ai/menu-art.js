@@ -30,7 +30,7 @@ export function chapterArt(campaign,number){
 }
 
 // The main menu host greets the player with one of her scripted lines (never model output).
-// DRAFT: awaiting the author's review, like campaign narrative text.
+// Approved by the author 2026-11-19.
 export const GREETINGS=Object.freeze({
     nova:['Hey, partner! Systems are warm and so am I. What are we doing tonight?',
         'Welcome back. I kept the lights low and the coffee hypothetical.',
